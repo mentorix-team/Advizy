@@ -15,7 +15,7 @@ import { fileURLToPath } from "url";
 const cookieOption = {
     maxAge: 15 * 24 * 60 * 60 * 1000,
     httpOnly:true,
-    secure:true
+    secure: process.env.NODE_ENV === "production", 
 }
 
 const googleAuth = passport.authenticate('google', {
@@ -563,14 +563,14 @@ const generate_otp_for_Signup = async (req, res, next) => {
         res.cookie("otpToken", otpToken, {
             httpOnly: true,
             maxAge: 10 * 60 * 1000, // 10 minutes
-            secure: true, // Only secure in production
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",  // Only secure in production
+            sameSite: "None",
         });
 
         res.cookie("tempUser", JSON.stringify({ firstName, lastName, email, password }), {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None",
         });
 
         // Read and format the email template
