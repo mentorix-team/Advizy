@@ -67,7 +67,10 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
       toast.error("OTP and mobile number are required");
       return;
     }
-
+    const handleGoogleSignup = () => {
+      window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
+    };
+  
     const response = await dispatch(
       loginWithOtp({ otpToken, number: mobileData.number })
     );
@@ -168,7 +171,7 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
 
           {/* Alternative Login Options */}
           <div className="flex flex-col gap-4">
-            <button className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors">
+            <button className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors" onClick={handleGoogleSignup}> 
               <img
                 src="https://img.icons8.com/color/24/000000/google-logo.png"
                 alt="Google Logo"

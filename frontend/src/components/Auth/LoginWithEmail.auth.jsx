@@ -20,7 +20,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   });
 
   const handleGoogleSignup = () => {
-    window.open("http://localhost:5030/api/v1/user/auth/google", "_self");
+    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
   const [touched, setTouched] = useState({
