@@ -92,7 +92,7 @@ const handleGoogleCallback = async (req, res, next) => {
             });
         }
 
-        const frontendURL = `${process.env.frontendURL}/google-auth-success?token=${token}&user=${encodeURIComponent(
+        const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
             JSON.stringify(user)
         )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
