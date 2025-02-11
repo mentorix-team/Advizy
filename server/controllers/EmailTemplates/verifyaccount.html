@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification OTP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            color: #333333;
+        }
+
+        .email-wrapper {
+            padding: 20px;
+            background: #f7f7f7;
+        }
+
+        .email-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .email-header {
+            padding: 24px 0;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .email-content {
+            padding: 24px;
+            text-align: center;
+        }
+
+        .email-footer {
+            padding: 20px;
+            background: #f8f8f8;
+            text-align: center;
+            color: #999999;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #333333;
+            font-size: 24px;
+            margin: 0 0 16px;
+            font-weight: bold;
+        }
+
+        p {
+            color: #666666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 40px;
+        }
+
+        .otp-container {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 16px;
+            display: inline-block;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .otp-text {
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333333;
+            letter-spacing: 6px;
+            user-select: all;
+        }
+
+        .copy-button {
+            background: #ffffff;
+            border: 2px solid #169544;
+            border-radius: 6px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .copy-button:hover {
+            background: #f8f8ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .copy-text {
+            color: #169544;
+            font-size: 14px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .success {
+            border-color: #169544;
+            background: #f0fdf4;
+        }
+
+        .success .copy-text {
+            color: #169544;
+        }
+
+        .success svg {
+            fill: #169544;
+        }
+
+        .expiry-notice {
+            margin-top: 20px;
+            padding: 12px;
+            background: #fffbeb;
+            border-radius: 6px;
+            color: #92400e;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 20px 0;
+        }
+
+        @media screen and (max-width: 480px) {
+            .email-content {
+                padding: 16px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            .otp-text {
+                font-size: 24px;
+                letter-spacing: 4px;
+            }
+
+            .copy-button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+
+            .email-footer {
+                padding: 16px;
+                font-size: 12px;
+            }
+
+            .expiry-notice {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <!-- Header with Logo -->
+            <div class="email-header">
+                <img src="/api/placeholder/140/40" alt="Company Logo" style="height: 40px;">
+            </div>
+
+            <!-- Main Content -->
+            <div class="email-content">
+                <h1>Verify Your Email</h1>
+                <p>
+                    Welcome to Advizy! To ensure the security of your account, 
+                    please use the following verification code to complete your email verification:
+                </p>
+
+                <!-- OTP Display -->
+                <div class="otp-container">
+                    <div id="otpCode" class="otp-text">{OTP_CODE}</div>
+                </div>
+
+                <!-- Copy Button -->
+                <button id="copyButton" class="copy-button">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="#169544">
+                        <path d="M4 2a2 2 0 0 0-2 2v8h2V4h8V2H4z"/>
+                        <path d="M6 4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6zm0 2h8v8H6V6z"/>
+                    </svg>
+                    <span id="copyText" class="copy-text">Copy Code</span>
+                </button>
+
+                <div class="divider"></div>
+
+                <div class="expiry-notice">
+                    ⚠️ This verification code will expire in 2 minutes for security purposes.
+                </div>
+
+                <p style="margin-top: 20px; font-size: 14px; color: #666666;">
+                    If you didn't request this verification code, please ignore this email or contact support
+                    if you have any concerns.
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+                <p style="margin: 0;">© 2025 Advizy. All rights reserved.</p>
+                <p style="margin: 8px 0 0; font-size: 12px;">
+                    This is an automated message, please do not reply directly to this email.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyButton = document.getElementById('copyButton');
+            const copyText = document.getElementById('copyText');
+            const otpCode = document.getElementById('otpCode');
+            let timeoutId = null;
+
+            async function copyToClipboard(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                    return false;
+                }
+            }
+
+            function resetButton() {
+                copyButton.classList.remove('success');
+                copyText.textContent = 'Copy Code';
+                copyButton.disabled = false;
+            }
+
+            async function handleCopy() {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+
+                const otp = otpCode.textContent.trim();
+                copyButton.disabled = true;
+
+                const success = await copyToClipboard(otp);
+
+                if (success) {
+                    copyButton.classList.add('success');
+                    copyText.textContent = 'Copied!';
+
+                    timeoutId = setTimeout(() => {
+                        resetButton();
+                    }, 3000);
+                } else {
+                    copyText.textContent = 'Failed to copy';
+                    copyButton.disabled = false;
+
+                    timeoutId = setTimeout(() => {
+                        resetButton();
+                    }, 3000);
+                }
+            }
+            copyButton.addEventListener('click', handleCopy);
+        });
+    </script>
+</body>
+</html>

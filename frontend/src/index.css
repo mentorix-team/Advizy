@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Manrope:wght@200..800&family=Oswald:wght@200..700&family=Poppins:wght@200;300;500&family=Roboto&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+:root {
+  /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
+  font-family: "Figtree", serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.figtree {
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* Custom styles for the toggle switch */
+.dot {
+  transition: transform 0.2s ease-in-out;
+}
+
+input:checked ~ .dot {
+  transform: translateX(1rem);
+}
+
+input:checked + div {
+  @apply bg-green-500;
+}
+
+/* Custom styles for time input */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+input[type="time"] {
+  font-size: 14px;
+}
+
+/* Disabled state styles */
+input[type="time"]:disabled {
+  @apply bg-gray-50 text-gray-400 cursor-not-allowed;
+}
+
+/* index.css */
+.container {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  /* height: fit-content; */
+}
+
+.left-section {
+  width: 700px; /* Updated width */
+}
+
+.right-section {
+  width: 450px;
+  height: auto;
+}
+
+/* Custom checkbox styles */
+.custom-checkbox {
+  appearance: none; /* Remove default checkbox styling */
+  width: 16px;
+  height: 16px;
+  border: 1px solid #252424; /* Light gray border */
+  border-radius: 4px; /* Rounded corners */
+  outline: none;
+  cursor: pointer;
+  background-color: white; /* Default background color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.custom-checkbox:checked {
+  background-color: #16a348; /* Green background when checked */
+  border-color: #16a348;
+}
+
+.custom-checkbox:checked::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"%3E%3Cpath d="M9 19.4l-6.3-6.3c-.8-.8-.8-2 0-2.8.8-.8 2-.8 2.8 0L9 14.8l8.5-8.5c.8-.8 2-.8 2.8 0 .8.8.8 2 0 2.8L9 19.4z"/%3E%3C/svg%3E');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #E5E7EB transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #E5E7EB;
+  border-radius: 3px;
+}
+
+/* Responsive container styles */
+@media (max-width: 640px) {
+  .time-slot-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Time input styles */
+.time-input-container {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .time-input-container {
+    width: auto;
+  }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
