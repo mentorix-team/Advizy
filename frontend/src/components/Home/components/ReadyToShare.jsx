@@ -8,7 +8,7 @@ const features = [
       </svg>
     ),
     title: "Flexible Hours",
-    description: "Work on your schedule"
+    description: "Shape your workday to perfectly match your lifestyle."
   },
   {
     icon: (
@@ -17,7 +17,7 @@ const features = [
       </svg>
     ),
     title: "Global Reach",
-    description: "Connect Worldwide"
+    description: "Break barriers and engage across continents."
   },
   {
     icon: (
@@ -26,7 +26,7 @@ const features = [
       </svg>
     ),
     title: "Build Authority",
-    description: "Became an Industry leader"
+    description: "Showcase your skills and achievements."
   }
 ];
 
@@ -54,7 +54,7 @@ const ReadyToShare = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl font-bold mb-6"
           >
-            Ready to Share Your Knowledge?
+            Your Expertise Can Change Lives
           </motion.h2>
 
           <motion.p
@@ -64,7 +64,7 @@ const ReadyToShare = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-xl text-gray-600 mb-10"
           >
-            Join our community of experts empowering professionals worldwide
+          Make a Real Impact by Sharing the Knowledge You Hold
           </motion.p>
 
           <motion.a
@@ -77,7 +77,7 @@ const ReadyToShare = () => {
             whileTap={{ scale: 0.98 }}
             className="btn-expert inline-flex items-center"
           >
-            Become an Expert
+           Share your Expertise
             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

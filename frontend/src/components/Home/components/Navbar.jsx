@@ -112,7 +112,7 @@ const Navbar = ({ onSearch }) => {
 
           <div className="hidden lg:flex items-center gap-6">
             <a 
-              href="/about" 
+              href="/about-us" 
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               About Us

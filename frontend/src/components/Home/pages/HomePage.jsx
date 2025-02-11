@@ -11,6 +11,7 @@ import ReadyToShare from '../components/ReadyToShare';
 import CTASection from '../components/CTASection';
 import FAQSection from '../components/FAQSection';
 import ContactForm from '../components/ContactForm';
+import Footer from '../components/Footer';
 
 const categories = [
   {
@@ -249,7 +250,12 @@ function HomePage() {
 
               <motion.button
                 onClick={() => setIsModalOpen(true)}
-                className="btn-expert"
+                className="relative bg-[#169544] text-white px-8 py-3 rounded-xl font-medium 
+         transition-all duration-200 overflow-hidden isolate
+         hover:shadow-[5px_5px_0px_0px_#169544] hover:bg-white hover:border-2 border-[#169544]
+         hover:text-[#374151]
+         active:translate-x-[5px] active:translate-y-[5px] active:shadow-none;
+}"
               >
                 Find an Expert
               </motion.button>
@@ -309,6 +315,7 @@ function HomePage() {
       </div>
 
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <Footer />
     </>
   );
 }

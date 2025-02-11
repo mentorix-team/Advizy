@@ -281,7 +281,24 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
                 className="w-4 h-4 accent-[#169544] cursor-pointer"
               />
               <label htmlFor="policy" className="text-sm cursor-pointer">
-                I agree with Terms & Conditions
+                By continuing you agree to our{" "}
+                <a
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Privacy Policy
+                </a>
               </label>
             </div>
             {/* {errors.policy && (

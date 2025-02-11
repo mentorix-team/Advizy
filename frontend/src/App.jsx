@@ -13,7 +13,11 @@ import ReScheduling from "./components/Dashboard/User/Scheduling/ReScheduling";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import GoogleAuthSuccess from "./components/Auth/GoogleAuthSuccess";
 import Error404 from "./Protected/Error404";
-
+import AboutUs from './../src/components/Home/pages/AboutUs'
+import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
+import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
+import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
+import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 
 
 const App = () => {
@@ -22,7 +26,13 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/about-us" element={<AboutUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:id" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />

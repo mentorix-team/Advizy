@@ -6,12 +6,29 @@ import { useAutoScroll } from '../hooks/useAutoScroll';
 const ExpertSection = ({ title, subtitle, experts, link }) => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
-  const [clonedExperts, setClonedExperts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const cardsPerView = 3;
   const { scrollRef, handleMouseEnter, handleMouseLeave } = useAutoScroll(0.5);
 
-  useEffect(() => {
-    setClonedExperts([...experts, ...experts, ...experts]);
-  }, [experts]);
+  const handleNext = () => {
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex + cardsPerView;
+      if (nextIndex >= experts.length) {
+        return 0;
+      }
+      return nextIndex;
+    });
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = prevIndex - cardsPerView;
+      if (nextIndex < 0) {
+        return Math.max(0, experts.length - cardsPerView);
+      }
+      return nextIndex;
+    });
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -43,11 +60,11 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
       variants={containerVariants}
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
-      className="mb-12"
+      className="mb-12 relative"
     >
       <motion.div 
         variants={headerVariants}
-        className="flex justify-between items-center mb-6"
+        className="flex justify-between items-center mb-6 pt-20"
       >
         <div>
           <motion.h2 
@@ -90,34 +107,78 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
         </motion.a>
       </motion.div>
 
-      <div 
-        ref={scrollRef}
-        className="flex overflow-x-hidden gap-4 pb-20 pt-10 -mx-2 px-2"
-        style={{ 
-          scrollBehavior: 'auto', 
-          WebkitOverflowScrolling: 'touch',
-          marginTop: '-10px',
-          marginBottom: '-20px'
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {clonedExperts.map((expert, index) => (
-          <motion.div
-            key={`${expert.name}-${index}`}
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-            transition={{ 
-              duration: 0.8,
-              delay: (index % experts.length) * 0.1,
-              ease: [0.22, 1, 0.36, 1]
-            }}
-            className="relative"
-            style={{ padding: '10px 0' }}
+      <div className="relative">
+        {/* Navigation Buttons */}
+        <div 
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 z-10"
+          style={{ transform: 'translate(-24px, -50%)' }}
+        >
+          <motion.button
+            onClick={handlePrev}
+            className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={currentIndex === 0}
           >
-            <ExpertCard expert={expert} />
+            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </motion.button>
+        </div>
+
+        <div 
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 z-10"
+          style={{ transform: 'translate(24px, -50%)' }}
+        >
+          <motion.button
+            onClick={handleNext}
+            className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={currentIndex >= experts.length - cardsPerView}
+          >
+            <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </motion.button>
+        </div>
+
+        <div 
+          ref={scrollRef}
+          className="overflow-hidden pb-20 pt-10 -mx-2 px-2"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <motion.div
+            className="flex gap-4"
+            animate={{
+              x: -(currentIndex * (100 / cardsPerView)) + '%'
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+              mass: 0.5
+            }}
+          >
+            {experts.map((expert, index) => (
+              <motion.div
+                key={`${expert.name}-${index}`}
+                initial={{ opacity: 0, x: 50 }}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
+                transition={{ 
+                  duration: 0.8,
+                  delay: (index % cardsPerView) * 0.1,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+                className="relative flex-shrink-0"
+                style={{ width: `calc(${100 / cardsPerView}% - ${(16 * (cardsPerView - 1)) / cardsPerView}px)` }}
+              >
+                <ExpertCard expert={expert} />
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
+        </div>
       </div>
     </motion.div>
   );
