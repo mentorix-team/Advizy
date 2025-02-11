@@ -72,7 +72,7 @@ const Navbar = ({ onSearch }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <a href="/" className="text-xl font-bold text-gray-900">
-              MENTORIX
+              Advizy
             </a>
           </div>
 
