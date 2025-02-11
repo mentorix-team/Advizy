@@ -19,7 +19,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     password: "",
   });
 
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = (event) => {
+    event.preventDefault(); // Prevent the form from submitting
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
@@ -47,29 +48,29 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   const handleBlur = (event) => {
     const { name } = event.target;
-    setTouched(prev => ({
+    setTouched((prev) => ({
       ...prev,
-      [name]: true
+      [name]: true,
     }));
     const error = validateField(name, logindata[name]);
-    setErrors(prev => ({
+    setErrors((prev) => ({
       ...prev,
-      [name]: error
+      [name]: error,
     }));
   };
 
   function handleUserInput(event) {
     const { name, value } = event.target;
-    setlogindata(prev => ({
+    setlogindata((prev) => ({
       ...prev,
       [name]: value,
     }));
 
     if (touched[name]) {
       const error = validateField(name, value);
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: error
+        [name]: error,
       }));
     }
   }
@@ -86,12 +87,12 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
       password: true,
     });
 
-    return !Object.values(newErrors).some(error => error);
+    return !Object.values(newErrors).some((error) => error);
   };
 
   async function login(event) {
     event.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -99,7 +100,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
       // navigate("/");
-      
     } else {
       navigate("/signup");
     }
@@ -148,7 +148,9 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
               onChange={handleUserInput}
               onBlur={handleBlur}
               className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 autofill:bg-gray-50 autofill:text-gray-900 ${
-                touched.email && errors.email ? "border-red-500 bg-red-50" : "border-gray-300"
+                touched.email && errors.email
+                  ? "border-red-500 bg-red-50"
+                  : "border-gray-300"
               }`}
             />
             {touched.email && errors.email && (
@@ -195,7 +197,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
           </div>
 
           <div className="flex flex-col gap-4">
-            <button className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors" onClick={handleGoogleSignup}>
+            <button
+              type="button"
+              className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
+              onClick={handleGoogleSignup}
+            >
               <img
                 src="https://img.icons8.com/color/24/000000/google-logo.png"
                 alt="Google Logo"
