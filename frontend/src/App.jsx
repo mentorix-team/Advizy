@@ -33,9 +33,9 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-
-        <Route path="/expert-onboarding" element={<ProfileDetails />} />
-
+        <Route path="/expert-onboarding" element={<ProtectedRoute />} >
+          <Route path="/expert-onboarding" element={<ProfileDetails />} />
+        </Route>
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:id" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
