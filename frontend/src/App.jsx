@@ -18,6 +18,7 @@ import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
 import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
+import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 
 
 const App = () => {
@@ -32,6 +33,8 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+
+        <Route path="/expert-onboarding" element={<ProfileDetails />} />
 
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:id" element={<ExpertDetailPage />} />
