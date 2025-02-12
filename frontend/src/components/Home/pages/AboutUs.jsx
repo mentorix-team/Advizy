@@ -292,208 +292,10 @@ const MissionSection = () => {
   );
 };
 
-const WhatWeProvideSection = () => {
-  const [activeUserItem, setActiveUserItem] = useState('exploring');
-  const [activeExpertItem, setActiveExpertItem] = useState('globalAudience');
-  const [autoScrollPaused, setAutoScrollPaused] = useState(false);
-  const userIntervalRef = useRef(null);
-  const expertIntervalRef = useRef(null);
-
-  const userItems = {
-    exploring: {
-      title: "Exploring Experts Profiles",
-      content: {
-        description: "Browse through our extensive network of verified experts across various fields.",
-        features: [
-          "Advanced search filters to find the perfect match",
-          "Verified credentials and expertise areas",
-          "Real user reviews and ratings",
-          "Detailed expert portfolios",
-          "Direct messaging capabilities"
-        ]
-      }
-    },
-    scheduling: {
-      title: "Scheduling The meeting",
-      content: {
-        description: "Effortlessly schedule sessions that fit your calendar.",
-        features: [
-          "Real-time availability checking",
-          "Automated timezone conversion",
-          "Flexible scheduling options",
-          "Calendar integration",
-          "Instant confirmation"
-        ]
-      }
-    },
-    payment: {
-      title: "Secure Payment",
-      content: {
-        description: "Safe and secure payment processing for all sessions.",
-        features: [
-          "Multiple payment methods accepted",
-          "Encrypted transaction processing",
-          "Automatic payment receipts",
-          "Transparent pricing",
-          "Money-back guarantee"
-        ]
-      }
-    },
-    consultation: {
-      title: "In-App Video Consultation",
-      content: {
-        description: "High-quality video consultations right in your browser.",
-        features: [
-          "HD video quality",
-          "Screen sharing capabilities",
-          "Built-in chat function",
-          "Recording options",
-          "No downloads required"
-        ]
-      }
-    },
-    feedback: {
-      title: "Give Feedback",
-      content: {
-        description: "Share your experience and help others find great experts.",
-        features: [
-          "Detailed rating system",
-          "Written reviews",
-          "Photo and video testimonials",
-          "Verified session badges",
-          "Impact tracking"
-        ]
-      }
-    }
-  };
-
-  const expertItems = {
-    globalAudience: {
-      title: "Global Audience",
-      content: {
-        description: "Reach clients from around the world and expand your professional network.",
-        features: [
-          "Worldwide visibility",
-          "Multi-language support",
-          "Cultural exchange opportunities",
-          "Global networking",
-          "Market expansion"
-        ]
-      }
-    },
-    availability: {
-      title: "Flexible Availability",
-      content: {
-        description: "Set your own schedule and manage your time effectively.",
-        features: [
-          "Custom availability settings",
-          "Time zone management",
-          "Buffer time settings",
-          "Vacation mode",
-          "Automated scheduling"
-        ]
-      }
-    },
-    appointments: {
-      title: "Smart Appointments",
-      content: {
-        description: "Efficiently manage your client sessions and bookings.",
-        features: [
-          "Automated reminders",
-          "Session preparation tools",
-          "Client history access",
-          "Notes and follow-ups",
-          "Calendar sync"
-        ]
-      }
-    },
-    services: {
-      title: "Customizable Services",
-      content: {
-        description: "Create and manage your service offerings with full control.",
-        features: [
-          "Custom package creation",
-          "Pricing flexibility",
-          "Service bundling",
-          "Special offers",
-          "Subscription options"
-        ]
-      }
-    },
-    payments: {
-      title: "Secure Payments",
-      content: {
-        description: "Receive payments securely and manage your earnings.",
-        features: [
-          "Multiple currency support",
-          "Automated payouts",
-          "Transaction history",
-          "Tax documentation",
-          "Revenue analytics"
-        ]
-      }
-    }
-  };
-
-  const startUserAutoScroll = () => {
-    if (userIntervalRef.current) {
-      clearInterval(userIntervalRef.current);
-    }
-
-    const keys = Object.keys(userItems);
-    let currentIndex = keys.indexOf(activeUserItem);
-
-    userIntervalRef.current = setInterval(() => {
-      if (!autoScrollPaused) {
-        currentIndex = (currentIndex + 1) % keys.length;
-        setActiveUserItem(keys[currentIndex]);
-      }
-    }, 3000);
-  };
-
-  const startExpertAutoScroll = () => {
-    if (expertIntervalRef.current) {
-      clearInterval(expertIntervalRef.current);
-    }
-
-    const keys = Object.keys(expertItems);
-    let currentIndex = keys.indexOf(activeExpertItem);
-
-    expertIntervalRef.current = setInterval(() => {
-      if (!autoScrollPaused) {
-        currentIndex = (currentIndex + 1) % keys.length;
-        setActiveExpertItem(keys[currentIndex]);
-      }
-    }, 3000);
-  };
-
-  useEffect(() => {
-    startUserAutoScroll();
-    startExpertAutoScroll();
-
-    return () => {
-      if (userIntervalRef.current) clearInterval(userIntervalRef.current);
-      if (expertIntervalRef.current) clearInterval(expertIntervalRef.current);
-    };
-  }, [autoScrollPaused]);
-
-  const handleUserItemHover = (key) => {
-    setAutoScrollPaused(true);
-    setActiveUserItem(key);
-  };
-
-  const handleExpertItemHover = (key) => {
-    setAutoScrollPaused(true);
-    setActiveExpertItem(key);
-  };
-
-  const handleItemLeave = () => {
-    setAutoScrollPaused(false);
-  };
-
+const RevolutionizingSection = () => {
   return (
     <div className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -501,239 +303,97 @@ const WhatWeProvideSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold">What We Provide</h2>
+          <h2 className="text-4xl font-bold text-[#169544]">
+            Revolutionizing Expert Consultations
+          </h2>
         </motion.div>
 
-        <div className="space-y-24">
-          {/* For Users Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-primary mb-4">For Users</h3>
-              {Object.entries(userItems).map(([key, item]) => (
-                <motion.div
-                  key={key}
-                  className="w-full"
-                  onMouseEnter={() => handleUserItemHover(key)}
-                  onMouseLeave={handleItemLeave}
-                >
-                  <motion.div
-                    className={`relative rounded-lg border ${
-                      activeUserItem === key 
-                        ? 'border-primary bg-[#F9FDF9]' 
-                        : 'border-gray-100 hover:border-gray-200'
-                    } p-4 transition-all duration-300`}
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-medium ${
-                        activeUserItem === key ? 'text-primary' : 'text-gray-400'
-                      }`}>
-                        {String(Object.keys(userItems).indexOf(key) + 1).padStart(2, '0')}
-                      </span>
-                      <h4 className={`text-base font-medium ${
-                        activeUserItem === key ? 'text-primary' : 'text-gray-900'
-                      }`}>
-                        {item.title}
-                      </h4>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* For Experts Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-white rounded-lg p-8 shadow-lg"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-[#169544] text-2xl">⭐</span>
+              <h3 className="text-2xl font-bold text-[#169544]">For Experts</h3>
             </div>
 
-            <div className="bg-[#E8F5E9] rounded-3xl p-8 relative overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeUserItem}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative z-10"
-                >
-                  <h4 className="text-xl text-[#1D1F1D] mb-6">
-                    {userItems[activeUserItem].content.description}
-                  </h4>
-                  <div className="space-y-4">
-                    {userItems[activeUserItem].content.features.map((feature, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-3"
-                      >
-                        <svg 
-                          className="w-5 h-5 text-primary flex-shrink-0" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M5 13l4 4L19 7" 
-                          />
-                        </svg>
-                        <span className="text-[#1D1F1D]">{feature}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Decorative Elements */}
-              <motion.div
-                className="absolute top-0 right-0 w-64 h-64 bg-green-100 rounded-full opacity-50 -z-10"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 90, 0],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  filter: "blur(40px)",
-                  transform: "translate(25%, -25%)"
-                }}
-              />
-              <motion.div
-                className="absolute bottom-0 left-0 w-48 h-48 bg-green-100 rounded-full opacity-50 -z-10"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  rotate: [0, -90, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  filter: "blur(30px)",
-                  transform: "translate(-25%, 25%)"
-                }}
-              />
-            </div>
-          </div>
-
-          {/* For Experts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <div className="bg-[#E8F5E9] rounded-3xl p-8 relative overflow-hidden">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeExpertItem}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative z-10"
-                >
-                  <h4 className="text-xl text-[#1D1F1D] mb-6">
-                    {expertItems[activeExpertItem].content.description}
-                  </h4>
-                  <div className="space-y-4">
-                    {expertItems[activeExpertItem].content.features.map((feature, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-3"
-                      >
-                        <svg 
-                          className="w-5 h-5 text-primary flex-shrink-0" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M5 13l4 4L19 7" 
-                          />
-                        </svg>
-                        <span className="text-[#1D1F1D]">{feature}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Decorative Elements */}
-              <motion.div
-                className="absolute top-0 right-0 w-64 h-64 bg-green-100 rounded-full opacity-50 -z-10"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 90, 0],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  filter: "blur(40px)",
-                  transform: "translate(25%, -25%)"
-                }}
-              />
-              <motion.div
-                className="absolute bottom-0 left-0 w-48 h-48 bg-green-100 rounded-full opacity-50 -z-10"
-                animate={{
-                  scale: [1, 1.3, 1],
-                  rotate: [0, -90, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{
-                  filter: "blur(30px)",
-                  transform: "translate(-25%, 25%)"
-                }}
-              />
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">Streamlined client and schedule management</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">Expand your client base without upfront costs</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">Enhance client retention with smart tools</p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-primary mb-4">For Experts</h3>
-              {Object.entries(expertItems).map(([key, item]) => (
-                <motion.div
-                  key={key}
-                  className="w-full"
-                  onMouseEnter={() => handleExpertItemHover(key)}
-                  onMouseLeave={handleItemLeave}
-                >
-                  <motion.div
-                    className={`relative rounded-lg border ${
-                      activeExpertItem === key 
-                        ? 'border-primary bg-[#F9FDF9]' 
-                        : 'border-gray-100 hover:border-gray-200'
-                    } p-4 transition-all duration-300`}
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-medium ${
-                        activeExpertItem === key ? 'text-primary' : 'text-gray-400'
-                      }`}>
-                        {String(Object.keys(expertItems).indexOf(key) + 1).padStart(2, '0')}
-                      </span>
-                      <h4 className={`text-base font-medium ${
-                        activeExpertItem === key ? 'text-primary' : 'text-gray-900'
-                      }`}>
-                        {item.title}
-                      </h4>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              ))}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-4 bg-[#169544] text-white rounded-lg font-medium hover:bg-[#138339] transition-colors"
+            >
+              Show Your Expertise
+            </motion.button>
+          </motion.div>
+
+          {/* For Users Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="bg-white rounded-lg p-8 shadow-lg"
+          >
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-[#169544] text-2xl">👥</span>
+              <h3 className="text-2xl font-bold text-[#169544]">For Users</h3>
             </div>
-          </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">Access to a network of verified professionals</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">Hassle-free booking and secure transactions</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-[#169544] mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <p className="text-lg text-gray-700">High-quality video consultations</p>
+              </div>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-4 bg-[#169544] text-white rounded-lg font-medium hover:bg-[#138339] transition-colors"
+            >
+              Search Experts
+            </motion.button>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -758,7 +418,7 @@ const JourneyCTASection = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl font-bold mb-6"
           >
-            Ready to Start Your Journey?
+           Ready to Accelerate Your Growth?
           </motion.h2>
 
           <motion.p
@@ -768,7 +428,7 @@ const JourneyCTASection = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-xl text-gray-600 mb-10"
           >
-            Join Mentorix today and connect with world-class experts to achieve your goals.
+           Connect with world-class experts who can help you achieve your professional goals faster.
           </motion.p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -821,7 +481,8 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              About Mentorix
+              Empowering Experts.<br></br>
+              Connecting People.
             </motion.h1>
             
             <motion.p 
@@ -830,7 +491,7 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              "At Mentorix, we bring together people and experts from all fields to share knowledge, grow skills, and unlock new opportunities. Our mission is to make expert guidance accessible to everyone, helping you reach your full potential."
+              "We're revolutionizing the way expertise is shared and accessed. Join us in creating a world where quality guidance is just a click away."
             </motion.p>
 
             <motion.button
@@ -887,6 +548,12 @@ const AboutPage = () => {
         </div>
       </div>
 
+        {/* Mission Section */}
+      <MissionSection />
+
+        {/* New Revolutionizing Section */}
+      <RevolutionizingSection />
+
       {/* Who We Are Section */}
       <div className="bg-[#F3F3F3] py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -896,10 +563,10 @@ const AboutPage = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
             className="text-center mb-16" >
-            <h2 className="text-4xl font-bold mb-4">Who We Are</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">Our Core Values</h2>
+            {/* <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               We are a team of passionate individuals dedicated to transforming the way people learn and grow professionally.
-            </p>
+            </p> */}
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -909,8 +576,8 @@ const AboutPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               }
-              title="Innovation"
-              description="We constantly push boundaries to create cutting-edge solutions that make mentorship more accessible and effective."
+              title="Trust & Quality"
+              description="We rigorously vet our experts to ensure you receive top-tier guidance. Your growth and security are our priorities."
             />
             <VisionCard
               icon={
@@ -918,27 +585,25 @@ const AboutPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               }
-              title="Community"
-              description="We foster a vibrant community where knowledge sharing and collaboration thrive."
+              title="Global Accessibility"
+              description="We're breaking down geographical barriers, making world-class expertise available to everyone, everywhere."
             />
             <VisionCard
               icon={
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor"  viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               }
-              title="Excellence"
-              description="We maintain the highest standards in every aspect of our platform and service delivery."
+              title="Continuous Innovation"
+              description="We're constantly evolving our platform to provide cutting-edge tools for both experts and learners."
             />
           </div>
         </div>
       </div>
 
-      {/* Mission Section */}
-      <MissionSection />
+    
 
-      {/* What We Provide Section */}
-      <WhatWeProvideSection />
+    
 
       {/* Journey CTA Section */}
       <JourneyCTASection />
