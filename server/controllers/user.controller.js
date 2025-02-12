@@ -77,7 +77,7 @@ const handleGoogleCallback = async (req, res, next) => {
         console.log("JWT token generated:", token);
 
         // Set a cookie with the token
-        res.cookie('token', token, { httpOnly: true, secure:true,maxAge: 3600000 });
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None" ,maxAge: 3600000 });
 
         // Check if the user is an expert
         const expert = await ExpertBasics.findOne({ user_id: user._id });
@@ -88,7 +88,8 @@ const handleGoogleCallback = async (req, res, next) => {
 
             res.cookie("expertToken", expertToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:"None", 
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
         }
@@ -263,7 +264,8 @@ const login = async (req, res, next) => {
 
             res.cookie("expertToken", expertToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:"None" ,
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
         }
@@ -282,12 +284,14 @@ const login = async (req, res, next) => {
 const logout = async(req,res,next)=>{
     res.cookie('token',null,{
         httpOnly:true,
-        secure:true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite:"None" ,
         maxAge:0
     })
     res.cookie('expertToken',null,{
         httpOnly:true,
-        secure:true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite:"None" ,
         maxAge:0
     })
 
@@ -605,7 +609,7 @@ const regenerate_otp = async (req, res, next) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpToken = bcrypt.hashSync(otp, 10);
 
-        res.cookie("otpToken", otpToken, { httpOnly: true,secure:true, maxAge: 10 * 60 * 1000 }); // Valid for 10 minutes
+        res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); // Valid for 10 minutes
 
         await sendEmail(email, "Your Regenerated OTP", `Your new OTP is ${otp}`);
 
@@ -700,8 +704,8 @@ const generate_otp_for_Signup_mobile = async(req,res,next)=>{
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpToken = bcrypt.hashSync(otp, 10);
 
-        res.cookie("otpToken", otpToken, { httpOnly: true,secure:true, maxAge: 10 * 60 * 1000 }); 
-        res.cookie("tempUser", { firstName, lastName, number, password }, { httpOnly: true,secure:true });
+        res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); 
+        res.cookie("tempUser", { firstName, lastName, number, password }, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         const formattedNumber = String(number).startsWith('+') ? String(number) : `+91${number}`;
 
@@ -752,7 +756,7 @@ const validate_otp_mobile = async(req,res,next) =>{
         res.clearCookie("tempUser");
 
         const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true,secure:true });
+        res.cookie("token", token, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         return res.status(200).json({
             success: true,
@@ -798,7 +802,8 @@ const generate_otp_with_email = async (req, res, next) => {
         // Store email in an HTTP-only cookie for temporary use
         res.cookie("email", email, {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite:"None" ,
             maxAge: 5 * 60 * 1000, // 5 minutes expiry
         });
 
@@ -836,8 +841,8 @@ const forgot_with_otp_email = async (req, res, next) => {
 
         const cookieOption = {
             httpOnly: true,
-            secure: true,
-            sameSite: "Strict",
+            secure: process.env.NODE_ENV === "production",
+            sameSite:"None" ,
             maxAge: 15 * 60 * 1000,
         };
         res.cookie("resettoken", resetToken, cookieOption);
