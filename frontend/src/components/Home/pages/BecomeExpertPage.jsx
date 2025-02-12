@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useNavigate } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import {useNavigate} from 'react-router-dom'
 import Navbar from '../components/Navbar';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import ExpertFAQ from '../components/ExpertFAQ';
