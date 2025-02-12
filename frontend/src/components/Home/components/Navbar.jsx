@@ -168,57 +168,58 @@ const Navbar = ({ onSearch }) => {
             </div>
           </div>
 
-          <div className="hidden lg:flex items-center gap-6">
-            <a
-              href="/about"
-              className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
-            >
-              About Us
-            </a>
-            <a
-              href="/become-expert"
-              className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
-            >
-              Become an Expert
-            </a>
-            {isLoggedIn && localStorage.getItem("expertData") && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-700">
-                  {isExpertMode ? "Expert Mode" : "User Mode"}
-                </span>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors duration-200"
-                  aria-label={`Switch to ${
-                    isExpertMode ? "User" : "Expert"
-                  } Mode`}
-                >
-                  <Switch
-                    size={20}
-                    className={`transition-colors duration-300 ${
-                      isExpertMode
-                        ? "text-green-600 rotate-180"
-                        : "text-gray-400"
-                    }`}
-                  />
-                </button>
-              </div>
-            )}
-            {isLoggedIn ? (
-              <UserDropdown />
-            ) : (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-expert text-sm px-8 py-4"
-                onClick={handleOpenAuthPopup}
-              >
-                Login
-              </motion.button>
-            )}
-          </div>
+        <div className="hidden lg:flex items-center gap-6">
+      <a 
+        href="/about" 
+        className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+      >
+        About Us
+      </a>
+      <a 
+        href="/become-expert" 
+        className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+      >
+        Become an Expert
+      </a>
+      {isLoggedIn && localStorage.getItem('expertData') && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">
+            {isExpertMode ? 'Expert Mode' : 'User Mode'}
+          </span>
+          <button 
+            onClick={handleToggleExpertMode} 
+            className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
+            aria-label={`Switch to ${isExpertMode ? 'User' : 'Expert'} Mode`}
+          >
+            {/* Toggle background */}
+            <div 
+              className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
+                isExpertMode ? 'bg-green-600' : 'bg-gray-300'
+              }`}
+            />
+            {/* Toggle circle */}
+            <div 
+              className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                isExpertMode ? 'translate-x-4' : '-translate-x-4'
+              }`}
+            />
+          </button>
         </div>
-
+      )}
+      {isLoggedIn ? (
+        <UserDropdown />
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="btn-expert text-sm px-8 py-4"
+          onClick={handleOpenAuthPopup}
+        >
+          Login
+        </motion.button>
+      )}
+    </div>
+          
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <motion.div
