@@ -49,10 +49,8 @@ const createMeetingToken = async (req, res, next) => {
     // Store the token in a cookie
     res.cookie('meetingToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:"None", 
+      secure: process.env.NODE_ENV === 'production', // Secure only in production
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
-
     });
 
     // Send the response
@@ -241,6 +239,19 @@ const getNotifications = async (req, res, next) => {
     return next(new AppError(error.message || 'Server error', 500));
   }
 };
+
+const getmeet = async(req,res,next) =>{
+  const {id} = req.params;
+  if(!id){
+    return next(new AppError('Id not found',505));
+  }
+  const meeting = await Meeting.findById(id);
+  res.status(200).json({
+    success:true,
+    message:'meeting fetched',
+    meeting:meeting
+  })
+}
 
 const getMeetingById = async (req, res, next) => {
   try {
@@ -907,5 +918,6 @@ export {
     updateMeetingStatus,
     rescheduleMeetingExpert,
     updateMeeting,
-    getClientDetails
+    getClientDetails,
+    getmeet
 }

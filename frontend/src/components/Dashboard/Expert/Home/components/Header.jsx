@@ -147,7 +147,7 @@ export default function Header() {
 
 
       <div className="flex ">
-      <ProfileShare />
+      <ProfileShare expert = {expertData}/>
         <button
           onClick={() => setShowNotifications(!showNotifications)}
           className="relative p-2 hover:bg-gray-100 rounded-full"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FilterSidebar from "./FilterSidebar";
 import ExpertList from "./ExpertList";
 import DomainBar from "./DomainBar";
@@ -6,13 +6,27 @@ import Navbar from "../Home/components/Navbar";
 
 const Homees = () => {
   const [selectedDomain, setSelectedDomain] = useState(null);
-  const [filters, setFilters] = useState({}); // ✅ Define filters state
-  const [sorting, setSorting] = useState(""); // ✅ Define sorting state
+  const [filters, setFilters] = useState({});
+  const [sorting, setSorting] = useState("");
+
+  // Log whenever filters or domain change dynamically
+  useEffect(() => {
+    console.log("Updated Filters:", filters);
+  }, [filters, selectedDomain]); // ✅ Include `selectedDomain`
+  
+
+  useEffect(() => {
+    console.log("Selected Domain:", selectedDomain);
+  }, [selectedDomain]);
 
   const handleApplyFilters = (newFilters) => {
-    console.log("Applied Filters:", newFilters);
-    setFilters(newFilters); // ✅ Update filters state
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+      selectedDomain, // Ensure selected domain is always included
+    }));
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -36,7 +50,7 @@ const Homees = () => {
 
         {/* Content Area */}
         <div className="ml-64 flex-1 p-6">
-          <ExpertList filters={filters} sorting={sorting} /> 
+          <ExpertList filters={filters} sorting={sorting} />
         </div>
       </div>
     </div>

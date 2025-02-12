@@ -86,7 +86,7 @@ const expertBasicDetails = async (req, res, next) => {
         credentials:{services:[]}
       });
     }
-
+    console.log("This is the redirect url before",expertbasic.redirect_url)
     // Log if files exist
     if (req.files) {
       console.log("Image incoming...", req.files);
@@ -139,6 +139,7 @@ const expertBasicDetails = async (req, res, next) => {
 
       const randomString = generateRandomString(); // Generate unique identifier
       expertbasic.redirect_url = `${firstName}/${randomString}`; // Set redirect URL
+      console.log("This is the redirect url before",expertbasic.redirect_url)
 
       const serviceData = {
         title: "One-on-One Mentoring",
@@ -174,7 +175,6 @@ const expertBasicDetails = async (req, res, next) => {
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -618,7 +618,6 @@ const createService = async (req, res, next) => {
     res.cookie("expertToken", updatedExpertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -1125,7 +1124,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 ,secure: process.env.NODE_ENV === "production",sameSite:"None" }); 
+      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 }); 
 
       const formattedNumber = inputKey.startsWith('+') ? inputKey : `+91${inputKey}`;
       console.log("Formatted Mobile:", formattedNumber);
@@ -1141,7 +1140,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
+      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 });
 
       await sendEmail(inputKey, "Your OTP", `Your OTP is ${otp}`);
       return res.status(200).json({

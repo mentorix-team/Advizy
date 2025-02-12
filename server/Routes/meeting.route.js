@@ -1,10 +1,11 @@
 import Router from 'express'
 import { isExpert, isLoggedIn, isMeeting } from '../middlewares/auth.middleare.js';
-import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getClientDetails, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, payedForMeeting, rescheduleMeetingExpert, updateMeeting, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
+import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getClientDetails, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, getmeet, payedForMeeting, rescheduleMeetingExpert, updateMeeting, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
 const router = Router()
 
 router.post('/meet',isLoggedIn,createMeetingToken)
 router.get('/meet',isLoggedIn,isMeeting,getMeetingById)
+router.get('/getmeetingbyid/:id',isLoggedIn,getmeet)
 router.get('/meetbyuser',isLoggedIn,getMeetingByUserId)
 router.get('/meetbyexpert',isLoggedIn,isExpert,getMeetingByExpertId)
 router.post('/payedformeeting',isLoggedIn,isMeeting,payedForMeeting)

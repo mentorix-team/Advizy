@@ -1,11 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AiOutlineUser, AiOutlineCalendar, AiOutlineClockCircle, AiOutlineArrowLeft, AiOutlineUp, AiOutlineDown } from 'react-icons/ai';
 import { BiDownload } from 'react-icons/bi';
 import { BsChatDots } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
-import { getMeet } from '@/Redux/Slices/meetingSlice';
+import { addvideoparticipant, getMeet, getMeetingbyid } from '@/Redux/Slices/meetingSlice';
+import { getExpertById, getServicebyid } from '@/Redux/Slices/expert.Slice';
 
 export default function UpcomingMeetingDetails() {
   const { id } = useParams();
@@ -13,29 +14,73 @@ export default function UpcomingMeetingDetails() {
   const [showPopup, setShowPopup] = useState(false);
   const [meeting, setMeeting] = useState(null);
   const [showDetails, setShowDetails] = useState(true);
-  // const{selectedMeeting} = useSelector((state)=>state.meeting)
-  // console.log("This is selected one",selectedMeeting)
-  // const dispatch = useDispatch()
+  const {selectedExpert,selectedService} = useSelector((state)=>state.expert)
+  const{selectedMeeting} = useSelector((state)=>state.meeting)
+  const{data} = useSelector((state)=>state.auth)
+
+  console.log("THesse are service and expert",selectedExpert)
+  console.log("THesse are service and expert",selectedService)
+  console.log("This is selected one",selectedMeeting)
+  const dispatch = useDispatch()
+
+  const handleJoin = async() =>{
+    
+    try {
+      console.log(selectedMeeting);
+      console.log("This is user videocall id ",selectedMeeting.videoCallId);
+      const joinCallData = {
+        meeting_id: selectedMeeting.videoCallId,
+        custom_participant_id: selectedMeeting.userId,
+        name: `${data.firstName} ${data.lastName}`,
+        preset_name: "group_call_participant",
+      };
+  
+      console.log("Preset Name being sent:", joinCallData.preset_name);
+  
+      const response = await dispatch(addvideoparticipant(joinCallData));
+      console.log("this is response",response.payload)
+      if (response?.payload?.data?.data?.token) {
+        const authToken = response.payload.data.data.token;
+  
+        console.log("Auth Token received:", authToken);
+  
+        // Navigate to meeting page with authToken
+        navigate("/meeting", { state: { authToken } });
+      } else {
+        console.error("Failed to retrieve authToken.");
+      }
+    } catch (error) {
+      console.error("Error joining call:", error);
+    }
+  }
+
+  const countRef = useRef(0);
+  useEffect(() => {
+  
+    const responses = async () => {
+      if (countRef.current >= 2) return; // Stop execution after 3 times
+  
+      const response = await dispatch(getMeetingbyid(id));
+  
+      if (response.payload.success && selectedMeeting?.serviceId) {
+        const serviceId = selectedMeeting.serviceId;
+        const expertId = selectedMeeting.expertId;
+        dispatch(getServicebyid({ serviceId, expertId }));
+      }
+  
+      countRef.current += 1; // Increment count
+    };
+  
+    responses();
+  }, [dispatch,selectedMeeting]); 
 
   
-
-  // useEffect(() => {
-  //   const meetingData = upcomingMeetings.find(m => m.id === Number(id));
-  //   if (!meetingData) {
-  //     navigate('/meetings');
-  //     return;
-  //   }
-  //   setMeeting(meetingData);
-  // }, [id, navigate]);
-
   const handleShowPopup = () => {
     setShowPopup(true);
     setTimeout(() => {
       setShowPopup(false);
     }, 3000);
   };
-
-  if (!meeting) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,10 +116,10 @@ export default function UpcomingMeetingDetails() {
             <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-6">
               <div>
                 <h2 className="text-lg md:text-xl text-green-600">{meeting?.type}</h2>
-                <p className="text-gray-600 mt-1 text-sm md:text-base">{meeting?.title}</p>
+                <p className="text-gray-600 mt-1 text-sm md:text-base">{selectedMeeting?.title}</p>
               </div>
               <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-sm whitespace-nowrap">
-                {meeting?.status}
+                {selectedMeeting?.status}
               </span>
             </div>
 
@@ -84,11 +129,11 @@ export default function UpcomingMeetingDetails() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center">
-                  <h3 className="text-lg font-medium">{meeting?.expert.name}</h3>
+                  <h3 className="text-lg font-medium">{selectedMeeting?.expertName}</h3>
                 </div>
-                <p className="text-gray-500 text-sm">{meeting?.expert.role}</p>
+                <p className="text-gray-500 text-sm">{selectedExpert?.credentials?.professionalTitle}</p>
                 <div className="flex items-center mt-1">
-                  <span className="text-gray-600">{meeting?.expert.rating}</span>
+                  <span className="text-gray-600">{selectedExpert?.credentials?.reviews?.rating}</span>
                 </div>
               </div>
               <button 
@@ -106,14 +151,14 @@ export default function UpcomingMeetingDetails() {
                   <AiOutlineCalendar className="w-5 h-5 mr-2 text-green-600" />
                   <span className="text-sm">Date</span>
                 </div>
-                <p className="text-gray-900 font-medium">{meeting?.date}</p>
+                <p className="text-gray-900 font-medium">{selectedMeeting?.daySpecific.date}</p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center text-gray-600 mb-2">
                   <AiOutlineClockCircle className="w-5 h-5 mr-2 text-green-600" />
                   <span className="text-sm">Time Slot</span>
                 </div>
-                <p className="text-gray-900 font-medium">{meeting?.time}</p>
+                <p className="text-gray-900 font-medium">{selectedMeeting?.daySpecific.slot.startTime}-{selectedMeeting?.daySpecific?.slot?.endTime}</p>
               </div>
             </div>
 
@@ -124,7 +169,7 @@ export default function UpcomingMeetingDetails() {
                     <span className="text-xl">$</span>
                     <span className="ml-2 text-sm">Price</span>
                   </div>
-                  <p className="text-2xl font-medium">${meeting?.price}</p>
+                  <p className="text-2xl font-medium">${selectedMeeting?.amount}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button className="text-green-600 hover:text-green-700 border border-gray-200 px-4 py-2 rounded-lg text-sm">
@@ -147,10 +192,10 @@ export default function UpcomingMeetingDetails() {
               </div>
               {showDetails && (
                 <div className="mt-4">
-                  <p className="text-gray-600 text-sm md:text-base mb-4">{meeting?.description}</p>
+                  <p className="text-gray-600 text-sm md:text-base mb-4">{selectedService?.detailedDescription}</p>
                   <h4 className="font-medium mb-2 text-sm md:text-base">Features included:</h4>
                   <ul className="text-gray-600 space-y-2">
-                    {meeting?.features.map((feature, index) => (
+                    {selectedService?.features.map((feature, index) => (
                       <li key={index} className="flex items-center text-sm md:text-base">
                         <span className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-2"></span>
                         {feature}
@@ -167,7 +212,7 @@ export default function UpcomingMeetingDetails() {
         <div className="hidden lg:block lg:w-80 lg:ml-8">
           <div className="space-y-6 sticky top-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors mb-4">
+              <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors mb-4" onClick={handleJoin}>
                 Join Meeting
               </button>
               <button className="w-full text-gray-700 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors mb-4">

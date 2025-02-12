@@ -1,30 +1,42 @@
-import { logout } from '@/Redux/Slices/authSlice';
-import AuthPopup from '@/components/Auth/AuthPopup.auth';
-import { ChevronDown, LogOut, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { logout } from "@/Redux/Slices/authSlice";
+import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { ChevronDown, LogOut, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const userName = useSelector((state) => state.auth.user?.name || 'User');
-
+  const userName = useSelector((state) => state.auth.user?.name || "User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const dispatch = useDispatch();
+
+  // Check for expertData in localStorage on component mount
+  useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
   };
-  
+
   const handleCloseAuthPopup = () => {
     setAuthPopupOpen(false);
   };
-  
+
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+  };
+
+  const handleToggleExpertMode = () => {
+    setIsExpertMode(!isExpertMode);
   };
 
   const UserDropdown = () => (
@@ -36,7 +48,7 @@ const Navbar = ({ onSearch }) => {
         <span className="text-sm font-medium">{userName}</span>
         <ChevronDown className="w-4 h-4" />
       </button>
-      
+
       <AnimatePresence>
         {isDropdownOpen && (
           <motion.div
@@ -46,20 +58,41 @@ const Navbar = ({ onSearch }) => {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
-            <a
-              href="/user-dashboard"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <User className="w-4 h-4" />
-              Dashboard
-            </a>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            {isExpertMode ? (
+              <>
+                <a
+                  href="/dashboard/expert"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <User className="w-4 h-4" />
+                  Expert Dashboard
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/dashboard/user"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <User className="w-4 h-4" />
+                  Dashboard
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -82,11 +115,26 @@ const Navbar = ({ onSearch }) => {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-600 hover:text-gray-900 focus:outline-none"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </button>
@@ -96,8 +144,18 @@ const Navbar = ({ onSearch }) => {
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
               <input
@@ -111,18 +169,41 @@ const Navbar = ({ onSearch }) => {
           </div>
 
           <div className="hidden lg:flex items-center gap-6">
-            <a 
-              href="/about-us" 
+            <a
+              href="/about"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               About Us
             </a>
-            <a 
-              href="/become-expert" 
+            <a
+              href="/become-expert"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               Become an Expert
             </a>
+            {isLoggedIn && localStorage.getItem("expertData") && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">
+                  {isExpertMode ? "Expert Mode" : "User Mode"}
+                </span>
+                <button
+                  onClick={handleToggleExpertMode}
+                  className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                  aria-label={`Switch to ${
+                    isExpertMode ? "User" : "Expert"
+                  } Mode`}
+                >
+                  <Switch
+                    size={20}
+                    className={`transition-colors duration-300 ${
+                      isExpertMode
+                        ? "text-green-600 rotate-180"
+                        : "text-gray-400"
+                    }`}
+                  />
+                </button>
+              </div>
+            )}
             {isLoggedIn ? (
               <UserDropdown />
             ) : (
@@ -142,7 +223,7 @@ const Navbar = ({ onSearch }) => {
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden py-4 border-t border-gray-200"
           >
@@ -150,8 +231,18 @@ const Navbar = ({ onSearch }) => {
               <div className="px-2">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
@@ -163,14 +254,14 @@ const Navbar = ({ onSearch }) => {
                   />
                 </div>
               </div>
-              <a 
-                href="/about" 
+              <a
+                href="/about"
                 className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
               >
                 About Us
               </a>
-              <a 
-                href="/become-expert" 
+              <a
+                href="/become-expert"
                 className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
               >
                 Become an Expert
@@ -179,11 +270,13 @@ const Navbar = ({ onSearch }) => {
                 {isLoggedIn ? (
                   <div className="space-y-2">
                     <a
-                      href="/dashboard/user"
+                      href={
+                        isExpertMode ? "/dashboard/expert/" : "/dashboard/user/"
+                      }
                       className="flex items-center gap-2 w-full text-sm text-gray-700 hover:text-primary transition-colors duration-200"
                     >
                       <User className="w-4 h-4" />
-                      Dashboard
+                      {isExpertMode ? "Expert Dashboard" : "Dashboard"}
                     </a>
                     <button
                       onClick={handleLogout}
