@@ -6,6 +6,7 @@ import instantsearch from 'instantsearch.js';
 import { hits, configure } from 'instantsearch.js/es/widgets';
 import { ArrowRight, CircleX, Search, X } from "lucide-react";
 import debounce from 'lodash/debounce';
+import { useNavigate } from 'react-router-dom';
 
 // Move categories outside component to prevent recreation
 const categories = [
@@ -20,9 +21,15 @@ const categories = [
 ];
 
 // Memoized Category Button Component
-const CategoryButton = memo(({ category }) => {
+const CategoryButton = memo(({ category}) => {
+  const navigate = useNavigate();
+
+  const handleExplore =() => {
+    navigate('/explore');
+  }
   return (
     <motion.button
+      onClick={handleExplore}
       layout
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
@@ -51,6 +58,8 @@ const SearchModal = ({ isOpen, onClose }) => {
     showAll: false,
     hasResults: true
   });
+
+  const navigate= useNavigate();
 
   // Memoize the search client creation
   useEffect(() => {
@@ -172,6 +181,7 @@ const SearchModal = ({ isOpen, onClose }) => {
 
   const toggleShowAll = useCallback(() => {
     setSearchState(prev => ({ ...prev, showAll: !prev.showAll }));
+    navigate('/explore')
   }, []);
 
   // Memoize the categories grid

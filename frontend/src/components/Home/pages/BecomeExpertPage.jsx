@@ -236,7 +236,7 @@ const BecomeExpertPage = () => {
     }, 3000);
   };
 
-  const handleExpertOnboarding =() =>{
+  const handleExpertOnboarding = () =>{
     navigate('/expert-onboarding');
   }
 

@@ -68,7 +68,7 @@ const ReadyToShare = () => {
           </motion.p>
 
           <motion.a
-            href="/become-expert"
+            href="/expert-onboarding"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
