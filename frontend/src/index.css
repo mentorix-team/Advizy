@@ -291,7 +291,7 @@ input[type="time"]:disabled {
 
 /* Date picker custom styles */
 .react-datepicker {
-  @apply font-figtree border-gray-200 shadow-lg;
+  @apply border-gray-200 shadow-lg;
 }
 
 .react-datepicker__header {
@@ -299,15 +299,15 @@ input[type="time"]:disabled {
 }
 
 .react-datepicker__current-month {
-  @apply font-figtree font-medium;
+  @apply font-medium;
 }
 
 .react-datepicker__day-name {
-  @apply font-figtree text-gray-600;
+  @apply  text-gray-600;
 }
 
 .react-datepicker__day {
-  @apply font-figtree hover:bg-gray-50;
+  @apply  hover:bg-gray-50;
 }
 
 .react-datepicker__day--selected {
