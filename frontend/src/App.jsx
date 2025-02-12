@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import {useState} from 'react';
 import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
 import UserDashboardRoutes from "./routes/UserDashboardRoutes";
 import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
@@ -13,15 +14,24 @@ import ReScheduling from "./components/Dashboard/User/Scheduling/ReScheduling";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import GoogleAuthSuccess from "./components/Auth/GoogleAuthSuccess";
 import Error404 from "./Protected/Error404";
-import AboutUs from './../src/components/Home/pages/AboutUs'
+import AboutUs from "./../src/components/Home/pages/AboutUs";
 import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
 import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
-
+import AuthPopup from './components/Auth/AuthPopup.auth'
 
 const App = () => {
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+
+  const handleAuthPopupOpen = () => {
+    setShowAuthPopup(true);
+  };
+
+  const handleAuthPopupClose = () => {
+    setShowAuthPopup(false);
+  };
 
   return (
     <div>
@@ -33,14 +43,27 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        {/* 
+        <Route path="/expert-onboarding" element={<ProtectedRoute />} >
+          <Route path="/expert-onboarding" element={<ProfileDetails />} />
+        </Route> */}
 
-        <Route path="/expert-onboarding" element={<ProfileDetails />} />
+        {/* Protected Routes */}
+        <Route
+          path="/expert-onboarding"
+          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
+        >
+          <Route path="" element={<ProfileDetails />} />
+        </Route>
 
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:id" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
-        <Route path="/expert/rescheduling/:updatemeetingtoken" element={<ReScheduling />} />
-        <Route path="/expert/order-summary/" element={<OrderSummary/>} />
+        <Route
+          path="/expert/rescheduling/:updatemeetingtoken"
+          element={<ReScheduling />}
+        />
+        <Route path="/expert/order-summary/" element={<OrderSummary />} />
         <Route path="/payment-success" element={<BookingConfirmation />} />
         <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
 
@@ -50,14 +73,37 @@ const App = () => {
         {/* User Dashboard Routes */}
         {/* <Route path="/dashboard/user/*" element={<UserDashboardRoutes />} />
         <Route path="/dashboard/expert/*" element={<ExpertDashboardRoutes />} /> */}
-        <Route path="/dashboard/user/*" element={<ProtectedRoute />}>
+        {/* <Route path="/dashboard/user/*" element={<ProtectedRoute />}>
           <Route path="/dashboard/user/*" element={<UserDashboardRoutes />} />
+        </Route> */}
+
+        <Route
+          path="/dashboard/user/*"
+          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
+        >
+          <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
-         <Route path="/dashboard/expert" element={<ProtectedRoute requireExpert={true} />}>
+
+        {/* <Route path="/dashboard/expert" element={<ProtectedRoute requireExpert={true} />}>
           <Route path="/dashboard/expert/*" element={<ExpertDashboardRoutes />} />
+        </Route> */}
+
+        <Route
+          path="/dashboard/expert/*"
+          element={
+            <ProtectedRoute
+              requireExpert={true}
+              showAuth={handleAuthPopupOpen}
+            />
+          }
+        >
+          <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
-        <Route path="*" element={<Error404/> } />
+
+        <Route path="*" element={<Error404 />} />
       </Routes>
+
+      <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
     </div>
   );
 };

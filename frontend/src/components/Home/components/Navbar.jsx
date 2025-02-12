@@ -2,29 +2,41 @@ import { logout } from '@/Redux/Slices/authSlice';
 import AuthPopup from '@/components/Auth/AuthPopup.auth';
 import { ChevronDown, LogOut, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || 'User');
-
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const dispatch = useDispatch();
+
+  // Check for expertData in localStorage on component mount
+  useEffect(() => {
+    const expertData = localStorage.getItem('expertData');
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
   };
-  
+
   const handleCloseAuthPopup = () => {
     setAuthPopupOpen(false);
   };
-  
+
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+  };
+
+  const handleToggleExpertMode = () => {
+    setIsExpertMode(!isExpertMode);
   };
 
   const UserDropdown = () => (
@@ -36,7 +48,7 @@ const Navbar = ({ onSearch }) => {
         <span className="text-sm font-medium">{userName}</span>
         <ChevronDown className="w-4 h-4" />
       </button>
-      
+
       <AnimatePresence>
         {isDropdownOpen && (
           <motion.div
@@ -46,20 +58,41 @@ const Navbar = ({ onSearch }) => {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
-            <a
-              href="/user-dashboard"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            >
-              <User className="w-4 h-4" />
-              Dashboard
-            </a>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
+            {isExpertMode ? (
+              <>
+                <a
+                  href="/dashboard/expert"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <User className="w-4 h-4" />
+                  Expert Dashboard
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/dashboard/user"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <User className="w-4 h-4" />
+                  Dashboard
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -72,7 +105,7 @@ const Navbar = ({ onSearch }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <a href="/" className="text-xl font-bold text-gray-900">
-              Advizy
+              MENTORIX
             </a>
           </div>
 
@@ -112,7 +145,7 @@ const Navbar = ({ onSearch }) => {
 
           <div className="hidden lg:flex items-center gap-6">
             <a 
-              href="/about-us" 
+              href="/about" 
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               About Us
@@ -123,6 +156,21 @@ const Navbar = ({ onSearch }) => {
             >
               Become an Expert
             </a>
+            {isLoggedIn && localStorage.getItem('expertData') && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-700">
+                  {isExpertMode ? 'Expert Mode' : 'User Mode'}
+                </span>
+                <label className="switch">
+                  <input 
+                    type="checkbox" 
+                    checked={isExpertMode} 
+                    onChange={handleToggleExpertMode} 
+                  />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+            )}
             {isLoggedIn ? (
               <UserDropdown />
             ) : (
@@ -179,11 +227,11 @@ const Navbar = ({ onSearch }) => {
                 {isLoggedIn ? (
                   <div className="space-y-2">
                     <a
-                      href="/dashboard/user"
+                      href={isExpertMode ? "/dashboard/expert/" : "/dashboard/user/"}
                       className="flex items-center gap-2 w-full text-sm text-gray-700 hover:text-primary transition-colors duration-200"
                     >
                       <User className="w-4 h-4" />
-                      Dashboard
+                      {isExpertMode ? 'Expert Dashboard' : 'Dashboard'}
                     </a>
                     <button
                       onClick={handleLogout}

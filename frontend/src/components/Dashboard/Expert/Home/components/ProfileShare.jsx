@@ -39,11 +39,13 @@ const Dialog = ({ isOpen, onClose, children }) => {
   );
 };
 
-const ProfileShare = () => {
+const ProfileShare = ({expert}) => {
   const [showConfetti, setShowConfetti] = useState(true);
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const profileUrl = "profile.com/username";
+  const redirect_url = expert?.redirect_url
+  console.log("thisi sexpert ",expert)
+  const profileUrl = `http://localhost:5173/${redirect_url}`;
 
   const handleCopy = async () => {
     try {

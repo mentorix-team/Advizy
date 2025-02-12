@@ -8,6 +8,7 @@ const ITEMS_PER_PAGE = 10;
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
+  console.log("filters", filters);
 
   const { expertsData, loading, error } = useSelector((state) => ({
     expertsData: state.expert.experts,
@@ -16,10 +17,16 @@ const ExpertList = ({ filters, sorting }) => {
   }));
 
   const experts = expertsData?.experts || [];
-  const totalExperts = expertsData?.totalExperts || 0;
+  const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
 
+  // Calculate the slice of experts to display for the current page
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedExperts = experts.slice(startIndex, endIndex);
+
   useEffect(() => {
+    // Construct query parameters
     const queryParams = {
       domain: filters.selectedDomain?.value || "",
       niches: filters.selectedNiches || [],
@@ -29,21 +36,30 @@ const ExpertList = ({ filters, sorting }) => {
       ratings: filters.selectedRatings || [],
       durations: filters.selectedDurations || [],
       sorting: sorting || "",
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
     };
-  
-    dispatch(getAllExperts(queryParams));
-  }, [dispatch, filters, sorting, currentPage]);
+
+    // Clean up query parameters: remove empty arrays and empty strings
+    const cleanedQueryParams = Object.fromEntries(
+      Object.entries(queryParams).filter(([key, value]) => {
+        if (Array.isArray(value)) {
+          return value.length > 0; // Keep non-empty arrays
+        }
+        return value !== ""; // Keep non-empty strings
+      })
+    );
+
+    console.log("Cleaned Query Params:", cleanedQueryParams);
+    dispatch(getAllExperts(cleanedQueryParams));
+  }, [dispatch, filters, sorting]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -55,14 +71,14 @@ const ExpertList = ({ filters, sorting }) => {
             <p className="text-lg">Loading experts...</p>
           </div>
         )}
-        
+
         {error && (
           <div className="col-span-2 flex justify-center items-center py-12">
             <p className="text-lg text-red-500">Error: {error}</p>
           </div>
         )}
-        
-        {!loading && !error && experts.length === 0 && (
+
+        {!loading && !error && paginatedExperts.length === 0 && (
           <div className="col-span-2 flex justify-center items-center py-12">
             <p className="text-lg">No experts found</p>
           </div>
@@ -70,29 +86,37 @@ const ExpertList = ({ filters, sorting }) => {
 
         {!loading &&
           !error &&
-          experts.map((expert) => (
+          paginatedExperts.map((expert) => (
             <div key={expert._id} className="flex justify-center">
               <ExpertCard
                 key={expert._id}
                 id={expert._id}
                 name={`${expert.firstName} ${expert.lastName}`}
-                image={expert?.profileImage?.secure_url ||
-                  "https://via.placeholder.com/100"}
+                image={
+                  expert?.profileImage?.secure_url ||
+                  "https://via.placeholder.com/100"
+                }
                 title={expert.credentials?.domain || "No Title Provided"}
-                rating={expert.reviews?.length > 0
-                  ? expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-                    expert.reviews.length
-                  : 0}
+                rating={
+                  expert.reviews?.length > 0
+                    ? expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+                      expert.reviews.length
+                    : 0
+                }
                 totalRatings={expert.reviews?.length || 0}
-                experience={`${expert.credentials?.work_experiences?.[0]?.years_of_experience || 0} years`}
+                experience={`${
+                  expert.credentials?.work_experiences?.[0]?.years_of_experience || 0
+                } years`}
                 languages={expert.languages || []}
                 startingPrice={expert.sessions?.[0]?.price || 0}
                 duration={expert.sessions?.[0]?.duration || "N/A"}
                 expertise={expert.credentials?.expertise || []}
-                nextSlot={expert.sessions?.[0]?.next_available_slot || {
-                  day: "N/A",
-                  time: "N/A",
-                }}
+                nextSlot={
+                  expert.sessions?.[0]?.next_available_slot || {
+                    day: "N/A",
+                    time: "N/A",
+                  }
+                }
               />
             </div>
           ))}
@@ -130,11 +154,11 @@ const ExpertList = ({ filters, sorting }) => {
               <p className="text-sm text-gray-700">
                 Showing{" "}
                 <span className="font-medium">
-                  {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, totalExperts)}
+                  {Math.min(startIndex + 1, totalExperts)}
                 </span>{" "}
                 to{" "}
                 <span className="font-medium">
-                  {Math.min(currentPage * ITEMS_PER_PAGE, totalExperts)}
+                  {Math.min(endIndex, totalExperts)}
                 </span>{" "}
                 of <span className="font-medium">{totalExperts}</span> results
               </p>

@@ -11,7 +11,6 @@ import ReadyToShare from '../components/ReadyToShare';
 import CTASection from '../components/CTASection';
 import FAQSection from '../components/FAQSection';
 import ContactForm from '../components/ContactForm';
-import Footer from '../components/Footer';
 
 const categories = [
   {
@@ -158,6 +157,18 @@ const experts = [
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
+
+  useEffect(() => {
+    const expertData = localStorage.getItem('expertData');
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
+
+  const handleToggle = () => {
+    setIsExpertMode(!isExpertMode);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -174,8 +185,11 @@ function HomePage() {
 
   return (
     <>
-      <Navbar onSearch={() => setIsModalOpen(true)} />
-      
+      <Navbar 
+        onSearch={() => setIsModalOpen(true)} 
+        isExpertMode={isExpertMode} 
+        onToggleExpertMode={handleToggle}
+      />
       <AnimatePresence>
         {showCategoryNav && <CategoryNav categories={categories} />}
       </AnimatePresence>
@@ -250,12 +264,7 @@ function HomePage() {
 
               <motion.button
                 onClick={() => setIsModalOpen(true)}
-                className="relative bg-[#169544] text-white px-8 py-3 rounded-xl font-medium 
-         transition-all duration-200 overflow-hidden isolate
-         hover:shadow-[5px_5px_0px_0px_#169544] hover:bg-white hover:border-2 border-[#169544]
-         hover:text-[#374151]
-         active:translate-x-[5px] active:translate-y-[5px] active:shadow-none;
-}"
+                className="btn-expert"
               >
                 Find an Expert
               </motion.button>
@@ -315,7 +324,6 @@ function HomePage() {
       </div>
 
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-        <Footer />
     </>
   );
 }

@@ -1,8 +1,8 @@
 import { VerifiedTickIcon } from "@/icons/Icons";
 import React, { useState } from "react";
 
-export default function Share({ onClose }) {
-  const link = "https://www.aisoul.in/";
+export default function Share({ onClose,redirect_url }) {
+  const link = `https://www.advizy.in/${redirect_url}`;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {

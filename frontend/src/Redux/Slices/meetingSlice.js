@@ -46,6 +46,21 @@ export const createMeet = createAsyncThunk(
       }
     }
   );
+
+  export const getMeetingbyid = createAsyncThunk(
+    "meeting/getmeetingbyid",
+    async(id,{rejectWithValue})=>{
+      try {
+        const response = await axiosInstance.get(`meeting/getmeetingbyid/${id}`)
+        return await response.data
+      } catch (error) {
+        console.error("Error fetching meeting details:", error.response);
+        const errorMessage = error?.response?.data?.message || "Failed to get meet.";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  )
   
   export const payed = createAsyncThunk(
     "meeting/payedformeet",
@@ -270,6 +285,20 @@ export const createMeet = createAsyncThunk(
                 state.selectedMeeting = action.payload.meeting;
             })
             .addCase(getMeet.rejected, (state, action) => {
+                state.loading = false;
+                
+                state.error = action.payload;
+            })
+            .addCase(getMeetingbyid.pending, (state, action) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getMeetingbyid.fulfilled, (state, action) => {
+                console.log('Fetched meeting:', action.payload);
+                state.loading = false;
+                state.selectedMeeting = action.payload.meeting;
+            })
+            .addCase(getMeetingbyid.rejected, (state, action) => {
                 state.loading = false;
                 
                 state.error = action.payload;

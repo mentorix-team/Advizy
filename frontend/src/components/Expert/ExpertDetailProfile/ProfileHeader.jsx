@@ -18,6 +18,7 @@ const ProfileHeader = ({
   image,
   isTopRatedVisible,
   toggleTopRated,
+  redirect_url
 }) => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -140,7 +141,7 @@ const ProfileHeader = ({
                       </button>
 
                       {/* Share Modal */}
-                      {isShareOpen && <Share onClose={closeShareModal} />}
+                      {isShareOpen && <Share onClose={closeShareModal} redirect_url = {redirect_url} />}
                     </div>
                   </div>
                   {/* Button to toggle Top Rated badge */}
