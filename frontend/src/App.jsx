@@ -50,7 +50,7 @@ const App = () => {
         <Route path="/dashboard/user/*" element={<ProtectedRoute />}>
           <Route path="/dashboard/user/*" element={<UserDashboardRoutes />} />
         </Route>
-        <Route path="/dashboard/expert/*" element={<ProtectedRoute requireExpert={true} />}>
+         <Route path="/dashboard/expert" element={<ProtectedRoute requireExpert={true} />}>
           <Route path="/dashboard/expert/*" element={<ExpertDashboardRoutes />} />
         </Route>
         <Route path="*" element={<Error404/> } />
