@@ -19,7 +19,7 @@ import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
-import AuthPopup from "./components/Auth/AuthPopup";
+import AuthPopup from './components/Auth/AuthPopup.auth'
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
