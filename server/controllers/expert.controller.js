@@ -173,7 +173,8 @@ const expertBasicDetails = async (req, res, next) => {
 
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -616,7 +617,8 @@ const createService = async (req, res, next) => {
     // Set the updated token in the cookie
     res.cookie("expertToken", updatedExpertToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -1123,7 +1125,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 ,secure:true}); 
+      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 ,secure: process.env.NODE_ENV === "production",sameSite:"None" }); 
 
       const formattedNumber = inputKey.startsWith('+') ? inputKey : `+91${inputKey}`;
       console.log("Formatted Mobile:", formattedNumber);
@@ -1139,7 +1141,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000,secure:true });
+      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
       await sendEmail(inputKey, "Your OTP", `Your OTP is ${otp}`);
       return res.status(200).json({
