@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import {useNavigate} from 'react-router-dom'
 import Navbar from '../components/Navbar';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import ExpertFAQ from '../components/ExpertFAQ';
@@ -88,6 +89,7 @@ const testimonials = [
     title: "Relationship Advisor"
   }
 ];
+
 
 const steps = [
   {
@@ -213,6 +215,7 @@ const BecomeExpertPage = () => {
   const [clonedTestimonials, setClonedTestimonials] = useState([]);
   const { scrollRef, handleMouseEnter, handleMouseLeave } = useAutoScroll(0.5);
   const imageControls = useAnimation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
@@ -232,6 +235,10 @@ const BecomeExpertPage = () => {
       }
     }, 3000);
   };
+
+  const handleExpertOnboarding =() =>{
+    navigate('/expert-onboarding');
+  }
 
   useEffect(() => {
     startAutoScroll();
@@ -626,6 +633,7 @@ const BecomeExpertPage = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="btn-expert inline-flex items-center gap-2"
+              onClick={handleExpertOnboarding}
             >
               Become an Expert
               <svg 
