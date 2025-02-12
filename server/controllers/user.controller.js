@@ -15,7 +15,8 @@ import { fileURLToPath } from "url";
 const cookieOption = {
     maxAge: 15 * 24 * 60 * 60 * 1000,
     httpOnly:true,
-    secure: process.env.NODE_ENV === "production", 
+    secure: process.env.NODE_ENV === "production",
+    sameSite:"None" 
 }
 
 const googleAuth = passport.authenticate('google', {
