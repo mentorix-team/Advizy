@@ -302,7 +302,8 @@ const BecomeExpertPage = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="btn-expert">
+            <button className="btn-expert"
+            onClick={handleExpertOnboarding}>
               Become an Expert
             </button>
           </div>

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-const PricingSection = () => {
+const PricingSection = ({handleExpertOnboarding}) => {
   const plans = [
     {
       title: "Standard Commission",
@@ -109,6 +109,7 @@ const PricingSection = () => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleExpertOnboarding}
                 className={`w-full py-3 rounded-lg font-medium transition-colors ${
                   plan.buttonStyle === 'primary'
                     ? 'bg-[#169544] text-white hover:bg-[#138339]'
