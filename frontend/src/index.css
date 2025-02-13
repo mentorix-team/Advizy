@@ -17,7 +17,9 @@
     min-width: 320px;
     min-height: 100vh;
     @apply bg-gray-50;
+    @apply leading-[normal] m-0;
   }
+  *, ::before, ::after { border-width:0;};
 
   * {
     font-family: 'Figtree', sans-serif;

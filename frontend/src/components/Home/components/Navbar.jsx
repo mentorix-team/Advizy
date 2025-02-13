@@ -14,7 +14,6 @@ const Navbar = ({ onSearch }) => {
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const dispatch = useDispatch();
 
-  // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     if (expertData) {
@@ -78,7 +77,7 @@ const Navbar = ({ onSearch }) => {
             ) : (
               <>
                 <a
-                  href="/dashboard/user"
+                  href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <User className="w-4 h-4" />
@@ -109,7 +108,6 @@ const Navbar = ({ onSearch }) => {
             </a>
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -140,7 +138,6 @@ const Navbar = ({ onSearch }) => {
             </button>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -170,7 +167,7 @@ const Navbar = ({ onSearch }) => {
 
           <div className="hidden lg:flex items-center gap-6">
             <a
-              href="/about"
+              href="/about-us"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               About Us
@@ -186,19 +183,19 @@ const Navbar = ({ onSearch }) => {
                 <span className="text-sm text-gray-700">
                   {isExpertMode ? "Expert Mode" : "User Mode"}
                 </span>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center justify-center p-1 rounded-md hover:bg-gray-100 transition-colors duration-200"
-                  aria-label={`Switch to ${
-                    isExpertMode ? "User" : "Expert"
-                  } Mode`}
+                <button 
+                  onClick={handleToggleExpertMode} 
+                  className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
+                  aria-label={`Switch to ${isExpertMode ? 'User' : 'Expert'} Mode`}
                 >
-                  <Switch
-                    size={20}
-                    className={`transition-colors duration-300 ${
-                      isExpertMode
-                        ? "text-green-600 rotate-180"
-                        : "text-gray-400"
+                  <div 
+                    className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
+                      isExpertMode ? 'bg-green-600' : 'bg-gray-300'
+                    }`}
+                  />
+                  <div 
+                    className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                      isExpertMode ? 'translate-x-4' : '-translate-x-4'
                     }`}
                   />
                 </button>
@@ -210,7 +207,7 @@ const Navbar = ({ onSearch }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-expert text-sm px-8 py-4"
+                className="bg-primary text-sm px-8 py-2"
                 onClick={handleOpenAuthPopup}
               >
                 Login
@@ -219,7 +216,6 @@ const Navbar = ({ onSearch }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
