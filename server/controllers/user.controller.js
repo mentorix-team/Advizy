@@ -15,8 +15,8 @@ import { fileURLToPath } from "url";
 const cookieOption = {
     maxAge: 15 * 24 * 60 * 60 * 1000,
     httpOnly:true,
-    secure:true,
-    
+    secure: process.env.NODE_ENV === "production",
+    sameSite:"None" 
 }
 
 const googleAuth = passport.authenticate('google', {
@@ -77,7 +77,7 @@ const handleGoogleCallback = async (req, res, next) => {
         console.log("JWT token generated:", token);
 
         // Set a cookie with the token
-        res.cookie('token', token, { httpOnly: true, maxAge: 3600000 });
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None" ,maxAge: 3600000 });
 
         // Check if the user is an expert
         const expert = await ExpertBasics.findOne({ user_id: user._id });
@@ -88,11 +88,13 @@ const handleGoogleCallback = async (req, res, next) => {
 
             res.cookie("expertToken", expertToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:"None", 
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
         }
-        const frontendURL = `http://localhost:5173/google-auth-success?token=${token}&user=${encodeURIComponent(
+
+        const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
             JSON.stringify(user)
         )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
@@ -262,7 +264,8 @@ const login = async (req, res, next) => {
 
             res.cookie("expertToken", expertToken, {
                 httpOnly: true,
-                secure: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:"None" ,
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             });
         }
@@ -281,12 +284,14 @@ const login = async (req, res, next) => {
 const logout = async(req,res,next)=>{
     res.cookie('token',null,{
         httpOnly:true,
-        secure:true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite:"None" ,
         maxAge:0
     })
     res.cookie('expertToken',null,{
         httpOnly:true,
-        secure:true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite:"None" ,
         maxAge:0
     })
 
@@ -326,7 +331,7 @@ const forgot = async (req, res, next) => {
     const resetToken = await user.generateForgotPasswordToken();
     await user.save();
 
-    const resetPasswordUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetPasswordUrl = `${process.env.frontendURL}/reset-password/${resetToken}`;
     
     // Define subject and message for the email
     const message = `${resetPasswordUrl}`
@@ -563,14 +568,14 @@ const generate_otp_for_Signup = async (req, res, next) => {
         res.cookie("otpToken", otpToken, {
             httpOnly: true,
             maxAge: 10 * 60 * 1000, // 10 minutes
-            secure: true, // Only secure in production
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production",  // Only secure in production
+            sameSite: "None",
         });
 
         res.cookie("tempUser", JSON.stringify({ firstName, lastName, email, password }), {
             httpOnly: true,
-            secure: true,
-            sameSite: "strict",
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None",
         });
 
         // Read and format the email template
@@ -604,7 +609,7 @@ const regenerate_otp = async (req, res, next) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpToken = bcrypt.hashSync(otp, 10);
 
-        res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 }); // Valid for 10 minutes
+        res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); // Valid for 10 minutes
 
         await sendEmail(email, "Your Regenerated OTP", `Your new OTP is ${otp}`);
 
@@ -670,7 +675,7 @@ const validate_otp_email = async (req, res, next) => {
 
         // Generate JWT Token
         const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "strict" });
+        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         return res.status(200).json({
             success: true,
@@ -699,8 +704,8 @@ const generate_otp_for_Signup_mobile = async(req,res,next)=>{
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpToken = bcrypt.hashSync(otp, 10);
 
-        res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 }); 
-        res.cookie("tempUser", { firstName, lastName, number, password }, { httpOnly: true });
+        res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); 
+        res.cookie("tempUser", { firstName, lastName, number, password }, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         const formattedNumber = String(number).startsWith('+') ? String(number) : `+91${number}`;
 
@@ -751,7 +756,7 @@ const validate_otp_mobile = async(req,res,next) =>{
         res.clearCookie("tempUser");
 
         const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true });
+        res.cookie("token", token, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         return res.status(200).json({
             success: true,
@@ -798,6 +803,7 @@ const generate_otp_with_email = async (req, res, next) => {
         res.cookie("email", email, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
+            sameSite:"None" ,
             maxAge: 5 * 60 * 1000, // 5 minutes expiry
         });
 
@@ -836,7 +842,7 @@ const forgot_with_otp_email = async (req, res, next) => {
         const cookieOption = {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "Strict",
+            sameSite:"None" ,
             maxAge: 15 * 60 * 1000,
         };
         res.cookie("resettoken", resetToken, cookieOption);
