@@ -88,6 +88,7 @@ const ExpertList = ({ filters, sorting }) => {
           !error &&
           paginatedExperts.map((expert) => (
             <div key={expert._id} className="flex justify-center">
+              <h2>{totalExperts}</h2>
               <ExpertCard
                 key={expert._id}
                 id={expert._id}
