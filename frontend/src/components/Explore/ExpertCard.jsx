@@ -26,7 +26,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-[656px] h-[330px] bg-[#FDFDFD] rounded-tl-[10px] p-5 border border-[#1D1D1D26] space-y-3">
+    <div className="w-[656px] h-[330px] bg-[#FDFDFD] rounded-xl p-5 border border-[#1D1D1D26] space-y-3">
       {/* Top Section */}
       <div className="flex items-start gap-4">
         {/* Profile Image */}
@@ -50,8 +50,8 @@ const ExpertCard = ({
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-gray-900 font-medium">{rating}/5</span>
                 </div>
-                <div className="flex items-center bg-green-200 gap-2">
-                  <User className="text-gray-700 w-3 h-3" />
+                <div className="flex items-center bg-green-100 rounded-full gap-2">
+                  <User className="text-gray-700 w-5 h-5" />
                   <span className="text-gray-600">
                     {totalRatings} Sessions done
                   </span>
@@ -64,8 +64,8 @@ const ExpertCard = ({
               </p>
               <p className="text-gray-900">
                 Starts at{" "}
-                <span className="text-blue-800">₹{startingPrice}</span> for{" "}
-                <span className="text-blue-800">{duration}</span>
+                <span className="text-blue-800 font-semibold">₹{startingPrice}</span> for{" "}
+                <span className="text-blue-800 font-semibold">{duration}</span>
               </p>
             </div>
 
@@ -112,13 +112,13 @@ const ExpertCard = ({
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/expert/${id}`)}
-            className="px-5 py-2 bg-white border border-gray-200 font-bold rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
+            className="px-5 py-2 bg-white border font-bold rounded-lg text-sm text-gray-700 hover:shadow-md hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
           >
             View Profile
           </button>
           <button
             onClick={() => navigate(`/expert/scheduling/${id}`)}
-            className="px-5 py-2 bg-[#EDFBF1] rounded-lg text-sm font-bold text-white transition-colors shadow-sm whitespace-nowrap"
+            className="px-5 py-2 bg-primary rounded-lg text-sm border font-bold hover:shadow-md text-white transition-colors shadow-sm whitespace-nowrap"
           >
             BOOK
           </button>
