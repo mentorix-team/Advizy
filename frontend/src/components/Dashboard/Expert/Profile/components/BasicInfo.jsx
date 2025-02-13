@@ -1,16 +1,8 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from 'react';
-import PhoneInput from 'react-phone-input-2';
-import { FaPlus } from 'react-icons/fa';
-import CustomDatePicker from './CustomDatePicker';
-import 'react-phone-input-2/lib/style.css';
-=======
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
 import { FaPlus } from "react-icons/fa";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
->>>>>>> e5732701c4c24963ab01664e2ad012e997068832
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
 import { useDispatch } from "react-redux";
@@ -420,6 +412,9 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
       {/* Bio Description */}
       <div className="mt-6">
+        <p className="block text-xs font-medium text-gray-700 mb-1">
+          You can add this later*
+        </p>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Bio Description
         </label>
