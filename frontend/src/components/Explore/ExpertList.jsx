@@ -64,12 +64,10 @@ const ExpertList = ({ filters, sorting }) => {
   return (
     <div className="container mx-auto p-6">
       {/* Header */}
-      <div className="mb-8 border-b border-gray-200 pb-4">
+      <div className="col-span-2 flex justify-center items-center py-4">
         <h2 className="text-xl font-semibold">
           Available Experts -{" "}
-          <span className="text-green-600 underline">
-            {totalExperts}
-          </span>
+          <span className="text-green-600 underline">{totalExperts}</span>
         </h2>
       </div>
 
