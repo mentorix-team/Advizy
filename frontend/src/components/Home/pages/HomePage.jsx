@@ -11,7 +11,7 @@ import ReadyToShare from '../components/ReadyToShare';
 import CTASection from '../components/CTASection';
 import FAQSection from '../components/FAQSection';
 import ContactForm from '../components/ContactForm';
-import { Landmark,SquareActivity,Palette, Cpu, GraduationCap, Handshake, Palette} from 'lucide-react';
+import { Landmark,SquareActivity,Palette, Cpu, GraduationCap, Handshake} from 'lucide-react';
 
 const categories = [
   {
