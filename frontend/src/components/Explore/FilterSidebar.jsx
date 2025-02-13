@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Range } from "react-range";
 import { nicheOptions, languageOptions } from "../../utils/Options";
+import {Star} from 'lucide-react'
 import '../../index.css'
 
 const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
@@ -59,7 +60,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
     <div className="max-w-80 w-80 p-4 border shadow-md">
       <h2 className="text-xl font-semibold mb-4">Filters</h2>
       <div className="mb-4">
-        <label className="font-medium">Domain</label>
+        <label className="font-semibold text-green-600">Domain</label>
         <div className="p-1">
           <p>{selectedDomain?.label || "All"}</p>
         </div>
@@ -67,7 +68,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
       {/* Expertise (Niches) */}
       <div className="mb-4 max-w-80 w-80">
-        <label className="font-medium">Expertise (Niches)</label>
+        <label className="font-semibold text-green-600">Categories</label>
         <div className="flex flex-col gap-2 mt-2">
           {filteredNiches.map((niche) => (
             <label key={niche.value} className="flex items-center gap-2">
@@ -87,7 +88,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
       {/* Price Range */}
       <div className="mb-4 max-w-80 w-80">
-        <label className="font-medium">Price Range</label>
+        <label className="font-semibold text-green-600">Price Range</label>
         <div className="w-52 mt-4 flex flex-col gap-4 p-2">
           {/* Inputs for min and max prices */}
           <div className="flex justify-between items-center gap-1 text-sm">
@@ -180,7 +181,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
       {/* Languages */}
       <div className="mb-4">
-        <label className="font-medium">Languages</label>
+        <label className="font-semibold text-green-600">Languages</label>
         <div className="flex flex-col gap-2 mt-2">
           {languageOptions.map((lang) => (
             <label key={lang.value} className="flex items-center gap-2">
@@ -200,7 +201,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
       {/* Ratings */}
       <div className="mb-4">
-        <label className="font-medium">Ratings</label>
+        <label className="font-semibold text-green-600">Ratings</label>
         <div className="flex flex-col gap-2 mt-2">
           {ratings.map((rate) => (
             <label key={rate} className="flex items-center gap-2">
@@ -210,7 +211,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
                 checked={selectedRatings.includes(rate)}
                 onChange={() => handleCheckboxChange(setSelectedRatings, rate)}
               />
-              {rate} ★ & Above
+              {rate} <Star className="w-4 h-4 text-gray-700"/>
             </label>
           ))}
         </div>
@@ -218,7 +219,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
       {/* Time Duration */}
       <div className="mb-4">
-        <label className="font-medium">Time Duration</label>
+        <label className="font-semibold text-green-600">Time Duration</label>
         <div className="flex flex-col gap-2 mt-2">
           {durations.map((dur) => (
             <label key={dur} className="flex items-center gap-2">

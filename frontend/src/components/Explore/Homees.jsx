@@ -12,7 +12,7 @@ const Homees = () => {
   // Log whenever filters or domain change dynamically
   useEffect(() => {
     console.log("Updated Filters:", filters);
-  }, [filters, selectedDomain]); // ✅ Include `selectedDomain`
+  }, [filters, selectedDomain]);
   
 
   useEffect(() => {

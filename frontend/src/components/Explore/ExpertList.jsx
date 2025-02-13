@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
+import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 
 const ITEMS_PER_PAGE = 10;
@@ -8,7 +9,7 @@ const ITEMS_PER_PAGE = 10;
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  console.log("filters", filters);
+
 
   const { expertsData, loading, error } = useSelector((state) => ({
     expertsData: state.expert.experts,
@@ -19,6 +20,7 @@ const ExpertList = ({ filters, sorting }) => {
   const experts = expertsData?.experts || [];
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
+
 
   // Calculate the slice of experts to display for the current page
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -42,13 +44,12 @@ const ExpertList = ({ filters, sorting }) => {
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
-          return value.length > 0; // Keep non-empty arrays
+          return value.length > 0;
         }
-        return value !== ""; // Keep non-empty strings
+        return value !== "";
       })
     );
 
-    console.log("Cleaned Query Params:", cleanedQueryParams);
     dispatch(getAllExperts(cleanedQueryParams));
   }, [dispatch, filters, sorting]);
 
@@ -67,9 +68,13 @@ const ExpertList = ({ filters, sorting }) => {
       {/* Grid Container */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {loading && (
-          <div className="col-span-2 flex justify-center items-center py-12">
-            <p className="text-lg">Loading experts...</p>
-          </div>
+          <>
+            {[...Array(10)].map((_, index) => (
+              <div key={index} className="flex justify-center">
+                <ExpertCardSkeleton />
+              </div>
+            ))}
+          </>
         )}
 
         {error && (
@@ -88,6 +93,7 @@ const ExpertList = ({ filters, sorting }) => {
           !error &&
           paginatedExperts.map((expert) => (
             <div key={expert._id} className="flex justify-center">
+              <h2>Available Experts- <span className="text-green-600 underline font-semibold">{totalExperts}</span></h2>
               <ExpertCard
                 key={expert._id}
                 id={expert._id}
@@ -123,7 +129,7 @@ const ExpertList = ({ filters, sorting }) => {
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {totalPages > 1 && !loading && (
         <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
