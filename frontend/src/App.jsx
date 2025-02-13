@@ -20,7 +20,7 @@ import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
-import AuthPopup from './components/Auth/AuthPopup.auth'
+import AuthPopup from "./components/Auth/AuthPopup.auth";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -43,10 +43,6 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        {/* 
-        <Route path="/expert-onboarding" element={<ProtectedRoute />} >
-          <Route path="/expert-onboarding" element={<ProfileDetails />} />
-        </Route> */}
 
         {/* Protected Routes */}
         <Route
@@ -70,23 +66,12 @@ const App = () => {
         {/* Add a route for the Meeting component */}
         <Route path="/meeting" element={<Meeting />} />
 
-        {/* User Dashboard Routes */}
-        {/* <Route path="/dashboard/user/*" element={<UserDashboardRoutes />} />
-        <Route path="/dashboard/expert/*" element={<ExpertDashboardRoutes />} /> */}
-        {/* <Route path="/dashboard/user/*" element={<ProtectedRoute />}>
-          <Route path="/dashboard/user/*" element={<UserDashboardRoutes />} />
-        </Route> */}
-
         <Route
           path="/dashboard/user/*"
           element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
         >
           <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
-
-        {/* <Route path="/dashboard/expert" element={<ProtectedRoute requireExpert={true} />}>
-          <Route path="/dashboard/expert/*" element={<ExpertDashboardRoutes />} />
-        </Route> */}
 
         <Route
           path="/dashboard/expert/*"

@@ -50,7 +50,7 @@ const HowItWorksAlternate = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4">Your Journey with Mentorixx</h2>
+          <h2 className="text-4xl font-bold mb-4">Your Journey with Advizyx</h2>
           <p className="text-xl text-gray-600">Discover. Learn. Succeed</p>
         </motion.div>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import FilterSidebar from "./FilterSidebar";
 import ExpertList from "./ExpertList";
 import DomainBar from "./DomainBar";
+import Navbar from "../Home/components/Navbar";
 
 const Homees = () => {
   const [selectedDomain, setSelectedDomain] = useState(null);
@@ -11,7 +12,7 @@ const Homees = () => {
   // Log whenever filters or domain change dynamically
   useEffect(() => {
     console.log("Updated Filters:", filters);
-  }, [filters, selectedDomain]); // ✅ Include `selectedDomain`
+  }, [filters, selectedDomain]);
   
 
   useEffect(() => {
@@ -29,8 +30,11 @@ const Homees = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+
       {/* Fixed Domain Bar */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
+        <Navbar />
         <DomainBar onDomainSelect={(domain) => setSelectedDomain(domain)} />
       </div>
 

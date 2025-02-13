@@ -1,22 +1,21 @@
-import { logout } from '@/Redux/Slices/authSlice';
-import AuthPopup from '@/components/Auth/AuthPopup.auth';
-import { ChevronDown, LogOut, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { logout } from "@/Redux/Slices/authSlice";
+import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { ChevronDown, LogOut, User, CircleUserRound } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const userName = useSelector((state) => state.auth.user?.name || 'User');
+  const userName = useSelector((state) => state.auth.user?.name || "User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const dispatch = useDispatch();
 
-  // Check for expertData in localStorage on component mount
   useEffect(() => {
-    const expertData = localStorage.getItem('expertData');
+    const expertData = localStorage.getItem("expertData");
     if (expertData) {
       setIsExpertMode(true);
     }
@@ -45,7 +44,9 @@ const Navbar = ({ onSearch }) => {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
       >
-        <span className="text-sm font-medium">{userName}</span>
+        <span className="text-sm font-medium">
+          <CircleUserRound className="w-5 h-5" />
+        </span>
         <ChevronDown className="w-4 h-4" />
       </button>
 
@@ -78,11 +79,11 @@ const Navbar = ({ onSearch }) => {
             ) : (
               <>
                 <a
-                  href="/dashboard/user"
+                  href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <User className="w-4 h-4" />
-                  Dashboard
+                  User Dashboard
                 </a>
                 <button
                   onClick={handleLogout}
@@ -104,33 +105,65 @@ const Navbar = ({ onSearch }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-gray-900">
-              MENTORIX
+            {/* <a href="/" className="text-xl font-bold text-gray-900">
+              Advizy
+            </a> */}
+            <a
+              href="/"
+              className="flex items-center font-bold text-gray-900"
+            >
+              <img
+                src="/logo104.99&44.svg"
+                alt="Advizy Logo"
+              />
             </a>
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-600 hover:text-gray-900 focus:outline-none"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </button>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
             <div className="relative w-full">
               <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
               <input
@@ -144,31 +177,41 @@ const Navbar = ({ onSearch }) => {
           </div>
 
           <div className="hidden lg:flex items-center gap-6">
-            <a 
-              href="/about" 
+            <a
+              href="/about-us"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               About Us
             </a>
-            <a 
-              href="/become-expert" 
+            <a
+              href="/become-expert"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               Become an Expert
             </a>
-            {isLoggedIn && localStorage.getItem('expertData') && (
+            {isLoggedIn && localStorage.getItem("expertData") && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-700">
-                  {isExpertMode ? 'Expert Mode' : 'User Mode'}
+                  {isExpertMode ? "Expert Mode" : "User Mode"}
                 </span>
-                <label className="switch">
-                  <input 
-                    type="checkbox" 
-                    checked={isExpertMode} 
-                    onChange={handleToggleExpertMode} 
+                <button
+                  onClick={handleToggleExpertMode}
+                  className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
+                  aria-label={`Switch to ${
+                    isExpertMode ? "User" : "Expert"
+                  } Mode`}
+                >
+                  <div
+                    className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
+                      isExpertMode ? "bg-green-600" : "bg-gray-300"
+                    }`}
                   />
-                  <span className="slider round"></span>
-                </label>
+                  <div
+                    className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                      isExpertMode ? "translate-x-4" : "-translate-x-4"
+                    }`}
+                  />
+                </button>
               </div>
             )}
             {isLoggedIn ? (
@@ -177,7 +220,7 @@ const Navbar = ({ onSearch }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-expert text-sm px-8 py-4"
+                className="bg-primary text-white text-sm px-8 py-2 rounded-md"
                 onClick={handleOpenAuthPopup}
               >
                 Login
@@ -186,11 +229,10 @@ const Navbar = ({ onSearch }) => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden py-4 border-t border-gray-200"
           >
@@ -198,8 +240,18 @@ const Navbar = ({ onSearch }) => {
               <div className="px-2">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
                   <input
@@ -211,14 +263,14 @@ const Navbar = ({ onSearch }) => {
                   />
                 </div>
               </div>
-              <a 
-                href="/about" 
+              <a
+                href="/about"
                 className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
               >
                 About Us
               </a>
-              <a 
-                href="/become-expert" 
+              <a
+                href="/become-expert"
                 className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
               >
                 Become an Expert
@@ -227,11 +279,13 @@ const Navbar = ({ onSearch }) => {
                 {isLoggedIn ? (
                   <div className="space-y-2">
                     <a
-                      href={isExpertMode ? "/dashboard/expert/" : "/dashboard/user/"}
+                      href={
+                        isExpertMode ? "/dashboard/expert/" : "/dashboard/user/"
+                      }
                       className="flex items-center gap-2 w-full text-sm text-gray-700 hover:text-primary transition-colors duration-200"
                     >
                       <User className="w-4 h-4" />
-                      {isExpertMode ? 'Expert Dashboard' : 'Dashboard'}
+                      {isExpertMode ? "Expert Dashboard" : "Dashboard"}
                     </a>
                     <button
                       onClick={handleLogout}

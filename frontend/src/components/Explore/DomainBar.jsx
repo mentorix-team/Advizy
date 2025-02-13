@@ -12,7 +12,7 @@ const DomainBar = ({ onDomainSelect, sorting, setSorting }) => {
   };
 
   return (
-    <div className="bg-white p-4 flex border shadow-sm items-center gap-4 fixed top-[57px] w-full z-40">
+    <div className="bg-white p-2 flex border shadow-sm items-center gap-4 fixed top-[57px] w-full z-40">
       {/* Primary Domain Buttons */}
       {primaryDomains.map((domain) => (
         <button
@@ -29,7 +29,7 @@ const DomainBar = ({ onDomainSelect, sorting, setSorting }) => {
         <div className="relative">
           <button
             onClick={handleMoreClick}
-            className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium whitespace-nowrap flex items-center gap-1"
+            className="px-3 py-1 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium whitespace-nowrap flex items-center gap-1"
           >
             More
             <svg

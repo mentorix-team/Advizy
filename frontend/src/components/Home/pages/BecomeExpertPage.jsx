@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { useAutoScroll } from '../hooks/useAutoScroll';
 import ExpertFAQ from '../components/ExpertFAQ';
 import { Link, useNavigate } from 'react-router-dom';
+import PricingSection from '../components/PricingSection';
 
 const features = [
   {
@@ -12,8 +13,8 @@ const features = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    title: "Global Reach",
-    description: "Connect with clients worldwide, expanding your practice globally."
+    title: "Expand Your Reach",
+    description: "Connect with people worldwide.                                                Grow your impact with ease.                                                                Advizy brings opportunities to you."
   },
   {
     icon: (
@@ -98,7 +99,7 @@ const keyFeatures = [
 const testimonials = [
   {
     rating: 5,
-    text: "Mentorix has transformed my consulting business. I now work with clients from different countries, and the platform is incredibly easy to use.",
+    text: "Advizy has transformed my consulting business. I now work with clients from different countries, and the platform is incredibly easy to use.",
     name: "Dr. Priya S.",
     title: "Career Consultant"
   },
@@ -110,7 +111,7 @@ const testimonials = [
   },
   {
     rating: 5,
-    text: "I love how Mentorix values both experts and clients. It's a win-win for everyone.",
+    text: "I love how Advizy values both experts and clients. It's a win-win for everyone.",
     name: "Sarah M.",
     title: "Relationship Advisor"
   }
@@ -149,6 +150,34 @@ const BecomeExpertPage = () => {
   useEffect(() => {
     setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
   }, []);
+
+  const startAutoScroll = (startIndex = 0) => {
+    if (autoScrollIntervalRef.current) {
+      clearInterval(autoScrollIntervalRef.current);
+    }
+
+    let currentIndex = startIndex;
+
+    autoScrollIntervalRef.current = setInterval(() => {
+      if (!autoScrollPaused) {
+        currentIndex = (currentIndex + 1) % keyFeatures.length;
+        handleFeatureChange(keyFeatures[currentIndex]);
+      }
+    }, 3000);
+  };
+
+  const handleExpertOnboarding = () =>{
+    navigate('/expert-onboarding');
+  }
+
+  useEffect(() => {
+    startAutoScroll();
+    return () => {
+      if (autoScrollIntervalRef.current) {
+        clearInterval(autoScrollIntervalRef.current);
+      }
+    };
+  }, [autoScrollPaused]);
 
   const handleFeatureHover = async (feature) => {
     if (feature.id !== activeFeature.id) {
@@ -194,18 +223,15 @@ const BecomeExpertPage = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-          <button className="btn-expert py-10" onClick={() => handleExpertRegistration()}>
-            Become an Expert
-          </button>
-
-            <button className="px-8 py-3 rounded-lg font-medium border border-gray-200 hover:border-gray-300 transition-colors">
-              Learn More
+            <button className="btn-expert"
+            onClick={handleExpertOnboarding}>
+              Start your Journey
             </button>
           </div>
         </motion.div>
       </div>
 
-      {/* Why Choose Mentorix - Updated with popout effect */}
+      {/* Why Choose Advizy */}
       <div className="py-16 bg-[#F9FDF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -367,7 +393,7 @@ const BecomeExpertPage = () => {
       </div>
 
       {/* Testimonials Section */}
-      <div className="py-16 bg-[#F9FDF9] overflow-hidden">
+      {/* <div className="py-16 bg-[#F9FDF9] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -431,7 +457,7 @@ const BecomeExpertPage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Get Started Steps Section */}
       <div className="py-16 bg-white">
@@ -504,8 +530,69 @@ const BecomeExpertPage = () => {
         </div>
       </div>
 
-      {/* FAQ Section */}
-      <ExpertFAQ />
+      {/* Pricing Section */}
+      <PricingSection />
+
+
+      {/* Ready to Share Section */}
+      <div className="py-24 bg-[#F9FDF9]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="max-w-3xl mx-auto"
+          >
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-4xl sm:text-5xl font-bold mb-6"
+            >
+              Ready to Share Your Expertise?
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-xl text-gray-600 mb-10"
+            >
+              Join Advizy today and become part of a global community of
+              professionals making an impact!
+            </motion.p>
+
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-expert inline-flex items-center gap-2"
+              onClick={handleExpertOnboarding}
+            >
+              Become an Expert
+              <svg 
+                className="w-5 h-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </motion.button>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };

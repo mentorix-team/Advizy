@@ -49,7 +49,8 @@ const createMeetingToken = async (req, res, next) => {
     // Store the token in a cookie
     res.cookie('meetingToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Secure only in production
+      secure: process.env.NODE_ENV === "production",
+      sameSite:"None" , // Secure only in production
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
     });
 
@@ -278,7 +279,9 @@ const getMeetingById = async (req, res, next) => {
 };
   
 const getMeetingByUserId = async(req,res,next) =>{
-  const userId = req.user.id;
+  const {id} = req.user;
+  const userId = id;
+  console.log('user id',userId)
   if(!userId){
     return next(new AppError('user not registered',500))
   }

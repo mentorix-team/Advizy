@@ -109,17 +109,17 @@ function Home() {
     {
       title: "Interview Preparation Guide",
       type: "Article",
-      url: "#",
+      url: "https://docs.google.com/document/d/1yyiHmP9DCUMGdVUvRxIa28YkHL4y_4JU8ZHGWJf6YLA/edit?usp=sharing",
     },
     {
       title: "Technical Interview Basics",
       type: "Video",
-      url: "#",
+      url: "https://docs.google.com/document/d/1KEUz9VXCvGabBPE9OM9au3_3RynU4fW8kmK4TauZr0w/edit?usp=sharing",
     },
     {
       title: "Career Development Handbook",
       type: "Ebook",
-      url: "#",
+      url: "https://docs.google.com/document/d/16lZK-pDBivoEsehZI10o36kFg2iGnVo_-YcjbwTJRAI/edit?usp=sharing",
     },
   ];
 

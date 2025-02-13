@@ -163,7 +163,7 @@ const OrderSummary = () => {
         key: "rzp_test_B8zZZPygaPUZWS",
         amount: orderResponse.amount,
         currency: orderResponse.currency,
-        name: "Mentorix",
+        name: "Advizy",
         description: "Session Booking",
         order_id: orderResponse.orderId,
         handler: async function (response) {

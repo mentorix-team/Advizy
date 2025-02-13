@@ -43,7 +43,7 @@ const ReadyToShare = () => {
         >
           <div className="inline-block mb-4">
             <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-green-50 text-primary border border-green-200">
-              Trusted by 25k professionals
+              Trusted by Professionals
             </span>
           </div>
 
@@ -68,7 +68,7 @@ const ReadyToShare = () => {
           </motion.p>
 
           <motion.a
-            href="/become-expert"
+            href="/expert-onboarding"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

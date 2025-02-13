@@ -675,7 +675,7 @@ const validate_otp_email = async (req, res, next) => {
 
         // Generate JWT Token
         const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true, secure: true, sameSite: "strict" });
+        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         return res.status(200).json({
             success: true,

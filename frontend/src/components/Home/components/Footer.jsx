@@ -20,7 +20,7 @@ const Footer = () => {
                 }
               }}
             >
-              Mentorix
+              Advizy
             </motion.h2>
             <p className="text-gray-300 text-sm leading-relaxed">
               Connecting you with top consultants for personalized guidance and expert advice.
@@ -151,7 +151,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="text-center text-gray-300 text-sm">
-          <p>Mentorix. All rights reserved.</p>
+          <p>Advizy. All rights reserved.</p>
         </div>
       </div>
     </footer>

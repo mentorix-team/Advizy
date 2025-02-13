@@ -100,7 +100,7 @@ const expertBasicDetails = async (req, res, next) => {
         console.log("Uploading profile image...");
         const profileResult = await cloudinary.v2.uploader.upload(
           req.files.profileImage[0].path,
-          { folder: "MENTORIX/profile" }
+          { folder: "Advizy/profile" }
         );
 
         if (profileResult) {
@@ -116,7 +116,7 @@ const expertBasicDetails = async (req, res, next) => {
         console.log("Uploading cover image...");
         const coverResult = await cloudinary.v2.uploader.upload(
           req.files.coverImage[0].path,
-          { folder: "MENTORIX/cover" }
+          { folder: "Advizy/cover" }
         );
 
         if (coverResult) {
@@ -180,6 +180,7 @@ const expertBasicDetails = async (req, res, next) => {
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -272,7 +273,7 @@ const expertcertifiicate = async (req, res, next) => {
       try {
         console.log("Uploading file to Cloudinary...");
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "MENTORIX",
+          folder: "Advizy",
           resource_type: "raw", // Assuming it's a raw file like a PDF
         });
 
@@ -355,7 +356,7 @@ const expertEducation = async (req, res, next) => {
         // Handle file upload to Cloudinary (for PDF or other files)
         if (req.file.mimetype === "application/pdf") {
           const result = await cloudinary.v2.uploader.upload(req.file.path, {
-            folder: "MENTORIX", 
+            folder: "Advizy", 
             resource_type: "raw", // Specify non-image type for PDFs
           });
           educationData.certificate.public_id = result.public_id;
@@ -426,7 +427,7 @@ const singleexperteducation = async (req, res, next) => {
       try {
         console.log("Uploading file to Cloudinary...");
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "MENTORIX",
+          folder: "Advizy",
           resource_type: "raw",
         });
 
@@ -514,7 +515,7 @@ const expertexperience = async (req, res, next) => {
         try {
           console.log(`Uploading file for ${companyName}...`);
           const result = await cloudinary.v2.uploader.upload(req.files[companyName].path, {
-            folder: "MENTORIX",
+            folder: "Advizy",
             resource_type: "raw",
           });
 
@@ -623,6 +624,7 @@ const createService = async (req, res, next) => {
     res.cookie("expertToken", updatedExpertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite:"None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -862,7 +864,7 @@ const extpertPortfolioDetails = async (req, res, next) => {
   if (req.file) {
     try {
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: "MENTORIX",
+        folder: "Advizy",
       });
       portfolioData.photo.public_id = result.public_id;
       portfolioData.photo.secure_url = result.secure_url;
@@ -1133,7 +1135,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 }); 
+      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000,secure: process.env.NODE_ENV === "production",sameSite:"None"  }); 
 
       const formattedNumber = inputKey.startsWith('+') ? inputKey : `+91${inputKey}`;
       console.log("Formatted Mobile:", formattedNumber);
@@ -1149,7 +1151,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 });
+      res.cookie("otpToken", otpToken, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None" ,maxAge: 10 * 60 * 1000 });
 
       const templatePath = path.join(__dirname, "./EmailTemplates/verifyaccount.html");
       let emailTemplate = fs.readFileSync(templatePath, "utf8");

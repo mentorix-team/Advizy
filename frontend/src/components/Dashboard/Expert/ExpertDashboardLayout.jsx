@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { BadgeIndianRupee, CalendarDays, HandPlatter, House, MessageSquareText, Star, UserPen, Users, Video } from "lucide-react";
 
 const ExpertDashboardLayout = () => {
   return (
@@ -33,7 +34,7 @@ const ExpertDashboardLayout = () => {
               </button>
               <a href="https://aisoul.in" className="flex ms-2 md:me-24">
                 <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-                  Mentorixx
+                  Advizy
                 </span>
               </a>
             </div>
@@ -50,12 +51,28 @@ const ExpertDashboardLayout = () => {
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
-              <NavLink
+              {/* <NavLink
                 to="/dashboard/expert"
                 className={() =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${"text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"}`
                 }
               >
+                <span className="ms-3">
+                  <House className="w-5 h-5" />
+                  Home
+                </span>
+              </NavLink> */}
+              <NavLink
+                to="/dashboard/expert"
+                className={({isActive}) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <House className="w-5 h-5" />
                 <span className="ms-3">Home</span>
               </NavLink>
             </li>
@@ -70,6 +87,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <MessageSquareText className='w-5 h-5'/>
                 <span className="ms-3">Chats</span>
               </NavLink>
             </li>
@@ -84,6 +102,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <Video className='w-5 h-5'/>
                 <span className="ms-3">Meetings</span>
               </NavLink>
             </li>
@@ -98,6 +117,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <BadgeIndianRupee className='w-5 h-5'/>
                 <span className="ms-3">Payments</span>
               </NavLink>
             </li>
@@ -112,6 +132,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <HandPlatter className='w-5 h-5'/>
                 <span className="ms-3">Pricing & Services</span>
               </NavLink>
             </li>
@@ -126,6 +147,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <UserPen className='w-5 h-5'/>
                 <span className="ms-3">Profile Detail</span>
               </NavLink>
             </li>
@@ -140,6 +162,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <CalendarDays className='w-5 h-5'/>
                 <span className="ms-3">Availability</span>
               </NavLink>
             </li>
@@ -154,6 +177,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <Users className='w-5 h-5'/>
                 <span className="ms-3">Clients</span>
               </NavLink>
             </li>
@@ -168,6 +192,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
+                <Star className='w-5 h-5'/>
                 <span className="ms-3">Reviews</span>
               </NavLink>
             </li>
