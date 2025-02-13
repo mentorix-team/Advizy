@@ -207,7 +207,7 @@ const Navbar = ({ onSearch }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-primary text-sm px-8 py-2"
+                className="bg-primary text-white text-sm px-8 py-2"
                 onClick={handleOpenAuthPopup}
               >
                 Login

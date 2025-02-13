@@ -10,7 +10,6 @@ const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
 
-
   const { expertsData, loading, error } = useSelector((state) => ({
     expertsData: state.expert.experts,
     loading: state.expert.loading,
@@ -20,7 +19,6 @@ const ExpertList = ({ filters, sorting }) => {
   const experts = expertsData?.experts || [];
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
-
 
   // Calculate the slice of experts to display for the current page
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -65,6 +63,13 @@ const ExpertList = ({ filters, sorting }) => {
 
   return (
     <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <h2>
+        Available Experts-{" "}
+        <span className="text-green-600 underline font-semibold">
+          {totalExperts}
+        </span>
+      </h2>
+
       {/* Grid Container */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {loading && (
@@ -93,7 +98,6 @@ const ExpertList = ({ filters, sorting }) => {
           !error &&
           paginatedExperts.map((expert) => (
             <div key={expert._id} className="flex justify-center">
-              <h2>Available Experts- <span className="text-green-600 underline font-semibold">{totalExperts}</span></h2>
               <ExpertCard
                 key={expert._id}
                 id={expert._id}
@@ -105,13 +109,16 @@ const ExpertList = ({ filters, sorting }) => {
                 title={expert.credentials?.domain || "No Title Provided"}
                 rating={
                   expert.reviews?.length > 0
-                    ? expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-                      expert.reviews.length
+                    ? expert.reviews.reduce(
+                        (acc, review) => acc + review.rating,
+                        0
+                      ) / expert.reviews.length
                     : 0
                 }
                 totalRatings={expert.reviews?.length || 0}
                 experience={`${
-                  expert.credentials?.work_experiences?.[0]?.years_of_experience || 0
+                  expert.credentials?.work_experiences?.[0]
+                    ?.years_of_experience || 0
                 } years`}
                 languages={expert.languages || []}
                 startingPrice={expert.sessions?.[0]?.price || 0}
