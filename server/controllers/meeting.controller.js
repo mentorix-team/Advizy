@@ -311,6 +311,7 @@ const getMeetingByExpertId = async(req,res,next) =>{
 
 const createVideocall = async (req, res, next) => {
   const { title, preferred_region } = req.body;
+  console.log("req.body",req.body)
   const {id} = req.meeting
   if (!title || !preferred_region) {
     return next(new AppError('All fields are required', 400));

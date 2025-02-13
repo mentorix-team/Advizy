@@ -11,7 +11,7 @@ const isLoggedIn = async(req,res,next) => {
         const userDetails = await jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
     
         req.user  = userDetails;
-        
+        console.log("This is req.user",req.user)
         next();
         
     } catch (error) {

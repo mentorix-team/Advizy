@@ -28,6 +28,7 @@ if (expertData) {
   if (typeof expertData === 'string') {
     try {
       expert = JSON.parse(expertData);
+      console.log("This is expertData",expert);
     } catch (error) {
       console.error('Error parsing expertData:', error);
       expert = null; // Handle parsing errors safely

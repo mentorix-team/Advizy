@@ -13,23 +13,32 @@ import { BiUser, BiCalendar, BiRupee, BiStar } from "react-icons/bi";
 import { TwoPersonIcon } from "@/icons/Icons";
 import { useDispatch, useSelector } from "react-redux";
 import { getMeetingByExpertId } from "@/Redux/Slices/meetingSlice";
+import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 function Home() {
   const dispatch = useDispatch();
   const { expertData } = useSelector((state) => state.expert);
   const { meetings, loading, error } = useSelector((state) => state.meeting);
+  const { selectedAvailability } = useSelector((state) => state.availability);
 
+  console.log("availabilty",selectedAvailability)
+  const availability = selectedAvailability?.availability
   useEffect(() => {
     const fetchMeetings = async () => {
-      await dispatch(getMeetingByExpertId());
+      const response = await dispatch(getMeetingByExpertId());
+      if(response?.payload?.success){
+        dispatch(getAvailabilitybyid(expertData._id))
+      }
+    
     };
     fetchMeetings();
   }, [dispatch]);
 
+
   // Check if expert has set availability
-  const hasAvailability = meetings.some(meeting => {
-    return meeting.daySpecific && meeting.daySpecific.slot?.startTime;
-  });
+  const hasAvailability = availability?.daySpecific?.some(day => 
+    day.slots?.some(slot => slot.startTime)
+  );
 
   // Check if expert has added at least one service
   const hasServices = expertData?.credentials?.services?.length > 0;

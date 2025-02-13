@@ -23,36 +23,34 @@ function PhoneNumberValidation({ onValidNumber, value, resetTrigger, onChange })
   };
 
   const handleChange = (value, countryData) => {
-    // Strip any duplicate country code from the input
-    const dialCode = `+${countryData.dialCode}`;
-    let cleanedValue = value;
-
-    // If the value starts with the dial code, remove it to avoid duplication
-    if (value.startsWith(dialCode)) {
-      cleanedValue = dialCode + value.replace(dialCode, "");
+    const dialCode = `+${countryData.dialCode}`; // Example: "+1"
+    
+    // Ensure we properly extract only the mobile number
+    let phoneNumberWithoutCode = value.replace(dialCode, "").trim(); 
+  
+    // Some cases might still have the country code at the beginning due to formatting
+    if (phoneNumberWithoutCode.startsWith(countryData.dialCode)) {
+      phoneNumberWithoutCode = phoneNumberWithoutCode.replace(countryData.dialCode, "").trim();
     }
-
-    setPhoneNumber(cleanedValue);
-    const isValid = validatePhoneNumber(cleanedValue, countryData);
+  
+    setPhoneNumber(value);
+    const isValid = validatePhoneNumber(value, countryData);
     setValid(isValid);
-
-    // Extract country code and phone number separately
-    const phoneNumberWithoutCode = cleanedValue.replace(dialCode, "");
-
-    // Pass the separated values to the parent component
+  
     if (onChange) {
       onChange({
-        countryCode: dialCode,
-        phoneNumber: phoneNumberWithoutCode,
+        countryCode: dialCode,  // Store "+1"
+        phoneNumber: phoneNumberWithoutCode,  // Store only "7864516168"
         isValid,
-        fullNumber: cleanedValue,
+        fullNumber: value, // Full formatted number with country code
       });
     }
-
+  
     if (onValidNumber) {
-      onValidNumber(cleanedValue, isValid, countryData);
+      onValidNumber(value, isValid, countryData);
     }
   };
+  
 
   return (
     <div className="w-full">

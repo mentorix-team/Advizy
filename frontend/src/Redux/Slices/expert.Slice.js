@@ -390,7 +390,8 @@ const expertSlice = createSlice({
   extraReducers: (builder) => {
     builder
     .addCase(basicFormSubmit.fulfilled, (state, action) => {
-      const { expert } = action.payload;
+      console.log("Thi si s action",action.payload)
+      const  expert  = action.payload.expertbasic;
       console.log("This is expert:", expert);
 
       const adminApproved = expert?.admin_approved_expert ?? false; // Default to false if undefined

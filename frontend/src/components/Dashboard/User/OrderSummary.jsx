@@ -189,7 +189,7 @@ const OrderSummary = () => {
           const payedResponse = await dispatch(payed(paymentData));
           if (payedResponse.payload.success) {
             const videoCallData = {
-              title: selectedExpert.credentials?.domain,
+              title: selectedExpert.credentials?.domain || 'No Title Provided',
               preferred_region: "ap-southeast-1",
             };
             await dispatch(createVideoCall(videoCallData));

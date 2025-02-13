@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PhoneInput from 'react-phone-input-2';
 import { FaPlus } from 'react-icons/fa';
 import CustomDatePicker from './CustomDatePicker';
@@ -21,6 +21,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     onUpdate({ ...formData, [field]: value });
   };
 
+ console.log("Ths is formadata passed to basic",formData)
   const languageOptions = [
     { value: "english", label: "English" },
     { value: "marathi", label: "Marathi" },
@@ -217,7 +218,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <div className="flex-1">
             <PhoneNumberValidation
               country={"in"} // Default country
-              value={formData.countryCode + formData.mobile}
+              value={formData.countryCode + formData.mobile} 
               onChange={handlePhoneChange} // Pass the cleaned and separated values
               inputProps={{
                 required: true,
@@ -226,7 +227,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               containerClass="phone-input"
               buttonClass="phone-input-button"
               dropdownClass="phone-input-dropdown"
-    />
+            />
             </div>
             <button
               type="button"

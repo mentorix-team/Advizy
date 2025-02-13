@@ -8,6 +8,9 @@ import {algoliasearch} from 'algoliasearch'
 import { sendOtpMessage } from "../utils/sendnotification.js";
 import sendEmail from "../utils/sendEmail.js";
 import bcrypt from 'bcryptjs'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from "url";
 const expertBasicDetails = async (req, res, next) => {
   console.log("Response coming");
   try {
@@ -27,7 +30,8 @@ const expertBasicDetails = async (req, res, next) => {
     } = req.body;
 
     const user_id = req.user.id;
-
+    console.log("aasdfs",req.user.id)
+    console.log("this is user id befor",user_id)
     if (
       !firstName ||
       !lastName ||
@@ -86,7 +90,8 @@ const expertBasicDetails = async (req, res, next) => {
         credentials:{services:[]}
       });
     }
-    console.log("This is the redirect url before",expertbasic.redirect_url)
+    console.log("this is user id after",expertbasic.user_id)
+
     // Log if files exist
     if (req.files) {
       console.log("Image incoming...", req.files);
@@ -1104,6 +1109,10 @@ const pushExpertsToAlgolia = async (req, res) => {
   }
 };
 
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const generateOtpForVerifying = async (req, res, next) => {
   try {
     // Extract the key from req.body
@@ -1142,7 +1151,11 @@ const generateOtpForVerifying = async (req, res, next) => {
 
       res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000 });
 
-      await sendEmail(inputKey, "Your OTP", `Your OTP is ${otp}`);
+      const templatePath = path.join(__dirname, "./EmailTemplates/verifyaccount.html");
+      let emailTemplate = fs.readFileSync(templatePath, "utf8");
+
+      emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
+      await sendEmail(inputKey, "Your OTP Code", emailTemplate, true);
       return res.status(200).json({
         success: true,
         message: "OTP sent to email",

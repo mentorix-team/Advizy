@@ -3,10 +3,15 @@ import { AiOutlineUser, AiOutlineCheck } from 'react-icons/ai';
 import toast, { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from '@/Redux/Slices/authSlice';
+import { generateOtpforValidating } from '@/Redux/Slices/expert.Slice';
+import VerifyThedetails from '@/components/Auth/VerifyThedetails';
 
 export default function Profile() {
   const dispatch = useDispatch()
   const {data} = useSelector((state)=>state.auth)
+  const [showOtpPopup, setShowOtpPopup] = useState(false);
+  const [contactInfo, setContactInfo] = useState('');
+  const [verificationType, setVerificationType] = useState(''); // 'email' or 'mobile'
 
   const userData = JSON.parse(data)
   const [formData, setFormData] = useState({
@@ -124,24 +129,28 @@ export default function Profile() {
     }
   };
 
-  const handleVerify = (type) => {
+  const handleVerify = async(type) => {
     // Simulate verification process
-    toast.promise(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          setVerificationStatus(prev => ({
-            ...prev,
-            [type]: true
-          }));
-          resolve();
-        }, 2000);
-      }),
-      {
-        loading: `Sending verification code to your ${type}...`,
-        success: `Verification code sent to your ${type}!`,
-        error: `Failed to send verification code to your ${type}.`,
-      }
-    );
+    setContactInfo(type === 'email' ? formData.email : formData.countryCode + formData.mobile);
+
+    setShowOtpPopup(true);
+    if(type == 'email'){
+      const response = await dispatch(generateOtpforValidating(formData.email))
+    }
+    if(type == 'phone'){
+      const response = await dispatch(generateOtpforValidating(formData.phone))
+    }
+    //   {
+    //     loading: `Sending verification code to your ${type}...`,
+    //     success: `Verification code sent to your ${type}!`,
+    //     error: `Failed to send verification code to your ${type}.`,
+    //   }
+    // );
+  };
+
+  const handleOtpVerificationSuccess = () => {
+    setShowOtpPopup(false);
+    // You can add additional logic here if needed, such as updating the form state
   };
 
   const handleInterestChange = (e) => {
@@ -383,6 +392,13 @@ export default function Profile() {
           </div>
         </div>
       </div>
+      {showOtpPopup && (
+        <VerifyThedetails
+          onClose={() => setShowOtpPopup(false)}
+          onSwitchView={handleOtpVerificationSuccess}
+          contactInfo={contactInfo}
+        />
+      )}
     </div>
   );
 }

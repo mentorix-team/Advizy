@@ -103,7 +103,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                 </div>
                 <button 
                   class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
-                  onclick="window.location.href='/expert/${hit.id}'"
+                  onclick="window.location.href='/expert/${hit.objectID}'"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
