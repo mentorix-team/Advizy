@@ -1,6 +1,16 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { BadgeIndianRupee, CalendarDays, HandPlatter, House, MessageSquareText, Star, UserPen, Users, Video } from "lucide-react";
+import {
+  BadgeIndianRupee,
+  CalendarDays,
+  HandPlatter,
+  House,
+  MessageSquareText,
+  Star,
+  UserPen,
+  Users,
+  Video,
+} from "lucide-react";
 
 const ExpertDashboardLayout = () => {
   return (
@@ -64,7 +74,7 @@ const ExpertDashboardLayout = () => {
               </NavLink> */}
               <NavLink
                 to="/dashboard/expert"
-                className={({isActive}) =>
+                className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
                     isActive
                       ? "bg-[#d6fae2] font-semibold text-green-900"
@@ -78,7 +88,7 @@ const ExpertDashboardLayout = () => {
             </li>
             <li>
               <NavLink
-                to="/dashboard/expert/chats"
+                to="/dashboard/expert/availability"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
                     isActive
@@ -87,38 +97,8 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <MessageSquareText className='w-5 h-5'/>
-                <span className="ms-3">Chats</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/dashboard/expert/meetings"
-                className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-                  }`
-                }
-              >
-                <Video className='w-5 h-5'/>
-                <span className="ms-3">Meetings</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/dashboard/expert/payments"
-                className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-                  }`
-                }
-              >
-                <BadgeIndianRupee className='w-5 h-5'/>
-                <span className="ms-3">Payments</span>
+                <CalendarDays className="w-5 h-5" />
+                <span className="ms-3">Availability</span>
               </NavLink>
             </li>
             <li>
@@ -132,7 +112,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <HandPlatter className='w-5 h-5'/>
+                <HandPlatter className="w-5 h-5" />
                 <span className="ms-3">Pricing & Services</span>
               </NavLink>
             </li>
@@ -147,13 +127,13 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <UserPen className='w-5 h-5'/>
+                <UserPen className="w-5 h-5" />
                 <span className="ms-3">Profile Detail</span>
               </NavLink>
             </li>
             <li>
               <NavLink
-                to="/dashboard/expert/availability"
+                to="/dashboard/expert/meetings"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
                     isActive
@@ -162,8 +142,8 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <CalendarDays className='w-5 h-5'/>
-                <span className="ms-3">Availability</span>
+                <Video className="w-5 h-5" />
+                <span className="ms-3">Meetings</span>
               </NavLink>
             </li>
             <li>
@@ -177,8 +157,23 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <Users className='w-5 h-5'/>
+                <Users className="w-5 h-5" />
                 <span className="ms-3">Clients</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/expert/chats"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <MessageSquareText className="w-5 h-5" />
+                <span className="ms-3">Chats</span>
               </NavLink>
             </li>
             <li>
@@ -192,8 +187,23 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <Star className='w-5 h-5'/>
+                <Star className="w-5 h-5" />
                 <span className="ms-3">Reviews</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/expert/payments"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <BadgeIndianRupee className="w-5 h-5" />
+                <span className="ms-3">Payments</span>
               </NavLink>
             </li>
           </ul>
