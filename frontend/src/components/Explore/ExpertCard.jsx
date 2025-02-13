@@ -50,9 +50,9 @@ const ExpertCard = ({
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-gray-900 font-medium">{rating}/5</span>
                 </div>
-                <div className="flex items-center bg-green-100 rounded-full gap-2">
-                  <User className="text-gray-700 w-5 h-5" />
-                  <span className="text-gray-600">
+                <div className="flex items-center bg-green-100 px-2 rounded-full gap-2">
+                  <User className="text-gray-700 w-4 h-4" />
+                  <span className="text-gray-700">
                     {totalRatings} Sessions done
                   </span>
                 </div>

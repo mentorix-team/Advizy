@@ -62,16 +62,19 @@ const ExpertList = ({ filters, sorting }) => {
   };
 
   return (
-    <div className="container mx-auto px-6 py-8 max-w-7xl">
-      <h2>
-        Available Experts-{" "}
-        <span className="text-green-600 underline font-semibold">
-          {totalExperts}
-        </span>
-      </h2>
+    <div className="container mx-auto p-6">
+      {/* Header */}
+      <div className="mb-8 border-b border-gray-200 pb-4">
+        <h2 className="text-xl font-semibold">
+          Available Experts -{" "}
+          <span className="text-green-600 underline">
+            {totalExperts}
+          </span>
+        </h2>
+      </div>
 
-      {/* Grid Container */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      {/* Expert Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
@@ -83,13 +86,13 @@ const ExpertList = ({ filters, sorting }) => {
         )}
 
         {error && (
-          <div className="col-span-2 flex justify-center items-center py-12">
+          <div className="col-span-2 flex justify-center items-center py-8">
             <p className="text-lg text-red-500">Error: {error}</p>
           </div>
         )}
 
         {!loading && !error && paginatedExperts.length === 0 && (
-          <div className="col-span-2 flex justify-center items-center py-12">
+          <div className="col-span-2 flex justify-center items-center py-8">
             <p className="text-lg">No experts found</p>
           </div>
         )}
@@ -99,7 +102,6 @@ const ExpertList = ({ filters, sorting }) => {
           paginatedExperts.map((expert) => (
             <div key={expert._id} className="flex justify-center">
               <ExpertCard
-                key={expert._id}
                 id={expert._id}
                 name={`${expert.firstName} ${expert.lastName}`}
                 image={
@@ -137,7 +139,7 @@ const ExpertList = ({ filters, sorting }) => {
 
       {/* Pagination */}
       {totalPages > 1 && !loading && (
-        <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+        <div className="mt-8 pt-4 flex items-center justify-between border-t border-gray-200">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
               onClick={handlePreviousPage}
@@ -176,54 +178,52 @@ const ExpertList = ({ filters, sorting }) => {
                 of <span className="font-medium">{totalExperts}</span> results
               </p>
             </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                <button
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === 1
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === totalPages
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+                  <path
+                    fillRule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
+                  currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </nav>
-            </div>
+                  <path
+                    fillRule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </nav>
           </div>
         </div>
       )}
