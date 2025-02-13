@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 
 const navItems = [
   { icon: AiOutlineCalendar, text: 'Meetings', path: '/dashboard/user/meetings' },
-  { icon: AiOutlineDollar, text: 'Payments', path: '/dashboard/user/payments' },
   { icon: AiOutlineUser, text: 'Profile', path: '/dashboard/user/profile' },
+  { icon: AiOutlineDollar, text: 'Payments', path: '/dashboard/user/payments' },
   { icon: AiOutlineMessage, text: 'Chats', path: '/dashboard/user/chats' },
 ];
 

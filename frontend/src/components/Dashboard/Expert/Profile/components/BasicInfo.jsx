@@ -412,6 +412,9 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
       {/* Bio Description */}
       <div className="mt-6">
+        <p className="block text-xs font-medium text-gray-700 mb-1">
+          You can add this later*
+        </p>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Bio Description
         </label>
