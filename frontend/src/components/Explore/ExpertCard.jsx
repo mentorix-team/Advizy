@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star,User } from "lucide-react";
 
 const ExpertCard = ({
   id,
@@ -26,7 +26,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-[656px] h-[437px] bg-[#FDFDFD] rounded-tl-[10px] p-5 border border-[#1D1D1D26] space-y-3">
+    <div className="w-[656px] h-[330px] bg-[#FDFDFD] rounded-tl-[10px] p-5 border border-[#1D1D1D26] space-y-3">
       {/* Top Section */}
       <div className="flex items-start gap-4">
         {/* Profile Image */}
@@ -50,8 +50,9 @@ const ExpertCard = ({
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   <span className="text-gray-900 font-medium">{rating}/5</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600 bg-">
+                <div className="flex items-center bg-green-200 gap-2">
+                  <User className="text-gray-700 w-3 h-3" />
+                  <span className="text-gray-600">
                     {totalRatings} Sessions done
                   </span>
                 </div>
@@ -59,12 +60,12 @@ const ExpertCard = ({
 
               {/* Experience and Price */}
               <p className="text-gray-900">
-                Experience: {experience} in industry
+                Experience: <span className="font-semibold">{experience}</span> in industry
               </p>
               <p className="text-gray-900">
                 Starts at{" "}
-                <span className="text-blue-600">${startingPrice}</span> for{" "}
-                <span className="text-blue-600">{duration}</span>
+                <span className="text-blue-800">₹{startingPrice}</span> for{" "}
+                <span className="text-blue-800">{duration}</span>
               </p>
             </div>
 
@@ -100,49 +101,24 @@ const ExpertCard = ({
         </div>
       </div>
 
-      {/* Next Available Slot
-      <div className="border border-gray-200 rounded-lg p-3">
-        <p className="text-gray-900">
-          Next Available Slot:{" "}
-          <span className="text-blue-600">
-            {nextSlot.day}, {nextSlot.time}
-          </span>
-        </p>
-      </div>
-
-      Action Buttons 
-      <div className="flex gap-4 pt-2">
-        <button
-          onClick={() => navigate(`/expert/${id}`)}
-          className="flex-1 px-6 py-2 border border-gray-300 rounded-full text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-        >
-          View Profile
-        </button>
-        <button
-          onClick={() => navigate(`/expert/scheduling/${id}`)}
-          className="flex-1 px-6 py-2 bg-green-500 text-white rounded-full font-medium hover:bg-green-600 transition-colors"
-        >
-          BOOK
-        </button>
-      </div> */}
       {/* Bottom Row - Next Available Slot and Action Buttons */}
       <div className="flex items-center justify-between mt-4">
         <div className="text-sm text-gray-900 w-48">
           Next Available Slot:{" "}
-          <span className="text-blue-600 font-medium">
+          <span className="text-blue-800 font-semibold">
             {nextSlot.day}, {nextSlot.time}
           </span>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/expert/${id}`)}
-            className="px-5 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
+            className="px-5 py-2 bg-white border border-gray-200 font-bold rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
           >
             View Profile
           </button>
           <button
             onClick={() => navigate(`/expert/scheduling/${id}`)}
-            className="px-5 py-2 bg-green-500 rounded-full text-sm text-white hover:bg-green-600 transition-colors shadow-sm whitespace-nowrap"
+            className="px-5 py-2 bg-[#EDFBF1] rounded-lg text-sm font-bold text-white transition-colors shadow-sm whitespace-nowrap"
           >
             BOOK
           </button>
