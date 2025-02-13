@@ -43,7 +43,7 @@ const ReadyToShare = () => {
         >
           <div className="inline-block mb-4">
             <span className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-green-50 text-primary border border-green-200">
-              Trusted by 25k professionals
+              Trusted by Professionals
             </span>
           </div>
 

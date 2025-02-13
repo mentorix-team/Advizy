@@ -110,12 +110,11 @@ const Navbar = ({ onSearch }) => {
             </a> */}
             <a
               href="/"
-              className="flex items-center text-xl font-bold text-gray-900"
+              className="flex items-center font-bold text-gray-900"
             >
               <img
-                src="/logo400&100.svg"
+                src="/logo104.99&44.svg"
                 alt="Advizy Logo"
-                className="h-6 w-6 mr-2"
               />
             </a>
           </div>
@@ -221,7 +220,7 @@ const Navbar = ({ onSearch }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-primary text-white text-sm px-8 py-2 rounded-sm"
+                className="bg-primary text-white text-sm px-8 py-2 rounded-md"
                 onClick={handleOpenAuthPopup}
               >
                 Login

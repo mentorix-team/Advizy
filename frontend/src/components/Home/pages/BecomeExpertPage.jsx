@@ -3,7 +3,6 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import {useNavigate} from 'react-router-dom'
 import Navbar from '../components/Navbar';
 import { useAutoScroll } from '../hooks/useAutoScroll';
-import ExpertFAQ from '../components/ExpertFAQ';
 import PricingSection from '../components/PricingSection';
 
 const features = [
@@ -304,7 +303,7 @@ const BecomeExpertPage = () => {
           <div className="flex flex-wrap justify-center gap-4">
             <button className="btn-expert"
             onClick={handleExpertOnboarding}>
-              Become an Expert
+              Start your Journey
             </button>
           </div>
         </motion.div>
@@ -475,7 +474,7 @@ const BecomeExpertPage = () => {
       </div>
 
       {/* Testimonials Section */}
-      <div className="py-16 bg-[#F9FDF9] overflow-hidden">
+      {/* <div className="py-16 bg-[#F9FDF9] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -539,7 +538,7 @@ const BecomeExpertPage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Get Started Steps Section */}
       <div className="py-24 bg-white">
@@ -592,8 +591,6 @@ const BecomeExpertPage = () => {
       {/* Pricing Section */}
       <PricingSection />
 
-      {/* FAQ Section */}
-      <ExpertFAQ />
 
       {/* Ready to Share Section */}
       <div className="py-24 bg-[#F9FDF9]">

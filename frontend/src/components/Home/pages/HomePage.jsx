@@ -6,7 +6,7 @@ import CategoryNav from '../components/CategoryNav';
 import SearchModal from '../components/SearchModal';
 import ExpertSection from '../components/ExpertSection';
 import HowItWorksAlternate from '../components/HowItWorksAlternate';
-import TestimonialsSection from '../components/TestimonialsSection';
+// import TestimonialsSection from '../components/TestimonialsSection';
 import ReadyToShare from '../components/ReadyToShare';
 import CTASection from '../components/CTASection';
 import FAQSection from '../components/FAQSection';
@@ -29,7 +29,7 @@ const categories = [
 
     </div>
     ),
-    title: 'Fitness'
+    title: 'Health'
   },
   {
     icon: (
@@ -238,7 +238,7 @@ function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-16 w-full max-w-7xl"
             >
-              <div className="grid grid-cols-7 gap-4">
+              <div className="grid grid-cols-6 gap-4">
                 {categories.map((category, index) => (
                   <motion.div
                     key={index}
@@ -277,7 +277,7 @@ function HomePage() {
           </div>
 
           <HowItWorksAlternate />
-          <TestimonialsSection />
+          {/* <TestimonialsSection /> */}
           <ReadyToShare />
           <FAQSection />
           <ContactForm />
