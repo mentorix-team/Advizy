@@ -105,19 +105,18 @@ const Navbar = ({ onSearch }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-gray-900">
+            {/* <a href="/" className="text-xl font-bold text-gray-900">
               Advizy
-            </a>
+            </a> */}
             <a
               href="/"
               className="flex items-center text-xl font-bold text-gray-900"
             >
               <img
-                src="/logo250&150.svg"
+                src="/logo400&100.svg"
                 alt="Advizy Logo"
                 className="h-6 w-6 mr-2"
               />
-              Advizy
             </a>
           </div>
 
