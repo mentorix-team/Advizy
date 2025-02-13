@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import {House} from 'lucide-react'
+import { House } from "lucide-react";
 
 const ExpertDashboardLayout = () => {
   return (
@@ -51,16 +51,26 @@ const ExpertDashboardLayout = () => {
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
-              <NavLink
+              {/* <NavLink
                 to="/dashboard/expert"
                 className={() =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${"text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"}`
                 }
               >
                 <span className="ms-3">
-                <House className='w-5 h-5'/>
+                  <House className="w-5 h-5" />
                   Home
-                  </span>
+                </span>
+              </NavLink> */}
+              <NavLink
+                to="/dashboard/expert"
+                className={() =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700`
+                }
+              >
+                {/* Icon and Text are now separate inside the flex container */}
+                <House className="w-5 h-5" />
+                <span className="ms-3">Home</span>
               </NavLink>
             </li>
             <li>
