@@ -205,7 +205,7 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
 
         {/* Policy Text */}
         <p className="text-xs m-32 text-gray-500 text-center mt-28">
-          By joining, you agree to the Mentorix Terms of Service and to
+          By joining, you agree to the Advizy Terms of Service and to
           occasionally receive emails from us. Please read our Privacy Policy to
           learn how we use your personal data.
         </p>

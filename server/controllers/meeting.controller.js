@@ -278,7 +278,9 @@ const getMeetingById = async (req, res, next) => {
 };
   
 const getMeetingByUserId = async(req,res,next) =>{
-  const userId = req.user.id;
+  const {id} = req.user;
+  const userId = id;
+  console.log('user id',userId)
   if(!userId){
     return next(new AppError('user not registered',500))
   }

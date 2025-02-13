@@ -351,7 +351,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
         </form>
 
         <p className="text-xs text-gray-500 text-center px-10 mt-6">
-          By signing up, you agree to the Mentorix Terms of Service and to
+          By signing up, you agree to the Advizy Terms of Service and to
           occasionally receive emails from us. Please read our Privacy Policy to
           learn how we use your personal data.
         </p>

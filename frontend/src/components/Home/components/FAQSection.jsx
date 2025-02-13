@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    question: "How does Mentorixx work?",
-    answer: "Mentorixx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance."
+    question: "How does Advizyx work?",
+    answer: "Advizyx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance."
   },
   {
     question: "How much does it cost?",
@@ -96,7 +96,7 @@ const FAQSection = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-lg sm:text-xl text-gray-600">
-              " Everything you need to know about Mentorixx "
+              " Everything you need to know about Advizyx "
             </p>
           </motion.div>
 

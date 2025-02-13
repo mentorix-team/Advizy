@@ -210,7 +210,7 @@ const MissionSection = () => {
             >
               <motion.img 
                 src="https://i.postimg.cc/BZH2kYSV/13746503-5340735.png"
-                alt="Mentorix Mission"
+                alt="Advizy Mission"
                 className="w-full h-full object-cover"
                 loading="lazy"
                 animate={{
@@ -268,7 +268,7 @@ const MissionSection = () => {
             className="space-y-6"
           >
             <p className="text-xl text-gray-600">
-              At Mentorix, our mission extends beyond simply connecting mentors and
+              At Advizy, our mission extends beyond simply connecting mentors and
               mentees. We're building a future where world-class expertise is accessible to
               everyone, regardless of their location, background, or circumstances.
             </p>
@@ -502,7 +502,7 @@ const AboutPage = () => {
               whileTap={{ scale: 0.98 }}
               className="btn-expert"
             >
-              Discover Mentorix
+              Discover Advizy
             </motion.button>
           </motion.div>
 
@@ -515,7 +515,7 @@ const AboutPage = () => {
             <div className="relative aspect-[4/3]">
               <Image3D 
                 src="https://i.postimg.cc/DyPNYcd2/OBJECTS.png"
-                alt="About Mentorix"
+                alt="About Advizy"
               />
             </div>
 

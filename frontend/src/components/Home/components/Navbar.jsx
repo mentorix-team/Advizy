@@ -1,6 +1,6 @@
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User } from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,7 +44,9 @@ const Navbar = ({ onSearch }) => {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
       >
-        <span className="text-sm font-medium">{userName}</span>
+        <span className="text-sm font-medium">
+        <CircleUserRound  className="w-5 h-5"/>
+        </span>
         <ChevronDown className="w-4 h-4" />
       </button>
 
@@ -81,7 +83,7 @@ const Navbar = ({ onSearch }) => {
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <User className="w-4 h-4" />
-                  Dashboard
+                  User Dashboard
                 </a>
                 <button
                   onClick={handleLogout}
@@ -207,7 +209,7 @@ const Navbar = ({ onSearch }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-primary text-white text-sm px-8 py-2"
+                className="bg-primary text-white text-sm px-8 py-2 rounded-sm"
                 onClick={handleOpenAuthPopup}
               >
                 Login

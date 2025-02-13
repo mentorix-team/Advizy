@@ -14,7 +14,7 @@ const features = [
       </svg>
     ),
     title: "Expand Your Reach",
-    description: "Connect with people worldwide.                                                Grow your impact with ease.                                                                Mentorix brings opportunities to you."
+    description: "Connect with people worldwide.                                                Grow your impact with ease.                                                                Advizy brings opportunities to you."
   },
   {
     icon: (
@@ -72,7 +72,7 @@ const keyFeatures = [
 const testimonials = [
   {
     rating: 5,
-    text: "Mentorix has transformed my consulting business. I now work with clients from different countries, and the platform is incredibly easy to use.",
+    text: "Advizy has transformed my consulting business. I now work with clients from different countries, and the platform is incredibly easy to use.",
     name: "Dr. Priya S.",
     title: "Career Consultant"
   },
@@ -84,7 +84,7 @@ const testimonials = [
   },
   {
     rating: 5,
-    text: "I love how Mentorix values both experts and clients. It's a win-win for everyone.",
+    text: "I love how Advizy values both experts and clients. It's a win-win for everyone.",
     name: "Sarah M.",
     title: "Relationship Advisor"
   }
@@ -310,7 +310,7 @@ const BecomeExpertPage = () => {
         </motion.div>
       </div>
 
-      {/* Why Choose Mentorix */}
+      {/* Why Choose Advizy */}
       <div className="py-16 bg-[#F9FDF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -622,7 +622,7 @@ const BecomeExpertPage = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-xl text-gray-600 mb-10"
             >
-              Join Mentorix today and become part of a global community of
+              Join Advizy today and become part of a global community of
               professionals making an impact!
             </motion.p>
 

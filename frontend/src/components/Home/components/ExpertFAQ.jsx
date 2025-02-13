@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    question: "How do I get started as an expert on Mentorix?",
+    question: "How do I get started as an expert on Advizy?",
     answer: "Getting started is simple: 1) Create your profile and verify your expertise, 2) Set up your availability and service offerings, 3) Complete our brief onboarding process, and 4) Start accepting client bookings. Our team will guide you through each step."
   },
   {
-    question: "What types of experts does Mentorix accept?",
+    question: "What types of experts does Advizy accept?",
     answer: "We welcome experts from various fields including business, technology, health & wellness, career development, education, and creative arts. The key requirements are proven expertise in your field, professional experience, and a passion for mentoring others."
   },
   {
@@ -16,10 +16,10 @@ const faqs = [
   },
   {
     question: "Do we need external tools for video consultations?",
-    answer: "No, Mentorix provides a built-in video consultation platform. You don't need any external tools - just a reliable internet connection and a device with a camera and microphone."
+    answer: "No, Advizy provides a built-in video consultation platform. You don't need any external tools - just a reliable internet connection and a device with a camera and microphone."
   },
   {
-    question: "How does Mentorix ensure client quality?",
+    question: "How does Advizy ensure client quality?",
     answer: "We maintain high standards through our client verification process, clear booking policies, and a robust review system. We also provide tools to help you manage your schedule and client relationships effectively."
   }
 ];
