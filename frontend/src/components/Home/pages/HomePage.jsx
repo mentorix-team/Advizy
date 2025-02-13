@@ -17,10 +17,10 @@ const categories = [
   {
     icon: (
       <div class="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Landmark className='text-primary w-6 h-6'/>
+        <Landmark className='text-primary w-5 h-5'/>
       </div>
     ),
-    title: 'Finance'
+    title: 'Finance & Investment'
   },
   {
     icon: (

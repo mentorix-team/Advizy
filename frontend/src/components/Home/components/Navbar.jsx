@@ -45,7 +45,7 @@ const Navbar = ({ onSearch }) => {
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
       >
         <span className="text-sm font-medium">
-        <CircleUserRound  className="w-5 h-5"/>
+          <CircleUserRound className="w-5 h-5" />
         </span>
         <ChevronDown className="w-4 h-4" />
       </button>
@@ -106,6 +106,17 @@ const Navbar = ({ onSearch }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <a href="/" className="text-xl font-bold text-gray-900">
+              Advizy
+            </a>
+            <a
+              href="/"
+              className="flex items-center text-xl font-bold text-gray-900"
+            >
+              <img
+                src="/logo250&150.svg"
+                alt="Advizy Logo"
+                className="h-6 w-6 mr-2"
+              />
               Advizy
             </a>
           </div>
@@ -185,19 +196,21 @@ const Navbar = ({ onSearch }) => {
                 <span className="text-sm text-gray-700">
                   {isExpertMode ? "Expert Mode" : "User Mode"}
                 </span>
-                <button 
-                  onClick={handleToggleExpertMode} 
+                <button
+                  onClick={handleToggleExpertMode}
                   className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
-                  aria-label={`Switch to ${isExpertMode ? 'User' : 'Expert'} Mode`}
+                  aria-label={`Switch to ${
+                    isExpertMode ? "User" : "Expert"
+                  } Mode`}
                 >
-                  <div 
+                  <div
                     className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
-                      isExpertMode ? 'bg-green-600' : 'bg-gray-300'
+                      isExpertMode ? "bg-green-600" : "bg-gray-300"
                     }`}
                   />
-                  <div 
+                  <div
                     className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                      isExpertMode ? 'translate-x-4' : '-translate-x-4'
+                      isExpertMode ? "translate-x-4" : "-translate-x-4"
                     }`}
                   />
                 </button>
