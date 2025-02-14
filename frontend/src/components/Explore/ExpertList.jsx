@@ -4,7 +4,7 @@ import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 14;
 
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
