@@ -219,7 +219,7 @@ function HomePage() {
               <motion.p 
                 className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto"
               >
-                Get personalized guidance from top professionals and
+                "Get personalized guidance from top professionals and"
                 <br />
                 Unlock your potential
               </motion.p>
