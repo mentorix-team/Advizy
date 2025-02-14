@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star, User } from "lucide-react";
+import { Heart, Star,User } from "lucide-react";
 
 const ExpertCard = ({
   id,
@@ -26,70 +26,74 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border-2 border-gray-100 w-[491px] sm:w-[408px] mx-auto relative overflow-hidden z-0 transform-gpu">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-4">
-          <div className="relative w-20 h-20 rounded-full overflow-hidden">
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg text-gray-900">{name}</h3>
-            <p className="text-gray-600 text-sm mb-1">{title}</p>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium text-sm">{rating}/5</span>
+    <div className="w-[490px] h-[330px] bg-[#FDFDFD] rounded-xl p-5 border border-[#1D1D1D26] space-y-3">
+      {/* Top Section */}
+      <div className="flex items-start gap-4">
+        {/* Profile Image */}
+        <img
+          src={image}
+          alt={name}
+          className="w-36 h-36 rounded-full object-cover"
+        />
+
+        {/* Profile Info */}
+        <div className="flex-1">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              {/* Name and Title */}
+              <h2 className="text-xl font-semibold text-gray-900">{name}</h2>
+              <p className="text-gray-600">{title}</p>
+
+              {/* Rating and Sessions */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="text-gray-900 font-medium">{rating}/5</span>
+                </div>
+                <div className="flex items-center bg-green-100 px-2 rounded-full gap-2">
+                  <User className="text-gray-700 w-4 h-4" />
+                  <span className="text-gray-700">
+                    {totalRatings} Sessions done
+                  </span>
+                </div>
               </div>
-              <span
-                className="text-gray-700 text-sm"
-                style={{
-                  borderRadius: "25px",
-                  background: "rgba(196, 243, 211, 0.30)",
-                  display: "inline-flex",
-                  padding: "2px 8px",
-                  alignItems: "center",
-                  gap: "4px",
-                }}
-              >
-                <User className="w-4 h-4" />
-                {totalRatings} Sessions done
-              </span>
+
+              {/* Experience and Price */}
+              <p className="text-gray-900">
+                Experience: <span className="font-semibold">{experience}</span> in industry
+              </p>
+              <p className="text-gray-900">
+                Starts at{" "}
+                <span className="text-blue-800 font-semibold">₹{startingPrice}</span> for{" "}
+                <span className="text-blue-800 font-semibold">{duration}</span>
+              </p>
             </div>
+
+            {/* Favorite Button */}
+            <button
+              onClick={toggleLike}
+              className={`ml-4 ${isAnimating ? "animate-ping" : ""}`}
+            >
+              <Heart
+                className={`h-6 w-6 transition-transform duration-300 ${
+                  isAnimating ? "scale-125" : ""
+                }`}
+                fill={liked ? "#EF4444" : "none"}
+                stroke={liked ? "#EF4444" : "currentColor"}
+              />
+            </button>
           </div>
         </div>
-        <button
-          className={`text-gray-400 hover:text-red-500 transition-colors ${
-            liked ? "text-red-500" : ""
-          }`}
-          onClick={toggleLike}
-        >
-          <Heart className="w-6 h-6" fill={liked ? "currentColor" : "none"} />
-        </button>
       </div>
 
-      <div className="space-y-2 mb-4">
-        <p className="text-gray-600 text-sm">
-          Experience: {experience} in industry
-        </p>
-        <p className="text-sm">
-          Starts at{" "}
-          <span className="text-primary font-medium">₹{startingPrice}</span> for{" "}
-          {duration}
-        </p>
-      </div>
-
-      <div>
+      {/* Expertise Tags */}
+      <div className="space-y-2">
         <div className="flex flex-wrap gap-2">
-          <p className="text-sm text-gray-600">Expertise:</p>
-          {expertise.map((skill, index) => (
+          <p className="text-gray-900 font-medium">Expertise:</p>
+          {expertise.map((skill) => (
             <span
-              key={index}
-              className="text-sm px-3 py-1 bg-gray-100 rounded-full text-gray-700"
+              key={skill}
+              className="px-3 py-1 bg-gray-100 rounded-full text-gray-900 text-sm"
             >
               {skill}
             </span>
@@ -97,25 +101,26 @@ const ExpertCard = ({
         </div>
       </div>
 
+      {/* Bottom Row - Next Available Slot and Action Buttons */}
       <div className="flex items-center justify-between mt-4">
-        <div>
-          <p className="text-sm text-gray-600">Next Available Slot:</p>
-          <p className="text-sm text-primary">
+        <div className="text-sm text-gray-900 w-48">
+          Next Available Slot:{" "}
+          <span className="text-blue-800 font-semibold">
             {nextSlot.day}, {nextSlot.time}
-          </p>
+          </span>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/expert/${id}`)}
-            className="px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 rounded-lg border border-gray-200"
+            className="px-5 py-2 bg-white border font-bold rounded-lg text-sm text-gray-700 hover:shadow-md hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
           >
             View Profile
           </button>
           <button
             onClick={() => navigate(`/expert/scheduling/${id}`)}
-            className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90"
+            className="px-5 py-2 bg-primary rounded-lg text-sm border font-bold hover:shadow-md text-white transition-colors shadow-sm whitespace-nowrap"
           >
-            Book
+            BOOK
           </button>
         </div>
       </div>
