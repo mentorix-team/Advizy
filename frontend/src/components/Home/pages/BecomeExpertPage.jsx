@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 // import { useAutoScroll } from '../hooks/useAutoScroll';
 import ExpertFAQ from '../components/ExpertFAQ';
 import PricingSection from '../components/PricingSection';
-
+import { useNavigate } from 'react-router-dom';
 const features = [
   {
     icon: (
@@ -213,6 +213,11 @@ const BecomeExpertPage = () => {
   // const [clonedTestimonials, setClonedTestimonials] = useState([]);
   // const { scrollRef, handleMouseEnter, handleMouseLeave } = useAutoScroll(0.5);
   const imageControls = useAnimation();
+  const navigate = useNavigate();
+
+  const handleExpertOnboarding = () => {
+    navigate("/expert-onboarding");
+  }
 
   // useEffect(() => {
     // setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
@@ -300,7 +305,9 @@ const BecomeExpertPage = () => {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="btn-expert w-full sm:w-auto">
+            <button
+            onClick={handleExpertOnboarding}
+            className="btn-expert w-full sm:w-auto">
               Share your expertise
             </button>
           </div>
