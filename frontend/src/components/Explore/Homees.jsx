@@ -175,7 +175,7 @@ const Homees = () => {
       selectedRatings: [],
       selectedDurations: [],
     });
-    setSorting("");
+    setSorting(""); // Reset sorting to initial state
   };
 
   return (
@@ -183,9 +183,11 @@ const Homees = () => {
       {/* Fixed Domain Bar */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
         <Navbar />
-        <DomainBar 
-          onDomainSelect={(domain) => setSelectedDomain(domain)} 
-          resetFilters={resetFilters} 
+        <DomainBar
+          onDomainSelect={(domain) => setSelectedDomain(domain)}
+          resetFilters={resetFilters}
+          sorting={sorting} // Pass sorting state
+          setSorting={setSorting} // Pass setSorting function
         />
       </div>
 

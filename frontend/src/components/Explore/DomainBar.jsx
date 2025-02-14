@@ -89,12 +89,12 @@
 import React, { useState } from "react";
 import { domainOptions } from "../../utils/Options";
 
-const DomainBar = ({ onDomainSelect, resetFilters }) => {
+const DomainBar = ({ onDomainSelect, resetFilters, sorting, setSorting }) => {
   const primaryDomains = domainOptions.slice(0, 5);
   const remainingDomains = domainOptions.slice(5);
 
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  
+
   const handleMoreClick = () => {
     setDropdownVisible((prev) => !prev);
   };
@@ -146,7 +146,7 @@ const DomainBar = ({ onDomainSelect, resetFilters }) => {
           >
             {remainingDomains.map((domain) => (
               <button
-              key={domain.value}
+                key={domain.value}
                 className="w-full text-left px-4 py-2 text-sm font-medium hover:bg-gray-100 transition"
                 onClick={() => onDomainSelect(domain)}
               >
@@ -161,7 +161,7 @@ const DomainBar = ({ onDomainSelect, resetFilters }) => {
       <button
         onClick={resetFilters}
         className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium whitespace-nowrap"
-        >
+      >
         Reset Filter
       </button>
 
@@ -170,7 +170,7 @@ const DomainBar = ({ onDomainSelect, resetFilters }) => {
         value={sorting}
         onChange={(e) => setSorting(e.target.value)}
         className="ml-auto px-4 py-2 border border-gray-300 rounded-md text-sm"
-        >
+      >
         <option value="">Sort By</option>
         <option value="price-low-high">Price: Low to High</option>
         <option value="price-high-low">Price: High to Low</option>
