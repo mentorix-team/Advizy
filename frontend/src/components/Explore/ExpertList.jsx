@@ -293,7 +293,7 @@ const ExpertList = ({ filters, sorting }) => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="mx-auto p-6">
       {/* Available Experts Header */}
       <div className="text-center mb-6">
         <h2 className="text-xl font-semibold">
