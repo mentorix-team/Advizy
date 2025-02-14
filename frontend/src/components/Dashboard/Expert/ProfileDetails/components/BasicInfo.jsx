@@ -52,11 +52,53 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   }, []);
 
   const languageOptions = [
-    { value: "english", label: "English" },
-    { value: "marathi", label: "Marathi" },
     { value: "hindi", label: "Hindi" },
-    { value: "telugu", label: "Telugu" },
     { value: "bengali", label: "Bengali" },
+    { value: "marathi", label: "Marathi" },
+    { value: "telugu", label: "Telugu" },
+    { value: "tamil", label: "Tamil" },
+    { value: "gujarati", label: "Gujarati" },
+    { value: "urdu", label: "Urdu" },
+    { value: "kannada", label: "Kannada" },
+    { value: "odia", label: "Odia" },
+    { value: "malayalam", label: "Malayalam" },
+    { value: "punjabi", label: "Punjabi" },
+    { value: "assamese", label: "Assamese" },
+    { value: "maithili", label: "Maithili" },
+    { value: "santali", label: "Santali" },
+    { value: "kashmiri", label: "Kashmiri" },
+    { value: "nepali", label: "Nepali" },
+    { value: "gondi", label: "Gondi" },
+    { value: "sindhi", label: "Sindhi" },
+    { value: "konkani", label: "Konkani" },
+    { value: "dogri", label: "Dogri" },
+    { value: "english", label: "English" },
+    { value: "mandarin", label: "Mandarin Chinese" },
+    { value: "spanish", label: "Spanish" },
+    { value: "french", label: "French" },
+    { value: "arabic", label: "Arabic" },
+    { value: "portuguese", label: "Portuguese" },
+    { value: "russian", label: "Russian" },
+    { value: "indonesian", label: "Indonesian" },
+    { value: "japanese", label: "Japanese" },
+    { value: "german", label: "German" },
+    { value: "nigerian_pidgin", label: "Nigerian Pidgin" },
+    { value: "turkish", label: "Turkish" },
+    { value: "hausa", label: "Hausa" },
+    { value: "vietnamese", label: "Vietnamese" },
+    { value: "yue", label: "Yue Chinese (Cantonese)" },
+    { value: "swahili", label: "Swahili" },
+    { value: "tagalog", label: "Tagalog" },
+    { value: "punjabi_western", label: "Western Punjabi" },
+    { value: "korean", label: "Korean" },
+    { value: "persian", label: "Iranian Persian" },
+    { value: "javanese", label: "Javanese" },
+    { value: "italian", label: "Italian" },
+    { value: "thai", label: "Thai" },
+    { value: "amharic", label: "Amharic" },
+    { value: "levantine_arabic", label: "Levantine Arabic" },
+    { value: "bhojpuri", label: "Bhojpuri" },
+    { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
   const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
@@ -257,12 +299,55 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 : "border-gray-300"
             } rounded-lg focus:ring-1 focus:ring-primary`}
           >
-            <option value="">Select a Nationality</option>
+            <option value="">Select nationality</option>
             <option value="in">Indian</option>
+            <option value="cn">Chinese</option>
             <option value="us">American</option>
-            <option value="uk">British</option>
-            <option value="au">Australian</option>
+            <option value="id">Indonesian</option>
+            <option value="pk">Pakistani</option>
+            <option value="ng">Nigerian</option>
+            <option value="br">Brazilian</option>
+            <option value="bd">Bangladeshi</option>
+            <option value="ru">Russian</option>
+            <option value="mx">Mexican</option>
+            <option value="jp">Japanese</option>
+            <option value="et">Ethiopian</option>
+            <option value="ph">Filipino</option>
+            <option value="eg">Egyptian</option>
+            <option value="vn">Vietnamese</option>
+            <option value="cd">Congolese</option>
+            <option value="tr">Turkish</option>
+            <option value="ir">Iranian</option>
+            <option value="de">German</option>
+            <option value="th">Thai</option>
+            <option value="gb">British</option>
+            <option value="fr">French</option>
+            <option value="it">Italian</option>
+            <option value="tz">Tanzanian</option>
+            <option value="za">South African</option>
+            <option value="mm">Burmese</option>
+            <option value="ke">Kenyan</option>
+            <option value="kr">South Korean</option>
+            <option value="co">Colombian</option>
+            <option value="es">Spanish</option>
+            <option value="ug">Ugandan</option>
+            <option value="ar">Argentinian</option>
+            <option value="dz">Algerian</option>
+            <option value="sd">Sudanese</option>
+            <option value="ua">Ukrainian</option>
+            <option value="iq">Iraqi</option>
+            <option value="af">Afghan</option>
+            <option value="pl">Polish</option>
             <option value="ca">Canadian</option>
+            <option value="ma">Moroccan</option>
+            <option value="sa">Saudi Arabian</option>
+            <option value="uz">Uzbekistani</option>
+            <option value="pe">Peruvian</option>
+            <option value="ao">Angolan</option>
+            <option value="my">Malaysian</option>
+            <option value="gh">Ghanaian</option>
+            <option value="mz">Mozambican</option>
+            <option value="ye">Yemeni</option>
           </select>
           {errors.nationality && touched.nationality && (
             <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
@@ -311,7 +396,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               />
             </div>
             {verificationStatus.mobile ? (
-              <div className="flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+              <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
                 <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
                 Verified
               </div>
@@ -349,7 +434,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
             {verificationStatus.email ? (
-              <div className="flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+              <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
                 <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
                 Verified
               </div>

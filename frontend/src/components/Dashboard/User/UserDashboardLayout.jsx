@@ -440,7 +440,7 @@ const UserDashboardLayout = () => {
                   }`
                 }
               >
-                <UserCircle className="w-5 h-5" />
+                <UserPen className="w-5 h-5" />
                 <span className="ms-3">Profile</span>
               </NavLink>
             </li>

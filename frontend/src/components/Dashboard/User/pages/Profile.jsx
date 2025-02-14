@@ -1,85 +1,86 @@
-import { useState, useEffect } from 'react';
-import { AiOutlineUser, AiOutlineCheck } from 'react-icons/ai';
-import toast, { Toaster } from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateUser } from '@/Redux/Slices/authSlice';
-import { generateOtpforValidating } from '@/Redux/Slices/expert.Slice';
-import VerifyThedetails from '@/components/Auth/VerifyThedetails';
+import { useState, useEffect } from "react";
+import { AiOutlineUser, AiOutlineCheck } from "react-icons/ai";
+import toast, { Toaster } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUser } from "@/Redux/Slices/authSlice";
+import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
+import VerifyThedetails from "@/components/Auth/VerifyThedetails";
+import {CircleCheckBig} from 'lucide-react'
 
 export default function Profile() {
-  const dispatch = useDispatch()
-  const {data} = useSelector((state)=>state.auth)
+  const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.auth);
   const [showOtpPopup, setShowOtpPopup] = useState(false);
-  const [contactInfo, setContactInfo] = useState('');
-  const [verificationType, setVerificationType] = useState(''); // 'email' or 'mobile'
+  const [contactInfo, setContactInfo] = useState("");
+  const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
 
-  const userData = JSON.parse(data)
+  const userData = JSON.parse(data);
   const [formData, setFormData] = useState({
     firstName: userData.firstName,
     lastName: userData.lastName,
     email: userData.email,
-    phone: userData.number || '',
-    dateOfBirth: userData.dob || '',
-    gender: userData.gender || '',
-    interests: userData.interests || []
+    phone: userData.number || "",
+    dateOfBirth: userData.dob || "",
+    gender: userData.gender || "",
+    interests: userData.interests || [],
   });
 
   const [verificationStatus, setVerificationStatus] = useState({
     email: false,
-    phone: false
+    phone: false,
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const savedData = localStorage.getItem('profileData');
+    const savedData = localStorage.getItem("profileData");
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
     // Load verification status
-    const savedVerification = localStorage.getItem('verificationStatus');
+    const savedVerification = localStorage.getItem("verificationStatus");
     if (savedVerification) {
       setVerificationStatus(JSON.parse(savedVerification));
     }
   }, []);
 
   const interests = [
-    { id: 'technology', label: 'Technology', category: 'col1' },
-    { id: 'health', label: 'Health', category: 'col1' },
-    { id: 'arts', label: 'Arts', category: 'col1' },
-    { id: 'business', label: 'Business', category: 'col2' },
-    { id: 'education', label: 'Education', category: 'col2' },
-    { id: 'science', label: 'Science', category: 'col2' }
+    { id: "technology", label: "Technology", category: "col1" },
+    { id: "health", label: "Health", category: "col1" },
+    { id: "arts", label: "Arts", category: "col1" },
+    { id: "business", label: "Business", category: "col2" },
+    { id: "education", label: "Education", category: "col2" },
+    { id: "science", label: "Science", category: "col2" },
   ];
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = "First name is required";
     }
 
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = "Last name is required";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = "Please enter a valid email address";
     }
 
     const phoneRegex = /^\d{10}$/;
     if (formData.phone && !phoneRegex.test(formData.phone)) {
-      newErrors.phone = 'Phone number must be 10 digits';
+      newErrors.phone = "Phone number must be 10 digits";
     }
 
     if (formData.dateOfBirth) {
       const selectedDate = new Date(formData.dateOfBirth);
       const today = new Date();
       if (selectedDate > today) {
-        newErrors.dateOfBirth = 'Date of birth cannot be in the future';
+        newErrors.dateOfBirth = "Date of birth cannot be in the future";
       }
     }
 
@@ -89,56 +90,58 @@ export default function Profile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Reset verification status when email/phone changes
-    if (name === 'email' || name === 'phone') {
-      setVerificationStatus(prev => ({
+    if (name === "email" || name === "phone") {
+      setVerificationStatus((prev) => ({
         ...prev,
-        [name]: false
+        [name]: false,
       }));
     }
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const handlePhoneChange = (e) => {
     const { value } = e.target;
-    const numbers = value.replace(/\D/g, '');
+    const numbers = value.replace(/\D/g, "");
     const truncated = numbers.slice(0, 10);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      phone: truncated
+      phone: truncated,
     }));
     // Reset phone verification when number changes
-    setVerificationStatus(prev => ({
+    setVerificationStatus((prev) => ({
       ...prev,
-      phone: false
+      phone: false,
     }));
     if (errors.phone) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        phone: ''
+        phone: "",
       }));
     }
   };
 
-  const handleVerify = async(type) => {
+  const handleVerify = async (type) => {
     // Simulate verification process
-    setContactInfo(type === 'email' ? formData.email : formData.countryCode + formData.mobile);
+    setContactInfo(
+      type === "email" ? formData.email : formData.countryCode + formData.mobile
+    );
 
     setShowOtpPopup(true);
-    if(type == 'email'){
-      const response = await dispatch(generateOtpforValidating(formData.email))
+    if (type == "email") {
+      const response = await dispatch(generateOtpforValidating(formData.email));
     }
-    if(type == 'phone'){
-      const response = await dispatch(generateOtpforValidating(formData.phone))
+    if (type == "phone") {
+      const response = await dispatch(generateOtpforValidating(formData.phone));
     }
     //   {
     //     loading: `Sending verification code to your ${type}...`,
@@ -155,37 +158,41 @@ export default function Profile() {
 
   const handleInterestChange = (e) => {
     const { value, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      interests: checked 
+      interests: checked
         ? [...prev.interests, value]
-        : prev.interests.filter(interest => interest !== value)
+        : prev.interests.filter((interest) => interest !== value),
     }));
   };
 
-  const handleSave = async() => {
+  const handleSave = async () => {
     if (validateForm()) {
-      console.log("this is formData",formData)
-      const response = await dispatch(updateUser(formData))
-      localStorage.setItem('profileData', JSON.stringify(formData));
-      localStorage.setItem('verificationStatus', JSON.stringify(verificationStatus));
-      toast.success('Changes saved successfully');
+      console.log("this is formData", formData);
+      const response = await dispatch(updateUser(formData));
+      localStorage.setItem("profileData", JSON.stringify(formData));
+      localStorage.setItem(
+        "verificationStatus",
+        JSON.stringify(verificationStatus)
+      );
+      toast.success("Changes saved successfully");
     } else {
-      toast.error('Please fix the errors before saving');
+      toast.error("Please fix the errors before saving");
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <Toaster position="top-right" />
-      
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Your Profile</h1>
           <p className="text-gray-600 mt-1">
-            Keep your profile updated to get the most out of your mentorship experience.
+            Keep your profile updated to get the most out of your mentorship
+            experience.
           </p>
         </div>
         <button
@@ -204,7 +211,10 @@ export default function Profile() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               First Name *
             </label>
             <input
@@ -213,7 +223,9 @@ export default function Profile() {
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${errors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${
+                errors.firstName ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
               placeholder="Enter your first name"
             />
             {errors.firstName && (
@@ -222,7 +234,10 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Last Name *
             </label>
             <input
@@ -231,7 +246,9 @@ export default function Profile() {
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${errors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${
+                errors.lastName ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
               placeholder="Enter your last name"
             />
             {errors.lastName && (
@@ -240,7 +257,10 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email Address *
             </label>
             <div className="flex gap-2">
@@ -251,19 +271,21 @@ export default function Profile() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                  className={`w-full px-3 py-2 border ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
                   placeholder="Enter your email address"
                 />
               </div>
               <div className="flex items-center">
                 {verificationStatus.email ? (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    <AiOutlineCheck className="w-4 h-4 mr-1" />
+                  <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+                    <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
                     Verified
-                  </span>
+                  </div>
                 ) : (
                   <button
-                    onClick={() => handleVerify('email')}
+                    onClick={() => handleVerify("email")}
                     className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
                   >
                     Verify Email
@@ -277,7 +299,10 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Phone Number
             </label>
             <div className="flex gap-2">
@@ -288,21 +313,23 @@ export default function Profile() {
                   name="phone"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  className={`w-full px-3 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                  className={`w-full px-3 py-2 border ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
                   placeholder="Enter 10-digit phone number"
                   maxLength="10"
                 />
               </div>
               <div className="flex items-center">
                 {verificationStatus.phone ? (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                    <AiOutlineCheck className="w-4 h-4 mr-1" />
+                  <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+                    <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
                     Verified
-                  </span>
+                  </div>
                 ) : (
                   formData.phone.length === 10 && (
                     <button
-                      onClick={() => handleVerify('phone')}
+                      onClick={() => handleVerify("phone")}
                       className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
                     >
                       Verify Phone
@@ -317,7 +344,10 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="dateOfBirth"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Date of Birth
             </label>
             <input
@@ -327,7 +357,9 @@ export default function Profile() {
               value={formData.dateOfBirth}
               onChange={handleInputChange}
               max={today}
-              className={`w-full px-3 py-2 border ${errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${
+                errors.dateOfBirth ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
             />
             {errors.dateOfBirth && (
               <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>
@@ -335,7 +367,10 @@ export default function Profile() {
           </div>
 
           <div>
-            <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="gender"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Gender
             </label>
             <select
@@ -360,9 +395,12 @@ export default function Profile() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3">
           <div className="space-y-3">
             {interests
-              .filter(interest => interest.category === 'col1')
-              .map(interest => (
-                <label key={interest.id} className="flex items-center space-x-3">
+              .filter((interest) => interest.category === "col1")
+              .map((interest) => (
+                <label
+                  key={interest.id}
+                  className="flex items-center space-x-3"
+                >
                   <input
                     type="checkbox"
                     value={interest.id}
@@ -376,9 +414,12 @@ export default function Profile() {
           </div>
           <div className="space-y-3">
             {interests
-              .filter(interest => interest.category === 'col2')
-              .map(interest => (
-                <label key={interest.id} className="flex items-center space-x-3">
+              .filter((interest) => interest.category === "col2")
+              .map((interest) => (
+                <label
+                  key={interest.id}
+                  className="flex items-center space-x-3"
+                >
                   <input
                     type="checkbox"
                     value={interest.id}
