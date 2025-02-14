@@ -69,7 +69,7 @@ const handleGoogleCallback = async (req, res, next) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id, email: user.email },
+            { id: user._id, email: user.email },
             'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=', // Replace with environment variable in production
             { expiresIn: '1h' }
         );
