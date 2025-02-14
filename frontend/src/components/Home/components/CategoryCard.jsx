@@ -12,12 +12,12 @@ const CategoryCard = ({ icon, title }) => {
       whileTap={{ scale: 0.95 }}
       transition={{ 
         type: "spring",
-        stiffness: 500, // Increased from 400
-        damping: 15,    // Reduced from 17
-        mass: 0.8,      // Added mass for quicker response
-        duration: 0.2   // Added duration constraint
+        stiffness: 500,
+        damping: 15,
+        mass: 0.8,
+        duration: 0.2
       }}
-      className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center justify-center gap-2 h-[100px] transition-colors duration-200"
+      className="bg-white p-2 sm:p-4 rounded-lg shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center justify-center gap-1 sm:gap-2 h-[80px] sm:h-[100px] transition-colors duration-200"
     >
       <motion.div 
         whileHover={{ scale: 1.1 }}
@@ -28,15 +28,15 @@ const CategoryCard = ({ icon, title }) => {
           mass: 0.8,
           duration: 0.2
         }}
-        className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center"
+        className="w-6 h-6 sm:w-8 sm:h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center"
       >
         {typeof icon === 'string' ? (
-          <span className="text-lg">{icon}</span>
+          <span className="text-base sm:text-lg">{icon}</span>
         ) : (
           icon
         )}
       </motion.div>
-      <p className="text-base font-medium text-center">{title}</p>
+      <p className="text-xs sm:text-base font-medium text-center">{title}</p>
     </motion.div>
   );
 };

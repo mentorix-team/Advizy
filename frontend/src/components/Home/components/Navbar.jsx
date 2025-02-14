@@ -4,8 +4,7 @@ import { ChevronDown, LogOut, User, CircleUserRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
- 
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +15,11 @@ const Navbar = ({ onSearch }) => {
   const userName = useSelector((state) => state.auth.user?.name || "User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const isLinkActive = (path) => {
+    return location.pathname === path;
+  };
 
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
@@ -45,8 +49,8 @@ const Navbar = ({ onSearch }) => {
     if (newMode) {
       navigate("/dashboard/expert/");
     }
-    if (!newMode){
-      navigate('/');
+    if (!newMode) {
+      navigate("/");
     }
   };
 
@@ -122,82 +126,93 @@ const Navbar = ({ onSearch }) => {
             </a>
           </div>
 
-          <div className="flex lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none"
-            >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            {/* Search Bar */}
+            <div className="hidden lg:block flex-1 max-w-2xl mx-8">
+              <motion.div
+                className="relative"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
               >
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </svg>
-            </button>
-          </div>
-
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <div className="relative w-full">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search mentors by name or expertise..."
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm cursor-pointer"
-                onClick={onSearch}
-                readOnly
-              />
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <svg
+                    className="w-5 h-5 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search mentors by name or expertise..."
+                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                  onClick={onSearch}
+                  readOnly
+                />
+              </motion.div>
             </div>
-          </div>
 
+            {/* Mobile menu button */}
+            <div className="flex lg:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+                aria-label="Toggle menu"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  {isMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
+            </div>
+
+            {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
-              className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+              className={`transition-colors duration-200 text-base font-medium ${
+                isLinkActive("/about-us")
+                  ? "text-primary underline underline-offset-4"
+                  : "text-gray-600 hover:text-primary"
+              }`}
             >
               About Us
             </a>
-            {/* <a
-              href="/become-expert"
-              className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
-            >
-              Become an Expert
-            </a> */}
+
             {!isExpertMode && (
               <a
                 href="/become-expert"
-                className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+                className={`transition-colors duration-200 text-base font-medium ${
+                  isLinkActive('/become-expert')
+                    ? 'text-primary underline underline-offset-4'
+                    : 'text-gray-600 hover:text-primary'
+                }`}
               >
-                Become an Expert
+                Share Your Expertise{" "}
               </a>
             )}
 
@@ -242,51 +257,63 @@ const Navbar = ({ onSearch }) => {
         </div>
 
         {isMenuOpen && (
-          <motion.div
+            <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden py-4 border-t border-gray-200"
+            className="lg:hidden py-4 border-t border-gray-200 bg-white"
           >
             <div className="flex flex-col space-y-4">
-              <div className="px-2">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search mentors..."
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm cursor-pointer"
-                    onClick={onSearch}
-                    readOnly
-                  />
+            <div className="w-full px-4">
+                  <motion.div
+                    className="relative"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  >
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                      <svg
+                        className="w-4 h-4 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search mentors..."
+                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                      onClick={onSearch}
+                      readOnly
+                    />
+                  </motion.div>
                 </div>
-              </div>
               <a
-                href="/about"
-                className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
+                href="/about-us"
+                className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
+                  isLinkActive('/about')
+                    ? 'text-primary underline underline-offset-4'
+                    : 'text-gray-600 hover:text-primary'
+                }`}
               >
                 About Us
               </a>
               {!isExpertMode && (
                 <a
                   href="/become-expert"
-                  className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
+                  className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
+                    isLinkActive('/become-expert')
+                      ? 'text-primary underline underline-offset-4'
+                      : 'text-gray-600 hover:text-primary'
+                  }`}
                 >
-                  Become Expert
+                  Share Your Expertise
                 </a>
               )}
               <div className="px-2">

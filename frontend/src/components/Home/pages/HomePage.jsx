@@ -12,6 +12,7 @@ import CTASection from '../components/CTASection';
 import FAQSection from '../components/FAQSection';
 import ContactForm from '../components/ContactForm';
 import { Landmark,SquareActivity,Palette, Cpu, GraduationCap, Handshake} from 'lucide-react';
+import Footer from '../components/Footer';
 
 const categories = [
   {
@@ -219,7 +220,7 @@ function HomePage() {
               <motion.p 
                 className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto"
               >
-                "Get personalized guidance from top professionals and"
+                Get personalized guidance from top professionals and
                 <br />
                 Unlock your potential
               </motion.p>
@@ -258,7 +259,7 @@ function HomePage() {
       {/* Rest of the sections */}
       <div className="relative w-full">
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
-          <div className="space-y-12 sm:space-y-16">
+        <div className="space-y-8 sm:space-y-12">
             <ExpertSection
               title="Top Fitness Experts"
               subtitle="Specialized guidance in fitness"
@@ -266,7 +267,7 @@ function HomePage() {
               link="/fitness-experts"
             />
 
-            <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-12">
+            <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">
               <ExpertSection
                 title="Career Mentors"
                 subtitle="Professional career guidance"
@@ -284,7 +285,7 @@ function HomePage() {
           <CTASection onOpenSearchModal={() => setIsModalOpen(true)} />
         </div>
       </div>
-
+      <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );

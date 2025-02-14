@@ -1,24 +1,23 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-[#1D2939] text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand Section */}
-          <div>
+          <div className="col-span-1">
             <motion.h2 
               className="text-2xl font-semibold mb-4"
-              whileHover={{ 
-                scale: 1.05,
-                transition: {
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 10
-                }
-              }}
             >
               Advizy
             </motion.h2>
@@ -27,70 +26,92 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/" className="text-gray-300 hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/find-consultant" className="text-gray-300 hover:text-white transition-colors">
-                  Find a Consultant
-                </Link>
-              </li>
-              <li>
-                <Link to="/become-expert" className="text-gray-300 hover:text-white transition-colors">
-                  Become a Consultant
-                </Link>
-              </li>
-              <li>
-                <Link to="/about-us" className="text-gray-300 hover:text-white transition-colors">
-                  About Us
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Quick Links and Support Grid for Mobile */}
+          <div className="col-span-1 grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-2">
+            {/* Quick Links */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-3">
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Home
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/find-consultant')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Find an Expert
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/become-expert')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Share your Expertise
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/about')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    About Us
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-          {/* Support */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
-            <ul className="space-y-3">
-              <li>
-                <Link to="/contact" className="text-gray-300 hover:text-white transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacy-policy" className="text-gray-300 hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-of-service" className="text-gray-300 hover:text-white transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              {/* <li>
-                <Link to="/cookie-policy" className="text-gray-300 hover:text-white transition-colors">
-                  Cookie Policy
-                </Link>
-              </li> */}
-              <li>
-                <Link to="/refund-policy" className="text-gray-300 hover:text-white transition-colors">
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
+            {/* Support */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Support</h3>
+              <ul className="space-y-3">
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/contact')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Contact Us
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/privacy-policy')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/terms-of-service')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => handleNavigation('/refund-policy')} 
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Refund Policy
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Connect With Us */}
-          <div>
-            <h3 className="text-lg font-semibold mb-6">Connect With Us</h3>
-            <div className="grid grid-cols-3 gap-y-4 max-w-[120px]">
-              <motion.a 
+          <div className="col-span-1">
+            <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
+            <div className="flex gap-4">
+              {/* <motion.a 
                 href="https://youtube.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -111,9 +132,9 @@ const Footer = () => {
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                 </svg>
-              </motion.a>
+              </motion.a> */}
               <motion.a 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/profile.php?id=61572851715307" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors"
@@ -124,7 +145,7 @@ const Footer = () => {
                 </svg>
               </motion.a>
               <motion.a 
-                href="https://linkedin.com" 
+                href="https://www.linkedin.com/company/advizy-in/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors"
@@ -135,7 +156,7 @@ const Footer = () => {
                 </svg>
               </motion.a>
               <motion.a 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/advizy.in?igsh=MnpxODl2N3duMXNx" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-white transition-colors"
@@ -150,8 +171,8 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="text-center text-gray-300 text-sm">
-          <p>Advizy. All rights reserved.</p>
+        <div className="text-center text-gray-300 text-sm mt-12">
+          <p>©Advizy. All rights reserved.</p>
         </div>
       </div>
     </footer>

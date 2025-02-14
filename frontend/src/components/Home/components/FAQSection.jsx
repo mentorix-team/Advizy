@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    question: "How does Advizyx work?",
-    answer: "Advizyx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance."
+    question: "How does Mentorixx work?",
+    answer: "Mentorixx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance."
   },
   {
     question: "How much does it cost?",
@@ -20,29 +20,26 @@ const faqs = [
   }
 ];
 
-const FAQItem = ({ question, answer }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
+const FAQItem = ({ question, answer, isOpen, onClick }) => {
   return (
     <motion.div 
       className="border border-[#E8F5E9] rounded-lg overflow-hidden mb-4 cursor-pointer bg-white"
       initial={false}
       animate={{ 
-        backgroundColor: isHovered ? "rgba(249, 253, 249, 0.5)" : "white",
-        scale: isHovered ? 1.02 : 1
+        backgroundColor: isOpen ? "rgba(249, 253, 249, 0.5)" : "white",
+        scale: isOpen ? 1.02 : 1
       }}
       transition={{ duration: 0.2 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
     >
       <div className="w-full px-6 py-4 text-left flex justify-between items-center">
-        <span className={`text-base sm:text-lg font-medium transition-colors duration-200 ${isHovered ? "text-primary" : "text-[#1D1F1D]"}`}>
+        <span className={`text-base sm:text-lg font-medium transition-colors duration-200 ${isOpen ? "text-primary" : "text-[#1D1F1D]"}`}>
           {question}
         </span>
         <motion.span
-          animate={{ rotate: isHovered ? 180 : 0 }}
+          animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className={`transition-colors duration-200 ${isHovered ? "text-primary" : "text-gray-400"}`}
+          className={`transition-colors duration-200 ${isOpen ? "text-primary" : "text-gray-400"}`}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -51,7 +48,7 @@ const FAQItem = ({ question, answer }) => {
       </div>
       
       <AnimatePresence initial={false}>
-        {isHovered && (
+        {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -75,6 +72,8 @@ const FAQItem = ({ question, answer }) => {
 };
 
 const FAQSection = () => {
+  const [activeIndex, setActiveIndex] = useState(null);
+
   return (
     <div className="py-16 sm:py-20 lg:py-24" style={{ background: 'linear-gradient(180deg, rgba(231, 245, 236, 0.60) 50%, #FAFAFA 100%)' }}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
@@ -96,7 +95,7 @@ const FAQSection = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-lg sm:text-xl text-gray-600">
-              " Everything you need to know about Advizyx "
+              " Everything you need to know about Mentorixx "
             </p>
           </motion.div>
 
@@ -111,6 +110,8 @@ const FAQSection = () => {
               <FAQItem
                 question={faq.question}
                 answer={faq.answer}
+                isOpen={activeIndex === index}
+                onClick={() => setActiveIndex(activeIndex === index ? null : index)}
               />
             </motion.div>
           ))}
@@ -123,12 +124,7 @@ const FAQSection = () => {
             className="text-center mt-12"
           >
             <p className="text-gray-600 mb-4">Still have questions?</p>
-            <button className="relative bg-[#169544] text-white px-8 py-3 rounded-xl font-medium 
-         transition-all duration-200 overflow-hidden isolate
-         hover:shadow-[5px_5px_0px_0px_#169544] hover:bg-white hover:border-2 border-[#169544]
-         hover:text-[#374151]
-         active:translate-x-[5px] active:translate-y-[5px] active:shadow-none;
-}">
+            <button className="btn-expert">
               Contact Support
             </button>
           </motion.div>
