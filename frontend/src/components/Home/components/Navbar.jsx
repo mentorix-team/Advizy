@@ -4,10 +4,12 @@ import { ChevronDown, LogOut, User, CircleUserRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/router"; 
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const router = useRouter(); // Initialize router
   const [isExpertMode, setIsExpertMode] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || "User");
@@ -35,7 +37,15 @@ const Navbar = ({ onSearch }) => {
   };
 
   const handleToggleExpertMode = () => {
-    setIsExpertMode(!isExpertMode);
+    const newMode = !isExpertMode;
+    setIsExpertMode(newMode);
+
+    // Redirect based on the mode
+    if (newMode) {
+      router.push("/dashboard/expert/");
+    } else {
+      router.push("/");
+    }
   };
 
   const UserDropdown = () => (
