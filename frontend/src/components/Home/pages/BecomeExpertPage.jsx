@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import Navbar from '../components/Navbar';
-import { useAutoScroll } from '../hooks/useAutoScroll';
+// import { useAutoScroll } from '../hooks/useAutoScroll';
 import ExpertFAQ from '../components/ExpertFAQ';
 import { Link, useNavigate } from 'react-router-dom';
 import PricingSection from '../components/PricingSection';
@@ -141,7 +141,7 @@ const steps = [
 const BecomeExpertPage = () => {
   const [activeFeature, setActiveFeature] = useState(keyFeatures[0]);
   const [clonedTestimonials, setClonedTestimonials] = useState([]);
-  const { scrollRef, handleMouseEnter, handleMouseLeave } = useAutoScroll(0.5);
+  // const { scrollRef, handleMouseEnter, handleMouseLeave } = useAutoScroll(0.5);
   const navigate = useNavigate()
   const imageControls = useAnimation();
   const handleExpertRegistration = () => {
@@ -151,33 +151,33 @@ const BecomeExpertPage = () => {
     setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
   }, []);
 
-  const startAutoScroll = (startIndex = 0) => {
-    if (autoScrollIntervalRef.current) {
-      clearInterval(autoScrollIntervalRef.current);
-    }
+  // const startAutoScroll = (startIndex = 0) => {
+  //   if (autoScrollIntervalRef.current) {
+  //     clearInterval(autoScrollIntervalRef.current);
+  //   }
 
-    let currentIndex = startIndex;
+  //   let currentIndex = startIndex;
 
-    autoScrollIntervalRef.current = setInterval(() => {
-      if (!autoScrollPaused) {
-        currentIndex = (currentIndex + 1) % keyFeatures.length;
-        handleFeatureChange(keyFeatures[currentIndex]);
-      }
-    }, 3000);
-  };
+  //   autoScrollIntervalRef.current = setInterval(() => {
+  //     if (!autoScrollPaused) {
+  //       currentIndex = (currentIndex + 1) % keyFeatures.length;
+  //       handleFeatureChange(keyFeatures[currentIndex]);
+  //     }
+  //   }, 3000);
+  // };
 
   const handleExpertOnboarding = () =>{
     navigate('/expert-onboarding');
   }
 
-  useEffect(() => {
-    startAutoScroll();
-    return () => {
-      if (autoScrollIntervalRef.current) {
-        clearInterval(autoScrollIntervalRef.current);
-      }
-    };
-  }, [autoScrollPaused]);
+  // useEffect(() => {
+  //   startAutoScroll();
+  //   return () => {
+  //     if (autoScrollIntervalRef.current) {
+  //       clearInterval(autoScrollIntervalRef.current);
+  //     }
+  //   };
+  // }, [autoScrollPaused]);
 
   const handleFeatureHover = async (feature) => {
     if (feature.id !== activeFeature.id) {
