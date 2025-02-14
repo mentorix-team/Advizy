@@ -45,8 +45,7 @@ const Navbar = ({ onSearch }) => {
     if (newMode) {
       navigate("/dashboard/expert/");
     } else {
-      localStorage.removeItem("expertData"); // Remove expert data when switching to user mode
-      window.location.href = "/"; // Force full reload to ensure mode switch
+      navigate('/');
     }
   };
 
