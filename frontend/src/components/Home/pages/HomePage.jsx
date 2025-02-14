@@ -147,7 +147,7 @@ function HomePage() {
   }, []);
 
   return (
-    <>
+    <div className='mx-5'>
       <Navbar 
         onSearch={() => setIsModalOpen(true)} 
         isExpertMode={isExpertMode} 
@@ -264,7 +264,7 @@ function HomePage() {
               title="Top Fitness Experts"
               subtitle="Specialized guidance in fitness"
               experts={experts}
-              link="/fitness-experts"
+              link="/explore"
             />
 
             <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">
@@ -272,7 +272,7 @@ function HomePage() {
                 title="Career Mentors"
                 subtitle="Professional career guidance"
                 experts={experts}
-                link="/career-mentors"
+                link="/explore"
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ function HomePage() {
       </div>
       <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </>
+    </div>
   );
 }
 

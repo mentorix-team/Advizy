@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SearchModal from '../components/SearchModal';
+import { useNavigate } from 'react-router-dom';
 
 const Image3D = ({ src, alt }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -157,7 +158,14 @@ const AboutPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
+  const navigate = useNavigate();
 
+  const handleExpertOnboarding = () =>{
+    navigate('/expert-onboarding');
+  }
+  const handleExplorePage = () =>{
+    navigate('/explore');
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -472,6 +480,7 @@ const AboutPage = () => {
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <motion.button
+              onClick={handleExplorePage}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -484,6 +493,7 @@ const AboutPage = () => {
               </motion.button>
 
               <motion.button
+                onClick={handleExpertOnboarding}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

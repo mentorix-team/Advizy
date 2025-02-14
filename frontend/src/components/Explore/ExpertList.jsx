@@ -234,6 +234,7 @@ import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+import {SearchX} from 'lucide-react'
 
 const ITEMS_PER_PAGE = 14;
 
@@ -322,6 +323,7 @@ const ExpertList = ({ filters, sorting }) => {
 
         {!loading && !error && paginatedExperts.length === 0 && (
           <div className="col-span-2 flex justify-center items-center py-8">
+            <SearchX className='w-8 h-8'/>
             <p className="text-lg">No experts found</p>
           </div>
         )}

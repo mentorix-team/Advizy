@@ -657,6 +657,7 @@ const BecomeExpertPage = () => {
             </motion.p>
 
             <motion.button
+            onClick={handleExpertOnboarding}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -665,7 +666,7 @@ const BecomeExpertPage = () => {
               whileTap={{ scale: 0.98 }}
               className="btn-expert inline-flex items-center gap-2"
             >
-              Become an Expert
+             Stare your Expertise
               <svg 
                 className="w-4 h-4 sm:w-5 sm:h-5" 
                 fill="none" 

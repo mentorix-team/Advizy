@@ -18,7 +18,7 @@ const Footer = () => {
           <div className="col-span-1">
             <motion.h2 className="text-2xl font-semibold mb-4">
               <a href="/" className="flex items-center font-bold text-gray-900">
-                <img src="/logo104.99&44.svg" alt="Advizy Logo" />
+                <img src="/FooterLogo104.99&44.svg" alt="Advizy Logo" />
               </a>
             </motion.h2>
             <p className="text-gray-300 text-sm leading-relaxed">
