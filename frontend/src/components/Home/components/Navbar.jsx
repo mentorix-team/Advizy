@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate(); // Initialize router
+  const navigate = useNavigate();
   const [isExpertMode, setIsExpertMode] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || "User");
@@ -22,9 +22,11 @@ const Navbar = ({ onSearch }) => {
   };
 
   useEffect(() => {
-    const expertData = localStorage.getItem("expertData");
-    if (expertData) {
+    const expertMode = localStorage.getItem("expertMode");
+    if (expertMode === "true") {
       setIsExpertMode(true);
+    } else {
+      setIsExpertMode(false);
     }
   }, []);
 
@@ -45,12 +47,20 @@ const Navbar = ({ onSearch }) => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);
 
+    // Update localStorage to reflect the new mode
+    if (newMode) {
+      localStorage.setItem("expertMode", "true");
+    } else {
+      localStorage.removeItem("expertMode");
+    }
+
     // Redirect based on the mode
     if (newMode) {
+      console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
-    }
-    if (!newMode) {
-      navigate("/");
+    } else {
+      console.log("Navigating to Landing Page");
+      navigate("/"); // Navigate to the landing page
     }
   };
 
@@ -126,71 +136,71 @@ const Navbar = ({ onSearch }) => {
             </a>
           </div>
 
-            {/* Search Bar */}
-            <div className="hidden lg:block flex-1 max-w-2xl mx-8">
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              >
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search mentors by name or expertise..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                  onClick={onSearch}
-                  readOnly
-                />
-              </motion.div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="flex lg:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
-                aria-label="Toggle menu"
-              >
+          {/* Search Bar */}
+          <div className="hidden lg:block flex-1 max-w-2xl mx-8">
+            <motion.div
+              className="relative"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            >
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <svg
-                  className="h-5 w-5"
+                  className="w-5 h-5 text-primary"
                   fill="none"
-                  viewBox="0 0 24 24"
                   stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {isMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
-              </button>
-            </div>
+              </div>
+              <input
+                type="text"
+                placeholder="Search mentors by name or expertise..."
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                onClick={onSearch}
+                readOnly
+              />
+            </motion.div>
+          </div>
 
-            {/* Desktop Navigation */}
+          {/* Mobile menu button */}
+          <div className="flex lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+              aria-label="Toggle menu"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
@@ -207,12 +217,12 @@ const Navbar = ({ onSearch }) => {
               <a
                 href="/become-expert"
                 className={`transition-colors duration-200 text-base font-medium ${
-                  isLinkActive('/become-expert')
-                    ? 'text-primary underline underline-offset-4'
-                    : 'text-gray-600 hover:text-primary'
+                  isLinkActive("/become-expert")
+                    ? "text-primary underline underline-offset-4"
+                    : "text-gray-600 hover:text-primary"
                 }`}
               >
-                Share Your Expertise{" "}
+                Share Your Expertise
               </a>
             )}
 
@@ -224,9 +234,7 @@ const Navbar = ({ onSearch }) => {
                 <button
                   onClick={handleToggleExpertMode}
                   className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
-                  aria-label={`Switch to ${
-                    isExpertMode ? "User" : "Expert"
-                  } Mode`}
+                  aria-label={`Switch to ${isExpertMode ? "User" : "Expert"} Mode`}
                 >
                   <div
                     className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
@@ -257,49 +265,49 @@ const Navbar = ({ onSearch }) => {
         </div>
 
         {isMenuOpen && (
-            <motion.div
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden py-4 border-t border-gray-200 bg-white"
           >
             <div className="flex flex-col space-y-4">
-            <div className="w-full px-4">
-                  <motion.div
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  >
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search mentors..."
-                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                      onClick={onSearch}
-                      readOnly
-                    />
-                  </motion.div>
-                </div>
+              <div className="w-full px-4">
+                <motion.div
+                  className="relative"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                >
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search mentors..."
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                    onClick={onSearch}
+                    readOnly
+                  />
+                </motion.div>
+              </div>
               <a
                 href="/about-us"
                 className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                  isLinkActive('/about')
-                    ? 'text-primary underline underline-offset-4'
-                    : 'text-gray-600 hover:text-primary'
+                  isLinkActive("/about-us")
+                    ? "text-primary underline underline-offset-4"
+                    : "text-gray-600 hover:text-primary"
                 }`}
               >
                 About Us
@@ -308,9 +316,9 @@ const Navbar = ({ onSearch }) => {
                 <a
                   href="/become-expert"
                   className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                    isLinkActive('/become-expert')
-                      ? 'text-primary underline underline-offset-4'
-                      : 'text-gray-600 hover:text-primary'
+                    isLinkActive("/become-expert")
+                      ? "text-primary underline underline-offset-4"
+                      : "text-gray-600 hover:text-primary"
                   }`}
                 >
                   Share Your Expertise
