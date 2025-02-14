@@ -227,7 +227,7 @@ import {
   CircleUserRound,
   Video,
   BadgeIndianRupee,
-  UserCircle,
+  UserPen,
   MessageSquareText
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
