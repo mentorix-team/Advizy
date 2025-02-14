@@ -295,7 +295,7 @@ const ExpertList = ({ filters, sorting }) => {
   return (
     <div className="container mx-auto p-6">
       {/* Available Experts Header */}
-      <div className="flex justify-center items-center py-4">
+      <div className="text-center mb-6">
         <h2 className="text-xl font-semibold">
           Available Experts -{" "}
           <span className="text-green-600 underline">{totalExperts}</span>
@@ -303,7 +303,7 @@ const ExpertList = ({ filters, sorting }) => {
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
@@ -366,7 +366,7 @@ const ExpertList = ({ filters, sorting }) => {
           ))}
       </div>
 
-      {/* Pagination - Always Visible */}
+      {/* Pagination */}
       <div className="mt-8 pt-4 flex items-center justify-between border-t border-gray-200">
         <div className="flex-1 flex justify-between sm:hidden">
           <button
