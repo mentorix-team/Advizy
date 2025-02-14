@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, User } from "lucide-react";
+import { motion } from "framer-motion";
 
 const ExpertCard = ({
   id,
@@ -16,22 +17,39 @@ const ExpertCard = ({
   nextSlot,
 }) => {
   const [liked, setLiked] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
 
-  const toggleLike = () => {
+  const toggleLike = (e) => {
+    e.stopPropagation();
     setLiked(!liked);
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 500);
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border-2 border-gray-100 w-full sm:w-[408px] mx-auto relative overflow-hidden z-0 transform-gpu">
+    <motion.div 
+      whileHover={{ 
+        scale: 1.02,
+        y: -5,
+        borderColor: '#169544',
+        transition: {
+          type: "spring",
+          stiffness: 200,
+          damping: 25,
+          duration: 0.4
+        }
+      }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ 
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.5 }
+      }}
+      className="bg-white p-6 rounded-lg shadow-sm border-2 border-gray-100 w-full sm:w-[408px] mx-auto relative overflow-hidden z-0 transform-gpu"
+    >
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-start gap-4">
           <div className="relative w-20 h-20 rounded-full overflow-hidden">
-            <img
-              src={image}
+            <img 
+              src={image} 
               alt={name}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -48,12 +66,12 @@ const ExpertCard = ({
               <span
                 className="text-gray-700 text-sm"
                 style={{
-                  borderRadius: "25px",
-                  background: "rgba(196, 243, 211, 0.30)",
-                  display: "inline-flex",
-                  padding: "2px 8px",
-                  alignItems: "center",
-                  gap: "4px",
+                  borderRadius: '25px',
+                  background: 'rgba(196, 243, 211, 0.30)',
+                  display: 'inline-flex',
+                  padding: '2px 8px',
+                  alignItems: 'center',
+                  gap: '4px',
                 }}
               >
                 <User className="w-4 h-4" />
@@ -62,24 +80,21 @@ const ExpertCard = ({
             </div>
           </div>
         </div>
-        <button
-          className={`text-gray-400 hover:text-red-500 transition-colors ${
-            liked ? "text-red-500" : ""
-          }`}
+        <button 
+          className={`text-gray-400 hover:text-red-500 transition-colors ${liked ? 'text-red-500' : ''}`}
           onClick={toggleLike}
         >
-          <Heart className="w-6 h-6" fill={liked ? "currentColor" : "none"} />
+          <Heart 
+            className="w-6 h-6"
+            fill={liked ? "currentColor" : "none"}
+          />
         </button>
       </div>
 
       <div className="space-y-2 mb-4">
-        <p className="text-gray-600 text-sm">
-          Experience: {experience} in industry
-        </p>
+        <p className="text-gray-600 text-sm">Experience: {experience} in industry</p>
         <p className="text-sm">
-          Starts at{" "}
-          <span className="text-primary font-medium">₹{startingPrice}</span> for{" "}
-          {duration}
+          Starts at <span className="text-primary font-medium">₹{startingPrice}</span> for {duration}
         </p>
       </div>
 
@@ -87,7 +102,7 @@ const ExpertCard = ({
         <div className="flex flex-wrap gap-2">
           <p className="text-sm text-gray-600">Expertise:</p>
           {expertise.map((skill, index) => (
-            <span
+            <span 
               key={index}
               className="text-sm px-3 py-1 bg-gray-100 rounded-full text-gray-700"
             >
@@ -105,13 +120,13 @@ const ExpertCard = ({
           </p>
         </div>
         <div className="flex gap-2">
-          <button
+          <button 
             onClick={() => navigate(`/expert/${id}`)}
             className="px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 rounded-lg border border-gray-200"
           >
             View Profile
           </button>
-          <button
+          <button 
             onClick={() => navigate(`/expert/scheduling/${id}`)}
             className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90"
           >
@@ -119,7 +134,7 @@ const ExpertCard = ({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
