@@ -44,7 +44,8 @@ const Navbar = ({ onSearch }) => {
     // Redirect based on the mode
     if (newMode) {
       navigate("/dashboard/expert/");
-    } else {
+    }
+    if (!newMode){
       navigate('/');
     }
   };

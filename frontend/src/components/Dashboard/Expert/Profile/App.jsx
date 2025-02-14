@@ -9,7 +9,9 @@ import { basicFormSubmit } from '@/Redux/Slices/expert.Slice';
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { expertData, loading, error } = useSelector((state) => state.auth);
+  const { expertData, data,loading, error } = useSelector((state) => state.auth);
+  // const user = json.parse(data)
+  // console.log("this is user",user)
   const [activeTab, setActiveTab] = useState('basic');
   const [profileImage, setProfileImage] = useState('');
   const [coverImage, setCoverImage] = useState('');
@@ -34,15 +36,15 @@ function App() {
 
   const [formData, setFormData] = useState({
     basic: {
-      firstName: expert?.firstName || '',
-      lastName: expert?.lastName || '',
+      firstName: data?.firstName||expert?.firstName || '',
+      lastName: data?.lastName||expert?.lastName || '',
       gender: expert?.gender || '',
       dateOfBirth: expert?.dateOfBirth || '',
       nationality: expert?.nationality || '',
       city: expert?.city || '',
-      mobile: expert?.mobile || '',
+      mobile: data?.number||expert?.mobile || '',
       countryCode: expert?.countryCode || '',
-      email: expert?.email || '',
+      email: data?.email||expert?.email || '',
       bio: expert?.bio || '',
       languages: [],
       socialLinks: [''],
