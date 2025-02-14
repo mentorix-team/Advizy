@@ -983,9 +983,9 @@ const extpertPortfolioDetails = async (req, res, next) => {
       }
   
       // Pagination
-      const page = Math.max(1, parseInt(req.query.page) || 1); // Ensure minimum page is 1
-      const limit = Math.max(1, parseInt(req.query.limit) || 10); // Ensure minimum limit is 1
-      const skip = (page - 1) * limit;
+      // const page = Math.max(1, parseInt(req.query.page) || 1); // Ensure minimum page is 1
+      // const limit = Math.max(1, parseInt(req.query.limit) || 10); // Ensure minimum limit is 1
+      // const skip = (page - 1) * limit;
   
       // Sorting
       const sortBy = req.query.sortBy || "createdAt"; // Default sorting by createdAt
@@ -995,8 +995,8 @@ const extpertPortfolioDetails = async (req, res, next) => {
       // Fetch experts with sorting, pagination, and filtering
       const experts = await ExpertBasics.find(filters)
         .sort(sortCriteria)
-        .skip(skip)
-        .limit(limit)
+        // .skip(skip)
+        // .limit(limit)
         .lean(); // Use .lean() for better performance
   
       const totalExperts = await ExpertBasics.countDocuments(filters);
@@ -1005,8 +1005,8 @@ const extpertPortfolioDetails = async (req, res, next) => {
         success: true,
         message: "Filtered Experts",
         totalExperts,
-        currentPage: page,
-        totalPages: Math.ceil(totalExperts / limit),
+        // currentPage: page,
+        // totalPages: Math.ceil(totalExperts / limit),
         experts,
       });
     } catch (error) {
