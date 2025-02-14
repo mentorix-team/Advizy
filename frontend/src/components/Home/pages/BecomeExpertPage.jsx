@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import ExpertFAQ from '../components/ExpertFAQ';
 import PricingSection from '../components/PricingSection';
 import { useNavigate } from 'react-router-dom';
+import Footer from '../components/Footer';
 const features = [
   {
     icon: (
@@ -682,6 +683,7 @@ const BecomeExpertPage = () => {
           </motion.div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
