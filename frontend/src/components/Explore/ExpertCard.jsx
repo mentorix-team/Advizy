@@ -26,7 +26,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border-2 border-gray-100 w-full sm:w-[408px] mx-auto relative overflow-hidden z-0 transform-gpu">
+    <div className="bg-white p-6 rounded-lg shadow-sm border-2 border-gray-100 w-[491px] sm:w-[408px] mx-auto relative overflow-hidden z-0 transform-gpu">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-start gap-4">
           <div className="relative w-20 h-20 rounded-full overflow-hidden">

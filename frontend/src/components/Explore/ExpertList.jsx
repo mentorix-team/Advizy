@@ -295,7 +295,7 @@ const ExpertList = ({ filters, sorting }) => {
   return (
     <div className="mx-auto p-6">
       {/* Available Experts Header */}
-      <div className="text-center mb-6">
+      <div className="my-5">
         <h2 className="text-xl font-semibold">
           Available Experts -{" "}
           <span className="text-green-600 underline">{totalExperts}</span>
