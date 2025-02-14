@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AiOutlineUser, AiOutlineCheck } from "react-icons/ai";
+import { AiOutlineUser } from "react-icons/ai";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "@/Redux/Slices/authSlice";
@@ -131,29 +131,38 @@ export default function Profile() {
   };
 
   const handleVerify = async (type) => {
-    // Simulate verification process
-    setContactInfo(
-      type === "email" ? formData.email : formData.countryCode + formData.mobile
-    );
-
+    setVerificationType(type);
+    setContactInfo(type === "email" ? formData.email : formData.phone);
     setShowOtpPopup(true);
-    if (type == "email") {
-      const response = await dispatch(generateOtpforValidating(formData.email));
+    
+    try {
+      if (type === "email") {
+        await dispatch(generateOtpforValidating(formData.email));
+      }
+      if (type === "phone") {
+        await dispatch(generateOtpforValidating(formData.phone));
+      }
+    } catch (error) {
+      toast.error(`Failed to send verification code to your ${type}`);
     }
-    if (type == "phone") {
-      const response = await dispatch(generateOtpforValidating(formData.phone));
-    }
-    //   {
-    //     loading: `Sending verification code to your ${type}...`,
-    //     success: `Verification code sent to your ${type}!`,
-    //     error: `Failed to send verification code to your ${type}.`,
-    //   }
-    // );
   };
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
-    // You can add additional logic here if needed, such as updating the form state
+    
+    // Update verification status
+    const newVerificationStatus = {
+      ...verificationStatus,
+      [verificationType]: true
+    };
+    
+    // Update state
+    setVerificationStatus(newVerificationStatus);
+    
+    // Save to localStorage immediately
+    localStorage.setItem('verificationStatus', JSON.stringify(newVerificationStatus));
+    
+    toast.success(`${verificationType === 'email' ? 'Email' : 'Phone'} verified successfully!`);
   };
 
   const handleInterestChange = (e) => {
