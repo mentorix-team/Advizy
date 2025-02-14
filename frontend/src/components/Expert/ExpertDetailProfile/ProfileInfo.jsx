@@ -12,7 +12,7 @@ const InfoItem = ({ icon, label, value }) => (
   </div>
 );
 
-const ProfileInfo = ({ experience, languages, about }) => {
+const ProfileInfo = ({ experience, languages, about, languageOptions }) => {
   return (
     <div className="bg-white rounded-lg p-6">
       <h2 className="text-black font-figtree text-xl font-semibold leading-[150%] mb-4">
