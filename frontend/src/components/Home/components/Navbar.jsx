@@ -285,7 +285,7 @@ const Navbar = ({ onSearch }) => {
                   href="/become-expert"
                   className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
                 >
-                  Become an Expert
+                  Become Expert
                 </a>
               )}
               <div className="px-2">
