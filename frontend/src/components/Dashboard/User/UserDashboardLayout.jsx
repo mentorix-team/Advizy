@@ -346,6 +346,12 @@ const UserDashboardLayout = () => {
               >
                 About Us
               </a>
+              <a
+                href="/become-expert"
+                className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+              >
+                Become an Expert
+              </a>
               {isLoggedIn && localStorage.getItem("expertData") && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-700">
