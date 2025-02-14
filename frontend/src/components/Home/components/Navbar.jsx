@@ -105,17 +105,8 @@ const Navbar = ({ onSearch }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            {/* <a href="/" className="text-xl font-bold text-gray-900">
-              Advizy
-            </a> */}
-            <a
-              href="/"
-              className="flex items-center font-bold text-gray-900"
-            >
-              <img
-                src="/logo104.99&44.svg"
-                alt="Advizy Logo"
-              />
+            <a href="/" className="flex items-center font-bold text-gray-900">
+              <img src="/logo104.99&44.svg" alt="Advizy Logo" />
             </a>
           </div>
 
@@ -183,12 +174,21 @@ const Navbar = ({ onSearch }) => {
             >
               About Us
             </a>
-            <a
+            {/* <a
               href="/become-expert"
               className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
             >
               Become an Expert
-            </a>
+            </a> */}
+            {!isExpertMode && (
+              <a
+                href="/become-expert"
+                className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium"
+              >
+                Become an Expert
+              </a>
+            )}
+
             {isLoggedIn && localStorage.getItem("expertData") && (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-700">
@@ -269,12 +269,14 @@ const Navbar = ({ onSearch }) => {
               >
                 About Us
               </a>
-              <a
-                href="/become-expert"
-                className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
-              >
-                Become an Expert
-              </a>
+              {!isExpertMode && (
+                <a
+                  href="/become-expert"
+                  className="text-gray-600 hover:text-primary transition-colors duration-200 text-sm font-medium px-2"
+                >
+                  Become an Expert
+                </a>
+              )}
               <div className="px-2">
                 {isLoggedIn ? (
                   <div className="space-y-2">
