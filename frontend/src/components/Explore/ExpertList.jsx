@@ -3,6 +3,7 @@
 // import ExpertCard from "./ExpertCard";
 // import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 // import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+// import {SearchX} from 'lucide-react'
 
 // const ITEMS_PER_PAGE = 14;
 
@@ -62,9 +63,9 @@
 //   };
 
 //   return (
-//     <div className="container mx-auto p-6">
+//     <div className="mx-auto p-6">
 //       {/* Available Experts Header */}
-//       <div className="flex justify-center items-center py-4">
+//       <div className="my-5">
 //         <h2 className="text-xl font-semibold">
 //           Available Experts -{" "}
 //           <span className="text-green-600 underline">{totalExperts}</span>
@@ -72,7 +73,7 @@
 //       </div>
 
 //       {/* Expert Cards Grid */}
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 //         {loading && (
 //           <>
 //             {[...Array(10)].map((_, index) => (
@@ -91,6 +92,7 @@
 
 //         {!loading && !error && paginatedExperts.length === 0 && (
 //           <div className="col-span-2 flex justify-center items-center py-8">
+//             <SearchX className='w-8 h-8'/>
 //             <p className="text-lg">No experts found</p>
 //           </div>
 //         )}
@@ -135,7 +137,7 @@
 //           ))}
 //       </div>
 
-//       {/* Pagination - Always Visible */}
+//       {/* Pagination */}
 //       <div className="mt-8 pt-4 flex items-center justify-between border-t border-gray-200">
 //         <div className="flex-1 flex justify-between sm:hidden">
 //           <button
@@ -229,14 +231,180 @@
 
 // export default ExpertList;
 
+
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
-import {SearchX} from 'lucide-react'
+import { SearchX } from "lucide-react";
 
 const ITEMS_PER_PAGE = 14;
+
+// Mock data for 8 experts
+const mockExperts = [
+  {
+    _id: "1",
+    firstName: "John",
+    lastName: "Doe",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Software Engineering",
+      expertise: ["React", "Node.js", "JavaScript"],
+      work_experiences: [{ years_of_experience: 5 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 4 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Spanish"],
+    sessions: [
+      { price: 100, duration: "1 hour", next_available_slot: { day: "Monday", time: "10:00 AM" } },
+    ],
+  },
+  {
+    _id: "2",
+    firstName: "Jane",
+    lastName: "Smith",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Data Science",
+      expertise: ["Python", "Machine Learning", "Data Analysis"],
+      work_experiences: [{ years_of_experience: 7 }],
+    },
+    reviews: [
+      { rating: 4 },
+      { rating: 5 },
+      { rating: 4 },
+    ],
+    languages: ["English", "French"],
+    sessions: [
+      { price: 150, duration: "45 mins", next_available_slot: { day: "Tuesday", time: "2:00 PM" } },
+    ],
+  },
+  // Add 6 more mock experts here...
+  {
+    _id: "3",
+    firstName: "siddhu",
+    lastName: "Achary",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "software",
+      expertise: ["React", "Mern", "Web developer"],
+      work_experiences: [{ years_of_experience: 3 }],
+    },
+    reviews: [
+      { rating: 4 },
+      { rating: 5 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Hindi"],
+    sessions: [
+      { price: 120, duration: "30 mins", next_available_slot: { day: "Wednesday", time: "11:00 AM" } },
+    ],
+  },
+  {
+    _id: "4",
+    firstName: "Anchul",
+    lastName: "Chauhan",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "DevOps",
+      expertise: ["Docker", "Kubernetes", "AWS"],
+      work_experiences: [{ years_of_experience: 6 }],
+    },
+    reviews: [
+      { rating: 4 },
+      { rating: 4 },
+      { rating: 4 },
+    ],
+    languages: ["English", "Marathi"],
+    sessions: [
+      { price: 200, duration: "1 hour", next_available_slot: { day: "Thursday", time: "3:00 PM" } },
+    ],
+  },
+  {
+    _id: "5",
+    firstName: "Ritesh",
+    lastName: "kolte",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Mobile Development",
+      expertise: ["Flutter", "React Native", "Swift"],
+      work_experiences: [{ years_of_experience: 4 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 4 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Marathi"],
+    sessions: [
+      { price: 180, duration: "1 hour", next_available_slot: { day: "Friday", time: "9:00 AM" } },
+    ],
+  },
+  {
+    _id: "6",
+    firstName: "Anand",
+    lastName: "Kumar",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "UI/UX",
+      expertise: ["Figma", "Canva", "Graphic Desinger"],
+      work_experiences: [{ years_of_experience: 8 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 5 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Hindi"],
+    sessions: [
+      { price: 250, duration: "1 hour", next_available_slot: { day: "Saturday", time: "1:00 PM" } },
+    ],
+  },
+  {
+    _id: "7",
+    firstName: "Raju",
+    lastName: "Mulik",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Cloud Computing",
+      expertise: ["AWS", "Azure", "Google Cloud"],
+      work_experiences: [{ years_of_experience: 5 }],
+    },
+    reviews: [
+      { rating: 4 },
+      { rating: 4 },
+      { rating: 4 },
+    ],
+    languages: ["English", "Marati"],
+    sessions: [
+      { price: 220, duration: "45 mins", next_available_slot: { day: "Sunday", time: "4:00 PM" } },
+    ],
+  },
+  {
+    _id: "8",
+    firstName: "Grace",
+    lastName: "Harris",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Product Management",
+      expertise: ["Agile", "Scrum", "Product Roadmaps"],
+      work_experiences: [{ years_of_experience: 6 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 5 },
+      { rating: 5 },
+    ],
+    languages: ["English", "French"],
+    sessions: [
+      { price: 170, duration: "30 mins", next_available_slot: { day: "Monday", time: "12:00 PM" } },
+    ],
+  },
+];
 
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
@@ -248,7 +416,8 @@ const ExpertList = ({ filters, sorting }) => {
     error: state.expert.error,
   }));
 
-  const experts = expertsData?.experts || [];
+  // Use mock data if expertsData is empty
+  const experts = expertsData?.experts?.length > 0 ? expertsData.experts : mockExperts;
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
 
@@ -323,7 +492,7 @@ const ExpertList = ({ filters, sorting }) => {
 
         {!loading && !error && paginatedExperts.length === 0 && (
           <div className="col-span-2 flex justify-center items-center py-8">
-            <SearchX className='w-8 h-8'/>
+            <SearchX className="w-8 h-8" />
             <p className="text-lg">No experts found</p>
           </div>
         )}
