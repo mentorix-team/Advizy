@@ -232,11 +232,9 @@
 // export default ExpertList;
 
 
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
-import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import { SearchX } from "lucide-react";
 
 const ITEMS_PER_PAGE = 14;
@@ -244,71 +242,10 @@ const ITEMS_PER_PAGE = 14;
 // Mock data for 8 experts
 const mockExperts = [
   {
-    _id: "1",
-    firstName: "John",
-    lastName: "Doe",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
-    credentials: {
-      domain: "Software Engineering",
-      expertise: ["React", "Node.js", "JavaScript"],
-      work_experiences: [{ years_of_experience: 5 }],
-    },
-    reviews: [
-      { rating: 5 },
-      { rating: 4 },
-      { rating: 5 },
-    ],
-    languages: ["English", "Spanish"],
-    sessions: [
-      { price: 100, duration: "1 hour", next_available_slot: { day: "Monday", time: "10:00 AM" } },
-    ],
-  },
-  {
-    _id: "2",
-    firstName: "Jane",
-    lastName: "Smith",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
-    credentials: {
-      domain: "Data Science",
-      expertise: ["Python", "Machine Learning", "Data Analysis"],
-      work_experiences: [{ years_of_experience: 7 }],
-    },
-    reviews: [
-      { rating: 4 },
-      { rating: 5 },
-      { rating: 4 },
-    ],
-    languages: ["English", "French"],
-    sessions: [
-      { price: 150, duration: "45 mins", next_available_slot: { day: "Tuesday", time: "2:00 PM" } },
-    ],
-  },
-  // Add 6 more mock experts here...
-  {
-    _id: "3",
-    firstName: "siddhu",
-    lastName: "Achary",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
-    credentials: {
-      domain: "software",
-      expertise: ["React", "Mern", "Web developer"],
-      work_experiences: [{ years_of_experience: 3 }],
-    },
-    reviews: [
-      { rating: 4 },
-      { rating: 5 },
-      { rating: 5 },
-    ],
-    languages: ["English", "Hindi"],
-    sessions: [
-      { price: 120, duration: "30 mins", next_available_slot: { day: "Wednesday", time: "11:00 AM" } },
-    ],
-  },
-  {
     _id: "4",
     firstName: "Anchul",
     lastName: "Chauhan",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    profileImage: { secure_url: "https://media.licdn.com/dms/image/v2/D5603AQEx4I-jmEKVmg/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1728396717111?e=1744848000&v=beta&t=SgDyZUqxnrqVqvAdRGLBhtSqZz0ud0muh5smTLHNaMQ" },
     credentials: {
       domain: "DevOps",
       expertise: ["Docker", "Kubernetes", "AWS"],
@@ -325,10 +262,30 @@ const mockExperts = [
     ],
   },
   {
+    _id: "3",
+    firstName: "siddhu",
+    lastName: "Achary",
+    profileImage: { secure_url: "https://media.licdn.com/dms/image/v2/D4E03AQH3w-I69HFxMw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1728409104680?e=1744848000&v=beta&t=cPadY0to755uVLFhKd8RV4RCuvzijKHU38uuE1jG1ME" },
+    credentials: {
+      domain: "software",
+      expertise: ["React", "Mern", "Web developer"],
+      work_experiences: [{ years_of_experience: 3 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 5 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Hindi"],
+    sessions: [
+      { price: 120, duration: "30 mins", next_available_slot: { day: "Wednesday", time: "11:00 AM" } },
+    ],
+  },
+  {
     _id: "5",
     firstName: "Ritesh",
     lastName: "kolte",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    profileImage: { secure_url: "https://media.licdn.com/dms/image/v2/D4D03AQErmTlGBHRggw/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1697918726193?e=1744848000&v=beta&t=KiOTHjTdCaXYWR3zvkty3_2jIsjnvwM2znE-hPIubpc" },
     credentials: {
       domain: "Mobile Development",
       expertise: ["Flutter", "React Native", "Swift"],
@@ -336,7 +293,7 @@ const mockExperts = [
     },
     reviews: [
       { rating: 5 },
-      { rating: 4 },
+      { rating: 5 },
       { rating: 5 },
     ],
     languages: ["English", "Marathi"],
@@ -348,7 +305,7 @@ const mockExperts = [
     _id: "6",
     firstName: "Anand",
     lastName: "Kumar",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    profileImage: { secure_url: "https://media.licdn.com/dms/image/v2/D4D35AQEmEXg_kooCJg/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1738930810891?e=1740207600&v=beta&t=Sukx4991iS8k4bhX7jZSnPHgNPiRhSsEjSolPJR6u6U" },
     credentials: {
       domain: "UI/UX",
       expertise: ["Figma", "Canva", "Graphic Desinger"],
@@ -388,7 +345,7 @@ const mockExperts = [
     _id: "8",
     firstName: "Grace",
     lastName: "Harris",
-    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    profileImage: { secure_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&auto=format&fit=crop&q=80" },
     credentials: {
       domain: "Product Management",
       expertise: ["Agile", "Scrum", "Product Roadmaps"],
@@ -404,20 +361,53 @@ const mockExperts = [
       { price: 170, duration: "30 mins", next_available_slot: { day: "Monday", time: "12:00 PM" } },
     ],
   },
+  {
+    _id: "1",
+    firstName: "John",
+    lastName: "Doe",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Software Engineering",
+      expertise: ["React", "Node.js", "JavaScript"],
+      work_experiences: [{ years_of_experience: 5 }],
+    },
+    reviews: [
+      { rating: 5 },
+      { rating: 5 },
+      { rating: 5 },
+    ],
+    languages: ["English", "Spanish"],
+    sessions: [
+      { price: 100, duration: "1 hour", next_available_slot: { day: "Monday", time: "10:00 AM" } },
+    ],
+  },
+  {
+    _id: "2",
+    firstName: "Jane",
+    lastName: "Smith",
+    profileImage: { secure_url: "https://via.placeholder.com/100" },
+    credentials: {
+      domain: "Data Science",
+      expertise: ["Python", "Machine Learning", "Data Analysis"],
+      work_experiences: [{ years_of_experience: 7 }],
+    },
+    reviews: [
+      { rating: 4 },
+      { rating: 4 },
+      { rating: 4 },
+    ],
+    languages: ["English", "French"],
+    sessions: [
+      { price: 150, duration: "45 mins", next_available_slot: { day: "Tuesday", time: "2:00 PM" } },
+    ],
+  },
 ];
 
-const ExpertList = ({ filters, sorting }) => {
-  const dispatch = useDispatch();
+const ExpertList = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { expertsData, loading, error } = useSelector((state) => ({
-    expertsData: state.expert.experts,
-    loading: state.expert.loading,
-    error: state.expert.error,
-  }));
-
-  // Use mock data if expertsData is empty
-  const experts = expertsData?.experts?.length > 0 ? expertsData.experts : mockExperts;
+  // Use mock data directly
+  const experts = mockExperts;
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
 
@@ -425,32 +415,6 @@ const ExpertList = ({ filters, sorting }) => {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedExperts = experts.slice(startIndex, endIndex);
-
-  useEffect(() => {
-    // Construct query parameters
-    const queryParams = {
-      domain: filters.selectedDomain?.value || "",
-      niches: filters.selectedNiches || [],
-      priceMin: filters.priceRange?.[0] || 200,
-      priceMax: filters.priceRange?.[1] || 100000,
-      languages: filters.selectedLanguages || [],
-      ratings: filters.selectedRatings || [],
-      durations: filters.selectedDurations || [],
-      sorting: sorting || "",
-    };
-
-    // Clean up query parameters: remove empty arrays and empty strings
-    const cleanedQueryParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([key, value]) => {
-        if (Array.isArray(value)) {
-          return value.length > 0;
-        }
-        return value !== "";
-      })
-    );
-
-    dispatch(getAllExperts(cleanedQueryParams));
-  }, [dispatch, filters, sorting]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -474,67 +438,42 @@ const ExpertList = ({ filters, sorting }) => {
 
       {/* Expert Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        {loading && (
-          <>
-            {[...Array(10)].map((_, index) => (
-              <div key={index} className="flex justify-center">
-                <ExpertCardSkeleton />
-              </div>
-            ))}
-          </>
-        )}
-
-        {error && (
-          <div className="col-span-2 flex justify-center items-center py-8">
-            <p className="text-lg text-red-500">Error: {error}</p>
+        {paginatedExperts.map((expert) => (
+          <div key={expert._id} className="flex justify-center">
+            <ExpertCard
+              id={expert._id}
+              name={`${expert.firstName} ${expert.lastName}`}
+              image={
+                expert?.profileImage?.secure_url ||
+                "https://via.placeholder.com/100"
+              }
+              title={expert.credentials?.domain || "No Title Provided"}
+              rating={
+                expert.reviews?.length > 0
+                  ? expert.reviews.reduce(
+                      (acc, review) => acc + review.rating,
+                      0
+                    ) / expert.reviews.length
+                  : 0
+              }
+              totalRatings={expert.reviews?.length || 0}
+              experience={`${
+                expert.credentials?.work_experiences?.[0]
+                  ?.years_of_experience || 0
+              } years`}
+              languages={expert.languages || []}
+              startingPrice={expert.sessions?.[0]?.price || 0}
+              duration={expert.sessions?.[0]?.duration || "N/A"}
+              expertise={expert.credentials?.expertise || []}
+              nextSlot={
+                expert.sessions?.[0]?.next_available_slot || {
+                  day: "N/A",
+                  time: "N/A",
+                }
+              }
+            />
           </div>
-        )}
-
-        {!loading && !error && paginatedExperts.length === 0 && (
-          <div className="col-span-2 flex justify-center items-center py-8">
-            <SearchX className="w-8 h-8" />
-            <p className="text-lg">No experts found</p>
-          </div>
-        )}
-
-        {!loading &&
-          !error &&
-          paginatedExperts.map((expert) => (
-            <div key={expert._id} className="flex justify-center">
-              <ExpertCard
-                id={expert._id}
-                name={`${expert.firstName} ${expert.lastName}`}
-                image={
-                  expert?.profileImage?.secure_url ||
-                  "https://via.placeholder.com/100"
-                }
-                title={expert.credentials?.domain || "No Title Provided"}
-                rating={
-                  expert.reviews?.length > 0
-                    ? expert.reviews.reduce(
-                        (acc, review) => acc + review.rating,
-                        0
-                      ) / expert.reviews.length
-                    : 0
-                }
-                totalRatings={expert.reviews?.length || 0}
-                experience={`${
-                  expert.credentials?.work_experiences?.[0]
-                    ?.years_of_experience || 0
-                } years`}
-                languages={expert.languages || []}
-                startingPrice={expert.sessions?.[0]?.price || 0}
-                duration={expert.sessions?.[0]?.duration || "N/A"}
-                expertise={expert.credentials?.expertise || []}
-                nextSlot={
-                  expert.sessions?.[0]?.next_available_slot || {
-                    day: "N/A",
-                    time: "N/A",
-                  }
-                }
-              />
-            </div>
-          ))}
+        ))}
       </div>
 
       {/* Pagination */}
