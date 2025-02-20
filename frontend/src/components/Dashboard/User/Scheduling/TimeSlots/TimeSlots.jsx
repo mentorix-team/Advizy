@@ -75,8 +75,10 @@ function TimeSlots({ selectedDate, sessionDuration, selectedAvailability, expert
   
   const handleBooking = async (time) => {
     try {
-      const formattedDate = selectedDate.toISOString().split("T")[0]; // Ensures "YYYY-MM-DD" format
-  
+      console.log("This is selectedDate",selectedDate);
+      // const formattedDate = selectedDate.toISOString().split("T")[0]; // Ensures "YYYY-MM-DD" format
+      const formattedDate = selectedDate.toLocaleDateString("en-CA");
+      console.log("this is formated data",formattedDate);
       const meetData = {
         expertId,
         serviceId,

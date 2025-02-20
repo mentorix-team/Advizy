@@ -1,15 +1,16 @@
 import PropTypes from 'prop-types';
 import TimeButton from './TimeButton';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createMeet, updateMeet } from '@/Redux/Slices/meetingSlice';
+import { createMeet, updateMeet, updateMeetDirectly } from '@/Redux/Slices/meetingSlice';
 
-function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
+function TimeSlotforRescheduleUser({ selectedDate, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
-
+  const location = useLocation();
+  const { meeting_id } = location.state || {};
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
       console.warn("Missing availability data or selectedDate");
@@ -78,7 +79,7 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
   
       const meetData = {
-        token,
+        meeting_id,
         expertId,
         serviceId,
         daySpecific: {
@@ -94,7 +95,7 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
       };
   
       console.log("This is meetData", meetData);
-      const result = await dispatch(updateMeet(meetData)).unwrap();
+      const result = await dispatch(updateMeetDirectly(meetData)).unwrap();
   
       if (result) {
         navigate(`/`);
@@ -127,7 +128,7 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
   );
 }
 
-TimeSlotsforReschedule.propTypes = {
+TimeSlotforRescheduleUser.propTypes = {
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   sessionDuration: PropTypes.number.isRequired,
   selectedAvailability: PropTypes.object,
@@ -138,4 +139,4 @@ TimeSlotsforReschedule.propTypes = {
   expertName: PropTypes.string.isRequired,
 };
 
-export default TimeSlotsforReschedule;
+export default TimeSlotforRescheduleUser;

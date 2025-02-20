@@ -49,8 +49,7 @@ const createMeetingToken = async (req, res, next) => {
     // Store the token in a cookie
     res.cookie('meetingToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite:"None" , // Secure only in production
+      secure: process.env.NODE_ENV === 'production', // Secure only in production
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
     });
 
@@ -279,9 +278,7 @@ const getMeetingById = async (req, res, next) => {
 };
   
 const getMeetingByUserId = async(req,res,next) =>{
-  const {id} = req.user;
-  const userId = id;
-  console.log('user id',userId)
+  const userId = req.user.id;
   if(!userId){
     return next(new AppError('user not registered',500))
   }
@@ -879,6 +876,53 @@ const updateMeeting = async (req, res, next) => {
   }
 };
 
+const updateMeetingDirectly = async(req,res,next)=>{
+  try {
+    
+    const {expertId, serviceId, daySpecific, userName, serviceName, expertName,meeting_id } = req.body;
+    console.log('THis is req.body',req.body);
+  
+    const { date, slot: { startTime, endTime } } = daySpecific;
+    
+    const meeting = await Meeting.findById(meeting_id);
+    if (!meeting) {
+      return next(new AppError('Meetings not found',404));
+    }
+    // if (meeting.userId.toString() !== userId || meeting.expertId.toString() !== expertId) {
+    //   return next(new AppError('Unauthorized request',403));
+    // }
+    meeting.daySpecific = { date, slot: { startTime, endTime } };
+    await meeting.save();
+
+    const templatePath = path.join(__dirname, "./EmailTemplates/UserDirectlyRescheduled.html");
+    let emailTemplate = fs.readFileSync(templatePath, "utf8");
+
+    emailTemplate = emailTemplate.replace("{USERNAME}", userName);
+    emailTemplate = emailTemplate.replace("{DATE}",date );
+    emailTemplate = emailTemplate.replace("{STARTTIME}",startTime );
+    emailTemplate = emailTemplate.replace("{ENDTIME}",endTime );
+    emailTemplate = emailTemplate.replace("{ExpertName}",expertName );
+
+    console.log('This is exert id ',expertId);
+    const expert = await ExpertBasics.findById(expertId)
+    if(!expert){
+      return next(new AppError('Expert not found',502))
+    }
+    const email = expert.email
+    console.log("This is the mail",expert.email);
+
+    await sendEmail(email, "Meetint Rescheduled Directly", emailTemplate, true);
+
+    res.status(200).json({
+        success: true,
+        message: "Meeting updated successfully",
+        updatedMeeting: meeting,
+    });
+  } catch (error) {
+    return next(new AppError(error,505))
+  }
+}
+
 const getClientDetails = async (req, res, next) => {
   try {
       console.log("Request Body:", req.body);
@@ -923,5 +967,6 @@ export {
     rescheduleMeetingExpert,
     updateMeeting,
     getClientDetails,
-    getmeet
+    getmeet,
+    updateMeetingDirectly
 }
