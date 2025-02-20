@@ -21,6 +21,7 @@ import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
+import AuthError from "./AuthError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -37,6 +38,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
         <Route path="/cookie-policy" element={<CookiePolicy />} />
