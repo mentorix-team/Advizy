@@ -9,9 +9,13 @@ import { basicFormSubmit } from '@/Redux/Slices/expert.Slice';
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { expertData, data,loading, error } = useSelector((state) => state.auth);
-  // const user = json.parse(data)
-  // console.log("this is user",user)
+  const { expertData,data,loading, error } = useSelector((state) => state.auth);
+  // console.log("This is dat",data);
+  let user = null;
+  if (data) {
+    user = typeof data === "string" ? JSON.parse(data) : data;
+  }
+  console.log("this is user",user);
   const [activeTab, setActiveTab] = useState('basic');
   const [profileImage, setProfileImage] = useState('');
   const [coverImage, setCoverImage] = useState('');
@@ -33,18 +37,18 @@ function App() {
       expert = expertData; // Already an object and not empty
     }
   }
-
+  
   const [formData, setFormData] = useState({
     basic: {
-      firstName: data?.firstName||expert?.firstName || '',
-      lastName: data?.lastName||expert?.lastName || '',
+      firstName: user?.firstName|| '',
+      lastName: user?.lastName|| '',
       gender: expert?.gender || '',
       dateOfBirth: expert?.dateOfBirth || '',
       nationality: expert?.nationality || '',
       city: expert?.city || '',
-      mobile: data?.number||expert?.mobile || '',
+      mobile: user?.number || '',
       countryCode: expert?.countryCode || '',
-      email: data?.email||expert?.email || '',
+      email: user?.email || '',
       bio: expert?.bio || '',
       languages: [],
       socialLinks: [''],

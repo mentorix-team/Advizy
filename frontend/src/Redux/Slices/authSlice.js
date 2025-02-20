@@ -8,7 +8,7 @@ const initialState = {
     data:localStorage.getItem('data') || {},
     expertData:localStorage.getItem('expertData') || {},
     admin_approved_expert:localStorage.getItem('admin_approved_expert') || false    
-}
+}       
 export const validateOtpEmail = createAsyncThunk(
     "auth/validateOtpEmail",
     async (data, { rejectWithValue }) => {
@@ -164,7 +164,7 @@ export const forgotPassword = createAsyncThunk("auth/forgotPassword", async (ema
 });
 export const forgotOTP = createAsyncThunk("auth/forgotOTP", async (otp, { rejectWithValue }) => {
     try {
-        const res = axiosInstance.post('user/forgot_with_otp_email', { otp }); // Wrap otp in object
+        const res = await axiosInstance.post('user/forgot_with_otp_email', { otp }); // Wrap otp in object
         toast.promise(res, {
             loading: "OTP verification in progress",
             success: (data) => {
@@ -182,7 +182,7 @@ export const forgotOTP = createAsyncThunk("auth/forgotOTP", async (otp, { reject
 
 export const resetPassword = createAsyncThunk("auth/resetPassword", async ({ password }) => {
     try {
-        const res = axiosInstance.post(`/user/reset_pass`, { password });
+        const res = await axiosInstance.post(`/user/reset_pass`, { password });
         toast.promise(res, {
             loading: 'Changing password...',
             success: 'Password changed successfully!',
@@ -196,12 +196,7 @@ export const resetPassword = createAsyncThunk("auth/resetPassword", async ({ pas
 });
 export const generateOtp = createAsyncThunk("auth/generateOtp", async (data) => {
     try {
-        const res = axiosInstance.post('user/generate_otp', data);
-        toast.promise(res, {
-            loading: 'Generating OTP...',
-            success: 'OTP sent to your mobile number',
-            error: 'Failed to generate OTP',
-        });
+        const res = await axiosInstance.post('user/generate_otp', data);
         return (await res).data;
     } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to generate OTP');
@@ -211,12 +206,7 @@ export const generateOtp = createAsyncThunk("auth/generateOtp", async (data) => 
 
 export const loginWithOtp = createAsyncThunk("auth/loginWithOtp", async (data) => {
     try {
-        const res = axiosInstance.post('user/login_with_otp', data);
-        toast.promise(res, {
-            loading: 'Authenticating...',
-            success: (data) => data?.data?.message,
-            error: 'Failed to log in',
-        });
+        const res = await axiosInstance.post('user/login_with_otp', data);
         return (await res).data;
     } catch (error) {
         toast.error(error?.response?.data?.message || 'Failed to log in');
@@ -225,7 +215,7 @@ export const loginWithOtp = createAsyncThunk("auth/loginWithOtp", async (data) =
 });
 export const forgotOtpWithEmail = createAsyncThunk("auth/forgotOtpWithEmail",async(data)=>{
     try {
-        const res = axiosInstance.post('user/forgot_with_otp',data)
+        const res = await axiosInstance.post('user/forgot_with_otp',data)
         toast.promise(res,{
             loading:'Authenticating...',
             success:(data)=>data?.data?.message,
@@ -240,7 +230,7 @@ export const forgotOtpWithEmail = createAsyncThunk("auth/forgotOtpWithEmail",asy
 
 export const generateOtpWithEmail = createAsyncThunk("auth/generateOtpWithEmail",async(data)=>{
     try {
-        const res = axiosInstance.post('user/generate_otp_with_email',data)
+        const res =await axiosInstance.post('user/generate_otp_with_email',data)
         toast.promise(res,{
             loading:'Authenticating...',
             success:(data)=>data?.data?.message,
@@ -347,15 +337,28 @@ const authSlice = createSlice({
             state.expertData = {}
             state.admin_approved_expert = false
         });
-        builder.addCase(loginWithOtp.fulfilled,(state,action)=>{
-            const {user,expert} = action.payload;
+        builder.addCase(loginWithOtp.fulfilled, (state, action) => {
+            console.log("Login successful, payload received:", action.payload);
+        
+            if (!action.payload) return;
+        
+            const { user, expert } = action.payload;
+            // const { user, expert } = action.payload;
+            console.log("This is action.payload",action.payload)
+            localStorage.setItem("data", JSON.stringify(action?.payload?.user));
+            localStorage.setItem("isLoggedIn", true);
+            localStorage.setItem("role", user?.role || "");
+            if (expert) {
+                localStorage.setItem("expertData", JSON.stringify(expert));
+                localStorage.setItem("admin_approved_expert", expert?.admin_approved_expert);
+                // localStorage.setItem("expertToken", expert?.expertToken); // Save the expertToken
+            }
             state.isLoggedIn = true;
             state.data = user;
             state.role = user?.role ;
             state.expertData = expert ;
             state.admin_approved_expert = expert?.admin_approved_expert ;
-            
-        })
+        });
         
         builder.addCase(validateOtpMobile.fulfilled,(state,action)=>{
             const {user,expert} = action.payload;

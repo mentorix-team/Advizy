@@ -218,6 +218,21 @@ export const createMeet = createAsyncThunk(
     }
   )
 
+  export const updateMeetDirectly = createAsyncThunk(
+    'meeting/updateDirectly',
+    async(data,{rejectWithValue})=>{
+      try {
+        const response = await axiosInstance.post('meeting/updatemeetdirectly',data)
+        return await response.data
+      } catch (error) {
+        console.error("Error fetching meeting details:", error.response);
+        const errorMessage = error?.response?.data?.message || "Failed to check .";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  )
+
   export const rescheduleByExpert = createAsyncThunk(
     'meeting/reschedulebyexpert',
     async(data,{rejectWithValue})=>{

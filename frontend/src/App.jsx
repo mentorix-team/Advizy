@@ -21,7 +21,11 @@ import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
+<<<<<<< HEAD
 import AuthError from "./AuthError";
+=======
+import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
+>>>>>>> 42fe29583bc64d1eb00b42a9e280c0fa0c65c346
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -61,6 +65,11 @@ const App = () => {
           path="/expert/rescheduling/:updatemeetingtoken"
           element={<ReScheduling />}
         />
+        <Route
+          path="/user/rescheduling/:serviceId"
+          element={<ReSchedulingUser />}
+        />
+
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
         <Route path="/payment-success" element={<BookingConfirmation />} />
         <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />

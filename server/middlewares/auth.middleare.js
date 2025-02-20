@@ -5,7 +5,7 @@ const isLoggedIn = async(req,res,next) => {
         const {token} = req.cookies;
     
         if(!token){
-            return next(new AppError('User not Authorized',401));
+            return next(new AppError('User not Authorized',402));
         }
     
         const userDetails = await jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');

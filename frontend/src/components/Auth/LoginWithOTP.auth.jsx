@@ -34,7 +34,7 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
     const response = await dispatch(generateOtp(mobileData));
     if (response?.payload?.success) {
       setOtpSent(true);
-      setTimer(60); // Reset timer
+      setTimer(60); // 
       setResendVisible(false);
     } else {
       toast.error("Failed to send OTP. Please try again.");
@@ -63,13 +63,9 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
     }
 
     const response = await dispatch(
-      loginWithOtp({ otpToken, number: mobileData.number })
+      loginWithOtp({ number: mobileData.number,otpToken})
     );
-    if (response?.payload?.success) {
-      navigate("/");
-    } else {
-      toast.error("Invalid OTP. Please try again.");
-    }
+    
   }
 
   return (
@@ -197,7 +193,7 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
 
         {/* Policy Text */}
         <p className="text-xs m-32 text-gray-500 text-center mt-6">
-          By joining, you agree to the Advizy Terms of Service and to
+          By joining, you agree to the Mentorix Terms of Service and to
           occasionally receive emails from us. Please read our Privacy Policy to
           learn how we use your personal data.
         </p>

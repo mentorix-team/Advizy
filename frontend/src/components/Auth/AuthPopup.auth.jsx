@@ -10,6 +10,7 @@ import ForgotOTP from "./ForgotOTP.auth";
 import VerifyAccount from "./VerifyAccount.auth";
 import ResetPassword from "./ResetPassword.auth";
 import { useSelector } from "react-redux";
+import VerifyAccountMobile from "./VerifyAccountMobile.auth";
 
 const COMPONENT_MAP = {
   LoginWithEmail,
@@ -21,6 +22,7 @@ const COMPONENT_MAP = {
   ForgotOTP,
   ResetPassword,
   VerifyAccount,
+  VerifyAccountMobile,
 };
 
 const AuthPopup = ({ isOpen, onClose }) => {

@@ -524,29 +524,41 @@ const login_with_otp = async (req, res, next) => {
     try {
         const { number, otpToken } = req.body;
 
-        // Normalize the number (remove country code, if present)
-        const normalizedNumber = number.startsWith('+') 
-            ? number.slice(3) // Remove '+91' or other codes
-            : number.startsWith('91') 
-            ? number.slice(2) 
-            : number;
+        const normalizedNumber = number.replace(/^(\+91|91)/, "");
 
-        // Find the user with the normalized number
         const user = await User.findOne({ number: normalizedNumber });
-
         if (!user || !user.compareOtp(otpToken)) {
             return next(new AppError('Invalid OTP or OTP expired, please try again', 503));
         }
 
-        // Generate the JWT token
-        const token = user.generateJWTToken();
-        res.cookie('token', token, cookieOption);
+        const expert = await ExpertBasics.findOne({ user_id: user._id });
 
+        const token = user.generateJWTToken();
+        res.cookie('token', token, {
+            httpOnly:true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite:"None" ,
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        if (expert) {
+            const expertToken = expert.generateExpertToken();
+            res.cookie("expertToken", expertToken, {
+                httpOnly:true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite:"None" ,
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            });
+        }
+
+        // Send response with user and expert details
         return res.status(200).json({
             success: true,
             message: 'User logged in successfully',
-            user
+            user,
+            expert,
         });
+
     } catch (error) {
         console.error(error);
         return next(new AppError('An error occurred while logging in with OTP.', 500));
@@ -665,13 +677,13 @@ const validate_otp_email = async (req, res, next) => {
 
         // OTP is valid; create the user
         const { firstName, lastName, email, password } = userData;
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             firstName,
             lastName,
             email,
-            password: hashedPassword,
+            password,
         });
 
         if (!user) {
@@ -702,11 +714,16 @@ const validate_otp_email = async (req, res, next) => {
 
 const generate_otp_for_Signup_mobile = async(req,res,next)=>{
     try {
-        const { firstName,lastName,number,password } = req.body;
+        const { firstName, lastName, phoneNumber, password } = req.body;
         console.log("Request Body:", req.body);
         if (!firstName||!lastName||!number||!password) {
             return next(new AppError("All fields are required", 400));
         }
+
+        // Extract countryCode and number separately
+        const { countryCode, phoneNumber: number } = phoneNumber;
+        console.log("Extracted countryCode:", countryCode);
+        console.log("Extracted number:", number);
 
         const userExists = await User.findOne({ number });
         if (userExists) {
@@ -717,7 +734,7 @@ const generate_otp_for_Signup_mobile = async(req,res,next)=>{
         const otpToken = bcrypt.hashSync(otp, 10);
 
         res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); 
-        res.cookie("tempUser", { firstName, lastName, number, password }, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
+        res.cookie("tempUser", {firstName, lastName, countryCode, number, password  }, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
 
         const formattedNumber = String(number).startsWith('+') ? String(number) : `+91${number}`;
 
@@ -750,14 +767,16 @@ const validate_otp_mobile = async(req,res,next) =>{
 
         // OTP is valid; create the user
         const { firstName, lastName, number, password } = tempUser;
-        const hashedPassword = bcrypt.hashSync(password, 10);
+        // const hashedPassword = bcrypt.hashSync(password, 10);
 
         const user = await User.create({
             firstName,
             lastName,
+            countryCode, // Save country code
             number,
-            password: hashedPassword,
+            password // Save hashed password
         });
+
 
         if (!user) {
             return next(new AppError("Failed to register user", 500));

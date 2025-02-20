@@ -7,6 +7,8 @@ import { IoClose } from 'react-icons/io5';
 import { useDispatch, useSelector } from 'react-redux';
 import { addvideoparticipant, getMeet, getMeetingbyid } from '@/Redux/Slices/meetingSlice';
 import { getExpertById, getServicebyid } from '@/Redux/Slices/expert.Slice';
+import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
+import toast from 'react-hot-toast';
 
 export default function UpcomingMeetingDetails() {
   const { id } = useParams();
@@ -16,13 +18,48 @@ export default function UpcomingMeetingDetails() {
   const [showDetails, setShowDetails] = useState(true);
   const {selectedExpert,selectedService} = useSelector((state)=>state.expert)
   const{selectedMeeting} = useSelector((state)=>state.meeting)
+  const{selectedAvailability} = useSelector((state)=>state.availability)
+  console.log('this is availability',selectedAvailability?.availability);
   const{data} = useSelector((state)=>state.auth)
 
   console.log("THesse are service and expert",selectedExpert)
   console.log("THesse are service and expert",selectedService)
   console.log("This is selected one",selectedMeeting)
   const dispatch = useDispatch()
+  // const navigate = useNavigate()
 
+  const handleRescheduleuser = async () => {
+    if (!selectedMeeting || !selectedAvailability) {
+      console.error("Meeting or availability data is missing.");
+      return;
+    }
+
+    console.log("Now rescheduling")
+  
+    const { noticeperiod, recheduleType } = selectedAvailability?.availability?.reschedulePolicy;
+    const { date, slot } = selectedMeeting?.daySpecific;
+    const { startTime } = slot;
+  
+    // Convert meeting date & time to IST
+    const meetingDateTimeIST = new Date(`${date} ${startTime} GMT+5:30`);
+  
+    // Get current date & time in IST
+    const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  
+    // Convert notice period (e.g., "8 hrs") into milliseconds
+    const noticePeriodMs = parseInt(noticeperiod) * 60 * 60 * 1000; // Convert hours to milliseconds
+  
+    // Calculate the difference between the meeting time and the current time
+    const timeDifference = meetingDateTimeIST - nowIST;
+    console.log("this is time",timeDifference);
+    if (timeDifference < noticePeriodMs) {
+      toast.error("Reschedule not allowed: Notice period has already passed.");
+      return;
+    }
+    const meeting_id = selectedMeeting._id
+    navigate(`/user/rescheduling/${selectedMeeting.serviceId}`,{state:{meeting_id}})
+  };
+  
   const handleJoin = async() =>{
     
     try {
@@ -65,7 +102,10 @@ export default function UpcomingMeetingDetails() {
       if (response.payload.success && selectedMeeting?.serviceId) {
         const serviceId = selectedMeeting.serviceId;
         const expertId = selectedMeeting.expertId;
+        
         dispatch(getServicebyid({ serviceId, expertId }));
+
+        dispatch(getAvailabilitybyid(expertId))
       }
   
       countRef.current += 1; // Increment count
@@ -86,11 +126,11 @@ export default function UpcomingMeetingDetails() {
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Action Bar - Fixed at bottom for mobile */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t p-4 z-40 space-y-2">
-        <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors">
+        <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors" onClick={handleJoin}>
           Join Meeting
         </button>
         <div className="flex space-x-2">
-          <button className="flex-1 text-gray-700 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm">
+          <button className="flex-1 text-gray-700 py-2.5 rounded-lg border border-gray-200 hover:bg-gray-500 transition-colors text-sm" onClick={handleRescheduleuser}>
             Request Reschedule
           </button>
           <button className="flex-1 text-red-500 py-2.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors text-sm">
@@ -215,7 +255,7 @@ export default function UpcomingMeetingDetails() {
               <button className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors mb-4" onClick={handleJoin}>
                 Join Meeting
               </button>
-              <button className="w-full text-gray-700 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors mb-4">
+              <button className="w-full text-gray-700 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors mb-4" onClick={handleRescheduleuser}>
                 Request Reschedule
               </button>
               <button className="w-full text-red-500 py-3 rounded-lg border border-red-200 hover:bg-red-50 transition-colors">
