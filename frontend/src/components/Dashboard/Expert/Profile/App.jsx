@@ -15,6 +15,7 @@ function App() {
   if (data) {
     user = typeof data === "string" ? JSON.parse(data) : data;
   }
+  console.log("this is user",user);
   const [activeTab, setActiveTab] = useState('basic');
   const [profileImage, setProfileImage] = useState('');
   const [coverImage, setCoverImage] = useState('');
