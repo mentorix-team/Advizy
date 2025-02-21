@@ -23,7 +23,7 @@ import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
 import AuthError from "./AuthError";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
-import ModeRestrictionError from "./Protected/ModeRestrictionError";
+// import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -94,11 +94,11 @@ const App = () => {
           <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
 
-        {/* Mode Restriction Error Page */}
+        {/* Mode Restriction Error Page
         <Route
           path="/mode-restriction-error"
           element={<ModeRestrictionError />}
-        />
+        /> */}
 
         <Route path="*" element={<Error404 />} />
       </Routes>
