@@ -379,6 +379,14 @@ const Navbar = ({ onSearch }) => {
     return location.pathname === path;
   };
 
+    // Check for expertData in localStorage on component mount
+    useEffect(() => {
+      const expertData = localStorage.getItem('expertData');
+      if (expertData) {
+        setIsExpertMode(true);
+      }
+    }, []);
+
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode");
     if (expertMode === "true") {
