@@ -319,12 +319,12 @@ const authSlice = createSlice({
                 localStorage.setItem("expertData", JSON.stringify(expert));
                 localStorage.setItem("admin_approved_expert", expert?.admin_approved_expert);
                 // localStorage.setItem("expertToken", expert?.expertToken); // Save the expertToken
+                state.expertData = expert ;
+                state.admin_approved_expert = expert?.admin_approved_expert ;
             }
             state.isLoggedIn = true;
             state.data = user;
             state.role = user?.role ;
-            state.expertData = expert ;
-            state.admin_approved_expert = expert?.admin_approved_expert ;
             
         });
 
@@ -352,12 +352,12 @@ const authSlice = createSlice({
                 localStorage.setItem("expertData", JSON.stringify(expert));
                 localStorage.setItem("admin_approved_expert", expert?.admin_approved_expert);
                 // localStorage.setItem("expertToken", expert?.expertToken); // Save the expertToken
+                state.expertData = expert ;
+                state.admin_approved_expert = expert?.admin_approved_expert ;
             }
             state.isLoggedIn = true;
             state.data = user;
             state.role = user?.role ;
-            state.expertData = expert ;
-            state.admin_approved_expert = expert?.admin_approved_expert ;
         });
         
         builder.addCase(validateOtpMobile.fulfilled,(state,action)=>{
