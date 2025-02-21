@@ -6,7 +6,7 @@ import BasicInfo from './components/BasicInfo';
 import ExpertiseTab from './components/expertise/ExpertiseTab';
 import EducationTab from './components/education/EducationTab';
 import PreviewApp from './components/preview/src/App';
-import { basicFormSubmit, professionalFormSubmit } from '@/Redux/Slices/expert.Slice';
+import { basicFormSubmit, getExpertById, professionalFormSubmit } from '@/Redux/Slices/expert.Slice';
 import { useDispatch, useSelector } from 'react-redux';
 import CertificationsTab from './components/certifications/CertificationsTab';
 import ExperienceTab from './components/experience/ExperienceTab';
@@ -15,20 +15,23 @@ function App() {
   const tabs = ['basic', 'expertise', 'education', 'experience', 'certifications'];
   const dispatch = useDispatch();
   const {expertData,loading,error} = useSelector((state)=>state.auth);
+  const {selectedExpert} = useSelector((state)=>state.expert)
+  const expertbyexpert = selectedExpert?.expert
+  console.log('this is expert by expert',expertbyexpert);
   const [activeTab, setActiveTab] = useState('basic');
   const [showPreview, setShowPreview] = useState(false);
   const [profileImage, setProfileImage] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [enabledTabs, setEnabledTabs] = useState(['basic']);
+  const [enabledTabs, setEnabledTabs] = useState(['basic','certifications','experience','education','expertise']);
   let expert = null;
 
 if (expertData) {
   if (typeof expertData === 'string') {
     try {
       expert = JSON.parse(expertData);
-      console.log("This is expertData",expert);
+      // console.log("This is expertData",expert);
     } catch (error) {
       console.error('Error parsing expertData:', error);
       expert = null; // Handle parsing errors safely
@@ -38,34 +41,38 @@ if (expertData) {
   }
 }
 
-  const [formData, setFormData] = useState({
-    basic: {
-      firstName:expert?.firstName|| '',
-      lastName:expert?.lastName|| '',
-      gender:expert?.gender|| '',
-      dateOfBirth: expert?.dateOfBirth||'',
-      nationality:expert?.nationality|| '',
-      city: expert?.city||'',
-      mobile: expert?.mobile||'',
-      countryCode:expert?.countryCode|| '',
-      email: expert?.email||'',
-      bio: expert?.bio||'',
-      languages: [],
-      socialLinks: [''],
-      coverImage: expert?.coverImage.secure_url||coverImage || '',
-      profileImage: expert?.profileImage.secure_url||profileImage || ''
-    },
-    expertise: {
-      domain: '',
-      niche: '',
-      professionalTitle: '',
-      experienceYears: '',
-      skills: []
-    },
-    education: expert?.credentials.education||[],
-    experience: expert?.credentials.work_experiences||[],
-    certifications: expert?.credentials.certifications_courses||[]
-  });
+const [formData, setFormData] = useState({
+  basic: {
+    firstName: expert?.firstName || '',
+    lastName: expert?.lastName || '',
+    gender: expert?.gender || '',
+    dateOfBirth: expert?.dateOfBirth || '',
+    nationality: expert?.nationality || '',
+    city: expert?.city || '',
+    mobile: expert?.mobile || '',
+    countryCode: expert?.countryCode || '',
+    email: expert?.email || '',
+    bio: expert?.bio || '',
+    languages: expert?.languages
+      ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label))
+      : [],
+    socialLinks: expert?.socialLinks?.length
+      ? JSON.parse(expert.socialLinks[0])
+      : [''],
+    coverImage: expert?.coverImage?.secure_url || coverImage || '',
+    profileImage: expert?.profileImage?.secure_url || profileImage || ''
+  },
+  expertise: {
+    domain: expert?.credentials?.domain||'',
+    niche: expert?.credentials?.niche||'',
+    professionalTitle: expert?.credentials?.domain||'',
+    experienceYears: '',
+    skills:expert?.credentials?.skills|| []
+  },
+  education: expert?.credentials?.education || [],
+  experience: expert?.credentials?.work_experiences || [],
+  certifications: expert?.credentials?.certifications_courses || []
+});
 
   useEffect(() => {
     setFormData((prevFormData) => ({
@@ -78,6 +85,9 @@ if (expertData) {
     }));
   }, [profileImage, coverImage]);
   
+  useEffect(()=>{
+    dispatch(getExpertById(expert?._id))
+  },[dispatch])
 
   const validateBasicInfo = () => {
     const newErrors = {};
