@@ -244,9 +244,11 @@ import {
   UserPen,
   Users,
   Video,
+  LayoutDashboard,
+  UserCheck,
 } from "lucide-react";
 
-const ExpertDashboardLayout = ({ onSearch }) => {
+const ExpertDashboardLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -255,12 +257,21 @@ const ExpertDashboardLayout = ({ onSearch }) => {
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || "User");
+  const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
 
   const isLinkActive = (path) => {
     return location.pathname === path;
   };
+
+  // Check for expertData in localStorage on component mount
+  useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode");
@@ -356,15 +367,15 @@ const ExpertDashboardLayout = ({ onSearch }) => {
                   href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && (
+                {isLoggedIn && hasExpertData && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                   >
-                    <User className="w-4 h-4" />
+                    <UserCheck  className="w-4 h-4" />
                     Switch to Expert Mode
                   </button>
                 )}
@@ -395,7 +406,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
               </a>
             </div>
 
-            {/* Search Bar */}
+            {/* Search Bar
             <div className="hidden lg:block flex-1 max-w-2xl mx-8">
               <motion.div
                 className="relative"
@@ -425,7 +436,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
                   readOnly
                 />
               </motion.div>
-            </div>
+            </div> */}
 
             {/* Mobile menu button */}
             <div className="flex lg:hidden">
@@ -508,7 +519,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
               className="lg:hidden py-4 border-t border-gray-200 bg-white"
             >
               <div className="flex flex-col space-y-4">
-                <div className="w-full px-4">
+                {/* <div className="w-full px-4">
                   <motion.div
                     className="relative"
                     whileHover={{ scale: 1.02 }}
@@ -537,7 +548,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
                       readOnly
                     />
                   </motion.div>
-                </div>
+                </div> */}
                 <a
                   href="/about-us"
                   className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
