@@ -392,6 +392,7 @@ import {
 import { getExpertById, getServicebyid } from "@/Redux/Slices/expert.Slice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import toast from "react-hot-toast";
+import NoData from "@/NoData";
 
 export default function UpcomingMeetingDetails() {
   const { id } = useParams();
@@ -432,22 +433,7 @@ export default function UpcomingMeetingDetails() {
   // Handle no data scenario
   if (!selectedMeeting || !selectedExpert || !selectedService) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-sm text-center">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            No Upcoming Meeting Found
-          </h2>
-          <p className="text-gray-500 mb-6">
-            There are no upcoming meetings to display at the moment.
-          </p>
-          <button
-            onClick={() => navigate("/meetings")}
-            className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
-          >
-            Back to Meetings
-          </button>
-        </div>
-      </div>
+      <NoData />
     );
   }
 
