@@ -245,7 +245,6 @@ import {
   Users,
   Video,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 const ExpertDashboardLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
