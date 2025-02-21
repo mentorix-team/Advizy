@@ -372,6 +372,7 @@ const Navbar = ({ onSearch }) => {
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || "User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
+  const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -484,7 +485,7 @@ const Navbar = ({ onSearch }) => {
                   <User className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && expertData && (
+                {isLoggedIn && hasExpertData  && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
