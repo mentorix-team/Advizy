@@ -23,6 +23,8 @@ import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
 import AuthError from "./AuthError";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
+import ComingSoon from "./ComingSoon";
+import NoData2 from "./NoData2";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
@@ -40,6 +42,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/nodata" element={<NoData2 />} />
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
