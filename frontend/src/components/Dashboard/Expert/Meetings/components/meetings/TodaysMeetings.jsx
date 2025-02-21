@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { BsClock} from 'react-icons/bs';
 import { CalendarIcon } from '@/icons/Icons';
+import NoData from '@/NoData';
 
 const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
   return (
@@ -27,7 +28,7 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
               {meetings.length === 0 ? (
                 <tr>
                   <td colSpan="5" className="px-3 md:px-6 py-4 text-center text-gray-500 text-sm">
-                    No meetings scheduled for today
+                    <NoData />
                   </td>
                 </tr>
               ) : (
