@@ -179,7 +179,7 @@ export default function Meetings() {
       ) : (
       // Show NoMeetingData for past tab if no meetings
       pastMeetings.length === 0 ? (
-        <NoMeetingData />
+        <NoData2 />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {paidMeetings

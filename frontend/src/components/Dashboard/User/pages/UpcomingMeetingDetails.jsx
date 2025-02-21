@@ -433,7 +433,7 @@ export default function UpcomingMeetingDetails() {
   // Handle no data scenario
   if (!selectedMeeting || !selectedExpert || !selectedService) {
     return (
-      <NoData />
+      <NoData/>
     );
   }
 
