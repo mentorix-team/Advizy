@@ -484,7 +484,7 @@ const Navbar = ({ onSearch }) => {
                   <User className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && (
+                {isLoggedIn && expertData && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
