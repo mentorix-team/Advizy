@@ -343,7 +343,7 @@ const ExpertDashboardLayout = () => {
                   href="/dashboard/expert"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4" />
                   Expert Dashboard
                 </a>
                 <button
