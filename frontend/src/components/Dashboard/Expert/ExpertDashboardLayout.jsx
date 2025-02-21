@@ -246,7 +246,7 @@ import {
   Video,
 } from "lucide-react";
 
-const ExpertDashboardLayout = () => {
+const ExpertDashboardLayout = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -257,7 +257,6 @@ const ExpertDashboardLayout = () => {
   const userName = useSelector((state) => state.auth.user?.name || "User");
   const dispatch = useDispatch();
   const location = useLocation();
-
 
   const isLinkActive = (path) => {
     return location.pathname === path;
