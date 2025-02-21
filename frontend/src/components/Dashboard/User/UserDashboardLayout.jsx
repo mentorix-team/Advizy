@@ -13,7 +13,6 @@ import {
   UserPen,
   MessageSquareText,
   LayoutDashboard,
-  LayoutDashboardIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -110,7 +109,6 @@ const UserDashboardLayout = () => {
                   href="/dashboard/expert"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <LayoutDashboardIcon />
                   <LayoutDashboard className="w-4 h-4" />
                   Expert Dashboard
                 </a>

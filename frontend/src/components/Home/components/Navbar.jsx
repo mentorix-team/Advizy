@@ -358,7 +358,7 @@
 
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User, CircleUserRound, UserCheck } from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
