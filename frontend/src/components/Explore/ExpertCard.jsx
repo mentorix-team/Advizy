@@ -109,7 +109,9 @@ const ExpertCard = ({
         <div className="flex gap-2">
           <button
             onClick={() => navigate(`/expert/${id}`)}
-            className="px-5 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
+            className="px-5 py-2 bg-white border font-bold rounded-lg text-sm text-gray-700 hover:shadow-md hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
+            // onClick={() => navigate(`/expert/${id}`)}
+            // className="px-5 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
           >
             View Profile
           </button>

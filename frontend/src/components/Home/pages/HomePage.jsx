@@ -142,6 +142,7 @@ const experts = [
   },
 ];
 
+
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);

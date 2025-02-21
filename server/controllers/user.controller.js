@@ -47,10 +47,22 @@ const handleGoogleCallback = async (req, res, next) => {
 
             const existingUserByEmail = await User.findOne({ email });
 
+            // if (existingUserByEmail) {
+            //     console.log("User found with the same email but without Google ID, rejecting signup...");
+            //     return next(new AppError("An account with this email already exists. Please log in using your original method.", 400));
+            // }
+
             if (existingUserByEmail) {
-                console.log("User found with the same email but without Google ID, rejecting signup...");
-                return next(new AppError("An account with this email already exists. Please log in using your original method.", 400));
+                console.log("User found with the same email but without Google ID, redirecting to error page...");
+                
+                // Construct the frontend error URL with a clear message
+                const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
+                    "An account with this email already exists. Please log in using your original method."
+                )}`;
+            
+                return res.redirect(errorURL);
             }
+            
 
             console.log("User not found, creating new user...");
 

@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import {useState} from 'react';
+import { useState } from "react";
 import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
 import UserDashboardRoutes from "./routes/UserDashboardRoutes";
 import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
@@ -21,7 +21,11 @@ import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
+import AuthError from "./AuthError";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
+import ComingSoon from "./ComingSoon";
+import NoData2 from "./NoData2";
+// import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -38,6 +42,8 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/nodata" element={<NoData2 />} />
+        <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
         <Route path="/cookie-policy" element={<CookiePolicy />} />
@@ -90,6 +96,12 @@ const App = () => {
         >
           <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
+
+        {/* Mode Restriction Error Page
+        <Route
+          path="/mode-restriction-error"
+          element={<ModeRestrictionError />}
+        /> */}
 
         <Route path="*" element={<Error404 />} />
       </Routes>

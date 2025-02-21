@@ -109,7 +109,7 @@ const VisionCard = ({ icon, title, description }) => {
 
   return (
     <motion.div
-      className="relative bg-white rounded-lg p-6 sm:p-8 shadow-sm border-2 border-transparent overflow-hidden"
+      className="relative bg-white rounded-lg p-6 sm:p-8 shadow-sm border-2 border-transparent "
       whileHover={{ 
         scale: 1.05, 
         y: -10,
@@ -169,7 +169,10 @@ const AboutPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar
+          onSearch={() => setIsModalOpen(true)}
+          isExpertMode={isExpertMode}
+        />
       
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16">
