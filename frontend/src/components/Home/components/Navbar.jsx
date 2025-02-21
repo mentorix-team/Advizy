@@ -95,6 +95,13 @@
 //                   Expert Dashboard
 //                 </a>
 //                 <button
+//                   onClick={handleToggleExpertMode}
+//                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+//                 >
+//                   <User className="w-4 h-4" />
+//                   Switch to User Mode
+//                 </button>
+//                 <button
 //                   onClick={handleLogout}
 //                   className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
 //                 >
@@ -111,6 +118,13 @@
 //                   <User className="w-4 h-4" />
 //                   User Dashboard
 //                 </a>
+//                 <button
+//                   onClick={handleToggleExpertMode}
+//                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+//                 >
+//                   <User className="w-4 h-4" />
+//                   Switch to Expert Mode
+//                 </button>
 //                 <button
 //                   onClick={handleLogout}
 //                   className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
@@ -226,29 +240,6 @@
 //               </a>
 //             )}
 
-//             {isLoggedIn && localStorage.getItem("expertData") && (
-//               <div className="flex items-center gap-2">
-//                 <span className="text-sm text-gray-700">
-//                   {isExpertMode ? "Expert Mode" : "User Mode"}
-//                 </span>
-//                 <button
-//                   onClick={handleToggleExpertMode}
-//                   className="flex items-center justify-center w-10 h-6 rounded-full bg-gray-200 relative cursor-pointer transition-colors duration-300"
-//                   aria-label={`Switch to ${isExpertMode ? "User" : "Expert"} Mode`}
-//                 >
-//                   <div
-//                     className={`absolute w-full h-full rounded-full transition-colors duration-300 ${
-//                       isExpertMode ? "bg-green-600" : "bg-gray-300"
-//                     }`}
-//                   />
-//                   <div
-//                     className={`absolute w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-//                       isExpertMode ? "translate-x-4" : "-translate-x-4"
-//                     }`}
-//                   />
-//                 </button>
-//               </div>
-//             )}
 //             {isLoggedIn ? (
 //               <UserDropdown />
 //             ) : (
@@ -363,7 +354,6 @@
 //     </nav>
 //   );
 // };
-
 // export default Navbar;
 
 import { logout } from "@/Redux/Slices/authSlice";
@@ -486,13 +476,15 @@ const Navbar = ({ onSearch }) => {
                   <User className="w-4 h-4" />
                   User Dashboard
                 </a>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <User className="w-4 h-4" />
-                  Switch to Expert Mode
-                </button>
+                {isLoggedIn && (
+                  <button
+                    onClick={handleToggleExpertMode}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                  >
+                    <User className="w-4 h-4" />
+                    Switch to Expert Mode
+                  </button>
+                )}
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
