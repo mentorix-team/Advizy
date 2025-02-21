@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import {useState} from 'react';
+import { useState } from "react";
 import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
 import UserDashboardRoutes from "./routes/UserDashboardRoutes";
 import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
@@ -23,6 +23,7 @@ import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
 import AuthError from "./AuthError";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
+import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
@@ -92,6 +93,12 @@ const App = () => {
         >
           <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
+
+        {/* Mode Restriction Error Page */}
+        <Route
+          path="/mode-restriction-error"
+          element={<ModeRestrictionError />}
+        />
 
         <Route path="*" element={<Error404 />} />
       </Routes>
