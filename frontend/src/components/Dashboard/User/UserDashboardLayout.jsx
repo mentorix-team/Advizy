@@ -14,6 +14,7 @@ import {
   MessageSquareText,
   LayoutDashboard,
   Home,
+  UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
