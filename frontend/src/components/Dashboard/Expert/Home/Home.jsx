@@ -3,7 +3,7 @@ import Header from "./components/Header";
 import StatsCard from "./components/StatsCard";
 import ActionNeeded from "./components/ActionNeeded";
 import UpcomingSessions from "./components/UpcomingSessions";
-import PerformanceChart from "./components/PerformanceChart";
+// import PerformanceChart from "./components/PerformanceChart";
 import CompleteProfile from "./components/CompleteProfile";
 import RecentEarnings from "./components/RecentEarnings";
 import AvailabilityCalendar from "./components/AvailabilityCalendar";
@@ -122,6 +122,13 @@ function Home() {
       url: "https://docs.google.com/document/d/16lZK-pDBivoEsehZI10o36kFg2iGnVo_-YcjbwTJRAI/edit?usp=sharing",
     },
   ];
+
+  const handleViewResource = (url) => {
+    if (url) {
+      window.open(url, "_blank"); // Opens in a new tab
+    }
+  };
+  
 
   const earningsData = {
     totalEarnings: 45000,
@@ -252,7 +259,7 @@ function Home() {
               <UpcomingSessions sessions={bookingsData} />
             )}
             <AvailabilityCalendar meetings={meetings} />
-            <PerformanceChart />
+            {/* <PerformanceChart /> */}
           </div>
           <div className="space-y-4">
             <CompleteProfile
@@ -264,7 +271,7 @@ function Home() {
               earnings={earningsData.earnings}
             />
             <ClientFeedback feedback={feedbackData} />
-            <RecommendedResources resources={resourcesData} />
+            <RecommendedResources resources={resourcesData} onViewResource={handleViewResource}/>
           </div>
         </div>
       </div>

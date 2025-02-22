@@ -41,7 +41,7 @@ export default function RecommendedResources({
               </div>
             </div>
             <button 
-              onClick={() => onViewResource(resource)}
+              onClick={() => onViewResource(resource.url)}
               className="text-primary hover:text-secondary text-sm whitespace-nowrap ml-4"
             >
               View

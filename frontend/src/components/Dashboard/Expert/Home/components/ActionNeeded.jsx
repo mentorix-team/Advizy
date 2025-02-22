@@ -1,5 +1,6 @@
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 
 const iconMap = {
   message: <BiMessageSquare className="text-red-500" size={24} />,
@@ -7,7 +8,22 @@ const iconMap = {
   calendar: <BiCalendar className="text-blue-500" size={24} />,
 };
 
+const actionRoutes = {
+  'Add Your Expertise': '/dashboard/profile-detail',
+  "Add Your Services": "/dashboard/service-pricing",
+  "Set your Availability": "/dashboard/availability",
+}
+
 export default function ActionNeeded({ actions }) {
+  const navigate = useNavigate();
+
+  const handleNavigation = (actionText) => {
+    const route = actionRoutes[actionText];
+    if
+    (route) {
+      navigate(route);
+    }
+  }
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
@@ -22,7 +38,9 @@ export default function ActionNeeded({ actions }) {
                 {iconMap[action.icon] || <BiMessageSquare size={24} />} {/* Fallback icon */}
                 <span className="text-sm font-medium">{action.text}</span>
               </div>
-              <button className="text-primary hover:text-secondary text-sm font-medium">
+              <button 
+              onClick={() => handleNavigation(action.text)}
+              className="text-primary hover:text-secondary text-sm font-medium">
                 Take Action
               </button>
             </div>
