@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDyteClient, DyteProvider } from "@dytesdk/react-web-core";
 import MyMeetingUI from "./MyMeetingUI";
+import MeetingLoading from "../LoadingSkeleton/MeetingLoading";
 
 export default function Meeting() {
   const location = useLocation();
@@ -47,7 +48,7 @@ export default function Meeting() {
   }
 
   if (loading) {
-    return <div>Loading meeting...</div>;
+    return <MeetingLoading />;
   }
 
   return (
