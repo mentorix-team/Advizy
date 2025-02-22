@@ -385,6 +385,7 @@ const Navbar = ({ onSearch }) => {
     const expertData = localStorage.getItem("expertData");
     if (expertData) {
       setIsExpertMode(true);
+      setHasExpertData(true); // Update hasExpertData state
     }
   }, []);
 
@@ -413,13 +414,6 @@ const Navbar = ({ onSearch }) => {
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);
-
-    // Update localStorage to reflect the new mode
-    if (newMode) {
-      localStorage.setItem("expertMode", "true");
-    } else {
-      localStorage.removeItem("expertMode");
-    }
 
     // Update localStorage to reflect the new mode
     if (newMode) {
