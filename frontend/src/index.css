@@ -1,11 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Manrope:wght@200..800&family=Oswald:wght@200..700&family=Poppins:wght@200;300;500&family=Roboto&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 
-@layer utilities{
-  ::selection{
-    @apply bg-green-500 text-white;
-  }
-}
+@layer utilities{}
 
 @layer base {
   html {

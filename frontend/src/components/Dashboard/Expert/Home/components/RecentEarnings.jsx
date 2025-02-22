@@ -1,12 +1,21 @@
 import React from 'react';
 import { BiTrendingUp } from 'react-icons/bi';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function RecentEarnings({ 
   totalEarnings = 0,
   earnings = [],
   onViewReport = () => {}
 }) {
+
+  const navigate = useNavigate();
+
+  const onEarnings = () => {
+    navigate('/dashboard/expert/payments');
+  }
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -19,7 +28,7 @@ export default function RecentEarnings({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg sm:text-xl font-bold">Recent Earnings</h2>
-        <button className="text-gray-400 hover:text-gray-600">→</button>
+        <ArrowUpRight onClick={onEarnings} className='cursor-pointer w-4 h-4 text-gray-600'/>
       </div>
 
       <div className="mb-6">
@@ -49,10 +58,10 @@ export default function RecentEarnings({
       </div>
 
       <button 
-        onClick={onViewReport}
-        className="w-full mt-6 text-center text-primary hover:text-secondary text-sm font-medium"
+        onClick={onEarnings}
+        className="w-full flex items-center mt-6 text-center text-primary hover:text-secondary text-sm font-medium"
       >
-        View Earnings Report →
+        View Earnings Report <ArrowUpRight className='w-4 h-4'/>
       </button>
     </div>
   );

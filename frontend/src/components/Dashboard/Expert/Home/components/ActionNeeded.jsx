@@ -1,18 +1,34 @@
+import { Award, CalendarDays, Star} from 'lucide-react';
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 
 const iconMap = {
-  message: <BiMessageSquare className="text-red-500" size={24} />,
-  star: <BiStar className="text-yellow-500" size={24} />,
-  calendar: <BiCalendar className="text-blue-500" size={24} />,
+  message: <Award className='w-6 h-6 text-red-600'/>,
+  star: <Star className="text-yellow-500 w-6 h-6"/>,
+  calendar: <CalendarDays className="text-blue-500 w-6 h-6"/>,
 };
 
+const actionRoutes = {
+  'Add Your Expertise': '/dashboard/expert/profile-detail',
+  "Add Your Services": "/dashboard/expert/service-pricing",
+  "Set your Availability": "/dashboard/expert/availability",
+}
+
 export default function ActionNeeded({ actions }) {
+  const navigate = useNavigate();
+
+  const handleNavigation = (actionText) => {
+    const route = actionRoutes[actionText];
+    if
+    (route) {
+      navigate(route);
+    }
+  }
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white border rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Action Needed</h2>
-        <button className="text-gray-400 hover:text-gray-600">→</button>
       </div>
       <div className="space-y-4">
         {actions.length > 0 ? (
@@ -22,7 +38,9 @@ export default function ActionNeeded({ actions }) {
                 {iconMap[action.icon] || <BiMessageSquare size={24} />} {/* Fallback icon */}
                 <span className="text-sm font-medium">{action.text}</span>
               </div>
-              <button className="text-primary hover:text-secondary text-sm font-medium">
+              <button 
+              onClick={() => handleNavigation(action.text)}
+              className="text-primary py-2 px-3 rounded-md border border-primary hover:text-secondary text-sm font-medium">
                 Take Action
               </button>
             </div>

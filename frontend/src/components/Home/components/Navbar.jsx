@@ -358,7 +358,7 @@
 
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User, CircleUserRound } from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -380,13 +380,14 @@ const Navbar = ({ onSearch }) => {
     return location.pathname === path;
   };
 
-    // Check for expertData in localStorage on component mount
-    useEffect(() => {
-      const expertData = localStorage.getItem('expertData');
-      if (expertData) {
-        setIsExpertMode(true);
-      }
-    }, []);
+  // Check for expertData in localStorage on component mount
+  useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
+    if (expertData) {
+      setIsExpertMode(true);
+      setHasExpertData(true); // Update hasExpertData state
+    }
+  }, []);
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode");
@@ -458,7 +459,7 @@ const Navbar = ({ onSearch }) => {
                   href="/dashboard/expert"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4" />
                   Expert Dashboard
                 </a>
                 <button
@@ -482,15 +483,15 @@ const Navbar = ({ onSearch }) => {
                   href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && hasExpertData  && (
+                {isLoggedIn && hasExpertData && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                   >
-                    <User className="w-4 h-4" />
+                    <UserCheck className="w-4 h-4" />
                     Switch to Expert Mode
                   </button>
                 )}

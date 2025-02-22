@@ -244,9 +244,12 @@ import {
   UserPen,
   Users,
   Video,
+  LayoutDashboard,
+  UserCheck,
+  Home,
 } from "lucide-react";
 
-const ExpertDashboardLayout = ({ onSearch }) => {
+const ExpertDashboardLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -255,6 +258,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const userName = useSelector((state) => state.auth.user?.name || "User");
+  const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -262,12 +266,16 @@ const ExpertDashboardLayout = ({ onSearch }) => {
     return location.pathname === path;
   };
 
+  // Check for expertData in localStorage on component mount
   useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
     const expertMode = localStorage.getItem("expertMode");
+
+    if (expertData) {
+      setHasExpertData(true);
+    }
     if (expertMode === "true") {
       setIsExpertMode(true);
-    } else {
-      setIsExpertMode(false);
     }
   }, []);
 
@@ -282,6 +290,7 @@ const ExpertDashboardLayout = ({ onSearch }) => {
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+    navigate("/");
   };
 
   const handleToggleExpertMode = () => {
@@ -297,10 +306,8 @@ const ExpertDashboardLayout = ({ onSearch }) => {
 
     // Redirect based on the mode
     if (newMode) {
-      console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
-      console.log("Navigating to Landing Page");
       navigate("/"); // Navigate to the landing page
     }
   };
@@ -329,18 +336,21 @@ const ExpertDashboardLayout = ({ onSearch }) => {
             {isExpertMode ? (
               <>
                 <a
-                  href="/dashboard/expert"
+                  href="/"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
-                  Expert Dashboard
+                  <Home className="w-4 h-4" />
+                  Back to Home
                 </a>
                 <button
                   onClick={handleToggleExpertMode}
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                 >
                   <User className="w-4 h-4" />
-                  Switch to User Mode
+                  {/* Switch to User Mode */}
+                  {isExpertMode
+                    ? "Switch to User Mode"
+                    : "Switch to Expert Mode"}
                 </button>
                 <button
                   onClick={handleLogout}
@@ -356,15 +366,15 @@ const ExpertDashboardLayout = ({ onSearch }) => {
                   href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <User className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && (
+                {isLoggedIn && hasExpertData && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                   >
-                    <User className="w-4 h-4" />
+                    <UserCheck className="w-4 h-4" />
                     Switch to Expert Mode
                   </button>
                 )}
@@ -393,70 +403,6 @@ const ExpertDashboardLayout = ({ onSearch }) => {
               <a href="/" className="flex items-center font-bold text-gray-900">
                 <img src="/logo104.99&44.svg" alt="Advizy Logo" />
               </a>
-            </div>
-
-            {/* Search Bar */}
-            <div className="hidden lg:block flex-1 max-w-2xl mx-8">
-              <motion.div
-                className="relative"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              >
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search mentors by name or expertise..."
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                  onClick={onSearch}
-                  readOnly
-                />
-              </motion.div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="flex lg:hidden">
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
-                aria-label="Toggle menu"
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  {isMenuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  )}
-                </svg>
-              </button>
             </div>
 
             {/* Desktop Navigation */}
@@ -499,103 +445,6 @@ const ExpertDashboardLayout = ({ onSearch }) => {
               )}
             </div>
           </div>
-
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden py-4 border-t border-gray-200 bg-white"
-            >
-              <div className="flex flex-col space-y-4">
-                <div className="w-full px-4">
-                  <motion.div
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  >
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search mentors..."
-                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                      onClick={onSearch}
-                      readOnly
-                    />
-                  </motion.div>
-                </div>
-                <a
-                  href="/about-us"
-                  className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                    isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                  }`}
-                >
-                  About Us
-                </a>
-                {!isExpertMode && (
-                  <a
-                    href="/become-expert"
-                    className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                      isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
-                    }`}
-                  >
-                    Share Your Expertise
-                  </a>
-                )}
-                <div className="px-2">
-                  {isLoggedIn ? (
-                    <div className="space-y-2">
-                      <a
-                        href={
-                          isExpertMode
-                            ? "/dashboard/expert/"
-                            : "/dashboard/user/"
-                        }
-                        className="flex items-center gap-2 w-full text-sm text-gray-700 hover:text-primary transition-colors duration-200"
-                      >
-                        <User className="w-4 h-4" />
-                        {isExpertMode ? "Expert Dashboard" : "Dashboard"}
-                      </a>
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 w-full text-sm text-red-600 hover:text-red-700 transition-colors duration-200"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
-                    </div>
-                  ) : (
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
-                      onClick={handleOpenAuthPopup}
-                    >
-                      Login
-                    </motion.button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
         <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
       </nav>

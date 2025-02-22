@@ -7,7 +7,7 @@ import SettingsPanel from "./settings/SettingsPanel";
 import { BlockedDatesProvider } from "@/Context/BlockedDatesContext";
 import { useDispatch, useSelector } from "react-redux";
 import { viewAvailability } from "@/Redux/Slices/availability.slice";
-
+import AvailabilitySkeleton from "@/components/LoadingSkeleton/AvailabilitySkeleton";
 
 function Availability() {
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ function Availability() {
   }, [dispatch]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <AvailabilitySkeleton />;
   }
 
   if (error) {

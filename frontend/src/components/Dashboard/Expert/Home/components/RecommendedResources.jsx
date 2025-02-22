@@ -27,7 +27,6 @@ export default function RecommendedResources({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg sm:text-xl font-bold">Recommended Resources</h2>
-        <button className="text-gray-400 hover:text-gray-600">→</button>
       </div>
 
       <div className="space-y-4">
@@ -41,7 +40,7 @@ export default function RecommendedResources({
               </div>
             </div>
             <button 
-              onClick={() => onViewResource(resource)}
+              onClick={() => onViewResource(resource.url)}
               className="text-primary hover:text-secondary text-sm whitespace-nowrap ml-4"
             >
               View

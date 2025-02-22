@@ -132,17 +132,6 @@ export default function Payments() {
           >
             Transactions
           </button>
-          <button
-            onClick={() => handleTabChange('withdrawals')}
-            className={clsx(
-              'px-4 py-2 text-sm font-semibold rounded-md transition-colors',
-              activeTab === 'withdrawals'
-                ? 'bg-green-50 text-green-700 border border-gray-300'
-                : 'text-gray-800 hover:bg-gray-50 border'
-            )}
-          >
-            Withdrawals
-          </button>
         </div>
       </div>
 

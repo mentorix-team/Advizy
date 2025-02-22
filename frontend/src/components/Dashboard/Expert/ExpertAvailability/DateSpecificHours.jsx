@@ -240,7 +240,7 @@ function DateSpecificHours() {
       <div className="mt-4 flex justify-end">
         <button
           onClick={handleSave}
-          className="bg-blue-600 text-white rounded-md p-2"
+          className="bg-primary text-white rounded-md p-2"
         >
           Save Dates and Slots
         </button>

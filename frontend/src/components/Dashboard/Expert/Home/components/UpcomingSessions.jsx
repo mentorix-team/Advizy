@@ -1,8 +1,16 @@
+import NoUpcoming from "@/NoUpcoming";
+import { ArrowUpRight } from "lucide-react";
 import React from "react";
 import { BiVideo } from "react-icons/bi";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function UpcomingSessions() {
+  const navigate = useNavigate();
+
+  const handleUpcomingNavigate =() =>{
+    navigate('/dashboard/expert/meetings')
+  }
   const { meetings } = useSelector((state) => state.meeting);
   console.log("This is meetings:", meetings);
 
@@ -27,11 +35,11 @@ export default function UpcomingSessions() {
     <div className="bg-white border rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Upcoming Sessions</h2>
-        <button className="text-gray-400 hover:text-gray-600">→</button>
+        <ArrowUpRight onClick={handleUpcomingNavigate} className="cursor-pointer w-4 h-4 text-gray-600"/>
       </div>
 
       {upcomingSessions.length === 0 ? (
-        <p className="text-gray-500">No upcoming sessions.</p>
+        <NoUpcoming />
       ) : (
         <div className="space-y-4">
           {upcomingSessions.map((session) => (
@@ -61,8 +69,10 @@ export default function UpcomingSessions() {
         </div>
       )}
 
-      <button className="w-full mt-4 text-center text-primary hover:text-secondary text-sm font-medium">
-        View All Sessions →
+      <button
+      onClick={handleUpcomingNavigate}
+      className="w-full flex items-center justify-center gap-3 mt-4 text-center text-primary hover:text-secondary text-sm font-medium">
+        View All Sessions <ArrowUpRight className="w-4 h-4"/>
       </button>
     </div>
   );

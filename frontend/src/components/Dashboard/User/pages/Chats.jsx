@@ -1,10 +1,9 @@
+import ComingSoon from '@/ComingSoon'
 import React from 'react'
 
 const Chats = () => {
   return (
-    <div>
-      <h1>Comming soon</h1>
-    </div>
+    <ComingSoon />
   )
 }
 
