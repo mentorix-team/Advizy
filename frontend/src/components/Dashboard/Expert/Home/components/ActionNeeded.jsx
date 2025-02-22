@@ -1,4 +1,4 @@
-import { MessageSquare } from 'lucide-react';
+import { Award, CalendarDays, Star} from 'lucide-react';
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
