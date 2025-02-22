@@ -1,3 +1,4 @@
+import NoUpcoming from "@/NoUpcoming";
 import { ArrowUpRight } from "lucide-react";
 import React from "react";
 import { BiVideo } from "react-icons/bi";
@@ -38,7 +39,7 @@ export default function UpcomingSessions() {
       </div>
 
       {upcomingSessions.length === 0 ? (
-        <p className="text-gray-500">No upcoming sessions.</p>
+        <NoUpcoming />
       ) : (
         <div className="space-y-4">
           {upcomingSessions.map((session) => (

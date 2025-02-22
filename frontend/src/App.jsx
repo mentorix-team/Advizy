@@ -26,6 +26,7 @@ import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulin
 import ComingSoon from "./ComingSoon";
 import NoData2 from "./NoData2";
 import NoData from "./NoData";
+import NoUpcoming from "./NoUpcoming";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
@@ -43,7 +44,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/nodata" element={<NoData />} />
+        {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
