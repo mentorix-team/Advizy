@@ -17,7 +17,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   useEffect(() => {
     if (service) {
       setFormData({
-        id: service.id,
+        id: service.serviceId,
         serviceName: service.serviceName || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',

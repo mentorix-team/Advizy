@@ -88,7 +88,7 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
           )}
           <button
             onClick={() => {
-              onEdit(service, handleEdit); // Pass handleEdit to update data
+              onEdit(service); 
             }}
             className={`rounded-full transition-colors ${
               isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"

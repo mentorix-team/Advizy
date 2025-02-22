@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import Modal from './Modal'
 import { TimeSlot } from './TimeSlot'
 import { FeatureList } from './FeatureList'
 import toast from 'react-hot-toast'
+import { updateServicebyId } from '@/Redux/Slices/expert.Slice'
 
-function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
+function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
+  const dispatch = useDispatch()
+  console.log('now this is at the modal',service);
   const [formData, setFormData] = useState({
     id: '',
     serviceName: '',
@@ -17,21 +21,21 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   useEffect(() => {
     if (service) {
       setFormData({
-        id: service.id,
-        serviceName: service.serviceName || '',
+        id: service.serviceId || '',
+        serviceName: service.title || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',
         timeSlots: service.timeSlots || [],
         features: service.features || ['']
       })
     }
+    console.log('asd',formData);
   }, [service])
 
   const handleTimeSlotChange = (index, field, value) => {
     const newTimeSlots = [...formData.timeSlots]
     
     if (field === 'duration') {
-      // Check for duplicate duration
       const isDuplicate = formData.timeSlots.some(
         (slot, i) => i !== index && slot.duration === value
       )
@@ -69,11 +73,13 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   }
 
   const handleSubmit = (e) => {
+    console.log('form before saving',formData);
     e.preventDefault()
     onSave(formData)
     toast.success('Service updated successfully')
     onClose()
   }
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Service Details">
@@ -169,6 +175,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
             Cancel
           </button>
           <button
+            // onClick={handleSubmit}
             type="submit"
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
           >

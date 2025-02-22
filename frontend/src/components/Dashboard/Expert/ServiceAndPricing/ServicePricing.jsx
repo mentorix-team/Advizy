@@ -5,7 +5,7 @@ import ServiceCard from './ServiceCard';
 import AddServiceModal from './modals/AddServiceModal';
 import EditDefaultServiceModal from './modals/EditDefaultServiceModal';
 import EditNonDefaultServiceModal from './modals/EditNonDefaultServiceModal';
-import { deleteService } from '@/Redux/Slices/expert.Slice';
+import { deleteService, updateServicebyId } from '@/Redux/Slices/expert.Slice';
 
 function ServicePricing() {
   const dispatch = useDispatch(); // Initialize dispatch
@@ -24,8 +24,9 @@ function ServicePricing() {
   }, [expertData, services]);
 
   const handleEditService = (service) => {
+    console.log('this is the service',service)
     setEditingService(service);
-    if (service.id === 'default') {
+    if (service.serviceId === 'default') {
       setIsEditDefaultModalOpen(true);
     } else {
       setIsEditNonDefaultModalOpen(true);
@@ -33,7 +34,8 @@ function ServicePricing() {
   };
 
   const handleUpdateService = (updatedService) => {
-    // Updating logic (you might already have Redux actions for this)
+    console.log('this is updated service ',updatedService);
+    dispatch(updateServicebyId(updatedService))
     setEditingService(null);
   };
 
