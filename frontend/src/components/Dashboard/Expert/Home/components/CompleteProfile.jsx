@@ -1,16 +1,24 @@
 import React from 'react';
 import { BiChevronRight } from 'react-icons/bi';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function CompleteProfile({ 
   completion = 0,
-  sections = [],
-  onCompleteProfile = () => {}
 }) {
+
+  const navigate = useNavigate();
+
+  const onCompleteProfile = () => {
+    navigate('/dashboard/expert/profile-detail')
+  }
+
   return (
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg sm:text-xl font-bold">Complete Your Profile</h2>
+        <ArrowUpRight onClick={onCompleteProfile} className='w-4 h-4 text-gray-600' />
         <button className="text-gray-400 hover:text-gray-600">→</button>
       </div>
       
@@ -31,18 +39,6 @@ export default function CompleteProfile({
         Complete your profile to increase visibility and attract more clients.
       </p>
 
-      <div className="space-y-4 mb-6">
-        {sections.map((section, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              section.status === 'completed' ? 'bg-green-500' :
-              section.status === 'in-progress' ? 'bg-yellow-500' :
-              'bg-gray-300'
-            }`}></div>
-            <span className="text-sm">{section.name}</span>
-          </div>
-        ))}
-      </div>
 
       <button 
         onClick={onCompleteProfile}

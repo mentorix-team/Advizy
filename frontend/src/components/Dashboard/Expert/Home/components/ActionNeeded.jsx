@@ -9,9 +9,9 @@ const iconMap = {
 };
 
 const actionRoutes = {
-  'Add Your Expertise': '/dashboard/profile-detail',
-  "Add Your Services": "/dashboard/service-pricing",
-  "Set your Availability": "/dashboard/availability",
+  'Add Your Expertise': '/dashboard/expert/profile-detail',
+  "Add Your Services": "/dashboard/expert/service-pricing",
+  "Set your Availability": "/dashboard/expert/availability",
 }
 
 export default function ActionNeeded({ actions }) {
@@ -28,7 +28,6 @@ export default function ActionNeeded({ actions }) {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Action Needed</h2>
-        <button className="text-gray-400 hover:text-gray-600">→</button>
       </div>
       <div className="space-y-4">
         {actions.length > 0 ? (

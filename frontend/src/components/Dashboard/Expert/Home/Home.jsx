@@ -151,13 +151,6 @@ function Home() {
     ],
   };
 
-  const profileSections = [
-    { name: "Basic Info", status: "completed" },
-    { name: "Experience", status: "completed" },
-    { name: "Skills", status: "in-progress" },
-    { name: "Certifications", status: "pending" },
-  ];
-
   const calculateCompletion = (data) => {
     if (!data) return 0;
 
@@ -264,7 +257,6 @@ function Home() {
           <div className="space-y-4">
             <CompleteProfile
               completion={completionPercentage}
-              sections={profileSections}
             />
             <RecentEarnings
               totalEarnings={earningsData.totalEarnings}

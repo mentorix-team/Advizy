@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { BiChevronLeft, BiChevronRight, BiTime } from 'react-icons/bi';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function AvailabilityCalendar({ 
   meetings = [],
@@ -9,6 +11,11 @@ export default function AvailabilityCalendar({
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const navigate = useNavigate();
+
+  const onAvailability = () => {
+    navigate('/dashboard/expert/availability');
+  }
 
   console.log("🔹 Received meetings data:", meetings); // LOGGING MEETINGS DATA
 
@@ -68,6 +75,7 @@ export default function AvailabilityCalendar({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold">Availability Calendar</h2>
+        <ArrowUpRight onClick={onAvailability} className='w-4 h-4 text-gray-600' />
         <button className="text-gray-400 hover:text-gray-600">→</button>
       </div>
 

@@ -1,11 +1,19 @@
 import React from 'react';
 import { BiStar } from 'react-icons/bi';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function ClientFeedback({ 
   feedback = [],
   onViewAll = () => {}
 }) {
+
+  const navigate = useNavigate();
+
+  const onFeedbacks = () => {
+    navigate('/dashboard/expert/reviews');
+  }
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <BiStar
@@ -21,10 +29,9 @@ export default function ClientFeedback({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg sm:text-xl font-bold">Recent Client Feedback</h2>
         <button 
-          onClick={onViewAll}
-          className="text-gray-400 hover:text-gray-600"
+          onClick={onFeedbacks}
         >
-          →
+          <ArrowUpRight className='w-4 h-4 text-gray-600'/>
         </button>
       </div>
 
