@@ -47,7 +47,7 @@
   
 //     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 //   }
-  
+
 export const timeToMinutes = (time) => {
   const [timePart, modifier] = time.split(" ");
   let [hours, minutes] = timePart.split(":").map(Number);
