@@ -34,7 +34,7 @@ export default function UpcomingSessions() {
     <div className="bg-white border rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Upcoming Sessions</h2>
-        <ArrowUpRight onClick={handleUpcomingNavigate} className="w-4 h-4 text-gray-600"/>
+        <ArrowUpRight onClick={handleUpcomingNavigate} className="cursor-pointer w-4 h-4 text-gray-600"/>
       </div>
 
       {upcomingSessions.length === 0 ? (

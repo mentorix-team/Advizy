@@ -2,6 +2,7 @@ import React from "react";
 import TimeRangePicker from "./TimeInput";
 import Toggle from "./Toggle";
 import { PlusIcon, TrashIcon } from "@/icons/Icons";
+import { validateTimeSlot } from "@/utils/timeValidation";
 
 function DayRow({
   day,
@@ -11,6 +12,17 @@ function DayRow({
   onRemoveSlot,
   onApplyToAll,
 }) {
+  const handleTimeChange = (dayId, slotId, type, time) => {
+    onTimeChange(dayId, slotId, type, time);
+
+    // Validate the time slot after updating
+    const slot = day.slots.find((s) => s.id === slotId);
+    if (slot) {
+      const error = validateTimeSlot(slot.start, slot.end);
+      day.error = error; // Update the error state for the day
+    }
+  };
+
   return (
     <div className="flex items-start space-x-6 py-3 border-b border-gray-100 last:border-b-0">
       <div className="w-28">
@@ -30,10 +42,10 @@ function DayRow({
                   endTime={slot.end}
                   disabled={!day.enabled}
                   onStartChange={(time) =>
-                    onTimeChange(day.id, slot.id, "start", time)
+                    handleTimeChange(day.id, slot.id, "start", time)
                   }
                   onEndChange={(time) =>
-                    onTimeChange(day.id, slot.id, "end", time)
+                    handleTimeChange(day.id, slot.id, "end", time)
                   }
                 />
                 <button

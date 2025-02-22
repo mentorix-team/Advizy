@@ -40,7 +40,7 @@ export default function ActionNeeded({ actions }) {
               </div>
               <button 
               onClick={() => handleNavigation(action.text)}
-              className="text-primary border border-primary hover:text-secondary text-sm font-medium">
+              className="text-primary py-2 px-3 rounded-md border border-primary hover:text-secondary text-sm font-medium">
                 Take Action
               </button>
             </div>

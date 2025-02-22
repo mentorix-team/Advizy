@@ -28,7 +28,7 @@ export default function RecentEarnings({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg sm:text-xl font-bold">Recent Earnings</h2>
-        <ArrowUpRight onClick={onEarnings} className='w-4 h-4 text-gray-600'/>
+        <ArrowUpRight onClick={onEarnings} className='cursor-pointer w-4 h-4 text-gray-600'/>
       </div>
 
       <div className="mb-6">
