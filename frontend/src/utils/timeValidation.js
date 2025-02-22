@@ -49,7 +49,16 @@
 //   }
   
 export const timeToMinutes = (time) => {
-  const [hours, minutes] = time.split(":").map(Number);
+  const [timePart, modifier] = time.split(" ");
+  let [hours, minutes] = timePart.split(":").map(Number);
+
+  // Convert to 24-hour format
+  if (modifier === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (modifier === "AM" && hours === 12) {
+    hours = 0;
+  }
+
   return hours * 60 + minutes;
 };
 
@@ -58,8 +67,8 @@ export function validateTimeSlot(start, end) {
     return "Both start and end times must be selected.";
   }
 
-  const startTime = timeToMinutes(convertTo24Hour(start));
-  const endTime = timeToMinutes(convertTo24Hour(end));
+  const startTime = timeToMinutes(start);
+  const endTime = timeToMinutes(end);
 
   // Handle the case where the end time is on the next day (e.g., 11:30 PM to 12:00 AM)
   if (startTime >= endTime) {
@@ -81,8 +90,8 @@ export function checkOverlap(slots) {
   const validSlots = slots.filter((slot) => slot.start && slot.end);
 
   const parsedSlots = validSlots.map((slot) => ({
-    start: timeToMinutes(convertTo24Hour(slot.start)),
-    end: timeToMinutes(convertTo24Hour(slot.end)),
+    start: timeToMinutes(slot.start),
+    end: timeToMinutes(slot.end),
   }));
 
   // Sort slots by start time
@@ -102,16 +111,4 @@ export function checkOverlap(slots) {
   }
 
   return null;
-}
-
-export function convertTo24Hour(time) {
-  const [timePart, modifier] = time.split(" ");
-  let [hours, minutes] = timePart.split(":").map(Number);
-
-  if (modifier === "PM" && hours !== 12) {
-    hours += 12;
-  } else if (modifier === "AM" && hours === 12) {
-    hours = 0;
-  }
-  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
