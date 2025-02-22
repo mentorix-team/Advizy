@@ -348,7 +348,9 @@ const ExpertDashboardLayout = () => {
                 >
                   <User className="w-4 h-4" />
                   {/* Switch to User Mode */}
-                  {isExpertMode ? 'Switch to User Mode' : 'Switch to Expert Mode'}
+                  {isExpertMode
+                    ? "Switch to User Mode"
+                    : "Switch to Expert Mode"}
                 </button>
                 <button
                   onClick={handleLogout}

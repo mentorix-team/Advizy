@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
@@ -13,17 +13,17 @@ import {
   UserPen,
   MessageSquareText,
   LayoutDashboard,
+  Home,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const UserDashboardLayout = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const [hasExpertData, setHasExpertData] = useState(false);
-
+  const navigate = useNavigate();
   const userName = useSelector((state) => state.auth.user?.name || "User");
   const dispatch = useDispatch();
   const location = useLocation();
@@ -32,18 +32,15 @@ const UserDashboardLayout = () => {
     return location.pathname === path;
   };
 
-  useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode");
-    if (expertMode === "true") {
-      setIsExpertMode(true);
-    } else {
-      setIsExpertMode(false);
-    }
-  }, []);
-
+  // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
+    const expertMode = localStorage.getItem("expertMode");
+
     if (expertData) {
+      setHasExpertData(true);
+    }
+    if (expertMode === "true") {
       setIsExpertMode(true);
     }
   }, []);
@@ -59,6 +56,7 @@ const UserDashboardLayout = () => {
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+    navigate("/");
   };
 
   const handleToggleExpertMode = () => {
@@ -103,57 +101,29 @@ const UserDashboardLayout = () => {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
-            {isExpertMode ? (
-              <>
-                <a
-                  href="/dashboard/expert"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Expert Dashboard
-                </a>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <User className="w-4 h-4" />
-                  Switch to User Mode
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <a
-                  href="/dashboard/user/meetings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  User Dashboard
-                </a>
-                {isLoggedIn && hasExpertData && (
-                  <button
-                    onClick={handleToggleExpertMode}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                  >
-                    <UserCheck className="w-4 h-4" />
-                    Switch to Expert Mode
-                  </button>
-                )}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
-              </>
+            <a
+              href="/"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            >
+              <Home className="w-4 h-4" />
+              Back to Home
+            </a>
+            {isLoggedIn && hasExpertData && (
+              <button
+                onClick={handleToggleExpertMode}
+                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+              >
+                <UserCheck className="w-4 h-4" />
+                {isExpertMode ? "Switch to User Mode" : "Switch to Expert Mode"}
+              </button>
             )}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
