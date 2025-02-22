@@ -75,8 +75,7 @@ export default function AvailabilityCalendar({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold">Availability Calendar</h2>
-        <ArrowUpRight onClick={onAvailability} className='w-4 h-4 text-gray-600' />
-        <button className="text-gray-400 hover:text-gray-600">→</button>
+        <ArrowUpRight onClick={onAvailability} className='cursor-pointer w-4 h-4 text-gray-800' />
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">

@@ -18,8 +18,7 @@ export default function CompleteProfile({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg sm:text-xl font-bold">Complete Your Profile</h2>
-        <ArrowUpRight onClick={onCompleteProfile} className='w-4 h-4 text-gray-600' />
-        <button className="text-gray-400 hover:text-gray-600">→</button>
+        <ArrowUpRight onClick={onCompleteProfile} className='w-4 h-4 text-gray-800 cursor-pointer' />
       </div>
       
       <div className="mb-4">

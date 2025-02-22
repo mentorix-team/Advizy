@@ -59,7 +59,7 @@ export default function RecentEarnings({
 
       <button 
         onClick={onEarnings}
-        className="w-full mt-6 text-center text-primary hover:text-secondary text-sm font-medium"
+        className="w-full flex items-center mt-6 text-center text-primary hover:text-secondary text-sm font-medium"
       >
         View Earnings Report <ArrowUpRight className='w-4 h-4'/>
       </button>

@@ -1,11 +1,12 @@
+import { MessageSquare } from 'lucide-react';
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 
 const iconMap = {
-  message: <BiMessageSquare className="text-red-500" size={24} />,
-  star: <BiStar className="text-yellow-500" size={24} />,
-  calendar: <BiCalendar className="text-blue-500" size={24} />,
+  message: <Award className='w-6 h-6 text-red-600'/>,
+  star: <Star className="text-yellow-500 w-6 h-6"/>,
+  calendar: <CalendarDays className="text-blue-500 w-6 h-6"/>,
 };
 
 const actionRoutes = {
@@ -25,7 +26,7 @@ export default function ActionNeeded({ actions }) {
     }
   }
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
+    <div className="bg-white border rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Action Needed</h2>
       </div>
@@ -39,7 +40,7 @@ export default function ActionNeeded({ actions }) {
               </div>
               <button 
               onClick={() => handleNavigation(action.text)}
-              className="text-primary hover:text-secondary text-sm font-medium">
+              className="text-primary border border-primary hover:text-secondary text-sm font-medium">
                 Take Action
               </button>
             </div>

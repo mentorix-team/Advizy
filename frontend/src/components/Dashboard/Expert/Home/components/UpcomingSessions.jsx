@@ -70,7 +70,7 @@ export default function UpcomingSessions() {
 
       <button
       onClick={handleUpcomingNavigate}
-      className="w-full flex items-center mt-4 text-center text-primary hover:text-secondary text-sm font-medium">
+      className="w-full flex items-center justify-center gap-3 mt-4 text-center text-primary hover:text-secondary text-sm font-medium">
         View All Sessions <ArrowUpRight className="w-4 h-4"/>
       </button>
     </div>
