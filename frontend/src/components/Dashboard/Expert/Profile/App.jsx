@@ -179,7 +179,7 @@ function App() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Join <span className='text-primary font-extrabold'>Advizy</span></h1>
-          <p className="text-md sm:text-2xl font-semibold text-gray-600">Empower others with your knowledge while growing your influence and professional reach.</p>
+          <p className="text-md font-semibold text-gray-600">Empower others with your knowledge while growing your influence and professional reach.</p>
         </div>
 
         <div className="bg-white rounded-lg shadow">
