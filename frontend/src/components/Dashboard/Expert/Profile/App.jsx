@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import ProfileHeader from './components/ProfileHeader';
+// import ProfileHeader from './components/ProfileHeader';
 import BasicInfo from './components/BasicInfo';
 import { basicFormSubmit } from '@/Redux/Slices/expert.Slice';
 
@@ -10,17 +10,18 @@ function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { expertData,data,loading, error } = useSelector((state) => state.auth);
-  // console.log("This is dat",data);
+  // console.log("This is data",data);
   let user = null;
   if (data) {
     user = typeof data === "string" ? JSON.parse(data) : data;
   }
   console.log("this is user",user);
-  const [activeTab, setActiveTab] = useState('basic');
-  const [profileImage, setProfileImage] = useState('');
-  const [coverImage, setCoverImage] = useState('');
+  // const [activeTab, setActiveTab] = useState('basic');
+  // const [profileImage, setProfileImage] = useState('');
+  // const [coverImage, setCoverImage] = useState('');
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [loadingState, setLoadingState] = useState(false);
 
   let expert = null;
 
@@ -109,27 +110,27 @@ function App() {
     }
   };
 
-  const handleImageChange = (event, imageType) => {
-    const uploadedImage = event.target.files[0];
+  // const handleImageChange = (event, imageType) => {
+  //   const uploadedImage = event.target.files[0];
 
-    if (uploadedImage) {
-      setFormData(prev => ({
-        ...prev,
-        basic: {
-          ...prev.basic,
-          [imageType]: uploadedImage, // Store the File object for the image
-        },
-      }));
+  //   if (uploadedImage) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       basic: {
+  //         ...prev.basic,
+  //         [imageType]: uploadedImage, // Store the File object for the image
+  //       },
+  //     }));
 
-      const imagePreviewUrl = URL.createObjectURL(uploadedImage);
+  //     const imagePreviewUrl = URL.createObjectURL(uploadedImage);
 
-      if (imageType === 'profileImage') {
-        setProfileImage(imagePreviewUrl);
-      } else if (imageType === 'coverImage') {
-        setCoverImage(imagePreviewUrl);
-      }
-    }
-  };
+  //     if (imageType === 'profileImage') {
+  //       setProfileImage(imagePreviewUrl);
+  //     } else if (imageType === 'coverImage') {
+  //       setCoverImage(imagePreviewUrl);
+  //     }
+  //   }
+  // };
 
   const handleNext = async () => {
     if (validateBasicInfo()) {
@@ -152,9 +153,11 @@ function App() {
       basicData.append('mobile', formData.basic.mobile);
       basicData.append('nationality', formData.basic.nationality);
       basicData.append('languages', JSON.stringify(formData.basic.languages));
-      basicData.append('socialLinks', JSON.stringify(formData.basic.socialLinks));
-      basicData.append('coverImage', formData.basic.coverImage);
-      basicData.append('profileImage', formData.basic.profileImage);
+      // basicData.append('socialLinks', JSON.stringify(formData.basic.socialLinks));
+      // basicData.append('coverImage', formData.basic.coverImage);
+      // basicData.append('profileImage', formData.basic.profileImage);
+
+      setLoadingState(true);
 
       try {
         const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
@@ -167,6 +170,8 @@ function App() {
       } catch (error) {
         console.error('Error submitting basic form:', error);
         toast.error('An error occurred while submitting the form');
+      } finally {
+        setLoadingState(false);
       }
     }
   };
@@ -176,16 +181,17 @@ function App() {
       <Toaster position="top-right" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Edit Profile</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Join <span className='text-primary font-extrabold'>Advizy</span></h1>
+          <p className="text-md sm:text-2xl font-semibold text-gray-600">Empower others with your knowledge while growing your influence and professional reach.</p>
         </div>
 
         <div className="bg-white rounded-lg shadow">
-          <ProfileHeader
+          {/* <ProfileHeader
             onProfileImageChange={setProfileImage}
             onCoverImageChange={setCoverImage}
             profileImage={profileImage}
             coverImage={coverImage}
-          />
+          /> */}
 
           <div className="px-4 sm:px-6 lg:px-8">
             <BasicInfo
@@ -198,12 +204,15 @@ function App() {
           </div>
         </div>
 
-        <div className="flex justify-between mt-6">
+        <div className="flex justify-end text-end mt-6">
           <button
             onClick={handleNext}
-            className="px-4 sm:px-6 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            disabled={loadingState}
+            className={`px-4 sm:px-6 py-2 text-white rounded-lg transition ${
+              loadingState ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-green-600'
+            }`}
           >
-            Next
+            {loadingState ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       </div>

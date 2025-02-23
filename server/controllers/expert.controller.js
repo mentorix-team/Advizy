@@ -42,9 +42,9 @@ const expertBasicDetails = async (req, res, next) => {
       !email ||
       !mobile ||
       !countryCode||
-      !languages ||
-      !bio ||
-      !socialLinks
+      !languages
+      // !bio ||
+      // !socialLinks
     ) {
       return next(new AppError("All fields are required", 400));
     }
@@ -52,6 +52,9 @@ const expertBasicDetails = async (req, res, next) => {
     // Check if an expert already exists for the given user_id
     let expertbasic = await ExpertBasics.findOne({ user_id });
     let isNewExpert = false; // Flag to check if it's a new expert
+
+    const parsedLanguages = Array.isArray(languages) ? languages : JSON.parse(languages || "[]");
+
 
     if (expertbasic) {
       console.log("Expert found, updating details...");
@@ -64,9 +67,10 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.email = email;
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
-      expertbasic.languages = languages;
-      expertbasic.bio = bio;
-      expertbasic.socialLinks = socialLinks;
+      // expertbasic.languages = languages;
+      expertbasic.languages = parsedLanguages;
+      // expertbasic.bio = bio;
+      // expertbasic.socialLinks = socialLinks;
     } else {
       console.log("No existing expert found, creating new...");
       isNewExpert = true; // Mark as a new expert
@@ -82,8 +86,8 @@ const expertBasicDetails = async (req, res, next) => {
         mobile,
         countryCode,
         languages,
-        bio,
-        socialLinks,
+        // bio,
+        // socialLinks,
         redirect_url:'',
         profileImage: { public_id: "Dummy", secure_url: "Dummy" },
         coverImage: { public_id: "Dummy", secure_url: "Dummy" },
@@ -191,7 +195,13 @@ const expertBasicDetails = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in expertBasicDetails:", error);
-    return next(new AppError(error.message, 500));
+    // return next(new AppError(error.message, 500));
+    if (error.name === "ValidationError") {
+      return next(new AppError("Invalid data format", 400));
+    } else {
+      return next(new AppError("Something went wrong. Please try again.", 500));
+    }
+    
   }
 };
 
@@ -303,10 +313,6 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
-
-
-
-
 
 
 const expertEducation = async (req, res, next) => {
