@@ -201,7 +201,29 @@ export const createMeet = createAsyncThunk(
       }
     }
   )
-
+  export const kickAllparticipant = createAsyncThunk(
+    "meeting/kickAll",
+    async (data, { rejectWithValue }) => {
+      try {
+        console.log("Kicking all participants for meeting:", data);
+  
+        // Ensure the request is awaited properly
+        const response = await axiosInstance.post("/meeting/kickParticipants", {
+          id: data.id, // Sending videoCallId
+        });
+  
+        console.log("Kick response:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error kicking participants:", error.response);
+        const errorMessage =
+          error?.response?.data?.message || "Failed to kick participants.";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  );
+  
   export const updateMeet = createAsyncThunk(
     'meeting/updatemeet',
     async(data,{rejectWithValue})=>{

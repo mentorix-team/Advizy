@@ -42,6 +42,9 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
     try {
       console.log(meeting);
       console.log("This is user videocall id ",meeting.videoCallId);
+      const meetingId = meeting.videoCallId;
+      const startTime = meeting.daySpecific.slot.startTime
+      const endTime = meeting.daySpecific.slot.endTime
       const joinCallData = {
         meeting_id: meeting.videoCallId,
         custom_participant_id: meeting.userId,
@@ -59,7 +62,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
         console.log("Auth Token received:", authToken);
   
         // Navigate to meeting page with authToken
-        navigate("/meeting", { state: { authToken } });
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime} });
       } else {
         console.error("Failed to retrieve authToken.");
       }

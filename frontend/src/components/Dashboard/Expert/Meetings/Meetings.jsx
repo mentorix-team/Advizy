@@ -12,8 +12,10 @@ import { useMeetingsFilter } from "./hooks/useMeetingsFilter";
 import UpcomingMeetingDetails from "./components/meetings/details/UpcomingMeetingDetails";
 import PastMeetingDetails from "./components/meetings/details/PastMeetingDetails";
 import { useDispatch, useSelector } from "react-redux";
-import { getMeetingByExpertId } from "@/Redux/Slices/meetingSlice";
+import { addvideoparticipant, getMeetingByExpertId } from "@/Redux/Slices/meetingSlice";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Meetings() {
   const { meetings } = useSelector((state) => state.meeting);
@@ -21,7 +23,11 @@ function Meetings() {
   const [selectedMeeting, setSelectedMeeting] = useState(null);
   const [activeTab, setActiveTab] = useState("upcoming");
   const [filter, setFilter] = useState("All");
+  const [joinedMeetingId, setJoinedMeetingId] = useState(null);
+  const [isInMeeting, setIsInMeeting] = useState(false); // New state to track meeting status
+  const { expertData } = useSelector((state) => state.expert);
 
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -56,8 +62,44 @@ function Meetings() {
   const { filteredMeetings } = useMeetingsFilter(filteredItems, filter, searchQuery, activeTab);
   console.log("filtered item",filteredItems)
   console.log("filtered meeting",filteredMeetings);
-  const handleStartMeeting = (meeting) => {
-    setJoinMeetingModal({ isOpen: true, meeting });
+  const handleStartMeeting = async (meeting) => {
+    // setJoinMeetingModal({ isOpen: true, meeting });
+    try {
+      console.log("This is expert video call id", meeting.videoCallId);
+      const meetingId = meeting.videoCallId;
+      const startTime = meeting.daySpecific.slot.startTime
+      const endTime = meeting.daySpecific.slot.endTime
+      const joinCallData = {
+        meeting_id: meeting.videoCallId,
+        custom_participant_id: meeting.expertId,
+        name: expertData.firstName + ' ' + expertData.lastName,
+        preset_name: "group_call_host",
+      };
+
+      console.log("Preset Name being sent:", joinCallData.preset_name);
+
+      const response = await dispatch(addvideoparticipant(joinCallData)).unwrap();
+      console.log("This is response", response);
+
+      if (response?.data?.data?.token) {
+        const authToken = response.data.data.token;
+        console.log("Auth Token received:", authToken);
+        console.log("meetinng id received:", meetingId);
+
+        // Set both states to enable polling
+        setJoinedMeetingId(meeting.videoCallId);
+        setIsInMeeting(true);
+
+        // Navigate to meeting page with authToken
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime} });
+      } else {
+        console.error("Failed to retrieve authToken.");
+        toast.error("Failed to join the meeting");
+      }
+    } catch (error) {
+      console.error("Error joining call:", error);
+      toast.error("Error joining the meeting");
+    }
   };
 
   const handleViewDetails = (meeting) => {
