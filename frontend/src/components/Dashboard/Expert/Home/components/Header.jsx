@@ -65,7 +65,9 @@ export default function Header() {
   const handleJoinCall = async (notification) => {
     try {
       console.log("This is expert video call id", notification.videoCallId);
-
+      const meetingId = notification.videoCallId;
+      const startTime = notification.daySpecific.slot.startTime
+      const endTime = notification.daySpecific.slot.endTime
       const joinCallData = {
         meeting_id: notification.videoCallId,
         custom_participant_id: notification.expertId,
@@ -81,13 +83,14 @@ export default function Header() {
       if (response?.data?.data?.token) {
         const authToken = response.data.data.token;
         console.log("Auth Token received:", authToken);
+        console.log("meetinng id received:", meetingId);
 
         // Set both states to enable polling
         setJoinedMeetingId(notification.videoCallId);
         setIsInMeeting(true);
 
         // Navigate to meeting page with authToken
-        navigate("/meeting", { state: { authToken } });
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime} });
       } else {
         console.error("Failed to retrieve authToken.");
         toast.error("Failed to join the meeting");

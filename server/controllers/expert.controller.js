@@ -753,32 +753,40 @@ const deleteService = async (req, res, next) => {
   }
 };
 const updateService = async (req, res, next) => {
-  const { serviceId, title, shortDescription, detailedDescription, duration, price, features, timeSlots } = req.body;
+  const { id, serviceName, shortDescription, detailedDescription, timeSlot, features, timeSlots } = req.body;
+  const serviceId = id; // Ensure correct ID mapping
   const expertId = req.expert.id;
-  console.log("This is req.body",req.body)
+
+  // Extract duration and price from timeSlot
+  const duration = timeSlot?.duration || null;
+  const price = timeSlot?.price || null;
+  const title = serviceName; // Store serviceName as title
+
+  console.log("This is req.body", req.body);
+
   try {
     const expert = await ExpertBasics.findById(expertId);
     if (!expert) {
-      return next(new AppError("Expert not found", 404));
+      return next(new AppError("Expert not found", 402));
     }
 
     if (!expert.credentials || !Array.isArray(expert.credentials.services)) {
-      return next(new AppError("No services found", 404));
+      return next(new AppError("No services found", 406));
     }
 
     const serviceIndex = expert.credentials.services.findIndex(service => service.serviceId === serviceId);
     if (serviceIndex === -1) {
-      return next(new AppError("Service not found", 404));
+      return next(new AppError("Service not found", 401));
     }
 
     const service = expert.credentials.services[serviceIndex];
 
     // Update only provided fields
-    if (title) service.title = title;
+    if (title) service.title = title; // Using serviceName as title
     if (shortDescription) service.shortDescription = shortDescription;
     if (detailedDescription) service.detailedDescription = detailedDescription;
-    if (duration) service.duration = duration;
-    if (price) service.price = price;
+    if (duration !== null) service.duration = duration;
+    if (price !== null) service.price = price;
     if (Array.isArray(features)) service.features = features;
     if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
 
@@ -794,7 +802,6 @@ const updateService = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
-
 
 
 const getService = async (req, res, next) => {

@@ -667,6 +667,51 @@ const addVideoParticipants = async (req, res, next) => {
     return next(new AppError(error.message || "Internal Server Error", 505));
   }
 };
+const kickAllparticipant = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    console.log('Received videoCallId:', id);
+
+    // Find meeting by videoCallId
+    const meeting = await Meeting.findOne({ videoCallId: id });
+    if (!meeting) {
+      return next(new AppError("Meeting not found", 404));
+    }
+
+    const meetingId = meeting.videoCallId; // The stored video call ID
+
+    if (!meetingId) {
+      return next(new AppError("No video call ID found for this meeting", 400));
+    }
+
+    // API Call to Dyte to kick all participants
+    const response = await axios.post(
+      `https://api.dyte.io/v2/meetings/${meetingId}/active-session/kick-all`,
+      {},
+      {
+        auth: {
+          username: "a34d79f4-e39a-4eba-8966-0c4c14b53339",
+          password: "96f3307b8a180f089a90",
+        },
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Kick response:", response.data);
+
+    res.status(200).json({
+      success: true,
+      message: "All participants kicked successfully",
+      data: response.data,
+    });
+  } catch (error) {
+    console.error("Error kicking participants:", error);
+    return next(new AppError(error.response?.data || "Server error", 500));
+  }
+};
 
 const checkPresetExists = async (req, res, next) => {
   const { preset_name } = req.body;
@@ -968,5 +1013,6 @@ export {
     updateMeeting,
     getClientDetails,
     getmeet,
-    updateMeetingDirectly
+    updateMeetingDirectly,
+    kickAllparticipant
 }

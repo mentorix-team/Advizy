@@ -26,7 +26,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
 
         <div className="flex items-center gap-4 mb-6">
           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-lg">{meeting.client[0]}</span>
+          <span className="text-lg">{Array.isArray(meeting.client) && meeting.client.length > 0 ? meeting.client[0] : "N/A"}</span>
           </div>
           <h1 className="text-xl font-semibold">{meeting.client}</h1>
         </div>
