@@ -50,27 +50,24 @@ function App() {
       mobile: user?.number || '',
       countryCode: expert?.countryCode || '',
       email: user?.email || '',
-      bio: expert?.bio || '',
+      // bio: expert?.bio || '',
       languages: [],
-      socialLinks: [''],
-      coverImage: expert?.coverImage?.secure_url || coverImage || '',
-      profileImage: expert?.profileImage?.secure_url || profileImage || ''
+      // socialLinks: [''],
+      // coverImage: expert?.coverImage?.secure_url || coverImage || '',
+      // profileImage: expert?.profileImage?.secure_url || profileImage || ''
     }
   });
 
-  
-  
-
-  useEffect(() => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      basic: {
-        ...prevFormData.basic,
-        profileImage,
-        coverImage
-      }
-    }));
-  }, [profileImage, coverImage]);
+  // useEffect(() => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     basic: {
+  //       ...prevFormData.basic,
+  //       profileImage,
+  //       coverImage
+  //     }
+  //   }));
+  // }, [profileImage, coverImage]);
 
   const validateBasicInfo = () => {
     const newErrors = {};
