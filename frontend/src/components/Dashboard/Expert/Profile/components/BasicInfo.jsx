@@ -98,12 +98,12 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   //   setIsPhoneValid(isValid);
   // };
 
-  const handleAddSocialLink = () => {
-    onUpdate({
-      ...formData,
-      socialLinks: [...formData.socialLinks, ""],
-    });
-  };
+  // const handleAddSocialLink = () => {
+  //   onUpdate({
+  //     ...formData,
+  //     socialLinks: [...formData.socialLinks, ""],
+  //   });
+  // };
 
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
@@ -411,7 +411,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       </div>
 
       {/* Bio Description */}
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <p className="block text-xs font-medium text-gray-700 mb-1">
           You can add this later*
         </p>
@@ -435,10 +435,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {errors.bio && touched.bio && (
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
-      </div>
+      </div> */}
 
       {/* Social Media Links */}
-      <div className="mt-6 rounded-lg">
+      {/* <div className="mt-6 rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-[#16A348]">
             Social Media Links
@@ -467,7 +467,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             />
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* OTP Popup */}
       {showOtpPopup && (
