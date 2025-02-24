@@ -70,15 +70,20 @@ const expertBasicDetails = async (req, res, next) => {
       }
       // If languages is a JSON string
       else if (typeof languages === 'string') {
-        const parsed = JSON.parse(languages);
-        if (Array.isArray(parsed)) {
-          if (parsed[0]?.value) {
-            parsedLanguages = parsed.map(lang => lang.label);
+        try {
+          const parsed = JSON.parse(languages);
+          if (Array.isArray(parsed)) {
+            if (parsed[0]?.value) {
+              parsedLanguages = parsed.map(lang => lang.label);
+            } else {
+              parsedLanguages = parsed;
+            }
           } else {
-            parsedLanguages = parsed;
+            throw new Error('Invalid language format');
           }
-        } else {
-          throw new Error('Invalid language format');
+        } catch (parseError) {
+          // If JSON parsing fails, assume it's a single string or malformed JSON
+          parsedLanguages = [languages];
         }
       } else {
         throw new Error('Invalid language format');

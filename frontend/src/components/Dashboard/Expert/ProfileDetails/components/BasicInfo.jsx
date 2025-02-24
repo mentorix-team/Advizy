@@ -123,7 +123,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
-  // Parse existing language values if they're stored as strings
   const parseLanguageValues = () => {
     if (!formData.languages) return [];
     
