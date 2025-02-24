@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star } from "lucide-react";
+import { Heart, Star, User } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
@@ -61,7 +61,7 @@ const ExpertCard = ({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h2 className="text-xl font-semibold text-gray-900">{name}</h2>
-              <p className="text-gray-600">{title}</p>
+              <p className="text-[#1d1f1d]">{title}</p>
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
@@ -69,19 +69,20 @@ const ExpertCard = ({
                   <span className="text-gray-900 font-medium">{rating}/5</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600">
+                  <span className="text-gray-600 text-[10.5px] flex items-start bg-[#ecfaf0] px-3 py-1 rounded-[24px]">
+                    <User className="w-3 h-3"/>
                     {totalRatings} Sessions done
                   </span>
                 </div>
               </div>
 
               <p className="text-gray-900">
-                Experience: {experience} in industry
+                Experience: <span className="font-medium">{experience}</span> in industry
               </p>
               <p className="text-gray-900">
                 Starts at{" "}
-                <span className="text-blue-600">${startingPrice}</span> for{" "}
-                <span className="text-blue-600">{duration}</span>
+                <span className="text-[#004ab3] font-semibold">${startingPrice}</span> for{" "}
+                <span className="text-[#004ab3] font-semibold">{duration}</span>
               </p>
             </div>
 
@@ -108,7 +109,7 @@ const ExpertCard = ({
           {expertise.map((skill) => (
             <span
               key={skill}
-              className="px-3 py-1 bg-gray-100 rounded-full text-gray-900 text-sm"
+              className="px-3 py-1 bg-[#f2f2f2] rounded-[8px] text-gray-900 text-sm"
             >
               {skill}
             </span>
@@ -118,9 +119,9 @@ const ExpertCard = ({
 
       {/* Next Available Slot */}
       <div className="flex items-center justify-between mt-4">
-        <div className="text-sm text-gray-900 w-48">
+        <div className="flex flex-col text-sm text-gray-900 w-48">
           Next Available Slot:{" "}
-          <span className="text-blue-600 font-medium">
+          <span className="text-[#004ab3] font-medium">
             {firstAvailableDay
               ? `${firstAvailableDay.day}, ${firstAvailableTime}`
               : "No slots available"}
@@ -137,7 +138,7 @@ const ExpertCard = ({
           </button>
           <button
             onClick={() => navigate(`/expert/scheduling/${id}`)}
-            className="px-5 py-2 bg-green-500 rounded-full text-sm text-white hover:bg-green-600 transition-colors shadow-sm whitespace-nowrap"
+            className="px-6 py-2 bg-primary rounded-lg text-sm text-white hover:bg-green-600 transition-colors shadow-sm whitespace-nowrap"
           >
             BOOK
           </button>
