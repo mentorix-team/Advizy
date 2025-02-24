@@ -53,7 +53,7 @@ const expertBasicDetails = async (req, res, next) => {
     let expertbasic = await ExpertBasics.findOne({ user_id });
     let isNewExpert = false; // Flag to check if it's a new expert
 
-    const parsedLanguages = Array.isArray(languages) ? languages : JSON.parse(languages || "[]");
+    // const parsedLanguages = Array.isArray(languages) ? languages : JSON.parse(languages || "[]");
 
 
     if (expertbasic) {
@@ -67,8 +67,8 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.email = email;
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
-      // expertbasic.languages = languages;
-      expertbasic.languages = parsedLanguages;
+      expertbasic.languages = languages;
+      // expertbasic.languages = parsedLanguages;
       // expertbasic.bio = bio;
       // expertbasic.socialLinks = socialLinks;
     } else {
