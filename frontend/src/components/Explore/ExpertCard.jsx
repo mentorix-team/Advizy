@@ -69,7 +69,7 @@ const ExpertCard = ({
                   <span className="text-gray-900 font-medium">{rating}/5</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-600 text-[10.5px] flex items-start bg-[#ecfaf0] px-3 py-1 rounded-[24px]">
+                  <span className="text-gray-800 text-[12px] flex gap-2 items-start bg-[#ecfaf0] px-3 py-1 rounded-[24px]">
                     <User className="w-3 h-3"/>
                     {totalRatings} Sessions done
                   </span>
