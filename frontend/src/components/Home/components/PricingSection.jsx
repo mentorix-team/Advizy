@@ -12,7 +12,8 @@ const PricingSection = () => {
         "Maximize your earnings potential"
       ],
       buttonText: "Start Earning Now",
-      buttonStyle: "primary"
+      buttonStyle: "primary",
+      buttonURL: '/expert-onboarding'
     },
     {
       title: "Need More Flexibility?",
@@ -24,7 +25,8 @@ const PricingSection = () => {
         "Designed to adapt as you grow"
       ],
       buttonText: "Contact for Custom Pricing",
-      buttonStyle: "outline"
+      buttonStyle: "outline",
+      buttonURL: '/contact-us'
     }
   ];
 
@@ -87,6 +89,7 @@ const PricingSection = () => {
             </ul>
 
             <motion.button
+              onClick={plan.buttonURL}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={`w-full py-3 rounded-lg font-medium transition-colors ${
