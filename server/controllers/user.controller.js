@@ -129,7 +129,7 @@ const setPassword = async (req, res,next) => {
     const token = header.split(" ")[1];
 
     try {
-        const payload = jwt.verify(token, 'AIsliUoolVlpYneyXyIawunBLtube7WDfiDVwmHndx4=');
+        const payload = jwt.verify(token, 'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
         const email = payload.emailId;
 
         const usergoogle = await UserGoogle.findOne({ email });

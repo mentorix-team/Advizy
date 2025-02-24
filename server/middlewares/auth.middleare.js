@@ -1,27 +1,24 @@
 import AppError from "../utils/AppError.js";
-import jwt from "jsonwebtoken";
-
-const isLoggedIn = async (req, res, next) => {
-  try {
-    // const { token } = req.cookies;
-    const { token } = localStorage.getItem("token");
-
-    if (!token) {
-      return next(new AppError("User not Authorized", 402));
+import jwt from 'jsonwebtoken'
+const isLoggedIn = async(req,res,next) => {
+    try {
+        const {token} = req.cookies;
+    
+        if(!token){
+            return next(new AppError('User not Authorized',401));
+        }
+    
+        const userDetails = await jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
+    
+        req.user  = userDetails;
+        console.log("This is req.user",req.user)
+        next();
+        
+    } catch (error) {
+        return next(new AppError("Invalid or expired User token.", 403));
     }
-
-    const userDetails = await jwt.verify(
-      token,
-      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0="
-    );
-
-    req.user = userDetails;
-    console.log("This is req.user", req.user);
-    next();
-  } catch (error) {
-    return next(new AppError("Invalid or expired User token.", 403));
-  }
-};
+    
+}
 
 const isExpert = (req, res, next) => {
   try {
@@ -75,4 +72,10 @@ const isMeeting = async (req, res, next) => {
   }
 };
 
-export { isLoggedIn, isExpert, isMeeting };
+
+
+export {
+    isLoggedIn,
+    isExpert,
+    isMeeting
+}

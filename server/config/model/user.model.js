@@ -5,7 +5,7 @@ import crypto from 'crypto';
 
 const userSchema = new Schema(
   {
-    googleId: { type: String, unique: true },
+    googleId: { type: String },
     name:{
       type:String
     },
