@@ -50,8 +50,7 @@ const ExpertCard = ({
     <div className="w-[492px] h-[328px] bg-[#FDFDFD] rounded-tl-[10px] p-5 border border-[#1D1D1D26] space-y-3">
       {/* Top Section */}
       <div className="flex items-start gap-4">
-        <img src={image} alt={name} className="w-20 h-20 rounded-full object-cover" />
-
+        <img src={image} alt={name} className="w-[108px] h-[108px] rounded-full object-cover" />
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
