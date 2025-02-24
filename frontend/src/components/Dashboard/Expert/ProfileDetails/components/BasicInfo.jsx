@@ -41,15 +41,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         })
       );
     }
-    if(field === 'languages') {
-      const formattedLanguages = value.map(lang => ({
-        value: lang.value || lang,
-        label: lang.label || lang
-      }));
-      onUpdate({...formData, [field]: formattedLanguages});
-    } else{
-      onUpdate({...formData, [field]: value});
-    }
   };
 
   // Load verification status from localStorage on component mount
@@ -131,6 +122,38 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       );
     }
   };
+
+  // Parse existing language values if they're stored as strings
+  const parseLanguageValues = () => {
+    if (!formData.languages) return [];
+    
+    // If languages is already an array of objects, return as is
+    if (Array.isArray(formData.languages) && formData.languages[0]?.value) {
+      return formData.languages;
+    }
+    
+    // If languages is an array of strings, convert to proper format
+    if (Array.isArray(formData.languages)) {
+      return formData.languages.map(lang => ({
+        value: lang.toLowerCase(),
+        label: lang
+      }));
+    }
+    
+    // If it's a string, try to parse it
+    try {
+      const parsedLanguages = JSON.parse(formData.languages);
+      return Array.isArray(parsedLanguages) 
+        ? parsedLanguages.map(lang => ({
+            value: lang.toLowerCase(),
+            label: lang
+          }))
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
   // const handlePhoneChange = (phoneData) => {
   //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
 
@@ -473,8 +496,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           isMulti
           hideSelectedOptions={false}
           onBlur={() => onBlur("languages")}
-          value={formData.languages}
-          onChange={(value) => handleChange("languages", value)}
+          value={parseLanguageValues()}
+          onChange={(selectedOptions) => handleChange("languages", selectedOptions)}
           className={`flex-1 p-2.5 border ${
             errors.languages && touched.languages
               ? "border-red-500"
