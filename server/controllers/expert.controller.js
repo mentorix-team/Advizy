@@ -1,15 +1,18 @@
-import { ExpertBasics, ExpertCredentials } from "../config/model/expert/expertfinal.model.js";
+import {
+  ExpertBasics,
+  ExpertCredentials,
+} from "../config/model/expert/expertfinal.model.js";
 import AppError from "../utils/AppError.js";
-import cloudinary from "cloudinary"
-import mongoose from 'mongoose'
-import crypto from 'crypto'
-import jwt from 'jsonwebtoken'
-import {algoliasearch} from 'algoliasearch'
+import cloudinary from "cloudinary";
+import mongoose from "mongoose";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { algoliasearch } from "algoliasearch";
 import { sendOtpMessage } from "../utils/sendnotification.js";
 import sendEmail from "../utils/sendEmail.js";
-import bcrypt from 'bcryptjs'
-import fs from 'fs'
-import path from 'path'
+import bcrypt from "bcryptjs";
+import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
 const expertBasicDetails = async (req, res, next) => {
   console.log("Response coming");
@@ -29,9 +32,20 @@ const expertBasicDetails = async (req, res, next) => {
       // socialLinks
     } = req.body;
 
+    // Transform languages data before processing
+    const processedLanguages = Array.isArray(languages)
+      ? languages.map((lang) =>
+          typeof lang === "object" ? lang : { value: lang, label: lang }
+        )
+      : typeof languages === "string"
+      ? JSON.parse(languages).map((lang) =>
+          typeof lang === "object" ? lang : { value: lang, label: lang }
+        )
+      : [];
+
     const user_id = req.user.id;
-    console.log("aasdfs",req.user.id)
-    console.log("this is user id befor",user_id)
+    console.log("aasdfs", req.user.id);
+    console.log("this is user id befor", user_id);
     if (
       !firstName ||
       !lastName ||
@@ -41,7 +55,7 @@ const expertBasicDetails = async (req, res, next) => {
       !city ||
       !email ||
       !mobile ||
-      !countryCode||
+      !countryCode ||
       !languages
       // !bio ||
       // !socialLinks
@@ -55,7 +69,6 @@ const expertBasicDetails = async (req, res, next) => {
 
     // const parsedLanguages = Array.isArray(languages) ? languages : JSON.parse(languages || "[]");
 
-
     if (expertbasic) {
       console.log("Expert found, updating details...");
       expertbasic.firstName = firstName;
@@ -67,7 +80,7 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.email = email;
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
-      expertbasic.languages = languages;
+      expertbasic.languages = processedLanguages;
       // expertbasic.languages = parsedLanguages;
       // expertbasic.bio = bio;
       // expertbasic.socialLinks = socialLinks;
@@ -85,16 +98,16 @@ const expertBasicDetails = async (req, res, next) => {
         email,
         mobile,
         countryCode,
-        languages,
+        languages: processedLanguages,
         // bio,
         // socialLinks,
-        redirect_url:'',
+        redirect_url: "",
         // profileImage: { public_id: "Dummy", secure_url: "Dummy" },
         // coverImage: { public_id: "Dummy", secure_url: "Dummy" },
-        credentials:{services:[]}
+        credentials: { services: [] },
       });
     }
-    console.log("this is user id after",expertbasic.user_id)
+    console.log("this is user id after", expertbasic.user_id);
 
     // Log if files exist
     // if (req.files) {
@@ -139,6 +152,7 @@ const expertBasicDetails = async (req, res, next) => {
     const generateRandomString = (length = 8) => {
       return crypto.randomBytes(length).toString("hex").slice(0, length);
     };
+    
     // Save the updated or newly created expert record
     await expertbasic.save();
 
@@ -148,19 +162,20 @@ const expertBasicDetails = async (req, res, next) => {
 
       const randomString = generateRandomString(); // Generate unique identifier
       expertbasic.redirect_url = `${firstName}/${randomString}`; // Set redirect URL
-      console.log("This is the redirect url before",expertbasic.redirect_url)
+      console.log("This is the redirect url before", expertbasic.redirect_url);
 
       const serviceData = {
         title: "One-on-One Mentoring",
-        shortDescription: "Personalized guidance for your career growth and technical challenges",
+        shortDescription:
+          "Personalized guidance for your career growth and technical challenges",
         one_on_one: [
           { duration: 15, price: 0 },
           { duration: 30, price: 0 },
           { duration: 45, price: 0 },
-          { duration: 60, price: 0 }
+          { duration: 60, price: 0 },
         ],
         serviceId: crypto.randomBytes(16).toString("hex"),
-        showMore: false
+        showMore: false,
       };
 
       if (!expertbasic.credentials) {
@@ -169,7 +184,7 @@ const expertBasicDetails = async (req, res, next) => {
       if (!Array.isArray(expertbasic.credentials.services)) {
         expertbasic.credentials.services = [];
       }
-      
+
       expertbasic.credentials.services.push(serviceData);
       await expertbasic.save(); // Save the service addition
     }
@@ -184,14 +199,14 @@ const expertBasicDetails = async (req, res, next) => {
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite:"None" ,
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({
       success: true,
       message: "Expert created/updated successfully",
-      expertbasic: savedExpert
+      expertbasic: savedExpert,
     });
   } catch (error) {
     console.error("Error in expertBasicDetails:", error);
@@ -201,15 +216,13 @@ const expertBasicDetails = async (req, res, next) => {
     } else {
       return next(new AppError("Something went wrong. Please try again.", 500));
     }
-    
   }
 };
 
 const expertCredentialsDetails = async (req, res, next) => {
-
-  const { domain, niche, professionalTitle,skills } = req.body;
-  console.log("THis is the req.body response",req.body)
-  if (!domain || !niche || !professionalTitle ||!skills) {
+  const { domain, niche, professionalTitle, skills } = req.body;
+  console.log("THis is the req.body response", req.body);
+  if (!domain || !niche || !professionalTitle || !skills) {
     return next(new AppError("All fields are required", 400)); // Use 400 for bad request
   }
 
@@ -227,7 +240,9 @@ const expertCredentialsDetails = async (req, res, next) => {
       ...expertBasics.credentials, // Preserve existing fields in credentials
       domain,
       niche: Array.isArray(niche) ? niche : [niche],
-      expertise: Array.isArray(professionalTitle) ? professionalTitle : [professionalTitle],
+      expertise: Array.isArray(professionalTitle)
+        ? professionalTitle
+        : [professionalTitle],
       skills: Array.isArray(skills) ? skills : [skills],
     };
 
@@ -243,17 +258,21 @@ const expertCredentialsDetails = async (req, res, next) => {
   }
 };
 
-  
 const expertcertifiicate = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body);  // Debugging log
+    console.log("Received Request Body:", req.body); // Debugging log
 
     const { name, issuingOrganization, issueDate } = req.body; // Extracting fields from the body
     const expert_id = req.expert.id; // Assuming expert ID is in the request
 
     // Validate required fields
     if (!name || !issuingOrganization || !issueDate) {
-      return next(new AppError("All fields (name, issuingOrganization, issueDate) are required", 400));
+      return next(
+        new AppError(
+          "All fields (name, issuingOrganization, issueDate) are required",
+          400
+        )
+      );
     }
 
     // Fetch expert document from the database
@@ -292,7 +311,9 @@ const expertcertifiicate = async (req, res, next) => {
           certificateEntry.certificate.secure_url = result.secure_url;
         }
       } catch (error) {
-        return next(new AppError("Error uploading certificate: " + error.message, 501));
+        return next(
+          new AppError("Error uploading certificate: " + error.message, 501)
+        );
       }
     }
 
@@ -314,9 +335,8 @@ const expertcertifiicate = async (req, res, next) => {
   }
 };
 
-
 const expertEducation = async (req, res, next) => {
-  console.log(req.body)
+  console.log(req.body);
   const { educations } = req.body; // Expecting an array of experiences from the frontend
   const expert_id = req.expert.id;
   // Validate the incoming data
@@ -327,11 +347,12 @@ const expertEducation = async (req, res, next) => {
   // Validate each experience object
   for (const edu of educations) {
     const { degree, institution, passing_year } = edu;
-    if (!degree||! institution||! passing_year ) {
-      return next(new AppError("All fields are required for each Education", 500));
+    if (!degree || !institution || !passing_year) {
+      return next(
+        new AppError("All fields are required for each Education", 500)
+      );
     }
   }
-
 
   try {
     // Find expert credentials
@@ -344,7 +365,7 @@ const expertEducation = async (req, res, next) => {
     // Process each experience
     const processedEducation = [];
     for (const edu of educations) {
-      const { degree, institution, passing_year,certificate } = edu;
+      const { degree, institution, passing_year, certificate } = edu;
 
       const educationData = {
         degree,
@@ -352,17 +373,19 @@ const expertEducation = async (req, res, next) => {
         passing_year,
         certificate: {
           public_id: certificate?.public_id || degree, // Default to company name if no public_id
-          secure_url: certificate?.secure_url || "cloudinary://916367985651227:kWEPTClb0C0UOAsICG1sGTrg7qE@deafm48ba", // Replace with a default URL if missing
+          secure_url:
+            certificate?.secure_url ||
+            "cloudinary://916367985651227:kWEPTClb0C0UOAsICG1sGTrg7qE@deafm48ba", // Replace with a default URL if missing
         },
       };
 
-      console.log("this is file",req.file)
+      console.log("this is file", req.file);
       // Handle file uploads, if any
       if (req.file) {
         // Handle file upload to Cloudinary (for PDF or other files)
         if (req.file.mimetype === "application/pdf") {
           const result = await cloudinary.v2.uploader.upload(req.file.path, {
-            folder: "Advizy", 
+            folder: "Advizy",
             resource_type: "raw", // Specify non-image type for PDFs
           });
           educationData.certificate.public_id = result.public_id;
@@ -377,7 +400,6 @@ const expertEducation = async (req, res, next) => {
           secure_url: "default_certificate_url", // Replace with actual URL if necessary
         };
       }
-      
 
       processedEducation.push(educationData);
     }
@@ -397,14 +419,19 @@ const expertEducation = async (req, res, next) => {
 
 const singleexperteducation = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body);  // Debugging log
+    console.log("Received Request Body:", req.body); // Debugging log
 
     // Extract fields from request body (assuming it's sent as form-data)
     const { degree, institution, passingYear } = req.body;
     const expert_id = req.expert.id;
 
     if (!degree || !institution || !passingYear) {
-      return next(new AppError("All fields (degree, institution, passingYear) are required", 400));
+      return next(
+        new AppError(
+          "All fields (degree, institution, passingYear) are required",
+          400
+        )
+      );
     }
 
     // Fetch expert
@@ -442,7 +469,9 @@ const singleexperteducation = async (req, res, next) => {
           educationEntry.certificate.secure_url = result.secure_url;
         }
       } catch (error) {
-        return next(new AppError("Error uploading certificate: " + error.message, 501));
+        return next(
+          new AppError("Error uploading certificate: " + error.message, 501)
+        );
       }
     }
 
@@ -460,8 +489,6 @@ const singleexperteducation = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
-
-
 
 const expertexperience = async (req, res, next) => {
   try {
@@ -500,8 +527,18 @@ const expertexperience = async (req, res, next) => {
       // Convert `currentlyWork` from string to boolean if needed
       currentlyWork = currentlyWork === true || currentlyWork === "true";
 
-      if (!companyName || !jobTitle || !startDate || (!currentlyWork && !endDate)) {
-        return next(new AppError("All required fields must be provided for each experience", 400));
+      if (
+        !companyName ||
+        !jobTitle ||
+        !startDate ||
+        (!currentlyWork && !endDate)
+      ) {
+        return next(
+          new AppError(
+            "All required fields must be provided for each experience",
+            400
+          )
+        );
       }
 
       const experienceData = {
@@ -520,10 +557,13 @@ const expertexperience = async (req, res, next) => {
       if (req.files && req.files[companyName]) {
         try {
           console.log(`Uploading file for ${companyName}...`);
-          const result = await cloudinary.v2.uploader.upload(req.files[companyName].path, {
-            folder: "Advizy",
-            resource_type: "raw",
-          });
+          const result = await cloudinary.v2.uploader.upload(
+            req.files[companyName].path,
+            {
+              folder: "Advizy",
+              resource_type: "raw",
+            }
+          );
 
           if (result) {
             experienceData.document.public_id = result.public_id;
@@ -551,11 +591,18 @@ const expertexperience = async (req, res, next) => {
   }
 };
 
-
-
 const createService = async (req, res, next) => {
-  const { title, shortDescription, detailedDescription, duration, price, features, serviceId, timeSlots } = req.body;
-  
+  const {
+    title,
+    shortDescription,
+    detailedDescription,
+    duration,
+    price,
+    features,
+    serviceId,
+    timeSlots,
+  } = req.body;
+
   try {
     const expertToken = req.cookies.expertToken;
     if (!expertToken) {
@@ -563,7 +610,10 @@ const createService = async (req, res, next) => {
     }
 
     // Verify the token and extract the payload
-    const decoded = jwt.verify(expertToken, '0C/VCsuGON6yZ0x2jKjh18Azt6W29JMOVSOBwbHik3k=');
+    const decoded = jwt.verify(
+      expertToken,
+      "0C/VCsuGON6yZ0x2jKjh18Azt6W29JMOVSOBwbHik3k="
+    );
     const expertId = decoded.user_id;
 
     // Find the expert in the database using the decoded expertId
@@ -581,8 +631,16 @@ const createService = async (req, res, next) => {
 
     // If title exists, it's a new service creation
     if (title) {
-      if (!title || !shortDescription || !detailedDescription || !duration || !price) {
-        return next(new AppError("All fields are required for creating a service", 400));
+      if (
+        !title ||
+        !shortDescription ||
+        !detailedDescription ||
+        !duration ||
+        !price
+      ) {
+        return next(
+          new AppError("All fields are required for creating a service", 400)
+        );
       }
 
       const newService = {
@@ -592,7 +650,7 @@ const createService = async (req, res, next) => {
         duration,
         price,
         features: [], // Default empty array for features
-        serviceId: crypto.randomBytes(16).toString('hex'), // Generate a unique serviceId using crypto
+        serviceId: crypto.randomBytes(16).toString("hex"), // Generate a unique serviceId using crypto
         timeSlots: timeSlots || [], // Store the timeSlots if passed in the request
       };
 
@@ -601,7 +659,9 @@ const createService = async (req, res, next) => {
 
     // If features exist, add them to the specified service
     if (features && serviceId) {
-      const serviceIndex = expert.credentials.services.findIndex(service => service.serviceId === serviceId);
+      const serviceIndex = expert.credentials.services.findIndex(
+        (service) => service.serviceId === serviceId
+      );
       if (serviceIndex === -1) {
         return next(new AppError("Service not found", 400));
       }
@@ -622,22 +682,28 @@ const createService = async (req, res, next) => {
     };
 
     // Regenerate the expert token with the updated credentials
-    const updatedExpertToken = jwt.sign(updatedPayload, '0C/VCsuGON6yZ0x2jKjh18Azt6W29JMOVSOBwbHik3k=', {
-      expiresIn: "7d", // 7 days expiration
-    });
+    const updatedExpertToken = jwt.sign(
+      updatedPayload,
+      "0C/VCsuGON6yZ0x2jKjh18Azt6W29JMOVSOBwbHik3k=",
+      {
+        expiresIn: "7d", // 7 days expiration
+      }
+    );
 
     // Set the updated token in the cookie
     res.cookie("expertToken", updatedExpertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite:"None" ,
+      sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     // Respond with success
     return res.status(200).json({
       success: true,
-      message: title ? "Service created successfully" : "Feature added successfully",
+      message: title
+        ? "Service created successfully"
+        : "Feature added successfully",
       services: expert.credentials.services, // Return updated services
     });
   } catch (error) {
@@ -647,7 +713,16 @@ const createService = async (req, res, next) => {
 };
 
 const manageService = async (req, res, next) => {
-  const { title, shortDescription, detailedDescription, duration, price, features, serviceId, timeSlots } = req.body;
+  const {
+    title,
+    shortDescription,
+    detailedDescription,
+    duration,
+    price,
+    features,
+    serviceId,
+    timeSlots,
+  } = req.body;
   const expertId = req.expert.id;
 
   try {
@@ -664,8 +739,16 @@ const manageService = async (req, res, next) => {
 
     // Creating a new service
     if (title) {
-      if (!title || !shortDescription || !detailedDescription || !duration || !price) {
-        return next(new AppError("All fields are required for creating a service", 400));
+      if (
+        !title ||
+        !shortDescription ||
+        !detailedDescription ||
+        !duration ||
+        !price
+      ) {
+        return next(
+          new AppError("All fields are required for creating a service", 400)
+        );
       }
 
       const newService = {
@@ -675,7 +758,7 @@ const manageService = async (req, res, next) => {
         duration,
         price,
         features: Array.isArray(features) ? features : [], // Ensure features is an array
-        serviceId: crypto.randomBytes(16).toString('hex'),
+        serviceId: crypto.randomBytes(16).toString("hex"),
         timeSlots: timeSlots || [],
       };
 
@@ -684,7 +767,9 @@ const manageService = async (req, res, next) => {
 
     // Adding features to an existing service
     if (serviceId && features) {
-      const serviceIndex = expert.credentials.services.findIndex(service => service.serviceId === serviceId);
+      const serviceIndex = expert.credentials.services.findIndex(
+        (service) => service.serviceId === serviceId
+      );
       if (serviceIndex === -1) {
         return next(new AppError("Service not found", 400));
       }
@@ -706,7 +791,9 @@ const manageService = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: title ? "Service created successfully" : "Feature(s) added successfully",
+      message: title
+        ? "Service created successfully"
+        : "Feature(s) added successfully",
       expert,
     });
   } catch (error) {
@@ -745,7 +832,7 @@ const deleteService = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Service deleted successfully",
-      expert
+      expert,
     });
   } catch (error) {
     console.error("Error deleting service:", error);
@@ -753,7 +840,15 @@ const deleteService = async (req, res, next) => {
   }
 };
 const updateService = async (req, res, next) => {
-  const { id, serviceName, shortDescription, detailedDescription, timeSlot, features, timeSlots } = req.body;
+  const {
+    id,
+    serviceName,
+    shortDescription,
+    detailedDescription,
+    timeSlot,
+    features,
+    timeSlots,
+  } = req.body;
   const serviceId = id; // Ensure correct ID mapping
   const expertId = req.expert.id;
 
@@ -774,7 +869,9 @@ const updateService = async (req, res, next) => {
       return next(new AppError("No services found", 406));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(service => service.serviceId === serviceId);
+    const serviceIndex = expert.credentials.services.findIndex(
+      (service) => service.serviceId === serviceId
+    );
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 401));
     }
@@ -802,7 +899,6 @@ const updateService = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
-
 
 const getService = async (req, res, next) => {
   const { serviceId } = req.params;
@@ -837,27 +933,24 @@ const getService = async (req, res, next) => {
   }
 };
 
-
-const getExpertServices = async (req,res,next) =>{
+const getExpertServices = async (req, res, next) => {
   const expertId = req.expert.id;
   try {
-    const expert = ExpertBasics.findById(expertId)
-    if(!expert) {
-      return next(new AppError('expert not found',500));
+    const expert = ExpertBasics.findById(expertId);
+    if (!expert) {
+      return next(new AppError("expert not found", 500));
     }
     return res.status(200).json({
-      success:true,
-      message:'Experts servicesss',
-      services:expert.credentials.services
-    })
+      success: true,
+      message: "Experts servicesss",
+      services: expert.credentials.services,
+    });
   } catch (error) {
-    return next(new AppError(error,505));
+    return next(new AppError(error, 505));
   }
-
-}
+};
 
 export default manageService;
-
 
 const extpertPortfolioDetails = async (req, res, next) => {
   const { bio } = req.body;
@@ -888,7 +981,7 @@ const extpertPortfolioDetails = async (req, res, next) => {
 
   try {
     // Find the expert in the `ExpertBasics` schema
-    const expertBasics = await ExpertBasics.findById(expertId );
+    const expertBasics = await ExpertBasics.findById(expertId);
 
     if (!expertBasics) {
       return next(new AppError("Expert not found", 404));
@@ -911,146 +1004,148 @@ const extpertPortfolioDetails = async (req, res, next) => {
       expert: expertBasics,
     });
   } catch (error) {
-    return next(new AppError(`Database operation failed: ${error.message}`, 500));
+    return next(
+      new AppError(`Database operation failed: ${error.message}`, 500)
+    );
   }
 };
 
-  
-  
-  const updateProfileStatus = async (req, res) => {
-    try {
-      const { userId } = req.params;  // Get the user ID from URL params or JWT token
-      const { profileStatus } = req.body;  // Get the profile status from the request body (e.g., 'confirmed', 'active')
-  
-      // Find the expert by their userId
-      const expert = await ExpertModel.findById(userId);  // Use the model you're using to fetch the expert
-  
-      if (!expert) {
-        return res.status(404).json({ message: "Expert not found" });
-      }
-  
-      // Update the expert's profile status (or any other field you'd want to modify)
-      expert.profileStatus = profileStatus || expert.profileStatus;  // You may add other fields as necessary
-      await expert.save();  // Save the updated data
-  
-      // Optionally, send a notification to admin or update admin_approved_expert to true
-      if (profileStatus === "active" && !expert.admin_approved_expert) {
-        expert.admin_approved_expert = true;  // Set admin approval status
-        await expert.save();
-      }
-  
-      res.status(200).json({
-        message: "Profile successfully updated",
-        data: expert,  // Send the updated expert data as a response
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Something went wrong", error });
-    }
-  };
-  
-  const getAllExperts = async (req, res, next) => {
-    try {
-      const filters = {};
-  
-      if (req.query.admin_approved_expert) {
-        filters.admin_approved_expert = req.query.admin_approved_expert === "true";
-      }
-      if (req.query.gender) {
-        filters.gender = req.query.gender;
-      }
-      if (req.query.nationality) {
-        filters.nationality = req.query.nationality;
-      }
-      if (req.query.country_living) {
-        filters.country_living = req.query.country_living;
-      }
-      if (req.query.city) {
-        filters.city = req.query.city;
-      }
-      if (req.query.languages) {
-        filters.languages = { $in: req.query.languages.split(",") };
-      }
-      if (req.query.skills) {
-        filters["credentials.skills"] = { $in: req.query.skills.split(",") };
-      }
-      if (req.query.domain) {
-        filters["credentials.domain"] = req.query.domain;
-      }
-      if (req.query.niche) {
-        filters["credentials.niche"] = { $in: req.query.niche.split(",") };
-      }
-      if (req.query.professionalTitle) {
-        filters["credentials.professionalTitle"] = { $in: req.query.professionalTitle.split(",") };
-      }
-  
-      // Validate and apply earning filters
-      const minEarnings = parseFloat(req.query.minEarnings);
-      const maxEarnings = parseFloat(req.query.maxEarnings);
-      if (!isNaN(minEarnings) && !isNaN(maxEarnings)) {
-        filters.total_earnings = { $gte: minEarnings, $lte: maxEarnings };
-      } else if (!isNaN(minEarnings)) {
-        filters.total_earnings = { $gte: minEarnings };
-      } else if (!isNaN(maxEarnings)) {
-        filters.total_earnings = { $lte: maxEarnings };
-      }
-  
-      // Pagination
-      // const page = Math.max(1, parseInt(req.query.page) || 1); // Ensure minimum page is 1
-      // const limit = Math.max(1, parseInt(req.query.limit) || 10); // Ensure minimum limit is 1
-      // const skip = (page - 1) * limit;
-  
-      // Sorting
-      const sortBy = req.query.sortBy || "createdAt"; // Default sorting by createdAt
-      const order = req.query.order === "asc" ? 1 : -1;
-      const sortCriteria = { [sortBy]: order, createdAt: -1 }; // Secondary sort by createdAt for consistency
-  
-      // Fetch experts with sorting, pagination, and filtering
-      const experts = await ExpertBasics.find(filters)
-        .sort(sortCriteria)
-        // .skip(skip)
-        // .limit(limit)
-        .lean(); // Use .lean() for better performance
-  
-      const totalExperts = await ExpertBasics.countDocuments(filters);
-  
-      return res.status(200).json({
-        success: true,
-        message: "Filtered Experts",
-        totalExperts,
-        // currentPage: page,
-        // totalPages: Math.ceil(totalExperts / limit),
-        experts,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-  
-  
+const updateProfileStatus = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get the user ID from URL params or JWT token
+    const { profileStatus } = req.body; // Get the profile status from the request body (e.g., 'confirmed', 'active')
 
-  
+    // Find the expert by their userId
+    const expert = await ExpertModel.findById(userId); // Use the model you're using to fetch the expert
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    // Update the expert's profile status (or any other field you'd want to modify)
+    expert.profileStatus = profileStatus || expert.profileStatus; // You may add other fields as necessary
+    await expert.save(); // Save the updated data
+
+    // Optionally, send a notification to admin or update admin_approved_expert to true
+    if (profileStatus === "active" && !expert.admin_approved_expert) {
+      expert.admin_approved_expert = true; // Set admin approval status
+      await expert.save();
+    }
+
+    res.status(200).json({
+      message: "Profile successfully updated",
+      data: expert, // Send the updated expert data as a response
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong", error });
+  }
+};
+
+const getAllExperts = async (req, res, next) => {
+  try {
+    const filters = {};
+
+    if (req.query.admin_approved_expert) {
+      filters.admin_approved_expert =
+        req.query.admin_approved_expert === "true";
+    }
+    if (req.query.gender) {
+      filters.gender = req.query.gender;
+    }
+    if (req.query.nationality) {
+      filters.nationality = req.query.nationality;
+    }
+    if (req.query.country_living) {
+      filters.country_living = req.query.country_living;
+    }
+    if (req.query.city) {
+      filters.city = req.query.city;
+    }
+    if (req.query.languages) {
+      filters.languages = { $in: req.query.languages.split(",") };
+    }
+    if (req.query.skills) {
+      filters["credentials.skills"] = { $in: req.query.skills.split(",") };
+    }
+    if (req.query.domain) {
+      filters["credentials.domain"] = req.query.domain;
+    }
+    if (req.query.niche) {
+      filters["credentials.niche"] = { $in: req.query.niche.split(",") };
+    }
+    if (req.query.professionalTitle) {
+      filters["credentials.professionalTitle"] = {
+        $in: req.query.professionalTitle.split(","),
+      };
+    }
+
+    // Validate and apply earning filters
+    const minEarnings = parseFloat(req.query.minEarnings);
+    const maxEarnings = parseFloat(req.query.maxEarnings);
+    if (!isNaN(minEarnings) && !isNaN(maxEarnings)) {
+      filters.total_earnings = { $gte: minEarnings, $lte: maxEarnings };
+    } else if (!isNaN(minEarnings)) {
+      filters.total_earnings = { $gte: minEarnings };
+    } else if (!isNaN(maxEarnings)) {
+      filters.total_earnings = { $lte: maxEarnings };
+    }
+
+    // Pagination
+    // const page = Math.max(1, parseInt(req.query.page) || 1); // Ensure minimum page is 1
+    // const limit = Math.max(1, parseInt(req.query.limit) || 10); // Ensure minimum limit is 1
+    // const skip = (page - 1) * limit;
+
+    // Sorting
+    const sortBy = req.query.sortBy || "createdAt"; // Default sorting by createdAt
+    const order = req.query.order === "asc" ? 1 : -1;
+    const sortCriteria = { [sortBy]: order, createdAt: -1 }; // Secondary sort by createdAt for consistency
+
+    // Fetch experts with sorting, pagination, and filtering
+    const experts = await ExpertBasics.find(filters)
+      .sort(sortCriteria)
+      // .skip(skip)
+      // .limit(limit)
+      .lean(); // Use .lean() for better performance
+
+    const totalExperts = await ExpertBasics.countDocuments(filters);
+
+    return res.status(200).json({
+      success: true,
+      message: "Filtered Experts",
+      totalExperts,
+      // currentPage: page,
+      // totalPages: Math.ceil(totalExperts / limit),
+      experts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getExpertById = async (req, res, next) => {
   const { id } = req.params;
 
   if (!mongoose.isValidObjectId(id)) {
-    return next(new AppError('Invalid ID format', 400)); // 400 Bad Request
+    return next(new AppError("Invalid ID format", 400)); // 400 Bad Request
   }
 
   try {
     const expert = await ExpertBasics.findById(id);
 
     if (!expert) {
-      return next(new AppError('Expert Not Found', 404)); // 404 Not Found
+      return next(new AppError("Expert Not Found", 404)); // 404 Not Found
     }
 
     return res.status(200).json({
       success: true,
       message: `User with id ${id}`,
       expert: expert.toObject(),
-    }); 
+    });
   } catch (error) {
-    return next(new AppError('An error occurred while fetching the expert', 500, error));
+    return next(
+      new AppError("An error occurred while fetching the expert", 500, error)
+    );
   }
 };
 
@@ -1061,12 +1156,12 @@ const expertPaymentDetails = async (req, res, next) => {
   console.log(req.body);
 
   if (!accountType || !beneficiaryName || !ifscCode || !accountNumber) {
-    return next(new AppError('All fields are required', 500));
+    return next(new AppError("All fields are required", 500));
   }
 
   const expert = await ExpertBasics.findById(expert_id); // Ensure this is awaited
   if (!expert) {
-    return next(new AppError('Expert not found', 510));
+    return next(new AppError("Expert not found", 510));
   }
 
   const paymentData = {
@@ -1082,30 +1177,30 @@ const expertPaymentDetails = async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: 'Payment details added successfully',
+    message: "Payment details added successfully",
     expert,
   });
 };
 
-
-const client = algoliasearch('XWATQTV8D5', 'a6543e2ed20ddb9f6cecf1d99d5c0905');
+const client = algoliasearch("XWATQTV8D5", "a6543e2ed20ddb9f6cecf1d99d5c0905");
 
 const pushExpertsToAlgolia = async (req, res) => {
   try {
     const experts = await ExpertBasics.find({});
 
     // Format experts for Algolia
-    const records = experts.map(expert => ({
+    const records = experts.map((expert) => ({
       objectID: expert._id.toString(), // Required field in Algolia
       name: `${expert.firstName} ${expert.lastName}`,
       bio: expert.bio || "", // Ensure empty string if missing
       profileImage: expert.profileImage?.secure_url || "", // Ensure valid URL or empty string
       domain: expert.credentials?.domain || "", // Handle missing credentials object
       niche: expert.credentials?.niche || [], // Default empty array if missing
-      services: expert.credentials?.services?.map(service => ({
-        title: service.title || "", // Ensure string or empty
-        shortDescription: service.shortDescription || "",
-      })) || [], // Default to an empty array if no services exist
+      services:
+        expert.credentials?.services?.map((service) => ({
+          title: service.title || "", // Ensure string or empty
+          shortDescription: service.shortDescription || "",
+        })) || [], // Default to an empty array if no services exist
       country_living: expert.country_living || "",
     }));
 
@@ -1113,17 +1208,16 @@ const pushExpertsToAlgolia = async (req, res) => {
     // const index = client.initIndex('experts_index');
     // await index.saveObjects(records);
     await client.saveObjects({
-      indexName: 'experts_index',
+      indexName: "experts_index",
       objects: records,
     });
 
-    return res.status(200).json({ message: 'Experts indexed successfully' });
+    return res.status(200).json({ message: "Experts indexed successfully" });
   } catch (error) {
-    console.error('Error pushing experts to Algolia:', error);
-    return res.status(500).json({ message: 'Error indexing experts' });
+    console.error("Error pushing experts to Algolia:", error);
+    return res.status(500).json({ message: "Error indexing experts" });
   }
 };
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1148,25 +1242,40 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, maxAge: 10 * 60 * 1000,secure: process.env.NODE_ENV === "production",sameSite:"None"  }); 
+      res.cookie("otpToken", otpToken, {
+        httpOnly: true,
+        maxAge: 10 * 60 * 1000,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+      });
 
-      const formattedNumber = inputKey.startsWith('+') ? inputKey : `+91${inputKey}`;
+      const formattedNumber = inputKey.startsWith("+")
+        ? inputKey
+        : `+91${inputKey}`;
       console.log("Formatted Mobile:", formattedNumber);
-      
+
       await sendOtpMessage(formattedNumber, otp);
       return res.status(200).json({
         success: true,
         message: `OTP sent to ${formattedNumber}`,
       });
-    } 
-    
+    }
+
     if (isEmail) {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpToken = bcrypt.hashSync(otp, 10);
 
-      res.cookie("otpToken", otpToken, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None" ,maxAge: 10 * 60 * 1000 });
+      res.cookie("otpToken", otpToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 10 * 60 * 1000,
+      });
 
-      const templatePath = path.join(__dirname, "./EmailTemplates/verifyaccount.html");
+      const templatePath = path.join(
+        __dirname,
+        "./EmailTemplates/verifyaccount.html"
+      );
       let emailTemplate = fs.readFileSync(templatePath, "utf8");
 
       emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
@@ -1178,16 +1287,19 @@ const generateOtpForVerifying = async (req, res, next) => {
     }
 
     // If input is neither email nor mobile
-    return res.status(400).json({ success: false, message: "Invalid email or mobile number format" });
-
+    return res
+      .status(400)
+      .json({
+        success: false,
+        message: "Invalid email or mobile number format",
+      });
   } catch (error) {
     return next(new AppError(error, 505));
   }
 };
 
-
-const validatethnumberormobile = async(req,res,next) =>{
-  const {otp} =req.body;
+const validatethnumberormobile = async (req, res, next) => {
+  const { otp } = req.body;
   const otpToken = req.cookies.otpToken;
   try {
     const isOtpValid = bcrypt.compareSync(otp, otpToken);
@@ -1196,34 +1308,34 @@ const validatethnumberormobile = async(req,res,next) =>{
     }
     res.clearCookie("otpToken");
     res.status(200).json({
-      success:true,
-      message:'Verified',
-    })
+      success: true,
+      message: "Verified",
+    });
   } catch (error) {
     return next(new AppError(error.message, 500));
-    console.log(error)
+    console.log(error);
   }
-}
- 
+};
+
 export {
-    expertBasicDetails,
-    expertCredentialsDetails,
-    extpertPortfolioDetails,
-    expertcertifiicate,
-    expertexperience,
-    expertEducation,
-    singleexperteducation,
-    updateProfileStatus,
-    getAllExperts,
-    getExpertById,
-    manageService,
-    getExpertServices,
-    deleteService,
-    getService,
-    expertPaymentDetails,
-    createService,
-    updateService,
-    pushExpertsToAlgolia,
-    generateOtpForVerifying,
-    validatethnumberormobile
-}
+  expertBasicDetails,
+  expertCredentialsDetails,
+  extpertPortfolioDetails,
+  expertcertifiicate,
+  expertexperience,
+  expertEducation,
+  singleexperteducation,
+  updateProfileStatus,
+  getAllExperts,
+  getExpertById,
+  manageService,
+  getExpertServices,
+  deleteService,
+  getService,
+  expertPaymentDetails,
+  createService,
+  updateService,
+  pushExpertsToAlgolia,
+  generateOtpForVerifying,
+  validatethnumberormobile,
+};

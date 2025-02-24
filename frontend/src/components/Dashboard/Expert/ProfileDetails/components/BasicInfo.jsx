@@ -41,6 +41,15 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         })
       );
     }
+    if(field === 'languages') {
+      const formattedLanguages = value.map(lang => ({
+        value: lang.value || lang,
+        label: lang.label || lang
+      }));
+      onUpdate({...formData, [field]: formattedLanguages});
+    } else{
+      onUpdate({...formData, [field]: value});
+    }
   };
 
   // Load verification status from localStorage on component mount
