@@ -47,7 +47,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-[492px] h-[328px] bg-[#FDFDFD] rounded-tl-[10px] p-5 border border-[#1D1D1D26] space-y-3">
+    <div className="w-[492px] h-[328px] bg-[#FDFDFD] rounded-[15px] p-5 border border-[#1D1D1D26] space-y-3">
       {/* Top Section */}
       <div className="flex items-start gap-4">
         <img src={image} alt={name} className="w-[108px] h-[108px] rounded-full object-cover" />
@@ -86,7 +86,7 @@ const ExpertCard = ({
       </div>
 
       {/* Expertise Tags */}
-      <div className="my-5">
+      <div className="my-8">
         <div className="flex flex-wrap gap-2">
           <p className="text-gray-900 font-medium">Expertise:</p>
           {expertise.map((skill) => (
