@@ -86,7 +86,7 @@ const ExpertCard = ({
       </div>
 
       {/* Expertise Tags */}
-      <div className="space-y-2">
+      <div className="my-5">
         <div className="flex flex-wrap gap-2">
           <p className="text-gray-900 font-medium">Expertise:</p>
           {expertise.map((skill) => (
