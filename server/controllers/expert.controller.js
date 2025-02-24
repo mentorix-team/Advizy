@@ -53,8 +53,40 @@ const expertBasicDetails = async (req, res, next) => {
     let expertbasic = await ExpertBasics.findOne({ user_id });
     let isNewExpert = false; // Flag to check if it's a new expert
 
-    // const parsedLanguages = Array.isArray(languages) ? languages : JSON.parse(languages || "[]");
-
+    let parsedLanguages;
+    try {
+      if (Array.isArray(languages)) {
+        // If languages is an array of objects with value/label properties
+        if (languages[0]?.value) {
+          parsedLanguages = languages.map(lang => lang.label);
+        }
+        // If languages is already an array of strings
+        else if (typeof languages[0] === 'string') {
+          parsedLanguages = languages;
+        }
+        else {
+          throw new Error('Invalid language format');
+        }
+      }
+      // If languages is a JSON string
+      else if (typeof languages === 'string') {
+        const parsed = JSON.parse(languages);
+        if (Array.isArray(parsed)) {
+          if (parsed[0]?.value) {
+            parsedLanguages = parsed.map(lang => lang.label);
+          } else {
+            parsedLanguages = parsed;
+          }
+        } else {
+          throw new Error('Invalid language format');
+        }
+      } else {
+        throw new Error('Invalid language format');
+      }
+    } catch (error) {
+      console.error("Language parsing error:", error);
+      return next(new AppError("Invalid language format", 400));
+    }
 
     if (expertbasic) {
       console.log("Expert found, updating details...");
@@ -68,7 +100,7 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
       // expertbasic.languages = languages;
-      // expertbasic.languages = parsedLanguages;
+      expertbasic.languages = parsedLanguages;
       // expertbasic.bio = bio;
       // expertbasic.socialLinks = socialLinks;
     } else {
@@ -85,7 +117,7 @@ const expertBasicDetails = async (req, res, next) => {
         email,
         mobile,
         countryCode,
-        languages,
+        languages: parsedLanguages,
         // bio,
         // socialLinks,
         redirect_url:'',
