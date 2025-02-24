@@ -292,6 +292,7 @@ const ExpertDashboardLayout = () => {
     setIsDropdownOpen(false);
     navigate("/");
   };
+  
 
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;

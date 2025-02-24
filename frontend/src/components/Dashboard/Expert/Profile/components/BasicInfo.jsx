@@ -23,17 +23,18 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
  console.log("Ths is formadata passed to basic",formData)
   const languageOptions = [
+    { value: "english", label: "English" },
     { value: "hindi", label: "Hindi" },
-    { value: "bengali", label: "Bengali" },
     { value: "marathi", label: "Marathi" },
+    { value: "punjabi", label: "Punjabi" },
     { value: "telugu", label: "Telugu" },
-    { value: "tamil", label: "Tamil" },
     { value: "gujarati", label: "Gujarati" },
+    { value: "bengali", label: "Bengali" },
+    { value: "tamil", label: "Tamil" },
     { value: "urdu", label: "Urdu" },
     { value: "kannada", label: "Kannada" },
     { value: "odia", label: "Odia" },
     { value: "malayalam", label: "Malayalam" },
-    { value: "punjabi", label: "Punjabi" },
     { value: "assamese", label: "Assamese" },
     { value: "maithili", label: "Maithili" },
     { value: "santali", label: "Santali" },
@@ -43,7 +44,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "sindhi", label: "Sindhi" },
     { value: "konkani", label: "Konkani" },
     { value: "dogri", label: "Dogri" },
-    { value: "english", label: "English" },
     { value: "mandarin", label: "Mandarin Chinese" },
     { value: "spanish", label: "Spanish" },
     { value: "french", label: "French" },
@@ -98,12 +98,12 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   //   setIsPhoneValid(isValid);
   // };
 
-  const handleAddSocialLink = () => {
-    onUpdate({
-      ...formData,
-      socialLinks: [...formData.socialLinks, ""],
-    });
-  };
+  // const handleAddSocialLink = () => {
+  //   onUpdate({
+  //     ...formData,
+  //     socialLinks: [...formData.socialLinks, ""],
+  //   });
+  // };
 
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
@@ -411,7 +411,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       </div>
 
       {/* Bio Description */}
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <p className="block text-xs font-medium text-gray-700 mb-1">
           You can add this later*
         </p>
@@ -435,10 +435,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {errors.bio && touched.bio && (
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
-      </div>
+      </div> */}
 
       {/* Social Media Links */}
-      <div className="mt-6 rounded-lg">
+      {/* <div className="mt-6 rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-[#16A348]">
             Social Media Links
@@ -467,7 +467,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             />
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* OTP Popup */}
       {showOtpPopup && (
