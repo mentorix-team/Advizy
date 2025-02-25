@@ -123,50 +123,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
-  const parseLanguageValues = () => {
-    if (!formData.languages) return []; // Return empty array if languages is undefined or null
-  
-    // If languages is already an array of objects, return as is
-    if (Array.isArray(formData.languages) && formData.languages[0]?.value) {
-      return formData.languages;
-    }
-  
-    // If languages is an array of strings, convert to proper format
-    if (Array.isArray(formData.languages)) {
-      return formData.languages
-        .filter(lang => lang != null) // Filter out null or undefined values
-        .map(lang => ({
-          value: lang.toLowerCase(), // Ensure lang is a string before calling toLowerCase
-          label: lang
-        }));
-    }
-  
-    // If it's a string, try to parse it
-    if (typeof formData.languages === 'string') {
-      try {
-        const parsedLanguages = JSON.parse(formData.languages);
-        if (Array.isArray(parsedLanguages)) {
-          return parsedLanguages
-            .filter(lang => lang != null) // Filter out null or undefined values
-            .map(lang => ({
-              value: lang.toLowerCase(), // Ensure lang is a string before calling toLowerCase
-              label: lang
-            }));
-        }
-      } catch (error) {
-        console.error("Failed to parse languages:", error);
-        // If parsing fails, treat it as a single string
-        return [{
-          value: formData.languages.toLowerCase(),
-          label: formData.languages
-        }];
-      }
-    }
-  
-    // Default fallback
-    return [];
-  };
-
   // const handlePhoneChange = (phoneData) => {
   //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
 
@@ -509,8 +465,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           isMulti
           hideSelectedOptions={false}
           onBlur={() => onBlur("languages")}
-          value={parseLanguageValues()}
-          onChange={(selectedOptions) => handleChange("languages", selectedOptions)}
+          value={formData.languages}
+          onChange={(value) => handleChange("languages", value)}
           className={`flex-1 p-2.5 border ${
             errors.languages && touched.languages
               ? "border-red-500"
