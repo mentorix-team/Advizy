@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import Navbar from "./components/Home/components/Navbar";
 import SearchModal from "./components/Home/components/SearchModal";
 import Footer from "./components/Home/components/Footer";
+import { Facebook, Instagram, Linkedin, Mail, MapPinned, Youtube } from "lucide-react";
 
 const ContactUs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,7 +84,7 @@ const ContactUs = () => {
         isExpertMode={isExpertMode}
       />
       <div className="py-16 sm:py-20 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -92,13 +93,53 @@ const ContactUs = () => {
               transition={{ duration: 0.8 }}
               className="w-full"
             >
-              <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
-                <img
-                  src="https://i.postimg.cc/Qt0hChwW/5114855-1-Photoroom-2.png"
-                  alt="Contact Support"
-                  className="w-full h-full object-cover object-center rounded-2xl"
-                  loading="lazy"
-                />
+              <div className="relative w-full h-full aspect-square sm:aspect-[4/3] lg:aspect-square">
+                <div className="bg-gray-900 text-white rounded-lg p-8 h-full flex flex-col gap-7">
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-8">
+                      Contact Information
+                    </h2>
+
+                    <div className="mb-6 flex items-start">
+                      <div className="mr-4 mt-1 text-green-500">
+                        <MapPinned className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Visit our office</div>
+                        <div className="text-gray-300 text-sm">
+                          Mankhurd, Mumbai, Maharashtra, 400088
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mb flex items-start">
+                      <div className="mr-4 mt-1 text-green-500">
+                        <Mail className="w-5 h-5"/>
+                      </div>
+                      <div>
+                        <div className="font-medium mb-1">Email</div>
+                        <div className="text-gray-300 text-sm">
+                          contact@advizy.in
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-medium mb-3 ">Follow Us</div>
+                    <div className="flex space-x-6">
+                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                        <Instagram className="w-6 h-6" />
+                      </a>
+                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                        <Linkedin className="w-6 h-6" />
+                      </a>
+                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                        <Facebook className="w-6 h-6" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
@@ -107,6 +148,7 @@ const ContactUs = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
+              className="lg:pl-4"
             >
               <h2 className="text-4xl sm:text-5xl font-bold mb-4">
                 Get in Touch
@@ -170,7 +212,7 @@ const ContactUs = () => {
                   type="submit"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className=" btn-expert w-full px-8 py-4 text-lg font-medium  rounded-lg transition-colors"
+                  className="btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors"
                 >
                   Send Message
                 </motion.button>
