@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const TermsOfService = () => {
   useEffect(() => {
@@ -54,9 +55,9 @@ const TermsOfService = () => {
                 <li>Prohibited Activities</li>
                 <li>User Generated Contributions</li>
                 <li>Contribution License</li>
+                <li>Purchases and Payment</li>
                 <li>Services Management</li>
                 <li>Term and Termination</li>
-                <li>Modifications and Interruptions</li>
                 <li>Governing Law</li>
                 <li>Dispute Resolution</li>
                 <li>Corrections</li>
@@ -242,6 +243,7 @@ const TermsOfService = () => {
           </div>
         </motion.div>
       </div>
+      <Footer/>
     </div>
   );
 };
