@@ -4,7 +4,14 @@ import toast from "react-hot-toast";
 import Navbar from "./components/Home/components/Navbar";
 import SearchModal from "./components/Home/components/SearchModal";
 import Footer from "./components/Home/components/Footer";
-import { Facebook, Instagram, Linkedin, Mail, MapPinned, Youtube } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPinned,
+  Youtube,
+} from "lucide-react";
 
 const ContactUs = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -114,7 +121,7 @@ const ContactUs = () => {
 
                     <div className="mb flex items-start">
                       <div className="mr-4 mt-1 text-green-500">
-                        <Mail className="w-5 h-5"/>
+                        <Mail className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="font-medium mb-1">Email</div>
@@ -128,13 +135,28 @@ const ContactUs = () => {
                   <div>
                     <div className="font-medium mb-3 ">Follow Us</div>
                     <div className="flex space-x-6">
-                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                      <a
+                        href="https://www.instagram.com/advizy.in?igsh=MnpxODl2N3duMXNx"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-300 hover:text-white transition-colors"
+                      >
                         <Instagram className="w-6 h-6" />
                       </a>
-                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                      <a
+                        href="https://www.linkedin.com/company/advizy-in/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-300 hover:text-white transition-colors"
+                      >
                         <Linkedin className="w-6 h-6" />
                       </a>
-                      <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://www.facebook.com/profile.php?id=61572851715307"
+                        className="text-gray-300 hover:text-white transition-colors"
+                      >
                         <Facebook className="w-6 h-6" />
                       </a>
                     </div>
