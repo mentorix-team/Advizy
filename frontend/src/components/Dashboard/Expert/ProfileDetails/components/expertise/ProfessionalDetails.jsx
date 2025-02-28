@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FaBriefcase } from 'react-icons/fa';
+// import { domainOptions, nicheOptions } from './path-to-options-file'; // Adjust the import path accordingly
+import { domainOptions, nicheOptions } from '../../../../../../utils/Options'
 
 export default function ProfessionalDetails({ formData, setFormData }) {
   return (
@@ -17,13 +19,15 @@ export default function ProfessionalDetails({ formData, setFormData }) {
           </label>
           <select
             value={formData.domain}
-            onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, domain: e.target.value, niche: '' })} // Reset niche when domain changes
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
           >
             <option value="">Select domain</option>
-            <option value="software">Software Development</option>
-            <option value="design">Design</option>
-            <option value="marketing">Marketing</option>
+            {domainOptions.map((domain) => (
+              <option key={domain.value} value={domain.value}>
+                {domain.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -35,11 +39,15 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             value={formData.niche}
             onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
+            disabled={!formData.domain} // Disable if no domain selected
           >
             <option value="">Select your specific niche</option>
-            <option value="web">Web Development</option>
-            <option value="mobile">Mobile Development</option>
-            <option value="backend">Backend Development</option>
+            {formData.domain &&
+              nicheOptions[formData.domain]?.map((niche) => (
+                <option key={niche.value} value={niche.value}>
+                  {niche.label}
+                </option>
+              ))}
           </select>
         </div>
 

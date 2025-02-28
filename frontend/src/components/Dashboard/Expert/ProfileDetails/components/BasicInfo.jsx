@@ -381,21 +381,18 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             Mobile Number
           </label>
           <div className="flex gap-2">
-            <div className="flex-1">
-              <PhoneNumberValidation
-                country={"in"} // Default country
-                value={formData.countryCode + formData.mobile}
-                onChange={handlePhoneChange} // Pass the cleaned and separated values
-                inputProps={{
-                  required: true,
-                  className:
-                    "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary pl-12",
-                }}
-                containerClass="phone-input"
-                buttonClass="phone-input-button"
-                dropdownClass="phone-input-dropdown"
-              />
-            </div>
+              <div className="flex-1">
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.mobile}
+                  onChange={handlePhoneChange}
+                  className={`w-full px-3 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                  placeholder="Enter 10-digit phone number"
+                  maxLength="10"
+                />
+              </div>
             {verificationStatus.mobile ? (
               <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
                 <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
