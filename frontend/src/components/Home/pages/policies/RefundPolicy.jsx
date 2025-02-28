@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const RefundPolicy = () => {
   useEffect(() => {
@@ -71,6 +72,7 @@ const RefundPolicy = () => {
           </div>
         </motion.div>
       </div>
+      <Footer />
     </div>
   );
 };

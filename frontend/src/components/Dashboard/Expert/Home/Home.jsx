@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Header from "./components/Header";
-import StatsCard from "./components/StatsCard";
+// import StatsCard from "./components/StatsCard";
 import ActionNeeded from "./components/ActionNeeded";
 import UpcomingSessions from "./components/UpcomingSessions";
 // import PerformanceChart from "./components/PerformanceChart";
@@ -217,7 +217,7 @@ function Home() {
       <div className="mx-auto p-4 lg:p-8">
         <Header />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatsCard
             title="Total Sessions"
             value="48"
@@ -242,7 +242,7 @@ function Home() {
             change={5}
             icon={<BiStar size={24} className="text-[#169544]" />}
           />
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 lg:grid-cols-[741px,332px] gap-4 auto-rows-auto">
           <div className="space-y-4">

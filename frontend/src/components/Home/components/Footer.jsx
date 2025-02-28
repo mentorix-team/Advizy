@@ -59,7 +59,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
-                    onClick={() => handleNavigation("/about")}
+                    onClick={() => handleNavigation("/about-us")}
                     className="text-gray-300 hover:text-white transition-colors"
                   >
                     About Us

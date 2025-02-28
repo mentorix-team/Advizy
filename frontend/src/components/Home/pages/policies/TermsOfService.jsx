@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 
 const TermsOfService = () => {
   useEffect(() => {
@@ -54,9 +55,9 @@ const TermsOfService = () => {
                 <li>Prohibited Activities</li>
                 <li>User Generated Contributions</li>
                 <li>Contribution License</li>
+                <li>Purchases and Payment</li>
                 <li>Services Management</li>
                 <li>Term and Termination</li>
-                <li>Modifications and Interruptions</li>
                 <li>Governing Law</li>
                 <li>Dispute Resolution</li>
                 <li>Corrections</li>
@@ -153,7 +154,7 @@ const TermsOfService = () => {
                 <li>Razorpay Services</li>
               </ul>
               <p>
-                You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Services. All payments shall be in USD, EUR, CAD, AUD, SGD, INR. Users acknowledge that they may be responsible for currency conversion fees or other bank-imposed charges.
+                You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Services. All payments and transactions on this platform are processed via Razorpay under the business name: Akate Vivek Pundalik. All payments shall be in USD, EUR, CAD, AUD, SGD, INR. Users acknowledge that they may be responsible for currency conversion fees or other bank-imposed charges.
               </p>
             </section>
 
@@ -242,6 +243,7 @@ const TermsOfService = () => {
           </div>
         </motion.div>
       </div>
+      <Footer/>
     </div>
   );
 };

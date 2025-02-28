@@ -122,6 +122,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       );
     }
   };
+
   // const handlePhoneChange = (phoneData) => {
   //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
 
