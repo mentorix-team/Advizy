@@ -222,6 +222,19 @@ export const getExpertById = createAsyncThunk(
     }
   }
 );
+export const getExpertByRedirectUrl = createAsyncThunk(
+  "expert/getExpertbyRedirectUrl",
+  async (redirect_url, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(`/expert/getexpert/by-url/${redirect_url}`);
+      console.log("API Response:", response.data); 
+      return response.data;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 export const expertServiceForm = createAsyncThunk(
   'expert/expertServiceForm',
@@ -338,6 +351,7 @@ export const updateServicebyId = createAsyncThunk(
   "expert/updateService",
   async(data,{rejectWithValue})=>{
     try {
+      console.log('this is data  sent',data);
       const response = await axiosInstance.post('expert/updateService',data)
       return await response.data;
     } catch (error) {
@@ -491,6 +505,18 @@ const expertSlice = createSlice({
         state.selectedExpert = action.payload; // Store the expert data
       })
       .addCase(getExpertById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Error fetching expert by ID";
+      })
+      .addCase(getExpertByRedirectUrl.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getExpertByRedirectUrl.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedExpert = action.payload; // Store the expert data
+      })
+      .addCase(getExpertByRedirectUrl.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Error fetching expert by ID";
       })

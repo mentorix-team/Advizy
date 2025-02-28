@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getExpertById } from "@/Redux/Slices/expert.Slice";
+import { getExpertById, getExpertByRedirectUrl } from "@/Redux/Slices/expert.Slice";
 import ProfileHeader from "./ProfileHeader";
 import ProfileInfo from "./ProfileInfo";
 import Expertise from "./Expertise";
@@ -11,15 +11,24 @@ import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 
 const ExpertDetailPage = () => {
-  const { id } = useParams(); // Get the ID from URL params
+  // const { id } = useParams(); // Get the ID from URL params
+  const { redirect_url } = useParams();
+
   const dispatch = useDispatch();
 
   // Fetch the expert data on mount
+  // useEffect(() => {
+  //   if (id) {
+  //     dispatch(getExpertById(id));
+  //   }
+  // }, [id, dispatch]);
+ 
   useEffect(() => {
-    if (id) {
-      dispatch(getExpertById(id));
+    if (redirect_url) {
+      dispatch(getExpertByRedirectUrl(redirect_url));
     }
-  }, [id, dispatch]);
+  }, [redirect_url, dispatch]);
+
 
   const { selectedExpert, loading, error } = useSelector((state) => state.expert);
   console.log('This is selected expert',selectedExpert)

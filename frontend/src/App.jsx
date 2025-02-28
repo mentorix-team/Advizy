@@ -62,7 +62,8 @@ const App = () => {
         </Route>
 
         <Route path="/explore" element={<Homees />} />
-        <Route path="/expert/:id" element={<ExpertDetailPage />} />
+        {/* <Route path="/expert/:id" element={<ExpertDetailPage />} /> */}
+        <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
         <Route
           path="/expert/rescheduling/:updatemeetingtoken"
