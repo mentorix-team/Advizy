@@ -16,7 +16,16 @@ function Scheduling() {
   console.log("This is availability",selectedAvailability)
   const {data} = useSelector((state)=>state.auth)
   console.log("this is data",JSON.parse(data))
-  const userData = JSON.parse(data)
+  // const userData = JSON.parse(data)
+  let userData;
+
+  try {
+    userData = typeof data === "string" ? JSON.parse(data) : data;
+    console.log("this is data", userData);
+  } catch (error) {
+    console.error("Error parsing data:", error);
+  }
+
   useEffect(() => {
     
     console.log("this is my expert ",selectedExpert)
