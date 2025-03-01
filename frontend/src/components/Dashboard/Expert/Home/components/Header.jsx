@@ -156,7 +156,7 @@ export default function Header() {
   const unreadCount = notifications?.filter((n) => !n.read)?.length || 0;
 
   return (
-    <header className="max-w-[1073px] flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
+    <header className="max-w-[1089px] flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
       <div>
         <h1 className="text-2xl font-bold">
           Welcome back, {expertData.firstName}

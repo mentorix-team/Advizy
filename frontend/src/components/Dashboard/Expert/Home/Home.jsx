@@ -212,9 +212,6 @@ function Home() {
   return (
     <div className="min-h-screen bg-transparent">
       <div className="mx-auto p-4 lg:p-8">
-        <div className="max-w-[1073px] mb-4">
-          <Header />
-        </div>
         <Header />
 
         {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
