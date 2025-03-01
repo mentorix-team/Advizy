@@ -21,23 +21,21 @@ function Home() {
   const { meetings, loading, error } = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
-  console.log("availabilty",selectedAvailability)
-  const availability = selectedAvailability?.availability
+  console.log("availabilty", selectedAvailability);
+  const availability = selectedAvailability?.availability;
   useEffect(() => {
     const fetchMeetings = async () => {
       const response = await dispatch(getMeetingByExpertId());
-      if(response?.payload?.success){
-        dispatch(getAvailabilitybyid(expertData._id))
+      if (response?.payload?.success) {
+        dispatch(getAvailabilitybyid(expertData._id));
       }
-    
     };
     fetchMeetings();
   }, [dispatch]);
 
-
   // Check if expert has set availability
-  const hasAvailability = availability?.daySpecific?.some(day => 
-    day.slots?.some(slot => slot.startTime)
+  const hasAvailability = availability?.daySpecific?.some((day) =>
+    day.slots?.some((slot) => slot.startTime)
   );
 
   // Check if expert has added at least one service
@@ -128,7 +126,6 @@ function Home() {
       window.open(url, "_blank"); // Opens in a new tab
     }
   };
-  
 
   const earningsData = {
     totalEarnings: 45000,
@@ -215,6 +212,9 @@ function Home() {
   return (
     <div className="min-h-screen bg-transparent">
       <div className="mx-auto p-4 lg:p-8">
+        <div className="max-w-[1073px] mb-4">
+          <Header />
+        </div>
         <Header />
 
         {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -255,15 +255,16 @@ function Home() {
             {/* <PerformanceChart /> */}
           </div>
           <div className="space-y-4">
-            <CompleteProfile
-              completion={completionPercentage}
-            />
+            <CompleteProfile completion={completionPercentage} />
             <RecentEarnings
               totalEarnings={earningsData.totalEarnings}
               earnings={earningsData.earnings}
             />
             <ClientFeedback feedback={feedbackData} />
-            <RecommendedResources resources={resourcesData} onViewResource={handleViewResource}/>
+            <RecommendedResources
+              resources={resourcesData}
+              onViewResource={handleViewResource}
+            />
           </div>
         </div>
       </div>
