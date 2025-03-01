@@ -143,7 +143,7 @@ const expertBasicDetails = async (req, res, next) => {
       console.log("New expert detected, adding One-on-One service...");
 
       const randomString = generateRandomString(); // Generate unique identifier
-      expertbasic.redirect_url = `${firstName}/${randomString}`; // Set redirect URL
+      expertbasic.redirect_url = `${firstName}_${randomString}`; // Set redirect URL
       console.log("This is the redirect url before",expertbasic.redirect_url)
 
       const serviceData = {
@@ -1050,6 +1050,26 @@ const getExpertById = async (req, res, next) => {
   }
 };
 
+const getExpertByRedirectURL = async (req, res, next) => {
+  const { redirect_url } = req.params;
+
+  try {
+    const expert = await ExpertBasics.findOne({ redirect_url });
+
+    if (!expert) {
+      return next(new AppError('Expert Not Found', 404)); // 404 Not Found
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `User with redirect_url ${redirect_url}`,
+      expert: expert.toObject(),
+    });
+  } catch (error) {
+    return next(new AppError('An error occurred while fetching the expert', 500, error));
+  }
+};
+
 const expertPaymentDetails = async (req, res, next) => {
   const expert_id = req.expert.id;
   const { accountType, beneficiaryName, ifscCode, accountNumber } = req.body; // Updated field name
@@ -1212,6 +1232,7 @@ export {
     updateProfileStatus,
     getAllExperts,
     getExpertById,
+    getExpertByRedirectURL,
     manageService,
     getExpertServices,
     deleteService,

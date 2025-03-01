@@ -1,6 +1,6 @@
 import Router from 'express'
 import { isExpert, isLoggedIn } from '../middlewares/auth.middleare.js'
-import manageService, {  createService, deleteService, expertBasicDetails, expertCredentialsDetails, expertEducation, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpertById, getExpertServices, getService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
+import manageService, {  createService, deleteService, expertBasicDetails, expertCredentialsDetails, expertEducation, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpertById, getExpertByRedirectURL, getExpertServices, getService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
 import upload from '../middlewares/multer.middleware.js'
 const router= Router()
 
@@ -16,6 +16,7 @@ router.post('/updateExpertDetails',isLoggedIn,isExpert,updateProfileStatus)
 router.get('/getexperts',getAllExperts)
 router.get('/getServices',isLoggedIn,isExpert,getExpertServices)
 router.get('/getexpert/:id',getExpertById)
+router.get('/getexpert/by-url/:redirect_url', getExpertByRedirectURL);
 router.post('/createservice',isLoggedIn,isExpert,manageService)
 router.post('/service',isLoggedIn,isExpert,createService)
 router.post('/updateService',isLoggedIn,isExpert,updateService)

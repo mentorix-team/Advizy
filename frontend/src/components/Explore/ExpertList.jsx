@@ -131,6 +131,7 @@ const ExpertList = ({ filters, sorting }) => {
               <div key={expert._id} className="flex justify-center">
                 <ExpertCard
                   id={expert._id}
+                  redirect_url={expert.redirect_url}
                   name={`${expert.firstName} ${expert.lastName}`}
                   image={
                     expert?.profileImage?.secure_url ||
