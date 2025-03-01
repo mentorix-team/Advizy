@@ -156,7 +156,7 @@ export default function Header() {
   const unreadCount = notifications?.filter((n) => !n.read)?.length || 0;
 
   return (
-    <header className="flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
+    <header className="max-w-[1073px] flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
       <div>
         <h1 className="text-2xl font-bold">
           Welcome back, {expertData.firstName}
@@ -249,7 +249,7 @@ export default function Header() {
           </div>
         )} */}
         {showNotifications && (
-          <div className="absolute right-4 top-full mt-4 w-80 bg-white rounded-lg shadow-lg z-50">
+          <div className="absolute right-4 mt-4 w-80 bg-white rounded-lg shadow-lg z-50">
             <div className="p-4 border-b">
               <div className="flex justify-between items-center">
                 <h3 className="font-semibold">Notifications</h3>
