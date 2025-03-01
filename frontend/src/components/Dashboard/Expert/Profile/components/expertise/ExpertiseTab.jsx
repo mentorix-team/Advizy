@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProfessionalDetails from './ProfessionalDetails';
 import SkillsExpertise from './SkillsExpertise';
 import ExpertisePreview from './ExpertisePreview';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function ExpertiseTab({ formData, onUpdate }) {
   const [localFormData, setLocalFormData] = useState(formData);
@@ -55,6 +55,7 @@ export default function ExpertiseTab({ formData, onUpdate }) {
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">Showcase Your Expertise</h3>
         <p className="text-green-700">

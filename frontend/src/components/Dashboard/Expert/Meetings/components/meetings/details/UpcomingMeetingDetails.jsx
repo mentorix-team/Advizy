@@ -18,7 +18,7 @@ import Modal from "../../modals/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addvideoparticipant, fetchMeeting, rescheduleByExpert } from "@/Redux/Slices/meetingSlice";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 const UpcomingMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
@@ -178,6 +178,8 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row border rounded-md p-2 sm:p-6 gap-4">
+      <Toaster position="top-right" />
+      
       {/* Left Section: Meeting Details and Notes */}
       <div className="w-full lg:w-[768px] flex-shrink-0">
         <button

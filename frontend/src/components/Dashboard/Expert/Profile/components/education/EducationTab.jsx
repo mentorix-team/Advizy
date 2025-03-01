@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import EducationList from './EducationList';
 import EducationForm from './EducationForm';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function EducationTab({ formData, onUpdate }) {
   const [educations, setEducations] = useState(formData);
@@ -53,6 +53,7 @@ export default function EducationTab({ formData, onUpdate }) {
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">Highlight Your Educational Background</h3>
         <p className="text-green-700">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CertificationList from './CertificationList';
 import CertificationForm from './CertificationForm';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function CertificationsTab({ formData, onUpdate }) {
   const [certifications, setCertifications] = useState(formData);
@@ -47,6 +47,8 @@ export default function CertificationsTab({ formData, onUpdate }) {
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
+
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">Showcase Your Certifications</h3>
         <p className="text-green-700">

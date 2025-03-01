@@ -322,7 +322,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Mobile Number */}
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Mobile Number
           </label>
@@ -350,27 +350,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               Verify
             </button>
           </div>
-          {errors.mobile && touched.mobile && (
-            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
-          )}
-        </div> */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number <span className="text-red-500">*</span>
-          </label>
-          <PhoneInput
-            country={"in"}
-            value={formData.mobile}
-            onChange={(value) => handleChange("mobile", value)}
-            onBlur={() => onBlur("mobile")}
-            inputProps={{
-              className: `w-full p-2.5 border ${
-                errors.mobile && touched.mobile
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`,
-            }}
-          />
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}

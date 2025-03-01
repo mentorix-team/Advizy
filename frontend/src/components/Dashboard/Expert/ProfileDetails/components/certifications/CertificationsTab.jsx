@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import CertificationList from './CertificationList';
-import CertificationForm from './CertificationForm';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import CertificationList from "./CertificationList";
+import CertificationForm from "./CertificationForm";
+import { toast, Toaster } from "react-hot-toast";
 
 export default function CertificationsTab({ formData, onUpdate }) {
   const [certifications, setCertifications] = useState(formData);
@@ -14,13 +14,12 @@ export default function CertificationsTab({ formData, onUpdate }) {
     setShowForm(formData.length === 0);
   }, [formData]);
 
-
   const handleAddCertification = (newCertification) => {
     const updatedCertifications = [...certifications, newCertification];
     setCertifications(updatedCertifications);
     onUpdate(updatedCertifications);
     setShowForm(false);
-    toast.success('Certification added successfully!');
+    toast.success("Certification added successfully!");
   };
 
   const handleEditCertification = (index) => {
@@ -35,37 +34,47 @@ export default function CertificationsTab({ formData, onUpdate }) {
     onUpdate(updatedCertifications);
     setShowForm(false);
     setEditingIndex(null);
-    toast.success('Certification updated successfully!');
+    toast.success("Certification updated successfully!");
   };
 
   const handleDeleteCertification = (index) => {
     const updatedCertifications = certifications.filter((_, i) => i !== index);
     setCertifications(updatedCertifications);
     onUpdate(updatedCertifications);
-    toast.success('Certification deleted successfully!');
+    toast.success("Certification deleted successfully!");
   };
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
-        <h3 className="text-xl font-semibold text-green-800 mb-2">Showcase Your Certifications</h3>
+        <h3 className="text-xl font-semibold text-green-800 mb-2">
+          Showcase Your Certifications
+        </h3>
         <p className="text-green-700">
-          Your certifications demonstrate your expertise and commitment to professional development.
+          Your certifications demonstrate your expertise and commitment to
+          professional development.
         </p>
       </div>
 
       {showForm ? (
         <CertificationForm
-          onSubmit={editingIndex !== null ? handleUpdateCertification : handleAddCertification}
+          onSubmit={
+            editingIndex !== null
+              ? handleUpdateCertification
+              : handleAddCertification
+          }
           onCancel={() => {
             setShowForm(false);
             setEditingIndex(null);
           }}
-          initialData={editingIndex !== null ? certifications[editingIndex] : null}
+          initialData={
+            editingIndex !== null ? certifications[editingIndex] : null
+          }
         />
       ) : (
-        <CertificationList 
-          certifications={certifications} 
+        <CertificationList
+          certifications={certifications}
           onAddClick={() => setShowForm(true)}
           onEdit={handleEditCertification}
           onDelete={handleDeleteCertification}

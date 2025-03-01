@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { EditIcon, PlusIcon } from "@/icons/Icons";
 import { useDispatch } from "react-redux";
 import { PaymentFormSubmit } from "@/Redux/Slices/expert.Slice";
@@ -81,6 +81,8 @@ const BankAccountPopup = () => {
 
   return (
     <div>
+      <Toaster position="top-right" />
+
       {/* Success State: Payout Connected Successfully */}
       {isSubmitted ? (
         <div className="p-4 bg-green-100 flex gap-2 items-center rounded-lg border border-green-400 text-green-800">

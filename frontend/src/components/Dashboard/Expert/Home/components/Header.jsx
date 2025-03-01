@@ -6,7 +6,7 @@ import {
   fetchMeeting,
   getnotification,
 } from "@/Redux/Slices/meetingSlice";
-import toast from "react-hot-toast";
+import {toast, Toaster} from "react-hot-toast";
 import { initiatePayout } from "@/Redux/Slices/paymentSlice";
 import { useNavigate } from "react-router-dom";
 import ProfileShare from "./ProfileShare";
@@ -157,6 +157,7 @@ export default function Header() {
 
   return (
     <header className="max-w-[1089px] flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
+      <Toaster position="top-right" />
       <div>
         <h1 className="text-2xl font-bold">
           Welcome back, {expertData.firstName}
