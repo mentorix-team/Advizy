@@ -21,7 +21,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     onUpdate({ ...formData, [field]: value });
   };
 
- console.log("Ths is formadata passed to basic",formData)
+  console.log("Ths is formadata passed to basic", formData);
   const languageOptions = [
     { value: "english", label: "English" },
     { value: "hindi", label: "Hindi" },
@@ -70,7 +70,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "levantine_arabic", label: "Levantine Arabic" },
     { value: "bhojpuri", label: "Bhojpuri" },
     { value: "min_nan", label: "Min Nan Chinese" },
-];
+  ];
 
   const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
     if (isValid) {
@@ -322,7 +322,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Mobile Number */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Mobile Number
           </label>
@@ -350,6 +350,27 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               Verify
             </button>
           </div>
+          {errors.mobile && touched.mobile && (
+            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
+          )}
+        </div> */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number <span className="text-red-500">*</span>
+          </label>
+          <PhoneInput
+            country={"in"}
+            value={formData.mobile}
+            onChange={(value) => handleChange("mobile", value)}
+            onBlur={() => onBlur("mobile")}
+            inputProps={{
+              className: `w-full p-2.5 border ${
+                errors.mobile && touched.mobile
+                  ? "border-red-500"
+                  : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`,
+            }}
+          />
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}

@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import { initiatePayout } from "@/Redux/Slices/paymentSlice";
 import { useNavigate } from "react-router-dom";
 import ProfileShare from "./ProfileShare";
-import { Bell, BellOff } from "lucide-react";
+import { Bell, BellOff, X } from "lucide-react";
 import NotificationSkeleton from "@/components/LoadingSkeleton/NotificationSkeleton";
 
 export default function Header() {
@@ -257,7 +257,7 @@ export default function Header() {
                   onClick={() => setShowNotifications(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  ×
+                  <X className="w-3 h-3 text-gray-700"/>
                 </button>
               </div>
             </div>
