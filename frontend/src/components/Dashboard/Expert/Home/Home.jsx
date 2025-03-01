@@ -213,7 +213,7 @@ function Home() {
   const completionPercentage = calculateCompletion(expertData);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <div className="mx-auto p-4 lg:p-8">
         <Header />
 

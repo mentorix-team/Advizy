@@ -232,10 +232,10 @@ export default function Header() {
                   </div>
                 ))
               ) : (
-                <p className="p-8 flex flex-col gap-2 justify-center text-center text-gray-500">
-                  <BellOff className="w-5 h-5" />
-                  No new notifications
-                </p>
+                <div className="p-8 flex flex-col items-center justify-center">
+                  <BellOff className="w-6 h-6 text-gray-400 mb-2" />
+                  <p className="text-gray-500">No new notifications</p>
+                </div>
               )}
             </div>
             <div className="p-4 text-center border-t">
