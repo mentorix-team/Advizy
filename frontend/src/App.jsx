@@ -44,7 +44,8 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<ComingSoon />} />
+        <Route path="/home" element={<HomePage />} />
         {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />

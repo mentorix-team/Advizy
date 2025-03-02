@@ -60,6 +60,7 @@ const UserDashboardLayout = () => {
     navigate("/");
   };
 
+  
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);

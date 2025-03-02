@@ -27,10 +27,10 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
     lastName: "",
     email: "",
     password: "",
-    policy: "",
+    // policy: "",
   });
 
-  const [policyAccepted, setPolicyAccepted] = useState(false);
+  // const [policyAccepted, setPolicyAccepted] = useState(false);
   const [touched, setTouched] = useState({
     firstName: false,
     lastName: false,
@@ -89,12 +89,12 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
     }));
   };
 
-  const handlePolicyChange = (event) => {
-    setPolicyAccepted(event.target.checked);
-    if (event.target.checked) {
-      setErrors((prev) => ({ ...prev, policy: "" }));
-    }
-  };
+  // const handlePolicyChange = (event) => {
+  //   setPolicyAccepted(event.target.checked);
+  //   if (event.target.checked) {
+  //     setErrors((prev) => ({ ...prev, policy: "" }));
+  //   }
+  // };
 
   const handlePasswordChange = (value) => {
     setSignupData((prev) => ({ ...prev, password: value }));
@@ -112,7 +112,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
       lastName: validateField("lastName", signupData.lastName),
       email: validateField("email", signupData.email),
       password: validateField("password", signupData.password),
-      policy: !policyAccepted ? "Please accept the Terms & Conditions" : "",
+      // policy: !policyAccepted ? "Please accept the Terms & Conditions" : "",
     };
 
     setErrors(newErrors);
@@ -277,15 +277,15 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
           <div className="mb-2">
             <div className="flex items-center gap-2">
-              <input
+              {/* <input
                 type="checkbox"
                 name="policy"
                 id="policy"
                 checked={policyAccepted}
                 onChange={handlePolicyChange}
                 className="w-4 h-4 accent-[#169544] cursor-pointer"
-              />
-              <label htmlFor="policy" className="text-sm cursor-pointer">
+              /> */}
+              <label htmlFor="policy" className="text-xs cursor-pointer">
                 By continuing you agree to our{" "}
                 <a
                   href="/terms-of-service"

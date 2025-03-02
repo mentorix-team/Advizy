@@ -21,7 +21,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     onUpdate({ ...formData, [field]: value });
   };
 
- console.log("Ths is formadata passed to basic",formData)
+  console.log("Ths is formadata passed to basic", formData);
   const languageOptions = [
     { value: "english", label: "English" },
     { value: "hindi", label: "Hindi" },
@@ -70,7 +70,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "levantine_arabic", label: "Levantine Arabic" },
     { value: "bhojpuri", label: "Bhojpuri" },
     { value: "min_nan", label: "Min Nan Chinese" },
-];
+  ];
 
   const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
     if (isValid) {

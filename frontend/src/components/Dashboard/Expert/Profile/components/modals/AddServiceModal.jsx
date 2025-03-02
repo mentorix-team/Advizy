@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../Modal';
 import TimeSlotInput from './TimeSlotInput';
 import FeatureInput from './FeatureInput';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function AddServiceModal({ isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -51,6 +51,7 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
+      <Toaster position="top-right" />
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Service Name <span className="text-red-500">*</span>
           </label>

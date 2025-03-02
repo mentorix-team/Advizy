@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import TimeSlotInput from './TimeSlotInput';
 import FeatureInput from './FeatureInput';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function ServiceForm({ onSave, onCancel, initialData }) {
   const [formData, setFormData] = React.useState(initialData || {
@@ -20,6 +20,7 @@ export default function ServiceForm({ onSave, onCancel, initialData }) {
 
   return (
     <div className="bg-white rounded-lg p-6 mb-6">
+      <Toaster position="top-right" />
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg font-semibold">Add New Service</h2>
         <button

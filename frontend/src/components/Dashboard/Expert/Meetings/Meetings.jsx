@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addvideoparticipant, getMeetingByExpertId } from "@/Redux/Slices/meetingSlice";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 function Meetings() {
   const { meetings } = useSelector((state) => state.meeting);
@@ -116,6 +116,7 @@ function Meetings() {
 
   return (
     <DashboardLayout>
+      <Toaster position="top-right" />
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Meetings Dashboard</h1>
       <div className="mt-8">
         <TodaysMeetings meetings={todaysMeetings} onStartMeeting={handleStartMeeting} onViewDetails={handleViewDetails} />

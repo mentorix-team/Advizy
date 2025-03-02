@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ExperienceList from './ExperienceList';
 import ExperienceForm from './ExperienceForm';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 
 export default function ExperienceTab({ formData, onUpdate }) {
   const [experiences, setExperiences] = useState(formData);
@@ -46,6 +46,7 @@ export default function ExperienceTab({ formData, onUpdate }) {
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">Showcase Your Professional Journey</h3>
         <p className="text-green-700">
