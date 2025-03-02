@@ -9,9 +9,13 @@ import ServicesOffered from "./ServicesOffered/ServicesOffered";
 import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
+import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 
 const ExpertDetailPage = () => {
   // const { id } = useParams(); // Get the ID from URL params
+  const { feedbackofexpert} = useSelector((state) => state.meeting);
+
+  
   const { redirect_url } = useParams();
 
   const dispatch = useDispatch();
@@ -22,6 +26,7 @@ const ExpertDetailPage = () => {
   //     dispatch(getExpertById(id));
   //   }
   // }, [id, dispatch]);
+
  
   useEffect(() => {
     if (redirect_url) {
@@ -29,9 +34,15 @@ const ExpertDetailPage = () => {
     }
   }, [redirect_url, dispatch]);
 
-
   const { selectedExpert, loading, error } = useSelector((state) => state.expert);
   console.log('This is selected expert',selectedExpert)
+  useEffect(() => {
+    if (selectedExpert?.expert?._id) {
+      dispatch(getfeedbackbyexpertid({ id: selectedExpert.expert._id }));
+    }
+  }, [dispatch, selectedExpert?.expert?._id]); // Add `selectedExpert.expert._id` as a dependency
+  
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -56,7 +67,6 @@ const ExpertDetailPage = () => {
         rating={expert?.rating || 0}
         reviewsCount={expert?.reviews?.length || 0}
         image={expert?.profileImage?.secure_url}
-        redirect_url={expert?.redirect_url}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -68,7 +78,7 @@ const ExpertDetailPage = () => {
             />
             <Expertise skills={expert?.credentials?.expertise || []} />
             <ServicesOffered services={expert?.credentials?.services || []} />
-            <Reviews reviews={expert?.credentials?.reviews || []} />
+            <Reviews reviews={Array.isArray(feedbackofexpert) ? feedbackofexpert : []} />
             <FAQ faqs={expert?.credentials?.faqs || []} />
           </div>
           <div className="md:col-span-1">

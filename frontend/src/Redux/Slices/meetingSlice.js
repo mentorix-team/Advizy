@@ -12,6 +12,7 @@ const initialState = {
     meetings:[],
     currentMeeting:'',
     rescheduleData:[],
+    feedbackofexpert:''
 }
 
 
@@ -298,6 +299,51 @@ export const createMeet = createAsyncThunk(
       }
     }
   )
+
+  export const getthemeet = createAsyncThunk(
+    'meeting/getthemeet',
+    async(data,{rejectWithValue})=>{
+      try {
+        console.log('thisi s the data',data);
+        const response = await axiosInstance.post('meeting/getthemeet',data)
+        return await response.data;
+      } catch (error) {
+        console.error("Error fetching meeting details:", error.response);
+        const errorMessage = error?.response?.data?.message || "Failed to check .";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  )
+  export const givefeedback = createAsyncThunk(
+    'meeting/givefeedback',
+    async(data,{rejectWithValue})=>{
+      try {
+        const response = await axiosInstance.post('meeting/givefeedback',data)
+        return await response.data
+      } catch (error) {
+        console.error("Error fetching meeting details:", error.response);
+        const errorMessage = error?.response?.data?.message || "Failed to check .";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  )
+  export const getfeedbackbyexpertid = createAsyncThunk(
+    'meeting/getfeedback',
+    async(data,{rejectWithValue})=>{
+      try {
+        const response = await axiosInstance.post('meeting/getfeedbackbyexpertid',data)
+        return await response.data
+      } catch (error) {
+        console.error("Error fetching meeting details:", error.response);
+        const errorMessage = error?.response?.data?.message || "Failed to check .";
+        toast.error(errorMessage);
+        return rejectWithValue(errorMessage);
+      }
+    }
+  )
+
   const meetingSlice = createSlice({
     name:"meeting",
     initialState,
@@ -411,6 +457,30 @@ export const createMeet = createAsyncThunk(
             .addCase(getClientDetails.rejected,(state,action)=>{
               state.loading = false,
               state.error = action.payload.error
+            })
+            .addCase(getthemeet.fulfilled,(state,action)=>{
+              state.currentMeeting = action.payload.meeting
+              state.loading  = false
+            })
+            .addCase(getthemeet.rejected,(state,action)=>{
+              state.error = action.payload.error
+              state.loading  = false
+            })
+            .addCase(getthemeet.pending,(state,action)=>{
+              state.error = null
+              state.loading  = true
+            })
+            .addCase(getfeedbackbyexpertid.pending,(state,action)=>{
+              state.error = null
+              state.loading  = true
+            })
+            .addCase(getfeedbackbyexpertid.fulfilled,(state,action)=>{
+              state.feedbackofexpert = action.payload.feedback
+              state.loading  = false
+            })
+            .addCase(getfeedbackbyexpertid.rejected,(state,action)=>{
+              state.error = action.payload.error
+              state.loading  = false
             })
     },
 

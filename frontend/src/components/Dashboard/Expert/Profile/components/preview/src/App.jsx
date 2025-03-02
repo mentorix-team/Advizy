@@ -11,8 +11,10 @@ import { useSelector } from 'react-redux';
 
 function App({ formData, profileImage, coverImage }) {
   const { basic, expertise, education, experience, certifications, services } = formData;
-  const {expertData,loading,error} = useSelector((state)=>state.auth);
-  const expert = JSON.parse(expertData)
+  const { expertData, loading, error } = useSelector((state) => state.auth);
+
+  const expert = expertData && typeof expertData === "string" ? JSON.parse(expertData) : expertData;
+  
   console.log("This is expert",expert)
   return (
     <div className="min-h-screen bg-[#F5F5F5]">

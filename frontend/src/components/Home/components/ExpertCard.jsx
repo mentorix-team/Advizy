@@ -1,12 +1,45 @@
+import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
+  const [availability, setAvailability] = useState(null);
+  const navigate = useNavigate()
+  console.log('EXpert',expert);
+  const calculateTotalExperience = (workExperiences) => {
+    if (!Array.isArray(workExperiences) || workExperiences.length === 0) return "0 years";
+  
+    let totalMonths = 0;
+  
+    workExperiences.forEach((job) => {
+      if (!job.startDate || !job.endDate) return;
+  
+      const start = new Date(job.startDate);
+      const end = new Date(job.endDate);
+  
+      const yearsDiff = end.getFullYear() - start.getFullYear();
+      const monthsDiff = end.getMonth() - start.getMonth();
+  
+      totalMonths += yearsDiff * 12 + monthsDiff;
+    });
+  
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+  
+    return years > 0 ? `${years} years ${months} months` : `${months} months`;
+  };
 
+  const firstService = expert.credentials?.services?.[0];
+  const startingPrice = firstService?.price || 0;
+  const duration = firstService?.duration || "N/A";
+
+  const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -27,6 +60,25 @@ const ExpertCard = ({ expert }) => {
       }
     };
   }, []);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap(); 
+        
+        setAvailability(response.availability);
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    };
+
+    fetchAvailability();
+  }, [dispatch, expert._id]);
+
+  const firstAvailableDay = availability?.daySpecific?.find(day => day.slots.length > 0);
+  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
@@ -94,8 +146,9 @@ const ExpertCard = ({ expert }) => {
             transition={{ duration: 0.3 }}
           >
             <img 
-              src={expert.image} 
-              alt={expert.name}
+              src={expert?.profileImage?.secure_url ||
+                "https://via.placeholder.com/100"} 
+              alt={`${expert.firstName} ${expert.lastName}`}
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -107,7 +160,7 @@ const ExpertCard = ({ expert }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              {expert.name}
+              {`${expert.firstName} ${expert.lastName}`}
             </motion.h3>
             <motion.p 
               className="text-gray-600 text-sm mb-1"
@@ -115,7 +168,7 @@ const ExpertCard = ({ expert }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              {expert.title}
+              {expert.credentials?.domain}
             </motion.p>
             <motion.div 
               className="flex items-center gap-1"
@@ -124,7 +177,12 @@ const ExpertCard = ({ expert }) => {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <span className="text-yellow-400">★</span>
-              <span className="font-medium">{expert.rating}</span>
+            <span className="font-medium">{expert.reviews?.length > 0
+                      ? expert.reviews.reduce(
+                          (acc, review) => acc + review.rating,
+                          0
+                        ) / expert.reviews.length
+                      : 0}</span>
               <span
                 className="text-[#1D1F1D] text-sm"
                 style={{
@@ -185,20 +243,20 @@ const ExpertCard = ({ expert }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <p className="text-gray-600 text-sm">Experience: {expert.experience}</p>
+        <p className="text-gray-600 text-sm">Experience: {totalExperience}</p>
         <p className="text-sm">
-          Starts at <span className="text-primary font-medium">${expert.price}</span> for {expert.duration}mins
+          Starts at <span className="text-primary font-medium">Rs{startingPrice}</span> for {duration}mins
         </p>
       </motion.div>
 
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <div className="flex flex-wrap gap-2">
           <p className="text-sm text-gray-600">Expertise:</p>
-          {expert.expertise.map((skill, index) => (
+          {expert.credentials.expertise.map((skill, index) => (
             <motion.span 
               key={index}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -211,7 +269,7 @@ const ExpertCard = ({ expert }) => {
             </motion.span>
           ))}
         </div>
-      </motion.div>
+      </motion.div> */}
 
       <motion.div 
         className="flex items-center justify-between mt-4"
@@ -221,12 +279,13 @@ const ExpertCard = ({ expert }) => {
       >
         <div>
           <p className="text-sm text-gray-600">Next Available Slot:</p>
-          <p className="text-sm text-primary">{expert.nextSlot}</p>
+          <p className="text-sm text-primary">{firstAvailableDay ? `${firstAvailableDay.day}, ${firstAvailableTime}` : "No slots available"}</p>
         </div>
         <div className="flex gap-2">
           <motion.button 
             className="px-4 py-2 text-gray-700 text-sm font-medium hover:bg-gray-50 rounded-lg border border-gray-200"
             whileHover={{ scale: 1.05 }}
+            onClick={() => navigate(`/expert/${expert.redirect_url}`)}
             whileTap={{ scale: 0.95 }}
           >
             View Profile

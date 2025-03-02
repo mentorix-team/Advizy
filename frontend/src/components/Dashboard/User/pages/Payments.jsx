@@ -40,7 +40,7 @@ export default function Payments() {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentPayments = filteredPayments.slice(startIndex, endIndex);
 
-  const user = JSON.parse(data);
+  const user = data && typeof data === "string" ? JSON.parse(data) : data;
 
   useEffect(() => {
     dispatch(getMeetingByUserId(user._id));

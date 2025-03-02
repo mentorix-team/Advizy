@@ -996,6 +996,51 @@ const getClientDetails = async (req, res, next) => {
   }
 };
 
+const giveFeedback = async(req,res,next) =>{
+  const {feedback,rating,user_id,expert_id,meeting_id,userName,expertName,serviceName} = req.body;
+  console.log(req.body);
+  try {
+    const feedbacks = await Feedback.create({
+      feedback,
+      rating,
+      user_id,
+      expert_id,
+      meeting_id,
+      userName,
+      expertName,
+      serviceName
+    })
+  
+    res.status(200).json({
+      success:true,
+      message:'Feedback submitted succesfully',
+      feedbacks
+    })
+  } catch (error) {
+    return next(new AppError(error,500))
+  }
+}
+
+const getFeedbackbyexpertId = async(req,res,next) =>{
+  const {id} = req.body;
+  console.log(req.body);
+  if(!id){
+    return next(new AppError('Id is not there',500))
+  }
+  
+  const feedback = await Feedback.find({expert_id:id})
+
+
+  if(!feedback){
+    return next(new AppError('Feedback not found',406))
+  }
+
+  res.status(200).json({
+    success:true,
+    message:'All Feedback of the users',
+    feedback
+  })
+}
 
 export {
   createMeetingToken,
@@ -1015,5 +1060,7 @@ export {
     getClientDetails,
     getmeet,
     updateMeetingDirectly,
-    kickAllparticipant
+    kickAllparticipant,
+    giveFeedback,
+    getFeedbackbyexpertId
 }

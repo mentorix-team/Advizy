@@ -1,6 +1,6 @@
 import Router from 'express'
 import { isExpert, isLoggedIn, isMeeting } from '../middlewares/auth.middleare.js';
-import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getClientDetails, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, getmeet, kickAllparticipant, payedForMeeting, rescheduleMeetingExpert, updateMeeting, updateMeetingDirectly, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
+import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getClientDetails, getFeedbackbyexpertId, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, getmeet, giveFeedback, kickAllparticipant, payedForMeeting, rescheduleMeetingExpert, updateMeeting, updateMeetingDirectly, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
 const router = Router()
 
 router.post('/meet',isLoggedIn,createMeetingToken)
@@ -25,4 +25,6 @@ router.post('/updatemeetdirectly',isLoggedIn,updateMeetingDirectly)
 router.post('/verifyrescheduleToken',isLoggedIn,verifyRescheduleToken)
 
 router.post('/getclientdetails',isLoggedIn,isExpert,getClientDetails)
+router.post('/givefeedback',giveFeedback)
+router.post('/getfeedbackbyexpertid',getFeedbackbyexpertId)
 export default router;

@@ -148,7 +148,7 @@ export const getAvailabilitybyid = createAsyncThunk(
         } catch (error) {
             const errorMessage =
             error?.response?.data?.message || "Failed to validate OTP.";
-            toast.error(errorMessage);
+            // toast.error(errorMessage);
             return rejectWithValue(errorMessage);
         }
     }
