@@ -10,6 +10,7 @@ import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
 import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
+import { Toaster } from "react-hot-toast";
 
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
@@ -128,6 +129,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
   return (
     <div className="py-6">
+      <Toaster position="top-right" />
       {/* Info Banner */}
       <div className="bg-[#F0FFF2] p-6 rounded-lg mb-8">
         <h3 className="text-[#16A348] text-lg font-semibold mb-2">

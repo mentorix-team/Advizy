@@ -71,18 +71,22 @@ const ExpertCard = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-800 text-[12px] flex gap-2 items-start bg-[#ecfaf0] px-3 py-1 rounded-[24px]">
-                    <User className="w-3 h-3"/>
+                    <User className="w-3 h-3" />
                     {totalRatings} Sessions done
                   </span>
                 </div>
               </div>
 
               <p className="text-gray-900">
-                Experience: <span className="font-medium">{experience}</span> in industry
+                Experience: <span className="font-medium">{experience}</span> in
+                industry
               </p>
               <p className="text-gray-900">
                 Starts at{" "}
-                <span className="text-[#004ab3] font-semibold">${startingPrice}</span> for{" "}
+                <span className="text-[#004ab3] font-semibold">
+                  ${startingPrice}
+                </span>{" "}
+                for{" "}
                 <span className="text-[#004ab3] font-semibold">{duration}</span>
               </p>
             </div>
