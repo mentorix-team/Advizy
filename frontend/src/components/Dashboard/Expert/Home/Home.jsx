@@ -12,13 +12,13 @@ import RecommendedResources from "./components/RecommendedResources";
 import { BiUser, BiCalendar, BiRupee, BiStar } from "react-icons/bi";
 import { TwoPersonIcon } from "@/icons/Icons";
 import { useDispatch, useSelector } from "react-redux";
-import { getMeetingByExpertId } from "@/Redux/Slices/meetingSlice";
+import { getMeetingByExpertId, getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 function Home() {
   const dispatch = useDispatch();
   const { expertData } = useSelector((state) => state.expert);
-  const { meetings, loading, error } = useSelector((state) => state.meeting);
+  const { meetings, loading, error ,feedbackofexpert} = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
   console.log("availabilty", selectedAvailability);
@@ -32,6 +32,11 @@ function Home() {
     };
     fetchMeetings();
   }, [dispatch]);
+
+  useEffect(()=>{
+    dispatch(getfeedbackbyexpertid(expertData._id))
+  },[dispatch])
+
 
   // Check if expert has set availability
   const hasAvailability = availability?.daySpecific?.some((day) =>
@@ -127,26 +132,37 @@ function Home() {
     }
   };
 
-  const earningsData = {
-    totalEarnings: 45000,
-    earnings: [
-      {
-        amount: 15000,
-        date: "Today",
-        status: "Paid",
-      },
-      {
-        amount: 12000,
-        date: "Yesterday",
-        status: "Paid",
-      },
-      {
-        amount: 18000,
-        date: "Jan 13, 2024",
-        status: "Pending",
-      },
-    ],
-  };
+  const paidMeetings = meetings
+  ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
+  ?.map(({ amount, daySpecific }) => ({
+    amount: Number(amount), // Convert to number
+    date: daySpecific?.date || "Unknown Date",
+    status: "Paid",
+  }));
+
+  const totalEarnings = paidMeetings?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
+
+
+  // const earningsData = {
+  //   totalEarnings: 45000,
+  //   earnings: [
+  //     {
+  //       amount: 15000,
+  //       date: "Today",
+  //       status: "Paid",
+  //     },
+  //     {
+  //       amount: 12000,
+  //       date: "Yesterday",
+  //       status: "Paid",
+  //     },
+  //     {
+  //       amount: 18000,
+  //       date: "Jan 13, 2024",
+  //       status: "Pending",
+  //     },
+  //   ],
+  // };
 
   const calculateCompletion = (data) => {
     if (!data) return 0;
@@ -253,11 +269,15 @@ function Home() {
           </div>
           <div className="space-y-4">
             <CompleteProfile completion={completionPercentage} />
-            <RecentEarnings
+            {/* <RecentEarnings
               totalEarnings={earningsData.totalEarnings}
               earnings={earningsData.earnings}
+            /> */}
+            <RecentEarnings
+              totalEarnings={totalEarnings}
+              earnings={paidMeetings}
             />
-            <ClientFeedback feedback={feedbackData} />
+            <ClientFeedback feedback={feedbackofexpert} />
             <RecommendedResources
               resources={resourcesData}
               onViewResource={handleViewResource}

@@ -1042,6 +1042,26 @@ const getFeedbackbyexpertId = async(req,res,next) =>{
     feedback
   })
 }
+const getthemeet = async(req,res,next) =>{
+  try {
+    const {id} = req.body;
+    console.log('this is id',id);
+    const meeting = await Meeting.findById(id)
+
+    if(!meeting){
+      return next(new AppError('meeting not founnd ',403))
+    }
+
+    res.status(200).json({
+      success:true,
+      message:'The meeting',
+      meeting
+    })
+  } catch (error) {
+    console.log(error);
+    return next(new AppError(error.message,505))
+  }
+}
 
 export {
   createMeetingToken,
@@ -1063,5 +1083,6 @@ export {
     updateMeetingDirectly,
     kickAllparticipant,
     giveFeedback,
-    getFeedbackbyexpertId
+    getFeedbackbyexpertId,
+    getthemeet
 }
