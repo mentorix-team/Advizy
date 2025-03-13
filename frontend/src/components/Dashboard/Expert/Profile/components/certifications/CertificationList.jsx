@@ -44,9 +44,11 @@ const CertificationList = ({ certifications = [], onEdit, onDelete, onAddClick }
         </div>
         <button
           onClick={onAddClick}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+          className="px-3 py-2 sm:px-4 sm:py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-1 sm:gap-2 text-sm sm:text-base whitespace-nowrap"
         >
-          <span>+</span> Add Certification
+          <span>+</span> 
+          <span className="hidden xs:inline">Add Certification</span>
+          <span className="xs:hidden">Add</span>
         </button>
       </div>
 
