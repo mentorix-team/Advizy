@@ -1,0 +1,20 @@
+/* Progress Bar Container */
+.progress-container {
+    width: 100%; /* Full width of the parent container */
+    height: 20px; /* Height of the progress bar */
+    background-color: #e0e0e0; /* Background color for the empty bar */
+    border-radius: 10px; /* Rounded edges for the container */
+    margin: 5px 0; /* Spacing around the progress bar */
+    position: relative; /* Relative positioning for inner bar */
+    overflow: hidden; /* Prevent overflow of the inner bar */
+  }
+  
+  /* Inner Progress Bar */
+  .progress-bar-inner {
+    height: 100%; /* Match the height of the container */
+    background-color: #4caf50; /* Green color for progress */
+    width: 0; /* Initial width of 0; will be dynamically updated */
+    transition: width 0.3s ease-in-out; /* Smooth animation for progress updates */
+    border-radius: 10px; /* Match the container's rounded edges */
+  }
+  

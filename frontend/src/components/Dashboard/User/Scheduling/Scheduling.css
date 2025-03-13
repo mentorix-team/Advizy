@@ -1,0 +1,95 @@
+/* Time Slots */
+.time-slots-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.time-slots-header h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111;
+}
+
+.timezone {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.time-slot {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-slot.selected {
+  border-color: #2E7D32;
+  background: #f8fff9;
+}
+
+.time-slot-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111;
+}
+
+.time-slot-header p {
+  margin: 0.25rem 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.slots-available {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+.time-slot-times {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.time-button {
+  padding: 0.75rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #111;
+}
+
+.time-button:hover {
+  border-color: #2E7D32;
+  background: #f8fff9;
+}
+
+.select-time-btn {
+  width: 100%;
+  padding: 1rem;
+  background: #2E7D32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+.select-time-btn:hover {
+  background: #1B5E20;
+}

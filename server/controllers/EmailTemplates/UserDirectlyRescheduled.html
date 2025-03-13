@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reschedule Requested</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        body, table, td, div, p, h1, h2 {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button styles */
+        .button {
+            padding: 12px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            display: inline-block;
+            border: none;
+        }
+
+        .button-accept {
+            background: #169544;
+            color: white !important;
+        }
+
+        .button-deny {
+            background: white;
+            color: #169544 !important;
+            border: 1px solid #169544;
+        }
+
+        /* Quote box style */
+        .quote-box {
+            background: #F5FEF8;
+            border-left: 3px solid #169544;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .p-text{
+            font-size: 15px;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .mobile-stack {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            .button {
+                display: block !important;
+                width: 80% !important;
+                margin: 10px auto !important;
+                text-align: center !important;
+            }
+
+            .button-group {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: #f7fafc; margin: 0; padding: 20px;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+            <td align="center">
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="600" style="background: white; border-radius: 12px;">
+                    <!-- Header Section -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px;">
+                            <h1 style="font-size: 24px; color: #1a202c; margin-bottom: 24px; text-align: center;">
+                                {USERNAME} has reschedule the call with you!
+                            </h1>
+                            <p style="color: #4a5568; margin-bottom: 16px;">Hi {ExpertName},</p>
+                            <p style="color: #4a5568; margin-bottom: 24px;">Thanks for scheduling a call with me,</p>
+                        </td>
+                    </tr>
+
+                    <!-- Reschedule Reason -->
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div class="quote-box">
+                                <p style="color: #2d3748; margin: 0;">
+                                    <strong style="color: #169544;">User's rescheduled Date & Time Slots:</strong><br>
+                                    {DATE} {STARTTIME} – {ENDTIME} (IST)
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 32px 40px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
+                            <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
+                                This is an automated message, please do not reply directly to this email.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

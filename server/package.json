@@ -1,0 +1,40 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "algoliasearch": "^5.20.1",
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.3.0",
+    "cookie-parser": "^1.4.6",
+    "cookieparser": "^0.1.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.19.2",
+    "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.46",
+    "mongoose": "^8.5.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
+    "nodemon": "^3.1.4",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "razorpay": "^2.9.5",
+    "twilio": "^5.3.5"
+  }
+}

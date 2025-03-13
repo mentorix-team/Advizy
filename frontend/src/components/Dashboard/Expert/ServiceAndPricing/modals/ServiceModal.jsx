@@ -1,0 +1,20 @@
+import { useState } from 'react';
+import PropTypes from 'prop-types';
+import ServiceHeader from './ServiceHeader';
+import ServiceForm from './ServiceForm';
+
+export default function ServiceModal({ onClose, onSave }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <ServiceHeader onClose={onClose} />
+        <ServiceForm onClose={onClose} onSave={onSave} />
+      </div>
+    </div>
+  );
+}
+
+ServiceModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
+};

@@ -1,0 +1,54 @@
+/* General Alignment Improvements */
+settings-container{
+  width: 700px;
+}
+
+.text-base {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .text-gray-900 {
+    color: #1f2937;
+  }
+  
+  .text-gray-500 {
+    color: #6b7280;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .justify-between {
+    justify-content: space-between;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .gap-4 {
+    gap: 1rem;
+  }
+  
+  .border-b {
+    border-bottom-width: 1px;
+  }
+  
+  .border-gray-200 {
+    border-color: #e5e7eb;
+  }
+  
+  .bg-white {
+    background-color: #ffffff;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  }
+  
