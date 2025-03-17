@@ -10,6 +10,7 @@ import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ExpertDetailPage = () => {
   // const { id } = useParams(); // Get the ID from URL params
@@ -44,7 +45,7 @@ const ExpertDetailPage = () => {
   
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Spinner />
   }
 
   if (error) {
