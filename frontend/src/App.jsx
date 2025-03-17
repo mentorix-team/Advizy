@@ -1,5 +1,5 @@
-import { Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
 import UserDashboardRoutes from "./routes/UserDashboardRoutes";
 import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
@@ -28,11 +28,16 @@ import ComingSoon from "./ComingSoon";
 import NoData2 from "./NoData2";
 import NoData from "./NoData";
 import NoUpcoming from "./NoUpcoming";
+import Cookies from 'js-cookie'
+import { useDispatch } from "react-redux";
+import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const location = useLocation()
   const handleAuthPopupOpen = () => {
     setShowAuthPopup(true);
   };
@@ -41,6 +46,14 @@ const App = () => {
     setShowAuthPopup(false);
   };
 
+  useEffect(() => {
+    dispatch(validateToken()).unwrap().catch(() => {
+        console.log("Token expired, logging out...");
+        localStorage.clear(); // Clear storage when token is invalid
+        navigate("/home"); // Redirect to login or error page
+    });
+  }, [dispatch, navigate]);
+ 
   return (
     <div>
       <Routes>

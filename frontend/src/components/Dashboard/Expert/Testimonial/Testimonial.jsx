@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { testimonialStats, testimonialsList as initialTestimonials } from './data/testimonials';
 import TestimonialCard from './components/TestimonialCard';
 import StarRating from './components/StarRating';
+import { useDispatch, useSelector } from 'react-redux';
+import { getfeedbackbyexpertid } from '@/Redux/Slices/meetingSlice';
 
 function Testimonials() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,7 +11,14 @@ function Testimonials() {
   const [testimonials, setTestimonials] = useState(initialTestimonials);
   const [currentPage, setCurrentPage] = useState(1);
   const testimonialsPerPage = 5;
+  const dispatch = useDispatch()
+  const {expertData} = useSelector((state)=>state.expert)
+  const {feedbackofexpert} = useSelector((state)=>state.meeting)
+  console.log('this is expertData',expertData);
 
+  useEffect(()=>{
+    dispatch(getfeedbackbyexpertid(expertData._id))
+  },[dispatch])
   // Filter and sort testimonials
   const filteredAndSortedTestimonials = useMemo(() => {
     let filtered = [...testimonials];

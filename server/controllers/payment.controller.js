@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-config(); 
 import crypto from 'crypto';
 import AppError from '../utils/AppError.js';
 import axios from 'axios';

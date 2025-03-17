@@ -21,7 +21,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   const handleGoogleSignup = (event) => {
     event.preventDefault(); // Prevent the form from submitting
-    window.open("https://localhost:5030/api/v1/user/auth/google", "_self");
+    window.open("http://localhost:5030/api/v1/user/auth/google", "_self");
   };
 
   const [touched, setTouched] = useState({

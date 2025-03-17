@@ -17,7 +17,7 @@ function App() {
   const {expertData,loading,error} = useSelector((state)=>state.auth);
   const {selectedExpert} = useSelector((state)=>state.expert)
   const expertbyexpert = selectedExpert?.expert
-  console.log('this is expert by expert',expertbyexpert);
+  // console.log('this is expert by expert',expertbyexpert);
   const [activeTab, setActiveTab] = useState('basic');
   const [showPreview, setShowPreview] = useState(false);
   const [profileImage, setProfileImage] = useState('');
@@ -31,7 +31,7 @@ if (expertData) {
   if (typeof expertData === 'string') {
     try {
       expert = JSON.parse(expertData);
-      // console.log("This is expertData",expert);
+      console.log("This is expertData",expert);
     } catch (error) {
       console.error('Error parsing expertData:', error);
       expert = null; // Handle parsing errors safely
@@ -40,7 +40,7 @@ if (expertData) {
     expert = expertData; // Already an object and not empty
   }
 }
-
+console.log('this is languages',expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label)));
 const [formData, setFormData] = useState({
   basic: {
     firstName: expert?.firstName || '',
@@ -53,9 +53,16 @@ const [formData, setFormData] = useState({
     countryCode: expert?.countryCode || '',
     email: expert?.email || '',
     bio: expert?.bio || '',
+    // languages: expert?.languages
+    //   ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.value))
+    //   : [],
     languages: expert?.languages
-      ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label))
-      : [],
+    ? expert.languages.flatMap(lang => 
+        JSON.parse(lang).map(l => 
+          expert?.languages.find(opt => opt.label === l.label) || { value: l.value, label: l.label }
+        )
+      )
+    : [],
     socialLinks: expert?.socialLinks?.length
       ? JSON.parse(expert.socialLinks[0])
       : [''],
@@ -65,8 +72,10 @@ const [formData, setFormData] = useState({
   expertise: {
     domain: expert?.credentials?.domain||'',
     niche: expert?.credentials?.niche||'',
-    professionalTitle: expert?.credentials?.domain||'',
-    experienceYears: '',
+    professionalTitle: Array.isArray(expert?.credentials?.professionalTitle) 
+    ? expert.credentials.professionalTitle[0] || '' 
+    : '',
+    experienceYears:expert?.credentials?.experienceYears || 0,
     skills:expert?.credentials?.skills|| []
   },
   education: expert?.credentials?.education || [],

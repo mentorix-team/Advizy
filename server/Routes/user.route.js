@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { forgot, forgot_with_otp_email, forgot_with_otp_mobile, generateOtp, generate_otp_for_Signup, generate_otp_for_Signup_mobile, generate_otp_with_email, generate_otp_with_mobile, googleAuth, googleCallback, handleGoogleCallback, login, login_with_mobile, login_with_otp, logout, myprofile, regenerate_otp, register_with_email, register_with_mobile, reset, reset_password, setPassword, updateUser, validate_otp_email, validate_otp_mobile } from "../controllers/user.controller.js";
+import { forgot, forgot_with_otp_email, forgot_with_otp_mobile, generateOtp, generate_otp_for_Signup, generate_otp_for_Signup_mobile, generate_otp_with_email, generate_otp_with_mobile, googleAuth, googleCallback, handleGoogleCallback, login, login_with_mobile, login_with_otp, logout, myprofile, regenerate_otp, register_with_email, register_with_mobile, reset, reset_password, setPassword, updateUser, validateToken, validate_otp_email, validate_otp_mobile } from "../controllers/user.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { isLoggedIn } from "../middlewares/auth.middleare.js";
 
@@ -21,7 +21,7 @@ router.post('/reset_pass',reset_password)
 router.post('/forgot_with_otp_mobile',forgot_with_otp_mobile)
 router.post('/generate_otp_with_mobile',generate_otp_with_mobile)
 router.get('/logout',logout)
-router.get('/me',myprofile)
+router.get('/me',isLoggedIn,myprofile)
 router.post('/forgot/password',forgot)
 router.post('/reset-password/:resetToken',reset)
 router.get('/auth/google',googleAuth)
@@ -31,4 +31,5 @@ router.post('/setPassword', setPassword);
 router.post('/signup_using_otp_mobile',generate_otp_for_Signup_mobile);
 router.post('/validate_otp_mobile',validate_otp_mobile);
 
+router.get('/validate_token',validateToken)
 export default router

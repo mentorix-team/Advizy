@@ -18,7 +18,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
     if (service) {
       setFormData({
         id: service.serviceId,
-        serviceName: service.serviceName || '',
+        serviceName: service.title || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',
         timeSlot: service.timeSlots?.[0] || { duration: 15, price: 25 },

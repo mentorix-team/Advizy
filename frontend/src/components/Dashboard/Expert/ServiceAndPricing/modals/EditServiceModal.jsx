@@ -15,7 +15,7 @@ function EditServiceModal({ isOpen, onClose, onSave, service }) {
   useEffect(() => {
     if (service) {
       setFormData({
-        serviceName: service.serviceName || '',
+        serviceName: service.title || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',
         duration: service.duration?.toString() || '15',

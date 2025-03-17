@@ -51,6 +51,7 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
     _id,
   } = editedService;
 
+  
   return (
     <div
       className={`rounded-xl shadow-md p-5 transition-opacity border ${

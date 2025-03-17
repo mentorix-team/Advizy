@@ -6,6 +6,7 @@ import AddServiceModal from './modals/AddServiceModal';
 import EditDefaultServiceModal from './modals/EditDefaultServiceModal';
 import EditNonDefaultServiceModal from './modals/EditNonDefaultServiceModal';
 import { deleteService, updateServicebyId } from '@/Redux/Slices/expert.Slice';
+import MentoringCard from '../ProfileDetails/components/preview/src/components/ServicesOffered/MentoringCard';
 
 function ServicePricing() {
   const dispatch = useDispatch(); // Initialize dispatch
@@ -17,6 +18,7 @@ function ServicePricing() {
   // Get expert data from Redux store
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || []; // Fallback to empty array if not available
+  const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
 
   useEffect(() => {
     console.log('Expert Data:', expertData);
@@ -26,7 +28,7 @@ function ServicePricing() {
   const handleEditService = (service) => {
     console.log('this is the service',service)
     setEditingService(service);
-    if (service.serviceId === 'default') {
+    if (service.title === 'One-on-One Mentoring') {
       setIsEditDefaultModalOpen(true);
     } else {
       setIsEditNonDefaultModalOpen(true);
@@ -39,16 +41,6 @@ function ServicePricing() {
     setEditingService(null);
   };
 
-  // const handleDeleteService = (serviceId) => {
-  //   // Dispatch deleteService action
-  //   dispatch(deleteService(serviceId))
-  //     .then(() => {
-  //       console.log(`Service with ID ${serviceId} deleted successfully.`);
-  //     })
-  //     .catch((error) => {
-  //       console.error(`Failed to delete service with ID ${serviceId}:`, error);
-  //     });
-  // };
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] p-8">
@@ -66,6 +58,7 @@ function ServicePricing() {
 
         {/* Display services */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mentoringService && <MentoringCard service={mentoringService}  onEdit={handleEditService} />} 
           {services.length > 0 ? (
             services.map((service, index) => (
               <ServiceCard

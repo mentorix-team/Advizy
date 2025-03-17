@@ -42,6 +42,9 @@ const ExpertBasicsSchema = new Schema({
     niche: [{ type: String }],
     professionalTitle: [{ type: String }],
     skills:[{type:String}],
+    experienceYears:{
+      type:Number,
+    },
     work_experiences: {
       type: [{
         companyName: { type: String },
@@ -102,9 +105,14 @@ const ExpertBasicsSchema = new Schema({
         title: { type: String, required: true },
         shortDescription: { type: String },
         detailedDescription: { type: String },
+        hourlyRate:{
+          type:Number,
+          default:0
+        },
         one_on_one:[{
           duration: { type: Number },
-          price: { type: Number }, 
+          price: { type: Number },
+          enabled:{type:Boolean,default:false} 
         }],
         duration: { type: Number }, 
         price: { type: Number}, 
@@ -115,8 +123,18 @@ const ExpertBasicsSchema = new Schema({
     ],
   },
   total_earnings: { type: Number, default: 0 },
-  sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Session", default: [] }],
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review", default: [] }],
+  sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Meeting", default: [] }],
+  reviews: [{ 
+    meeting_id:{ type:String},
+    rating:{type:Number},
+    user_id:{
+      type:String,
+    },
+    feedback:{
+      type:String,
+    },
+    default: [] 
+  }],
 });
 
 

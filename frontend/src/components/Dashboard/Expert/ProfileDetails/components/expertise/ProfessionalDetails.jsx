@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FaBriefcase } from 'react-icons/fa';
-// import { domainOptions, nicheOptions } from './path-to-options-file'; // Adjust the import path accordingly
-import { domainOptions, nicheOptions } from '../../../../../../utils/Options'
+import { domainOptions, nicheOptions } from '../../../../../../utils/Options';
 
 export default function ProfessionalDetails({ formData, setFormData }) {
   return (
@@ -63,6 +62,25 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
           />
         </div>
+
+        {/* New Field: Years of Experience */}
+        <div className="text-left">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Years of Experience
+          </label>
+          <input
+            type="number"
+            value={formData.experienceYears}
+            onChange={(e) => setFormData({ 
+              ...formData, 
+              experienceYears: e.target.value ? Math.max(0, Number(e.target.value)) : '' 
+            })}
+            placeholder="Enter years of experience"
+            min="0"
+            className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
+          />
+        </div>
+
       </div>
     </div>
   );
@@ -72,7 +90,8 @@ ProfessionalDetails.propTypes = {
   formData: PropTypes.shape({
     domain: PropTypes.string,
     niche: PropTypes.string,
-    professionalTitle: PropTypes.string
+    professionalTitle: PropTypes.string,
+    experienceYears: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   }).isRequired,
   setFormData: PropTypes.func.isRequired
 };

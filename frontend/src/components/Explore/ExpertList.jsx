@@ -137,21 +137,23 @@ const ExpertList = ({ filters, sorting }) => {
                     expert?.profileImage?.secure_url ||
                     "https://via.placeholder.com/100"
                   }
-                  title={expert.credentials?.domain || "No Title Provided"}
+                  title={
+                    expert.credentials?.professionalTitle?.[0] || "No Title Provided"
+                  }
                   rating={
                     expert.reviews?.length > 0
-                      ? expert.reviews.reduce(
-                          (acc, review) => acc + review.rating,
-                          0
-                        ) / expert.reviews.length
+                      ? Math.round(
+                          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+                            expert.reviews.length
+                        )
                       : 0
                   }
-                  totalRatings={expert.reviews?.length || 0}
+                  totalRatings={expert.sessions?.length || 0}
                   experience={totalExperience} 
                   languages={expert.languages || []}
                   startingPrice={startingPrice}
                   duration={duration}
-                  expertise={expert.credentials?.expertise || []}
+                  expertise={expert.credentials?.skills || []}
                 />
               </div>
             );
