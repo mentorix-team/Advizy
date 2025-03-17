@@ -42,6 +42,9 @@ const ExpertBasicsSchema = new Schema({
     niche: [{ type: String }],
     professionalTitle: [{ type: String }],
     skills:[{type:String}],
+    experienceYears:{
+      type:Number,
+    },
     work_experiences: {
       type: [{
         companyName: { type: String },
@@ -102,9 +105,14 @@ const ExpertBasicsSchema = new Schema({
         title: { type: String, required: true },
         shortDescription: { type: String },
         detailedDescription: { type: String },
+        hourlyRate:{
+          type:Number,
+          default:0
+        },
         one_on_one:[{
           duration: { type: Number },
           price: { type: Number }, 
+          enabled:{type:Boolean,default:false} 
         }],
         duration: { type: Number }, 
         price: { type: Number}, 

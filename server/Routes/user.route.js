@@ -30,5 +30,7 @@ router.post('/setPassword', setPassword);
 
 router.post('/signup_using_otp_mobile',generate_otp_for_Signup_mobile);
 router.post('/validate_otp_mobile',validate_otp_mobile);
+router.get('/validate_token',validateToken)
+
 
 export default router

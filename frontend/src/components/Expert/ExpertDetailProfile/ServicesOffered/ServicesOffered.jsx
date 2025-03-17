@@ -3,6 +3,9 @@ import MentoringCard from './MentoringCard';
 import ServiceCard from './ServiceCard';
 
 const ServicesOffered = ({ services }) => {
+  console.log('THis is service',services)
+  const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
+  const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
       <div className="border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 mb-6">
@@ -18,10 +21,10 @@ const ServicesOffered = ({ services }) => {
       </div>
 
       <div className="space-y-4">
-        <MentoringCard />
+        {mentoringService && <MentoringCard mentoringService={mentoringService} />}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {services.length > 0 ? (
-            services.map((service) => (
+          {filteredServices.length > 0 ? (
+            filteredServices.map(service => (
               <ServiceCard key={service.serviceId} service={service} />
             ))
           ) : (

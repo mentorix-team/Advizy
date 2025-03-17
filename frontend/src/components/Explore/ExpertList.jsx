@@ -140,13 +140,13 @@ const ExpertList = ({ filters, sorting }) => {
                   title={expert.credentials?.domain || "No Title Provided"}
                   rating={
                     expert.reviews?.length > 0
-                      ? expert.reviews.reduce(
-                          (acc, review) => acc + review.rating,
-                          0
-                        ) / expert.reviews.length
+                      ? Math.round(
+                          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+                            expert.reviews.length
+                        )
                       : 0
                   }
-                  totalRatings={expert.reviews?.length || 0}
+                  totalRatings={expert.sessions?.length || 0}
                   experience={totalExperience} 
                   languages={expert.languages || []}
                   startingPrice={startingPrice}

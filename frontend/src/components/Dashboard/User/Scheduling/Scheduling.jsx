@@ -6,10 +6,18 @@ import './Scheduling.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { getExpertById } from '@/Redux/Slices/expert.Slice';
 import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
+import { useLocation } from 'react-router-dom';
 
 function Scheduling() {
   const dispatch = useDispatch();
+  // const [selectedDuration, setSelectedDuration] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const location = useLocation();
+  const { duration, price } = location.state || {};
+
+  console.log("Selected Duration:", duration);
+  console.log("Selected Price:", price);
+
 
   const { selectedExpert, loading: expertLoading, error: expertError ,selectedService} = useSelector((state) => state.expert); 
   const { selectedAvailability, loading: availabilityLoading, error: availabilityError } = useSelector((state) => state.availability);
@@ -38,6 +46,9 @@ function Scheduling() {
   console.log("Selected Date:", selectedDate);
   console.log("Selected Availability:", selectedAvailability);
 
+  const sessionDuration = duration || selectedService?.duration;
+  const sessionPrice = price || selectedService?.price;
+
  
   if (expertLoading || availabilityLoading) {
     return <p>Loading expert and availability data...</p>;
@@ -55,8 +66,8 @@ function Scheduling() {
     image:selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url || 'https://via.placeholder.com/100',
     name:selectedExpert.firstName+" "+selectedExpert.lastName,
     title:selectedExpert.credentials?.domain || 'No Title Provided',
-    sessionDuration:selectedService.duration,
-    price:selectedService.price,
+    sessionDuration,
+    price:sessionPrice,
     description:selectedService.detailedDescription,
     includes:selectedService.features
   }
@@ -72,7 +83,8 @@ function Scheduling() {
           <h2 className="text-xl font-semibold mb-6">Schedule Your Session</h2>
           <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
           <TimeSlots 
-             sessionDuration={selectedService.duration}
+             sessionDuration={sessionDuration}
+             sessionPrice={sessionPrice}
              selectedDate={selectedDate} 
              selectedAvailability={selectedAvailability}
              expertName = {selectedExpert.firstName+" "+selectedExpert.lastName}

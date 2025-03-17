@@ -1,85 +1,105 @@
 import { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
 import Modal from './Modal'
-import { TimeSlot } from './TimeSlot'
 import { FeatureList } from './FeatureList'
 import toast from 'react-hot-toast'
-import { updateServicebyId } from '@/Redux/Slices/expert.Slice'
+import { ClockIcon } from '../icons'
 
-function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
-  const dispatch = useDispatch()
-  console.log('now this is at the modal',service);
-  const [formData, setFormData] = useState({
-    id: '',
-    serviceName: '',
-    shortDescription: '',
-    detailedDescription: '',
-    timeSlots: [],
-    features: ['']
-  })
+function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
+  const DEFAULT_HOURLY_RATE = '100'
+  console.log('THis is the default srvice',service)
+  const calculatePrice = (hourlyRate, duration) => {
+    // Use exact integer arithmetic to avoid floating point issues
+    const rateNum = parseInt(hourlyRate, 10)
+    return Math.round((rateNum * 0.8 * duration) / 60)
+  }
+
+  const getInitialState = (serviceData) => {
+    if (!serviceData) {
+      return {
+        id: '',
+        serviceName: '',
+        shortDescription: '',
+        detailedDescription: '',
+        hourlyRate: DEFAULT_HOURLY_RATE,
+        timeSlots: [15, 30, 45, 60, 90].map(duration => ({
+          duration,
+          price: calculatePrice(DEFAULT_HOURLY_RATE, duration),
+          enabled: true
+        })),
+        features: ['']
+      }
+    }
+
+    // Initialize timeSlots with enabled status and calculated prices based on duration
+    const sixtyMinSlot = serviceData.timeSlots?.find(slot => slot.duration === 60)
+    const hourlyRate = sixtyMinSlot ? Math.round((sixtyMinSlot.price / 0.8) * (60/60)).toString() : serviceData.hourlyRate
+
+    const timeSlots = [15, 30, 45, 60, 90].map(duration => {
+      const existingSlot = serviceData.timeSlots?.find(slot => slot.duration === duration)
+      return {
+        duration,
+        price: calculatePrice(hourlyRate, duration),
+        enabled: existingSlot?.enabled ?? true
+      }
+    })
+
+    return {
+      id: serviceData.serviceId,
+      serviceName: serviceData.title || '',
+      shortDescription: serviceData.shortDescription || '',
+      detailedDescription: serviceData.detailedDescription || '',
+      hourlyRate,
+      timeSlots,
+      features: serviceData.features || ['']
+    }
+  }
+
+  const [formData, setFormData] = useState(getInitialState(service))
 
   useEffect(() => {
     if (service) {
-      setFormData({
-        id: service.serviceId || '',
-        serviceName: service.title || '',
-        shortDescription: service.shortDescription || '',
-        detailedDescription: service.detailedDescription || '',
-        timeSlots: service.timeSlots || [],
-        features: service.features || ['']
-      })
+      setFormData(getInitialState(service))
     }
-    console.log('asd',formData);
   }, [service])
 
-  const handleTimeSlotChange = (index, field, value) => {
-    const newTimeSlots = [...formData.timeSlots]
+  const handleHourlyRateChange = (rate) => {
+    const exactRate = rate.toString()
     
-    if (field === 'duration') {
-      const isDuplicate = formData.timeSlots.some(
-        (slot, i) => i !== index && slot.duration === value
-      )
-      
-      if (isDuplicate) {
-        toast.error('This time slot duration already exists')
-        return
-      }
-    }
-    
-    newTimeSlots[index] = { ...newTimeSlots[index], [field]: value }
-    setFormData({ ...formData, timeSlots: newTimeSlots })
+    const updatedTimeSlots = formData.timeSlots.map(slot => ({
+      ...slot,
+      price: calculatePrice(exactRate, slot.duration)
+    }))
+  
+    setFormData({
+      ...formData,
+      hourlyRate: exactRate,
+      timeSlots: updatedTimeSlots
+    })
   }
+  
 
-  const addTimeSlot = () => {
-    const availableDurations = [15, 30, 45, 60, 90]
-    const unusedDurations = availableDurations.filter(
-      duration => !formData.timeSlots.some(slot => slot.duration === duration)
+  const toggleTimeSlot = (duration) => {
+    const updatedTimeSlots = formData.timeSlots.map(slot => 
+      slot.duration === duration 
+        ? { ...slot, enabled: !slot.enabled }
+        : slot
     )
-    
-    if (unusedDurations.length === 0) {
-      toast.error('All time slot durations are already in use')
-      return
-    }
     
     setFormData({
       ...formData,
-      timeSlots: [...formData.timeSlots, { duration: unusedDurations[0], price: 25 }]
+      timeSlots: updatedTimeSlots
     })
   }
-
-  const removeTimeSlot = (index) => {
-    const newTimeSlots = formData.timeSlots.filter((_, i) => i !== index)
-    setFormData({ ...formData, timeSlots: newTimeSlots })
-  }
+  
 
   const handleSubmit = (e) => {
-    console.log('form before saving',formData);
     e.preventDefault()
     onSave(formData)
     toast.success('Service updated successfully')
     onClose()
   }
 
+  const netEarnings = formData.hourlyRate ? `₹${(parseInt(formData.hourlyRate, 10) * 0.8).toFixed(2)}` : '₹0.00'
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Service Details">
@@ -89,9 +109,9 @@ function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
           <input
             type="text"
             value={formData.serviceName}
-            onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-            required
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 bg-gray-100 cursor-not-allowed"
+            placeholder="1-on-1 Call"
+            disabled
           />
         </div>
 
@@ -102,8 +122,65 @@ function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
             value={formData.shortDescription}
             onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+            placeholder="Brief one line description of your service"
             required
           />
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center">
+            <label className="block text-sm font-medium text-gray-700">Hourly Rate (60 minutes)</label>
+            <div className="text-sm">
+              Net Earnings: <span className="text-green-600 font-medium">{netEarnings}</span>
+            </div>
+          </div>
+          <div className="mt-1 relative">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">₹</span>
+            <input
+              type="number"
+              value={formData.hourlyRate}
+              onChange={(e) => handleHourlyRateChange(e.target.value)}
+              className="block w-full rounded-md border border-gray-300 pl-7 pr-3 py-2"
+              placeholder={DEFAULT_HOURLY_RATE}
+              min="0"
+            />
+          </div>
+          <p className="mt-1 text-sm text-gray-500">We charge a 20% commission on all bookings</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Available Durations</label>
+          <div className="grid grid-cols-2 gap-3">
+            {formData.timeSlots.map((timeSlot) => (
+              <div
+                key={timeSlot.duration}
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  timeSlot.enabled ? 'border-gray-200' : 'border-gray-100 bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-gray-700">
+                  <ClockIcon />
+                  <span>{timeSlot.duration} min</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-gray-900 font-medium">₹{timeSlot.price}</div>
+                  <button
+                    type="button"
+                    onClick={() => toggleTimeSlot(timeSlot.duration)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      timeSlot.enabled ? 'bg-green-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        timeSlot.enabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>
@@ -115,41 +192,8 @@ function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
             onChange={(e) => setFormData({ ...formData, detailedDescription: e.target.value })}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
             rows="3"
-            placeholder="Provide a detailed description of your service..."
+            placeholder="Description"
           />
-        </div>
-
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-700 required">Time Slots</label>
-            <button
-              type="button"
-              onClick={addTimeSlot}
-              className="text-sm text-green-600 hover:text-green-700"
-              disabled={formData.timeSlots.length >= 5}
-            >
-              + Add Time Slot
-            </button>
-          </div>
-          <div className="space-y-3">
-            {formData.timeSlots.map((slot, index) => (
-              <div key={index} className="flex gap-2">
-                <TimeSlot
-                  duration={slot.duration}
-                  price={slot.price}
-                  onChange={(field, value) => handleTimeSlotChange(index, field, value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeTimeSlot(index)}
-                  className="text-gray-400 hover:text-gray-600 self-center"
-                  disabled={formData.timeSlots.length <= 1}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
         </div>
 
         <FeatureList
@@ -175,7 +219,6 @@ function EditDefaultServiceModal({ isOpen, onClose,onSave, service }) {
             Cancel
           </button>
           <button
-            // onClick={handleSubmit}
             type="submit"
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
           >

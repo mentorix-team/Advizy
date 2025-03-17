@@ -623,20 +623,47 @@ const generate_otp_for_Signup = async (req, res, next) => {
 };
 const regenerate_otp = async (req, res, next) => {
     try {
-        const tempUser = req.cookies?.tempUser;
+        let tempUser = req.cookies?.tempUser;
+
         if (!tempUser) {
             return next(new AppError("No pending user data found. Please sign up first.", 400));
         }
 
+        // Ensure tempUser is parsed into an object
+        try {
+            tempUser = JSON.parse(tempUser);
+        } catch (err) {
+            return next(new AppError("Invalid tempUser data in cookies.", 400));
+        }
+
         const { email } = tempUser;
+        const {lastName} = tempUser
+        const {firstName} = tempUser
+        if (!email) {
+            return next(new AppError("Email not found. Please sign up again.", 400));
+        }
+
+        console.log("Extracted Email:", email); // Debugging log
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpToken = bcrypt.hashSync(otp, 10);
 
-        res.cookie("otpToken", otpToken, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None" , maxAge: 10 * 60 * 1000 }); // Valid for 10 minutes
+        res.cookie("otpToken", otpToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 10 * 60 * 1000
+        });
 
-        await sendEmail(email, "Your Regenerated OTP", `Your new OTP is ${otp}`);
+        // await sendEmail(email, "Your Regenerated OTP", `Your new OTP is ${otp}`);
+        const templatePath = path.join(__dirname, "./EmailTemplates/verifyaccount.html");
+        let emailTemplate = fs.readFileSync(templatePath, "utf8");
 
+        emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
+        emailTemplate = emailTemplate.replace("{USER_NAME}", `${firstName} ${lastName}`);
+
+        // Send email
+        await sendEmail(email, "Your OTP Code", emailTemplate, true);
         return res.status(200).json({
             success: true,
             message: "A new OTP has been sent to your email.",
@@ -961,8 +988,20 @@ const forgot_with_otp_mobile = async(res,req,next) =>{
     
 }
 
+const validateToken = async(req,res,next) =>{
+    const token = req.cookies.token; 
 
+    if(!token){
+        return next(new AppError('token not found',500))
+    }
+    jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=',(err,decoded)=>{
+        if(err){
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
 
+        res.json({ valid: true, userId: decoded.userId, role: decoded.role });
+    });
+}
 
 
 
