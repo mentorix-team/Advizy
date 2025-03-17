@@ -25,7 +25,6 @@ import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
 import ComingSoon from "./ComingSoon";
-
 import { useDispatch } from "react-redux";
 import { validateToken } from "./Redux/Slices/authSlice";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
@@ -44,12 +43,32 @@ const App = () => {
   };
 
   useEffect(() => {
-    dispatch(validateToken()).unwrap().catch(() => {
-        console.log("Token expired, logging out...");
-        localStorage.clear(); // Clear storage when token is invalid
-        navigate("/home"); // Redirect to login or error page
-    });
-  }, [dispatch, navigate]);
+    const excludedPaths = [
+      "/", 
+      "/home", 
+      "/auth-error", 
+      "/about-us", 
+      "/contact", 
+      "/cookie-policy", 
+      "/privacy-policy", 
+      "/refund-policy", 
+      "/terms-of-service", 
+      "/explore", 
+      "/meeting"
+    ];
+  
+    if (!excludedPaths.includes(location.pathname)) {
+      dispatch(validateToken())
+        .unwrap()
+        .catch(() => {
+          console.log("Token expired, logging out...");
+          localStorage.clear(); // Clear storage when token is invalid
+          navigate("/home"); // Redirect to login or error page
+        });
+    }
+  }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
+  
+  
  
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
