@@ -25,12 +25,9 @@ import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
 import ComingSoon from "./ComingSoon";
-import NoData2 from "./NoData2";
-import NoData from "./NoData";
-import NoUpcoming from "./NoUpcoming";
-import Cookies from 'js-cookie'
+
 import { useDispatch } from "react-redux";
-import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
+import { validateToken } from "./Redux/Slices/authSlice";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
