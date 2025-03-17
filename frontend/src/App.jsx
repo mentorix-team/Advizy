@@ -54,6 +54,16 @@ const App = () => {
     });
   }, [dispatch, navigate]);
  
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode") === "true";
+
+    // If expert mode is enabled and the user tries to access a non-expert route, redirect
+    if (expertMode && !location.pathname.startsWith("/dashboard/expert")) {
+      console.log("Redirecting to Expert Dashboard due to expert mode.");
+      navigate("/dashboard/expert/");
+    }
+  }, [location, navigate]);
+
   return (
     <div>
       <Routes>
@@ -99,7 +109,7 @@ const App = () => {
 
         <Route
           path="/dashboard/user/*"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
+          element={<ProtectedRoute showAuth={() => setShowAuthPopup(true)} />}
         >
           <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
@@ -109,7 +119,7 @@ const App = () => {
           element={
             <ProtectedRoute
               requireExpert={true}
-              showAuth={handleAuthPopupOpen}
+              showAuth={() => setShowAuthPopup(true)}
             />
           }
         >
@@ -125,7 +135,7 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
       </Routes>
 
-      <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
+      <AuthPopup isOpen={showAuthPopup} onClose={() => setShowAuthPopup(false)} />
     </div>
   );
 };
