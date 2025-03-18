@@ -19,7 +19,8 @@ function ServicePricing() {
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || []; // Fallback to empty array if not available
   const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
-
+  const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
+  console.log('thhis is ',filteredServices)
   useEffect(() => {
     console.log('Expert Data:', expertData);
     console.log('Services:', services);
@@ -59,8 +60,8 @@ function ServicePricing() {
         {/* Display services */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mentoringService && <MentoringCard service={mentoringService}  onEdit={handleEditService} />} 
-          {services.length > 0 ? (
-            services.map((service, index) => (
+          {filteredServices.length > 0 ? (
+            filteredServices.map((service, index) => (
               <ServiceCard
                 key={index}
                 service={service}
