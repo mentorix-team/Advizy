@@ -1040,5 +1040,6 @@ export {
     generate_otp_for_Signup,
     regenerate_otp,
     
-    updateUser
+    updateUser,
+    validateToken
 }

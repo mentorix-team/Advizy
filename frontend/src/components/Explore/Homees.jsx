@@ -10,12 +10,13 @@ const Homees = () => {
     selectedDomain: null,
     selectedNiches: [],
     priceRange: [200, 100000],
-    selectedLanguages: [], // Manage selectedLanguages here
+    selectedLanguages: [],
     selectedRatings: [],
     selectedDurations: [],
   });
   const [sorting, setSorting] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
 
   // Log whenever filters or domain change dynamically
   useEffect(() => {
@@ -39,10 +40,10 @@ const Homees = () => {
       ...prevFilters,
       ...newFilters,
     }));
-    // Close sidebar on mobile after applying filters
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
+        // Close sidebar on mobile after applying filters
+        if (window.innerWidth < 768) {
+          setIsSidebarOpen(false);
+        }
   };
 
   const resetFilters = () => {
@@ -51,7 +52,7 @@ const Homees = () => {
       selectedDomain: null,
       selectedNiches: [],
       priceRange: [200, 100000],
-      selectedLanguages: [], // Reset selectedLanguages
+      selectedLanguages: [],
       selectedRatings: [],
       selectedDurations: [],
     });
@@ -77,9 +78,9 @@ const Homees = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex pt-28 md:pt-32">
+      <div className="flex pt-28 md:pt-32"> {/* Reduced padding-top for mobile */}
         {/* Mobile Filter Button (visible only on small screens) */}
-        <button
+        <button 
           onClick={toggleSidebar}
           className="fixed bottom-4 right-4 md:hidden z-50 bg-primary text-white p-3 rounded-full shadow-lg"
         >
@@ -88,25 +89,24 @@ const Homees = () => {
           </svg>
         </button>
 
-        {/* Sidebar */}
+        {/* Sidebar - Increased width on desktop, hidden on mobile by default */}
         <div className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40
                         md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
           <FilterSidebar
             selectedDomain={selectedDomain}
-            selectedLanguages={filters.selectedLanguages} // Pass selectedLanguages
             onApplyFilters={handleApplyFilters}
           />
         </div>
 
         {/* Overlay for mobile sidebar */}
         {isSidebarOpen && (
-          <div
+          <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
 
-        {/* Content Area */}
+        {/* Content Area - Full width on mobile, adjusted on desktop */}
         <div className="w-full md:ml-80 p-4 md:p-6">
           <ExpertList filters={filters} sorting={sorting} />
         </div>
@@ -114,4 +114,5 @@ const Homees = () => {
     </div>
   );
 };
+
 export default Homees;
