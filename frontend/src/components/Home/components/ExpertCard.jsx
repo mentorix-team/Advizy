@@ -1,5 +1,4 @@
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
-import { motion } from "framer-motion";
 import { User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
@@ -115,45 +114,45 @@ const ExpertCard = ({ expert }) => {
         {/* first container */}
         <div className="w-[348px] h-[122px] flex gap-[12px]">
           <div className="relative flex items-center">
-            <div className="w-[90px] h-[90px] rounded-full overflow-hidden"></div>
-            <img
-              src={
-                expert?.profileImage?.secure_url ||
-                "https://via.placeholder.com/100"
-              }
-              alt={`${expert.firstName} ${expert.lastName}`}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+            <div className="w-[90px] h-[90px] rounded-full overflow-hidden">
+              <img
+                src={
+                  expert?.profileImage?.secure_url ||
+                  "https://via.placeholder.com/100"
+                }
+                alt={`${expert.firstName} ${expert.lastName}`}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {`${expert.firstName} ${expert.lastName}`}
-              </h2>
-              <p className="text-gray-700 text-sm">
-                {expert.credentials?.domain}
-              </p>
-              <div className="flex items-center mt-1 text-sm">
-                <span className="text-yellow-400">★</span>
-                <span className="ml-1 font-medium">
-                  {expert.reviews?.length > 0
-                    ? expert.reviews.reduce(
-                        (acc, review) => acc + review.rating,
-                        0
-                      ) / expert.reviews.length
-                    : 0}
-                </span>
-                <div className="ml-2 flex gap-1 items-center bg-green-50 rounded-full border p-1">
-                  <User className="w-4 h-4" />
-                  {expert.reviews} Session done
+          <div className="flex-1">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  {`${expert.firstName} ${expert.lastName}`}
+                </h2>
+                <p className="text-gray-700 text-sm">
+                  {expert.credentials?.domain}
+                </p>
+                <div className="flex items-center mt-1 text-sm">
+                  <span className="text-yellow-400">★</span>
+                  <span className="ml-1 font-medium">
+                    {expert.reviews?.length > 0
+                      ? expert.reviews.reduce(
+                          (acc, review) => acc + review.rating,
+                          0
+                        ) / expert.reviews.length
+                      : 0}
+                  </span>
+                  <div className="ml-2 flex gap-1 items-center bg-green-50 rounded-full border p-1">
+                    <User className="w-4 h-4" />
+                    {expert.reviews} Session done
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* <button
+              {/* <button
           className={`text-gray-400 hover:text-red-500 transition-colors ${
             isFavorite ? "text-red-500" : ""
           }`}
@@ -183,21 +182,24 @@ const ExpertCard = ({ expert }) => {
             />
           </svg>
         </button> */}
-            <p className="text-gray-700 text-sm mb-1">
-              Experience: <span className="font-medium">{totalExperience}</span>
-            </p>
-            <p className="text-gray-700 text-sm mb-1">
-              Starts at{" "}
-              <span className="text-blue-600 font-medium">
-                Rs{startingPrice}
-              </span>{" "}
-              for{" "}
-              <span className="font-medium text-blue-600">{duration}mins</span>
-            </p>
+              <p className="text-gray-700 text-sm mb-1">
+                Experience:{" "}
+                <span className="font-medium">{totalExperience}</span>
+              </p>
+              <p className="text-gray-700 text-sm mb-1">
+                Starts at{" "}
+                <span className="text-blue-600 font-medium">
+                  Rs{startingPrice}
+                </span>{" "}
+                for{" "}
+                <span className="font-medium text-blue-600">
+                  {duration}mins
+                </span>
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* <div
+          {/* <div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
@@ -219,28 +221,29 @@ const ExpertCard = ({ expert }) => {
         </div>
       </div> */}
 
-        <div className="flex gap-3 justify-between">
-          <div>
-            <p className="text-gray-800 text-sm">Next Available Slot:</p>
-            <p className="text-blue-600 text-sm">
-              {firstAvailableDay
-                ? `${firstAvailableDay.day}, ${firstAvailableTime}`
-                : "No slots available"}
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              className="px-3 py-0 border border-gray-200 text-sm rounded-md hover:bg-gray-100"
-              onClick={() => navigate(`/expert/${expert.redirect_url}`)}
-            >
-              View Profile
-            </button>
-            <button
-              className="px-7 bg-green-500 text-white text-sm rounded-md hover:bg-green-600"
-              onClick={() => navigate(`/expert/${expert.redirect_url}`)}
-            >
-              Book
-            </button>
+          <div className="flex gap-3 justify-between">
+            <div>
+              <p className="text-gray-800 text-sm">Next Available Slot:</p>
+              <p className="text-blue-600 text-sm">
+                {firstAvailableDay
+                  ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                  : "No slots available"}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                className="px-3 py-0 border border-gray-200 text-sm rounded-md hover:bg-gray-100"
+                onClick={() => navigate(`/expert/${expert.redirect_url}`)}
+              >
+                View Profile
+              </button>
+              <button
+                className="px-7 bg-green-500 text-white text-sm rounded-md hover:bg-green-600"
+                onClick={() => navigate(`/expert/${expert.redirect_url}`)}
+              >
+                Book
+              </button>
+            </div>
           </div>
         </div>
       </div>

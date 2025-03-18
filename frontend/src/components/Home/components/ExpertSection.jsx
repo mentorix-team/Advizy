@@ -163,7 +163,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
         </div>
 
         <div className="overflow-hidden pb-20 pt-10 -mx-2 px-2">
-          <motion.div
+          <div
             className="flex gap-4"
             animate={{
               x: -(currentIndex * (100 / visibleCards)) + '%'
@@ -176,14 +176,8 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
             }}
           >
             {experts.map((expert, index) => (
-              <motion.div
+              <div
                 key={`${expert.name}-${index}`}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ 
-                  duration: 0.8,
-                  delay: (index % visibleCards) * 0.1
-                }}
                 className="relative flex-shrink-0"
                 style={{ 
                   width: `calc(${100 / visibleCards}% - ${(16 * (visibleCards - 1)) / visibleCards}px)`,
@@ -191,9 +185,9 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
                 }}
               >
                 <ExpertCard expert={expert} />
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </motion.div>
