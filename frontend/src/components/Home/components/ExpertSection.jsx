@@ -178,11 +178,12 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
             {experts.map((expert, index) => (
               <div
                 key={`${expert.name}-${index}`}
-                className="relative flex-shrink-0"
-                style={{ 
-                  width: `calc(${100 / visibleCards}% - ${(16 * (visibleCards - 1)) / visibleCards}px)`,
-                  margin: window.innerWidth < 768 ? '0 auto' : 'initial'
-                }}
+                className='relative flex'
+                // className="relative flex-shrink-0"
+                // style={{ 
+                //   width: `calc(${100 / visibleCards}% - ${(16 * (visibleCards - 1)) / visibleCards}px)`,
+                //   margin: window.innerWidth < 768 ? '0 auto' : 'initial'
+                // }}
               >
                 <ExpertCard expert={expert} />
               </div>
