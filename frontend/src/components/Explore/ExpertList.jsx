@@ -137,7 +137,9 @@ const ExpertList = ({ filters, sorting }) => {
                     expert?.profileImage?.secure_url ||
                     "https://via.placeholder.com/100"
                   }
-                  title={expert.credentials?.domain || "No Title Provided"}
+                  title={
+                    expert.credentials?.professionalTitle?.[0] || "No Title Provided"
+                  }
                   rating={
                     expert.reviews?.length > 0
                       ? Math.round(
@@ -151,7 +153,7 @@ const ExpertList = ({ filters, sorting }) => {
                   languages={expert.languages || []}
                   startingPrice={startingPrice}
                   duration={duration}
-                  expertise={expert.credentials?.expertise || []}
+                  expertise={expert.credentials?.skills || []}
                 />
               </div>
             );
@@ -251,6 +253,7 @@ const ExpertList = ({ filters, sorting }) => {
 };
 
 export default ExpertList;
+
 
 // import { useState } from "react";
 // import ExpertCard from "./ExpertCard";
