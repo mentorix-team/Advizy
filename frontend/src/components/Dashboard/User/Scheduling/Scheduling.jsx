@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getExpertById } from '@/Redux/Slices/expert.Slice';
 import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { useLocation } from 'react-router-dom';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function Scheduling() {
   const dispatch = useDispatch();
@@ -51,7 +52,7 @@ function Scheduling() {
 
  
   if (expertLoading || availabilityLoading) {
-    return <p>Loading expert and availability data...</p>;
+    return <Spinner />;
   }
 
   if (expertError || availabilityError) {

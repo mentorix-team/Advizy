@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ExpertCard from "@/components/Expert/ExpertCard";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 const ExpertList = () => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,7 +80,7 @@ const ExpertList = () => {
           justifyContent: "center",
         }}
       >
-        {loading && <p className="col-span-3 text-center">Loading experts...</p>}
+        {loading && <Spinner />}
         {error && <p className="col-span-3 text-center text-red-500">Error: {error}</p>}
         {!loading && !error && experts.length === 0 && (
           <p className="col-span-3 text-center">No experts found</p>
