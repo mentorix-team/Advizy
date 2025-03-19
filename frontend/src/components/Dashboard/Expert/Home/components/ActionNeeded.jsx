@@ -1,4 +1,4 @@
-import { Award, CalendarDays, Star} from 'lucide-react';
+import { Award, CalendarDays, Pencil, Star} from 'lucide-react';
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
@@ -7,12 +7,14 @@ const iconMap = {
   message: <Award className='w-6 h-6 text-red-600'/>,
   star: <Star className="text-yellow-500 w-6 h-6"/>,
   calendar: <CalendarDays className="text-blue-500 w-6 h-6"/>,
+  edit: <Pencil className='text-green-500 w-6 h-6'/>
 };
 
 const actionRoutes = {
   'Add Your Expertise': '/dashboard/expert/profile-detail',
   "Add Your Services": "/dashboard/expert/service-pricing",
   "Set your Availability": "/dashboard/expert/availability",
+  "Edit your One-on-One Service": "dashboard/expert/service-pricing",
 }
 
 export default function ActionNeeded({ actions }) {
