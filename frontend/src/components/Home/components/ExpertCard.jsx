@@ -5,19 +5,16 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-
 const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate()
-  const dispatch = useDispatch()
   console.log('EXpert',expert);
   const calculateTotalExperience = (workExperiences) => {
     if (!Array.isArray(workExperiences) || workExperiences.length === 0) return "0 years";
   
-
     let totalMonths = 0;
   
     workExperiences.forEach((job) => {
@@ -43,8 +40,6 @@ const ExpertCard = ({ expert }) => {
   const duration = firstService?.duration || "N/A";
 
   const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
-
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -52,21 +47,37 @@ const ExpertCard = ({ expert }) => {
           setIsVisible(entry.isIntersecting);
         });
       },
-ExpertCard = ({ expert }) => {
+      { threshold: 0.5 }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, []);
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
         const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap(); 
-                setAvailability(response.availability);
+        
+        setAvailability(response.availability);
       } catch (error) {
         console.error("Error fetching availability:", error);
- const ExpertCard = ({ expert }) => {
+      }
+    };
+
     fetchAvailability();
   }, [dispatch, expert._id]);
 
   const firstAvailableDay = availability?.daySpecific?.find(day => day.slots.length > 0);
-
-
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
   const handleFavoriteClick = (e) => {
@@ -202,34 +213,6 @@ ExpertCard = ({ expert }) => {
         </motion.div>
         <motion.button 
           className={`text-gray-400 hover:text-red-500 transition-colors ${isFavorite ? 'text-red-500' : ''}`}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           onClick={handleFavoriteClick}
           whileHover={{ scale: 1.2 }}
           whileTap={{ scale: 0.9 }}
@@ -237,10 +220,6 @@ ExpertCard = ({ expert }) => {
             scale: [1, 1.2, 1],
             transition: { duration: 0.3 }
           } : {}}
-
-
-
-
         >
           <svg 
             className="w-6 h-6" 
@@ -282,7 +261,8 @@ ExpertCard = ({ expert }) => {
               key={index}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-@@ -266,41 +214,38 @@ const ExpertCard = ({ expert }) => {
+              transition={{ duration: 0.3, delay: index * 0.1 + 0.5 }}
+              whileHover={{ scale: 1.1 }}
               className="text-sm px-3 py-1 bg-gray-100 rounded-full text-gray-700"
             >
               {skill}
@@ -322,3 +302,5 @@ ExpertCard = ({ expert }) => {
     </motion.div>
   );
 };
+
+export default ExpertCard;
