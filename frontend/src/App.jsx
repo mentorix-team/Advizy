@@ -24,7 +24,6 @@ import AuthPopup from "./components/Auth/AuthPopup.auth";
 import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
-import ComingSoon from "./ComingSoon";
 import { useDispatch } from "react-redux";
 import { validateToken } from "./Redux/Slices/authSlice";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
@@ -83,8 +82,7 @@ const App = () => {
   return (
     <div>
       <Routes>
-        <Route path="/" element={<ComingSoon />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/" element={<HomePage />} />
         {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
