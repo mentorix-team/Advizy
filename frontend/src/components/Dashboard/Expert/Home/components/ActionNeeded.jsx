@@ -2,6 +2,7 @@ import { Award, CalendarDays, Pencil, Star} from 'lucide-react';
 import React from 'react';
 import { BiMessageSquare, BiStar, BiCalendar } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
+import SuccessMessage from './SuccessMessage';
 
 const iconMap = {
   message: <Award className='w-6 h-6 text-red-600'/>,
@@ -14,7 +15,7 @@ const actionRoutes = {
   'Add Your Expertise': '/dashboard/expert/profile-detail',
   "Add Your Services": "/dashboard/expert/service-pricing",
   "Set your Availability": "/dashboard/expert/availability",
-  "Edit your One-on-One Service": "dashboard/expert/service-pricing",
+  "Edit your One-on-One Service": "/dashboard/expert/service-pricing",
 }
 
 export default function ActionNeeded({ actions }) {
@@ -48,7 +49,7 @@ export default function ActionNeeded({ actions }) {
             </div>
           ))
         ) : (
-          <p className="text-gray-500 text-sm text-center">All actions completed! 🎉</p>
+          <SuccessMessage />
         )}
       </div>
     </div>
