@@ -45,7 +45,7 @@ const ProfileShare = ({expert}) => {
   const [isOpen, setIsOpen] = useState(false);
   const redirect_url = expert?.redirect_url
   console.log("thisi sexpert ",expert)
-  const profileUrl = `http://localhost:5173/${redirect_url}`;
+  const profileUrl = `https://advizy.in/expert/${redirect_url}`;
 
   const handleCopy = async () => {
     try {
