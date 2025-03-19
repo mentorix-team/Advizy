@@ -25,8 +25,8 @@ const expertBasicDetails = async (req, res, next) => {
       mobile,
       countryCode,
       languages,
-      // bio,
-      // socialLinks
+      bio,
+      socialLinks
     } = req.body;
 
     const user_id = req.user.id;
@@ -65,8 +65,8 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
       expertbasic.languages = languages;
-      // expertbasic.bio = bio;
-      // expertbasic.socialLinks = socialLinks;
+      expertbasic.bio = bio;
+      expertbasic.socialLinks = socialLinks;
     } else {
       console.log("No existing expert found, creating new...");
       isNewExpert = true; // Mark as a new expert
@@ -85,51 +85,51 @@ const expertBasicDetails = async (req, res, next) => {
         // bio,
         // socialLinks,
         redirect_url:'',
-        // profileImage: { public_id: "Dummy", secure_url: "Dummy" },
-        // coverImage: { public_id: "Dummy", secure_url: "Dummy" },
+        profileImage: { public_id: "Dummy", secure_url: "Dummy" },
+        coverImage: { public_id: "Dummy", secure_url: "Dummy" },
         credentials:{services:[]}
       });
     }
     console.log("this is user id after",expertbasic.user_id)
 
     // Log if files exist
-    // if (req.files) {
-    //   console.log("Image incoming...", req.files);
+    if (req.files) {
+      console.log("Image incoming...", req.files);
 
-    //   if (req.files.profileImage) {
-    //     console.log("Uploading profile image...");
-    //     const profileResult = await cloudinary.v2.uploader.upload(
-    //       req.files.profileImage[0].path,
-    //       { folder: "Advizy/profile" }
-    //     );
+      if (req.files.profileImage) {
+        console.log("Uploading profile image...");
+        const profileResult = await cloudinary.v2.uploader.upload(
+          req.files.profileImage[0].path,
+          { folder: "Advizy/profile" }
+        );
 
-    //     if (profileResult) {
-    //       console.log("Profile Image Uploaded: ", profileResult);
-    //       expertbasic.profileImage = {
-    //         public_id: profileResult.public_id,
-    //         secure_url: profileResult.secure_url
-    //       };
-    //     }
-    //   }
+        if (profileResult) {
+          console.log("Profile Image Uploaded: ", profileResult);
+          expertbasic.profileImage = {
+            public_id: profileResult.public_id,
+            secure_url: profileResult.secure_url
+          };
+        }
+      }
 
-    //   if (req.files.coverImage) {
-    //     console.log("Uploading cover image...");
-    //     const coverResult = await cloudinary.v2.uploader.upload(
-    //       req.files.coverImage[0].path,
-    //       { folder: "Advizy/cover" }
-    //     );
+      if (req.files.coverImage) {
+        console.log("Uploading cover image...");
+        const coverResult = await cloudinary.v2.uploader.upload(
+          req.files.coverImage[0].path,
+          { folder: "Advizy/cover" }
+        );
 
-    //     if (coverResult) {
-    //       console.log("Cover Image Uploaded: ", coverResult);
-    //       expertbasic.coverImage = {
-    //         public_id: coverResult.public_id,
-    //         secure_url: coverResult.secure_url
-    //       };
-    //     }
-    //   }
-    // } else {
-    //   console.log("No images found in request.");
-    // }
+        if (coverResult) {
+          console.log("Cover Image Uploaded: ", coverResult);
+          expertbasic.coverImage = {
+            public_id: coverResult.public_id,
+            secure_url: coverResult.secure_url
+          };
+        }
+      }
+    } else {
+      console.log("No images found in request.");
+    }
 
     console.log("Final expert data before saving:", expertbasic);
     const generateRandomString = (length = 8) => {
@@ -986,8 +986,8 @@ const extpertPortfolioDetails = async (req, res, next) => {
         if (req.query.skills) {
             filters["credentials.skills"] = { $in: req.query.skills.split(",") };
         }
-        if (req.query.selectedDomain) {
-            filters["credentials.domain"] = req.query.selectedDomain;
+        if (req.query.domain) {
+          filters["credentials.domain"] = req.query.domain;
         }
         if (req.query.niches) {
             const nichesArray = req.query.niches.split(",");
