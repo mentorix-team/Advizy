@@ -19,6 +19,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
   useEffect(() => {
     const handleResize = () => {
       setVisibleCards(getCardsPerView());
+      // Reset to first card when switching to mobile view
       if (window.innerWidth < 768) {
         setCurrentIndex(0);
       }
@@ -126,6 +127,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
       </motion.div>
 
       <div className="relative">
+        {/* Navigation Buttons */}
         <div 
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 sm:-translate-x-6"
           style={{ transform: 'translate(-24px, -50%)' }}
@@ -161,7 +163,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
         </div>
 
         <div className="overflow-hidden pb-20 pt-10 -mx-2 px-2">
-          <div
+          <motion.div
             className="flex gap-4"
             animate={{
               x: -(currentIndex * (100 / visibleCards)) + '%'
@@ -174,18 +176,24 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
             }}
           >
             {experts.map((expert, index) => (
-              <div
+              <motion.div
                 key={`${expert.name}-${index}`}
-                className='relative flex'
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ 
+                  duration: 0.8,
+                  delay: (index % visibleCards) * 0.1
+                }}
+                className="relative flex-shrink-0"
                 style={{ 
                   width: `calc(${100 / visibleCards}% - ${(16 * (visibleCards - 1)) / visibleCards}px)`,
                   margin: window.innerWidth < 768 ? '0 auto' : 'initial'
                 }}
               >
                 <ExpertCard expert={expert} />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </motion.div>
