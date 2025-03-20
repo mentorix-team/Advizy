@@ -74,75 +74,61 @@ const ExpertCard = ({
   const hasMoreTags = expertise.length > 3;
 
   return (
-    <div className="w-full max-w-[492px] min-h-[328px] bg-[#FDFDFD] rounded-[15px] p-4 sm:p-5 border border-[#1D1D1D26] space-y-3">
-      {/* Top Section */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-        <img
-          src={image}
-          alt={name}
-          className="w-[90px] h-[90px] sm:w-[108px] sm:h-[108px] rounded-full object-cover"
-        />
-        <div className="flex-1 w-full">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-2 sm:gap-0">
-            <div className="space-y-1 text-center sm:text-left w-full sm:w-auto">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                <TruncatedText text={name} limit={20} />
-              </h2>
-              <p className="text-[#1d1f1d] text-sm sm:text-base">
-                <TruncatedText text={title} limit={30} />
-              </p>
+    <div className="w-full max-w-[492px] mx-auto bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Profile Section */}
+      <div className="p-4">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+          {/* Profile Image */}
+          <div className="shrink-0">
+            <img
+              src={image}
+              alt={name}
+              className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-50"
+            />
+          </div>
 
-              <div className="flex items-center justify-center sm:justify-start gap-3 flex-wrap">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-gray-900 font-medium text-sm sm:text-base">{rating}/5</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-800 text-[11px] sm:text-[12px] flex gap-1 sm:gap-2 items-center bg-[#ecfaf0] px-2 sm:px-3 py-1 rounded-[24px]">
-                    <User className="w-3 h-3" />
-                    {totalRatings} Sessions done
-                  </span>
-                </div>
+          {/* Profile Info */}
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
+              <TruncatedText text={name} limit={20} />
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base mb-2">
+              <TruncatedText text={title} limit={30} />
+            </p>
+
+            {/* Ratings & Sessions */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+              <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
+                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                <span className="text-sm font-medium text-gray-900">{rating}/5</span>
               </div>
-
-              <p className="text-gray-900 text-sm sm:text-base">
-                Experience: <span className="font-medium">{experience}</span> in industry
-              </p>
-              <p className="text-gray-900 text-sm sm:text-base">
-                Starts at{" "}
-                <span className="text-[#004ab3] font-semibold">
-                  ${startingPrice}
-                </span>{" "}
-                for{" "}
-                <span className="text-[#004ab3] font-semibold">{duration}</span>
-              </p>
+              <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-full">
+                <User className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-gray-900">{totalRatings} Sessions</span>
+              </div>
             </div>
 
-            {/* <button
-              onClick={toggleLike}
-              className={`sm:ml-4 ${isAnimating ? "animate-ping" : ""}`}
-            >
-              <Heart
-                className={`h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 ${
-                  isAnimating ? "scale-125" : ""
-                }`}
-                fill={liked ? "#EF4444" : "none"}
-                stroke={liked ? "#EF4444" : "currentColor"}
-              />
-            </button> */}
+            {/* Experience & Price */}
+            <div className="space-y-1 text-sm sm:text-base">
+              <p className="text-gray-700">
+                <span className="font-medium">{experience}</span> years experience
+              </p>
+              <p>
+                <span className="text-blue-600 font-medium">${startingPrice}</span>
+                <span className="text-gray-600"> for {duration}</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Expertise Tags */}
-      <div className="mt-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <span className="text-gray-900 font-medium text-sm sm:text-base">Expertise:</span>
-          <div className="flex flex-wrap gap-2 w-full">
+        {/* Expertise Tags */}
+        <div className="mt-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">Expertise:</p>
+          <div className="flex flex-wrap gap-2">
             {displayedTags.map((skill, index) => (
               <span
                 key={index}
-                className="px-2 sm:px-3 py-1 bg-gray-100 text-gray-900 rounded-[4px] text-xs sm:text-sm"
+                className="px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-xs"
               >
                 <TruncatedText text={skill} limit={15} />
               </span>
@@ -150,15 +136,15 @@ const ExpertCard = ({
             {hasMoreTags && !showAllTags && (
               <button
                 onClick={() => setShowAllTags(true)}
-                className="px-2 py-1 text-xs sm:text-sm text-blue-600 hover:text-blue-800"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
               >
-                +{expertise.length - 3} more...
+                +{expertise.length - 3} more
               </button>
             )}
             {showAllTags && (
               <button
                 onClick={() => setShowAllTags(false)}
-                className="px-2 py-1 text-xs sm:text-sm text-blue-600 hover:text-blue-800"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium"
               >
                 Show less
               </button>
@@ -167,29 +153,34 @@ const ExpertCard = ({
         </div>
       </div>
 
-      {/* Next Available Slot */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mt-4">
-        <div className="flex flex-col text-xs sm:text-sm text-gray-900 w-full sm:w-auto">
-          <span className="font-medium">Next Available Slot:</span>
-          <span className="text-[#004ab3]">
-            {firstAvailableDay
-              ? `${firstAvailableDay.day}, ${firstAvailableTime}`
-              : "No slots available"}
-          </span>
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => navigate(`/expert/${redirect_url}`)}
-            className="flex-1 sm:flex-none px-3 sm:px-5 py-2 bg-white border border-gray-200 rounded-lg text-xs sm:text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm whitespace-nowrap"
-          >
-            View Profile
-          </button>
-          <button
-            onClick={() => navigate(`/expert/scheduling/${id}`)}
-            className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-[#169544] rounded-lg text-xs sm:text-sm text-white hover:bg-[#138539] transition-colors shadow-sm whitespace-nowrap"
-          >
-            BOOK
-          </button>
+      {/* Footer Section */}
+      <div className="border-t border-gray-100 p-4 bg-gray-50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Next Available Slot */}
+          <div className="w-full sm:w-auto">
+            <p className="text-sm font-medium text-gray-700">Next Available:</p>
+            <p className="text-sm text-blue-600">
+              {firstAvailableDay
+                ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                : "No slots available"}
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => navigate(`/expert/${redirect_url}`)}
+              className="flex-1 sm:w-auto px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              View Profile
+            </button>
+            <button
+              onClick={() => navigate(`/expert/scheduling/${id}`)}
+              className="flex-1 sm:w-auto px-6 py-2 bg-green-600 rounded-lg text-sm text-white font-medium hover:bg-green-700 transition-colors"
+            >
+              Book Now
+            </button>
+          </div>
         </div>
       </div>
     </div>
