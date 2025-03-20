@@ -296,7 +296,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <House className="w-5 h-5" />
+                <Menu className="w-5 h-5" />
                 <span className="ms-3">Home</span>
               </NavLink>
             </li>
