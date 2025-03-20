@@ -44,14 +44,17 @@ function ServicePricing() {
 
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] p-8">
+    <div className="min-h-screen bg-[#F9FAFB] p-4 sm:p-6 md:p-8">
       <Toaster position="top-right" />
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">Pricing & Services</h1>
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
+            Pricing & Services
+          </h1>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            className="mt-3 sm:mt-0 bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
           >
             <span>+</span> Add Service
           </button>
@@ -65,13 +68,13 @@ function ServicePricing() {
               <ServiceCard
                 key={index}
                 service={service}
-                isDefault={service.id === 'default'}
+                isDefault={service.id === "default"}
                 onEdit={handleEditService}
                 // onDelete={() => handleDeleteService(service.serviceId)} 
               />
             ))
           ) : (
-            <p>No services available. Add a new service to get started!</p>
+            <p className="text-gray-600">No services available. Add a new service to get started!</p>
           )}
         </div>
       </div>

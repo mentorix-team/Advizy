@@ -3,25 +3,14 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import {
-  ChevronDown,
-  LogOut,
-  User,
-  CircleUserRound,
-  Video,
-  BadgeIndianRupee,
-  UserPen,
-  MessageSquareText,
-  LayoutDashboard,
-  Home,
-  UserCheck,
-} from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const UserDashboardLayout = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const [hasExpertData, setHasExpertData] = useState(false);
   const navigate = useNavigate();
@@ -32,6 +21,11 @@ const UserDashboardLayout = () => {
   const isLinkActive = (path) => {
     return location.pathname === path;
   };
+
+  // Close mobile menu when location changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
 
   // Check for expertData in localStorage on component mount
   useEffect(() => {
@@ -60,7 +54,6 @@ const UserDashboardLayout = () => {
     navigate("/");
   };
 
-  
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);
@@ -180,13 +173,55 @@ const UserDashboardLayout = () => {
                 </motion.button>
               )}
             </div>
+
+            {/* Mobile menu buttons */}
+            <div className="lg:hidden flex items-center gap-4">
+              {isLoggedIn ? (
+                <UserDropdown />
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-primary text-white text-sm px-6 py-2 rounded-md"
+                  onClick={handleOpenAuthPopup}
+                >
+                  Login
+                </motion.button>
+              )}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-primary transition-colors"
+                aria-label="Toggle menu"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <PanelRightCloseIcon className="h-8 w-8 text-gray-700" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
+      {/* Mobile menu overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <aside
-        className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">

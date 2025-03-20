@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { isDateInPast, isSameDay, getMonthDays, getFirstDayOfMonth } from '../../utils/dateUtils';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability }) {
   const today = new Date();
@@ -55,7 +56,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
   };
 
   if (!availability || !availability.daySpecific) {
-    return <div>Loading...</div>; // Or some other loading state
+    return <Spinner />; // Or some other loading state
   }
 
   return (

@@ -65,7 +65,7 @@ const ExpertDetailPage = () => {
         name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
         title={expert?.credentials?.professionalTitle[0] || "No Title Provided"}
         location={expert?.city || "Unknown"}
-        rating={expert.reviews?.length > 0
+        rating={expert?.reviews?.length > 0
           ? Math.round(
               expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
                 expert.reviews.length

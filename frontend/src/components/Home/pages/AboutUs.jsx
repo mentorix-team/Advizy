@@ -363,7 +363,9 @@ const AboutPage = () => {
                   <span className="text-gray-700">Enhance client retention with smart tools</span>
                 </li>
               </ul>
-              <button className="w-full btn-expert">Show Your Expertise</button>
+              <button 
+              onClick={() => navigate('/become-expert')}
+              className="w-full btn-expert">Show Your Expertise</button>
             </motion.div>
 
             {/* For Users Card */}
@@ -398,7 +400,9 @@ const AboutPage = () => {
                   <span className="text-gray-700">High-quality video consultations</span>
                 </li>
               </ul>
-              <button className="w-full btn-expert">Search Experts</button>
+              <button 
+              onClick={() => navigate('/explore')}
+              className="w-full btn-expert">Search Experts</button>
             </motion.div>
           </div>
         </div>

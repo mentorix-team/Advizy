@@ -124,7 +124,9 @@ function Testimonials() {
             <div className="flex items-center gap-3">
               <span className="text-4xl font-bold text-gray-900">{analytics.totalReviews}</span>
             </div>
-            <p className="text-gray-600 text-sm mt-2">{analytics.growthText}</p>
+            <p className="text-gray-600 text-xs md:text-sm mt-2">
+              {analytics.growthText}
+            </p>
           </div>
 
           <div className="bg-white p-8 rounded-xl border">
@@ -133,7 +135,9 @@ function Testimonials() {
               <span className="text-4xl font-bold text-gray-900">{analytics.averageRating}</span>
               <StarRating rating={analytics.averageRating} size="lg" />
             </div>
-            <p className="text-gray-600 text-sm mt-2">{analytics.ratingPeriod}</p>
+            <p className="text-gray-600 text-xs md:text-sm mt-2">
+              {analytics.ratingPeriod}
+            </p>
           </div>
 
           <div className="bg-white p-8 rounded-xl border">
@@ -141,17 +145,21 @@ function Testimonials() {
             <div className="space-y-2">
               {analytics.ratingDistribution.map((rating) => (
                 <div key={rating.stars} className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600 w-3">{rating.stars}</span>
+                  <span className="text-xs md:text-sm text-gray-600 w-3">
+                    {rating.stars}
+                  </span>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: rating.width, backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444' }}></div>
                   </div>
-                  <span className="text-sm text-gray-600 w-12">{rating.percentage}</span>
+                  <span className="text-xs md:text-sm text-gray-600 w-12">
+                    {rating.percentage}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
+        
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <input

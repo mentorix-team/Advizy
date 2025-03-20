@@ -1,3 +1,4 @@
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 import { getExpertById } from "@/Redux/Slices/expert.Slice";
 import { addvideoparticipant, getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
 import React, { useEffect, useState } from "react";
@@ -66,7 +67,7 @@ const Bookings = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   if (error) {

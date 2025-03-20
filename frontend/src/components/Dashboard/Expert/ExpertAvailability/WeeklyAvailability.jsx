@@ -182,7 +182,7 @@ function WeeklyAvailability() {
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
             Weekly Hours Availability
@@ -191,7 +191,7 @@ function WeeklyAvailability() {
         <button
           onClick={handleSaveChanges}
           disabled={isSaving}
-          className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors
+          className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto
             ${
               isSaving
                 ? "bg-green-400 cursor-not-allowed"
@@ -201,6 +201,7 @@ function WeeklyAvailability() {
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
       </div>
+  
       <div className="divide-y divide-gray-100">
         {days.map((day) => (
           <DayRow
@@ -216,6 +217,7 @@ function WeeklyAvailability() {
       </div>
     </div>
   );
+  
 }
 
 export default WeeklyAvailability;

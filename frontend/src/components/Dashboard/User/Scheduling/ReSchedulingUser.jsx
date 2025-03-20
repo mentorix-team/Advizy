@@ -6,6 +6,7 @@ import './Scheduling.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import TimeSlotforRescheduleUser from './TimeSlots/TimeSlotforRescheduleUser';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function ReSchedulingUser() {
   const dispatch = useDispatch();
@@ -37,7 +38,7 @@ function ReSchedulingUser() {
 
  
   if (expertLoading || availabilityLoading) {
-    return <p>Loading expert and availability data...</p>;
+    return <Spinner />;
   }
 
   if (expertError || availabilityError) {

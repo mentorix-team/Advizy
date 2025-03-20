@@ -142,20 +142,21 @@ export default function Payments() {
             <h2 className="text-lg font-semibold mb-2">Transactions</h2>
           </div>
           <div className="flex gap-4 items-center">
-            <DatePicker
-              selectsRange={true}
-              startDate={startDate}
-              endDate={endDate}
-              onChange={(update) => {
-                setDateRange(update);
-                setCurrentPage(1);
-              }}
-              dateFormat="MMMM yyyy"
-              showMonthYearPicker
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholderText="Select months range"
-              isClearable={true}
-            />
+          <DatePicker
+  selectsRange={true}
+  startDate={startDate}
+  endDate={endDate}
+  onChange={(update) => {
+    setDateRange(update);
+    setCurrentPage(1);
+  }}
+  dateFormat="MMMM yyyy"
+  showMonthYearPicker
+  className="w-full sm:w-auto min-w-[180px] sm:min-w-[250px] px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm sm:text-base truncate"
+  placeholderText="Select months range"
+  isClearable={true}
+/>
+
             <select
               value={statusFilter}
               onChange={(e) => {
@@ -185,77 +186,77 @@ export default function Payments() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Transaction ID
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Client Name
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Service
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Time Slot
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentItems.map((meeting) => (
-              <tr key={meeting._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <span className="text-sm text-gray-900">{meeting._id}</span>
-                    <button
-                      onClick={() => handleCopyId(meeting._id)}
-                      className="ml-2 text-gray-400 hover:text-gray-600"
-                    >
-                      <BiCopy className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {meeting.userName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {meeting.serviceName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <div>
-                    <div>{formatDate(new Date(meeting.daySpecific.date))}</div>
-                    <div className="text-gray-500">
-                      {meeting.daySpecific.slot.startTime} - {meeting.daySpecific.slot.endTime}
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ₹{parseFloat(meeting.amount).toLocaleString()}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={clsx(
-                      'px-2 py-1 text-xs font-medium rounded-full',
-                      meeting.isPayed
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    )}
-                  >
-                    {meeting.isPayed ? 'Paid' : 'Failed'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+     <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+  <table className="min-w-full divide-y divide-gray-200">
+    <thead className="bg-gray-50">
+      <tr>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Transaction ID
+        </th>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Client Name
+        </th>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Service
+        </th>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Time Slot
+        </th>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Amount
+        </th>
+        <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Status
+        </th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {currentItems.map((meeting) => (
+        <tr key={meeting._id} className="hover:bg-gray-50">
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+              <span className="text-sm text-gray-900">{meeting._id}</span>
+              <button
+                onClick={() => handleCopyId(meeting._id)}
+                className="ml-2 text-gray-400 hover:text-gray-600"
+              >
+                <BiCopy className="w-4 h-4" />
+              </button>
+            </div>
+          </td>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {meeting.userName}
+          </td>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {meeting.serviceName}
+          </td>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <div>
+              <div>{formatDate(new Date(meeting.daySpecific.date))}</div>
+              <div className="text-gray-500">
+                {meeting.daySpecific.slot.startTime} - {meeting.daySpecific.slot.endTime}
+              </div>
+            </div>
+          </td>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            ₹{parseFloat(meeting.amount).toLocaleString()}
+          </td>
+          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+            <span
+              className={clsx(
+                'px-2 py-1 text-xs font-medium rounded-full',
+                meeting.isPayed
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              )}
+            >
+              {meeting.isPayed ? 'Paid' : 'Failed'}
+            </span>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
 
         {/* Pagination */}
         <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">

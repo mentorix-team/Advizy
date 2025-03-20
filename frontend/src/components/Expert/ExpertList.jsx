@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+import Spinner from "../LoadingSkeleton/Spinner";
 
 const ExpertList = () => {
 
@@ -35,7 +36,7 @@ const ExpertList = () => {
         margin: "0 auto",
       }}
     >
-      {loading && <p>Loading experts...</p>}
+      {loading && <Spinner />}
       {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {!loading && !error && experts.length === 0 && <p>No experts found</p>}
       {!loading &&
