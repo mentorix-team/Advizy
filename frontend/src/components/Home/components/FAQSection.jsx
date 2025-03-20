@@ -1,52 +1,73 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const faqs = [
   {
     question: "How does Mentorixx work?",
-    answer: "Mentorixx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance."
+    answer:
+      "Mentorixx connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance.",
   },
   {
     question: "How much does it cost?",
-    answer: "Our pricing varies based on the expert's experience and session duration. Sessions typically range from $50-$200 per hour. You can view each expert's specific rates on their profile."
+    answer:
+      "Our pricing varies based on the expert's experience and session duration. Sessions typically range from $50-$200 per hour. You can view each expert's specific rates on their profile.",
   },
   {
     question: "Can I become a mentor?",
-    answer: "Yes! If you have expertise in your field and want to help others grow, you can apply to become a mentor. We carefully review each application to maintain our high-quality standards."
+    answer:
+      "Yes! If you have expertise in your field and want to help others grow, you can apply to become a mentor. We carefully review each application to maintain our high-quality standards.",
   },
   {
     question: "What if I'm not satisfied with my session?",
-    answer: "Your satisfaction is our priority. If you're not completely satisfied with your session, we offer a money-back guarantee. Contact our support team within 24 hours of your session to discuss your concerns."
-  }
+    answer:
+      "Your satisfaction is our priority. If you're not completely satisfied with your session, we offer a money-back guarantee. Contact our support team within 24 hours of your session to discuss your concerns.",
+  },
 ];
 
 const FAQItem = ({ question, answer, isOpen, onClick }) => {
   return (
-    <motion.div 
+    <motion.div
       className="border border-[#E8F5E9] rounded-lg overflow-hidden mb-4 cursor-pointer bg-white"
       initial={false}
-      animate={{ 
+      animate={{
         backgroundColor: isOpen ? "rgba(249, 253, 249, 0.5)" : "white",
-        scale: isOpen ? 1.02 : 1
+        scale: isOpen ? 1.02 : 1,
       }}
       transition={{ duration: 0.2 }}
       onClick={onClick}
     >
       <div className="w-full px-6 py-4 text-left flex justify-between items-center">
-        <span className={`text-base sm:text-lg font-medium transition-colors duration-200 ${isOpen ? "text-primary" : "text-[#1D1F1D]"}`}>
+        <span
+          className={`text-base sm:text-lg font-medium transition-colors duration-200 ${
+            isOpen ? "text-primary" : "text-[#1D1F1D]"
+          }`}
+        >
           {question}
         </span>
         <motion.span
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className={`transition-colors duration-200 ${isOpen ? "text-primary" : "text-gray-400"}`}
+          className={`transition-colors duration-200 ${
+            isOpen ? "text-primary" : "text-gray-400"
+          }`}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </motion.span>
       </div>
-      
+
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
@@ -73,9 +94,16 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => {
 
 const FAQSection = () => {
   const [activeIndex, setActiveIndex] = useState(null);
+  const navigate = useNavigate();
 
   return (
-    <div className="py-16 sm:py-20 lg:py-24" style={{ background: 'linear-gradient(180deg, rgba(231, 245, 236, 0.60) 50%, #FAFAFA 100%)' }}>
+    <div
+      className="py-16 sm:py-20 lg:py-24"
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(231, 245, 236, 0.60) 50%, #FAFAFA 100%)",
+      }}
+    >
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0 }}
@@ -111,7 +139,9 @@ const FAQSection = () => {
                 question={faq.question}
                 answer={faq.answer}
                 isOpen={activeIndex === index}
-                onClick={() => setActiveIndex(activeIndex === index ? null : index)}
+                onClick={() =>
+                  setActiveIndex(activeIndex === index ? null : index)
+                }
               />
             </motion.div>
           ))}
@@ -124,7 +154,7 @@ const FAQSection = () => {
             className="text-center mt-12"
           >
             <p className="text-gray-600 mb-4">Still have questions?</p>
-            <button className="btn-expert">
+            <button onClick={() => navigate("/contact")} className="btn-expert">
               Contact Support
             </button>
           </motion.div>

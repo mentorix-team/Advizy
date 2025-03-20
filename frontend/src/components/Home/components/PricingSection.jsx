@@ -41,7 +41,7 @@ const PricingSection = () => {
             </li>
           </ul>
           <button
-            onClick={handleNavigation}
+            onClick={() => navigate('/expert-onboarding')}
             className="w-full py-3 rounded-lg font-medium transition-colors cursor-pointer bg-[#169544] text-white hover:bg-[#138339]"
           >
             Start Earning Now

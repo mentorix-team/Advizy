@@ -122,10 +122,16 @@ const ExpertList = ({ filters, sorting }) => {
         {!loading &&
           !error &&
           paginatedExperts.map((expert) => {
-            const firstService = expert.credentials?.services?.[0];
-            const startingPrice = firstService?.price || 0;
-            const duration = firstService?.duration || "N/A";
-
+            const mentoringService = expert.credentials?.services?.find(
+              (service) => service.title === "One-on-One Mentoring"
+            );
+        
+            const firstEnabledSlot = mentoringService?.one_on_one?.find(
+              (slot) => slot.enabled
+            );
+        
+            const startingPrice = firstEnabledSlot?.price || 0;
+            const duration = firstEnabledSlot?.duration || "N/A";
             const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
             return (
               <div key={expert._id} className="flex justify-center">

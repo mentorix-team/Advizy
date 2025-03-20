@@ -118,7 +118,47 @@ const ExpertCard = ({
               </p>
             </div>
 
-            {/* <button
+            <p className="text-gray-700 text-sm mb-2">
+              Experience: <span className="font-medium">{experience}</span> in
+              industry
+            </p>
+            <p className="text-gray-700 text-sm mb-2">
+              Starts at{" "}
+              <span className="text-blue-600 font-semibold">
+                Rs. {startingPrice}
+              </span>{" "}
+              for{" "}
+              <span className="text-[#004ab3] font-semibold">{duration} min</span>
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex flex-wrap gap-2">
+            <p className="text-gray-900 font-medium text-sm">Expertise:</p>
+            {expertise.map((skill) => (
+              <span
+                key={skill}
+                className="px-3 py-1 bg-gray-100 border border-gray-200 rounded-full text-[13px]"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Next Available Slot */}
+        <div className="flex gap-3 justify-between">
+          <div>
+            <p className="text-gray-800 text-sm">Next Available Slot: </p>
+            <span className="text-blue-600 text-sm">
+              {firstAvailableDay
+                ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                : "No slots available"}
+            </span>
+          </div>
+          <div className="flex gap-3">
+            <button
               onClick={toggleLike}
               className={`sm:ml-4 ${isAnimating ? "animate-ping" : ""}`}
             >
