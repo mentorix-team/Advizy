@@ -156,31 +156,33 @@ export default function Header() {
   const unreadCount = notifications?.filter((n) => !n.read)?.length || 0;
 
   return (
-    <header className="max-w-[1089px] flex border justify-between items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
-      <Toaster position="top-right" />
-      <div>
-        <h1 className="text-2xl font-bold">
-          Welcome back, {expertData.firstName}
-        </h1>
-        <p className="text-gray-600">Let's make today productive!</p>
-      </div>
+  <header className="max-w-[1089px] w-full flex flex-col sm:flex-row border justify-between items-start sm:items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
+    <Toaster position="top-right" />
 
-      <div className="flex gap-2">
-        <ProfileShare expert={expertData} />
-        <button
-          onClick={() => setShowNotifications(!showNotifications)}
-          className="relative p-2 hover:bg-gray-100 rounded-full"
-        >
-          <Bell className="w-6 h-6" />
-          {/* <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {notifications?.filter((n) => !n.read)?.length || 0}
-          </span> */}
-          {unreadCount > 0 && (
-            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </button>
+    {/* Welcome Text Section */}
+    <div className="mb-4 sm:mb-0">
+      <h1 className="text-xl sm:text-2xl font-bold">
+        Welcome back, {expertData.firstName}
+      </h1>
+      <p className="text-gray-600 text-sm sm:text-base">
+        Let's make today productive!
+      </p>
+    </div>
+
+    {/* Actions Section */}
+    <div className="flex gap-2 items-center">
+      <ProfileShare expert={expertData} />
+      <button
+        onClick={() => setShowNotifications(!showNotifications)}
+        className="relative p-2 hover:bg-gray-100 rounded-full"
+      >
+        <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+        {unreadCount > 0 && (
+          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center">
+            {unreadCount}
+          </span>
+        )}
+      </button>
 
         {/* {showNotifications && (
           <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50">

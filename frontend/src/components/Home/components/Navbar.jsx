@@ -422,6 +422,8 @@ const Navbar = ({ onSearch }) => {
       localStorage.removeItem("expertMode");
     }
 
+   
+
     // Redirect based on the mode
     if (newMode) {
       console.log("Navigating to Expert Dashboard");
@@ -519,6 +521,7 @@ const Navbar = ({ onSearch }) => {
               <img src="/logo104.99&44.svg" alt="Advizy Logo" />
             </a>
           </div>
+          
 
           {/* Search Bar */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
@@ -673,6 +676,7 @@ const Navbar = ({ onSearch }) => {
               >
                 About Us
               </a>
+              
               {!isExpertMode && (
                 <a
                   href="/become-expert"

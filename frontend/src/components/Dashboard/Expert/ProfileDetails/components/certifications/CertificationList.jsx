@@ -35,18 +35,31 @@ const CertificationList = ({ certifications = [], onEdit, onDelete, onAddClick }
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+        {/* Title Section */}
         <div className="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 13.125C12 13.4234 11.8815 13.7095 11.6705 13.9205C11.4595 14.1315 11.1734 14.25 10.875 14.25H6.75C6.45163 14.25 6.16548 14.1315 5.95451 13.9205C5.74353 13.7095 5.625 13.4234 5.625 13.125C5.625 12.8266 5.74353 12.5405 5.95451 12.3295C6.16548 12.1185 6.45163 12 6.75 12H10.875C11.1734 12 11.4595 12.1185 11.6705 12.3295C11.8815 12.5405 12 12.8266 12 13.125Z" fill="black"/>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M12 13.125C12 13.4234 11.8815 13.7095 11.6705 13.9205C11.4595 14.1315 11.1734 14.25 10.875 14.25H6.75C6.45163 14.25 6.16548 14.1315 5.95451 13.9205C5.74353 13.7095 5.625 13.4234 5.625 13.125C5.625 12.8266 5.74353 12.5405 5.95451 12.3295C6.16548 12.1185 6.45163 12 6.75 12H10.875C11.1734 12 11.4595 12.1185 11.6705 12.3295C11.8815 12.5405 12 12.8266 12 13.125Z"
+              fill="black"
+            />
           </svg>
-          <h2 className="text-xl font-semibold">Certifications</h2>
+          <h2 className="text-lg sm:text-xl font-semibold">Certifications</h2>
         </div>
+  
+        {/* Add Certification Button */}
         <button
           onClick={onAddClick}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2"
+          className="w-full sm:w-auto px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center gap-2 justify-center sm:justify-start text-sm sm:text-base"
         >
-          <span>+</span> Add Certification
+          <span className="text-lg sm:text-xl">+</span>
+          <span>Add Certification</span>
         </button>
       </div>
 

@@ -1,228 +1,3 @@
-// import React from "react";
-// import { NavLink, Outlet } from "react-router-dom";
-// import {
-//   BadgeIndianRupee,
-//   CalendarDays,
-//   HandPlatter,
-//   House,
-//   MessageSquareText,
-//   Star,
-//   UserPen,
-//   Users,
-//   Video,
-// } from "lucide-react";
-
-// const ExpertDashboardLayout = () => {
-//   return (
-//     <div className="overflow-x-hidden">
-//       {/* Navbar */}
-//       <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-//         <div className="px-3 py-3 lg:px-5 lg:pl-3">
-//           <div className="flex items-center justify-between">
-//             <div className="flex items-center justify-start rtl:justify-end">
-//               <button
-//                 data-drawer-target="logo-sidebar"
-//                 data-drawer-toggle="logo-sidebar"
-//                 aria-controls="logo-sidebar"
-//                 type="button"
-//                 className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
-//               >
-//                 <span className="sr-only">Open sidebar</span>
-//                 <svg
-//                   className="w-6 h-6"
-//                   aria-hidden="true"
-//                   fill="currentColor"
-//                   viewBox="0 0 20 20"
-//                   xmlns="http://www.w3.org/2000/svg"
-//                 >
-//                   <path
-//                     clipRule="evenodd"
-//                     fillRule="evenodd"
-//                     d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-//                   ></path>
-//                 </svg>
-//               </button>
-//               <a href="/" className="flex ms-2 md:me-24">
-//                 {/* <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-//                   Advizy
-//                 </span> */}
-//                 <img src="/logo104.99&44.svg" alt="Advizy Logo" />
-//               </a>
-//             </div>
-//           </div>
-//         </div>
-//       </nav>
-
-//       {/* Sidebar */}
-//       <aside
-//         id="logo-sidebar"
-//         className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
-//         aria-label="Sidebar"
-//       >
-//         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
-//           <ul className="space-y-2 font-medium">
-//             <li>
-//               {/* <NavLink
-//                 to="/dashboard/expert"
-//                 className={() =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${"text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"}`
-//                 }
-//               >
-//                 <span className="ms-3">
-//                   <House className="w-5 h-5" />
-//                   Home
-//                 </span>
-//               </NavLink> */}
-//               <NavLink
-//                 to="/dashboard/expert"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <House className="w-5 h-5" />
-//                 <span className="ms-3">Home</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/availability"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <CalendarDays className="w-5 h-5" />
-//                 <span className="ms-3">Availability</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/service-pricing"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <HandPlatter className="w-5 h-5" />
-//                 <span className="ms-3">Pricing & Services</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/profile-detail"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <UserPen className="w-5 h-5" />
-//                 <span className="ms-3">Profile Detail</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/meetings"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <Video className="w-5 h-5" />
-//                 <span className="ms-3">Meetings</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/clients"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <Users className="w-5 h-5" />
-//                 <span className="ms-3">Clients</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/chats"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <MessageSquareText className="w-5 h-5" />
-//                 <span className="ms-3">Chats</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/reviews"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <Star className="w-5 h-5" />
-//                 <span className="ms-3">Reviews</span>
-//               </NavLink>
-//             </li>
-//             <li>
-//               <NavLink
-//                 to="/dashboard/expert/payments"
-//                 className={({ isActive }) =>
-//                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-//                     isActive
-//                       ? "bg-[#d6fae2] font-semibold text-green-900"
-//                       : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-//                   }`
-//                 }
-//               >
-//                 <BadgeIndianRupee className="w-5 h-5" />
-//                 <span className="ms-3">Payments</span>
-//               </NavLink>
-//             </li>
-//           </ul>
-//         </div>
-//       </aside>
-
-//       {/* Main Content */}
-//       <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
-//         <div className="mx-auto px-4">
-//           <Outlet />
-//         </div>
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default ExpertDashboardLayout;
-
 import React, { useState, useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -238,19 +13,22 @@ import {
   BadgeIndianRupee,
   CalendarDays,
   HandPlatter,
-  House,
+  Mouse as House,
   MessageSquareText,
   Star,
-  UserPen,
+  User as UserPen,
   Users,
   Video,
   LayoutDashboard,
   UserCheck,
   Home,
+  Menu,
+  X,
+  PanelRightCloseIcon,
 } from "lucide-react";
 
 const ExpertDashboardLayout = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -262,11 +40,27 @@ const ExpertDashboardLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDropdownOpen && !event.target.closest('.user-dropdown')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDropdownOpen]);
+
   const isLinkActive = (path) => {
     return location.pathname === path;
   };
 
-  // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     const expertMode = localStorage.getItem("expertMode");
@@ -281,6 +75,7 @@ const ExpertDashboardLayout = () => {
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
+    setIsMobileMenuOpen(false);
   };
 
   const handleCloseAuthPopup = () => {
@@ -290,39 +85,39 @@ const ExpertDashboardLayout = () => {
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
     navigate("/");
   };
-  
 
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);
 
-    // Update localStorage to reflect the new mode
     if (newMode) {
       localStorage.setItem("expertMode", "true");
     } else {
       localStorage.removeItem("expertMode");
     }
 
-    // Redirect based on the mode
     if (newMode) {
       navigate("/dashboard/expert/");
     } else {
-      navigate("/"); // Navigate to the landing page
+      navigate("/");
     }
+    setIsMobileMenuOpen(false);
   };
 
   const UserDropdown = () => (
-    <div className="relative">
+    <div className="relative user-dropdown">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
+        className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
       >
-        <span className="text-sm font-medium">
-          <CircleUserRound className="w-5 h-5" />
-        </span>
-        <ChevronDown className="w-4 h-4" />
+        <div className="flex items-center ">
+          <CircleUserRound className="w-7 h-7 " strokeWidth={1.5} />
+          <span className="text-sm font-medium hidden md:block"></span>
+          <ChevronDown className="w-4 h-4" />
+        </div>
       </button>
 
       <AnimatePresence>
@@ -332,8 +127,12 @@ const ExpertDashboardLayout = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
+            <div className="px-4 py-2 border-b border-gray-100">
+              <p className="text-sm font-medium text-gray-900">{userName}</p>
+              <p className="text-xs text-gray-500">Expert Account</p>
+            </div>
             {isExpertMode ? (
               <>
                 <a
@@ -348,18 +147,17 @@ const ExpertDashboardLayout = () => {
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                 >
                   <User className="w-4 h-4" />
-                  {/* Switch to User Mode */}
-                  {isExpertMode
-                    ? "Switch to User Mode"
-                    : "Switch to Expert Mode"}
+                  Switch to User Mode
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
+                <div className="border-t border-gray-100 mt-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
               </>
             ) : (
               <>
@@ -379,13 +177,15 @@ const ExpertDashboardLayout = () => {
                     Switch to Expert Mode
                   </button>
                 )}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
+                <div className="border-t border-gray-100 mt-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
               </>
             )}
           </motion.div>
@@ -406,44 +206,61 @@ const ExpertDashboardLayout = () => {
               </a>
             </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-6">
-              <a
-                href="/about-us"
-                className={`transition-colors duration-200 text-base font-medium ${
-                  isLinkActive("/about-us")
-                    ? "text-primary underline underline-offset-4"
-                    : "text-gray-600 hover:text-primary"
-                }`}
-              >
-                About Us
-              </a>
-
-              {!isExpertMode && (
+            <div className="flex items-center gap-4">
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center gap-6">
                 <a
-                  href="/become-expert"
+                  href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
-                    isLinkActive("/become-expert")
+                    isLinkActive("/about-us")
                       ? "text-primary underline underline-offset-4"
                       : "text-gray-600 hover:text-primary"
                   }`}
                 >
-                  Share Your Expertise
+                  About Us
                 </a>
-              )}
 
-              {isLoggedIn ? (
-                <UserDropdown />
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-primary text-white text-sm px-8 py-2 rounded-md"
-                  onClick={handleOpenAuthPopup}
+                {!isExpertMode && (
+                  <a
+                    href="/become-expert"
+                    className={`transition-colors duration-200 text-base font-medium ${
+                      isLinkActive("/become-expert")
+                        ? "text-primary underline underline-offset-4"
+                        : "text-gray-600 hover:text-primary"
+                    }`}
+                  >
+                    Share Your Expertise
+                  </a>
+                )}
+              </div>
+
+              {/* User Profile & Mobile Menu */}
+              <div className="flex items-center gap-3">
+                {isLoggedIn ? (
+                  <UserDropdown />
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-primary text-white text-sm px-8 py-2 rounded-md"
+                    onClick={handleOpenAuthPopup}
+                  >
+                    Login
+                  </motion.button>
+                )}
+
+                {/* Hamburger Menu Button */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
                 >
-                  Login
-                </motion.button>
-              )}
+                  {isMobileMenuOpen ? (
+                    <X className="h-6 w-6" />
+                  ) : (
+                    <PanelRightCloseIcon className="h-8 w-8 text-gray-700" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -452,8 +269,9 @@ const ExpertDashboardLayout = () => {
 
       {/* Sidebar */}
       <aside
-        id="logo-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">

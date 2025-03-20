@@ -12,9 +12,9 @@ const TestimonialCard = ({ testimonial, onRespond }) => {
   return (
     <>
       <div className="p-6">
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-6">
           {/* Left Side - Client Info */}
-          <div className="w-1/3">
+          <div className="w-full md:w-1/3">
             <div className="flex items-start gap-4">
               {/* Avatar */}
               <div className="flex-shrink-0">
@@ -26,28 +26,24 @@ const TestimonialCard = ({ testimonial, onRespond }) => {
               <div>
                 <h3 className="text-lg font-medium text-gray-900">{testimonial.name}</h3>
                 <div className="mt-1 space-y-1">
-                  <p className="text-gray-600">
-                    Duration: {testimonial.duration}
-                  </p>
-                  <p className="text-gray-600">
-                    Service: {testimonial.service}
-                  </p>
+                  <p className="text-gray-600">Duration: {testimonial.duration}</p>
+                  <p className="text-gray-600">Service: {testimonial.service}</p>
                 </div>
               </div>
             </div>
           </div>
-
+  
           {/* Right Side - Review Content */}
-          <div className="w-2/3">
+          <div className="w-full md:w-2/3">
             {/* Rating and Date */}
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex flex-wrap items-center gap-4 mb-4">
               <StarRating rating={testimonial.rating} />
               <span className="text-gray-500 text-sm">{testimonial.date}</span>
             </div>
-
+  
             {/* Review Text */}
             <p className="text-gray-700 mb-4">{testimonial.comment}</p>
-
+  
             {/* Response Section */}
             {testimonial.hasResponse && (
               <div className="mb-4">
@@ -57,7 +53,7 @@ const TestimonialCard = ({ testimonial, onRespond }) => {
                 </div>
               </div>
             )}
-
+  
             {/* Response Button */}
             <div className="flex justify-start">
               <button

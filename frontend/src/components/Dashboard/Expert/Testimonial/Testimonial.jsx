@@ -101,55 +101,76 @@ function Testimonials() {
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-12">Testimonials</h1>
-        
+        <h1 className="text-3xl font-bold text-gray-900 mb-12 text-center md:text-left">
+          Testimonials
+        </h1>
+  
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Total Reviews */}
-          <div className="bg-white p-8 rounded-xl border">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Total Reviews</h2>
-            <div className="flex items-center gap-3">
-              <span className="text-4xl font-bold text-gray-900">{analytics.totalReviews}</span>
-              <span className="px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded">
+          <div className="bg-white p-6 md:p-8 rounded-xl border">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4">
+              Total Reviews
+            </h2>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <span className="text-3xl md:text-4xl font-bold text-gray-900">
+                {analytics.totalReviews}
+              </span>
+              <span className="px-2 py-1 text-xs md:text-sm font-medium text-green-700 bg-green-100 rounded">
                 {analytics.growthPercentage}% ↑
               </span>
             </div>
-            <p className="text-gray-600 text-sm mt-2">{analytics.growthText}</p>
+            <p className="text-gray-600 text-xs md:text-sm mt-2">
+              {analytics.growthText}
+            </p>
           </div>
-          
+  
           {/* Average Rating */}
-          <div className="bg-white p-8 rounded-xl border">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Average Rating</h2>
-            <div className="flex items-center gap-3">
-              <span className="text-4xl font-bold text-gray-900">{analytics.averageRating}</span>
+          <div className="bg-white p-6 md:p-8 rounded-xl border">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4">
+              Average Rating
+            </h2>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              <span className="text-3xl md:text-4xl font-bold text-gray-900">
+                {analytics.averageRating}
+              </span>
               <StarRating rating={analytics.averageRating} size="lg" />
             </div>
-            <p className="text-gray-600 text-sm mt-2">{analytics.ratingPeriod}</p>
+            <p className="text-gray-600 text-xs md:text-sm mt-2">
+              {analytics.ratingPeriod}
+            </p>
           </div>
-          
+  
           {/* Rating Distribution */}
-          <div className="bg-white p-8 rounded-xl border">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Rating Distribution</h2>
+          <div className="bg-white p-6 md:p-8 rounded-xl border">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4">
+              Rating Distribution
+            </h2>
             <div className="space-y-2">
               {analytics.ratingDistribution.map((rating) => (
                 <div key={rating.stars} className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600 w-3">{rating.stars}</span>
+                  <span className="text-xs md:text-sm text-gray-600 w-3">
+                    {rating.stars}
+                  </span>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{
                         width: rating.width,
-                        backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444'
+                        backgroundColor:
+                          rating.stars > 3 ? "#10B981" : rating.stars > 2 ? "#FBBF24" : "#EF4444",
                       }}
                     ></div>
                   </div>
-                  <span className="text-sm text-gray-600 w-12">{rating.percentage}</span>
+                  <span className="text-xs md:text-sm text-gray-600 w-12">
+                    {rating.percentage}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
+        
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1">

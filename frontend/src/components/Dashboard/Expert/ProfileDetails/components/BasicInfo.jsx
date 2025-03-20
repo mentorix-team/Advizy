@@ -195,7 +195,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       </div>
 
       {/* Form Grid */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* First Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -451,6 +451,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           )}
         </div>
       </div>
+
+      <br></br>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
