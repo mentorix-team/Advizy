@@ -35,7 +35,16 @@ const ExpertDashboardLayout = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const userName = useSelector((state) => state.auth.user?.name || "User");
+  const {data} = useSelector((state) => state.auth);
+  
+  let parsedData;
+  try {
+      parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+      console.error("Error parsing JSON:", error);
+      parsedData = data; // Fallback to original data
+  }
+
   const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -130,7 +139,7 @@ const ExpertDashboardLayout = () => {
             className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
             <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{userName}</p>
+              <p className="text-sm font-medium text-gray-900">{parsedData?.firstName} {parsedData?.lastName}</p>
               <p className="text-xs text-gray-500">Expert Account</p>
             </div>
             {isExpertMode ? (

@@ -199,15 +199,17 @@ function App() {
           <ArrowLeft className="w-5 h-5 text-gray-800" />
           <span>Back</span>
         </button>
-        <div className="flex flex-col items-start gap-4 mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            Join <span className="text-primary font-extrabold">Advizy</span>
-          </h1>
-          <p className="text-md font-semibold text-gray-600">
-            Empower others with your knowledge while growing your influence and
-            professional reach.
-          </p>
-        </div>
+        <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8 mb-6">
+  <div className="flex flex-col items-start gap-4">
+    <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+      Join <span className="text-primary font-extrabold">Advizy</span>
+    </h1>
+    <p className="text-md font-semibold text-gray-600">
+      Empower others with your knowledge while growing your influence and
+      professional reach.
+    </p>
+  </div>
+</div>
 
         <div className="bg-white rounded-lg shadow">
           <div className="px-4 sm:px-6 lg:px-8">
