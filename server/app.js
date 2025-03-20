@@ -10,7 +10,6 @@ import morgan from "morgan";
 import cors from 'cors';
 import passport from "passport";
 import session from 'express-session';
-
 import './config/passport.config.js'
 const app = express();
 

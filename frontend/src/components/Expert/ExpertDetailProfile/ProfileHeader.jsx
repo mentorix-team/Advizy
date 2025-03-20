@@ -18,8 +18,9 @@ const ProfileHeader = ({
   image,
   isTopRatedVisible,
   toggleTopRated,
-  redirect_url
+  redirect_uri
 }) => {
+  console.log('this is redirecturl',redirect_uri)
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -114,7 +115,7 @@ const ProfileHeader = ({
                   </div>
                 </div>
                 <div className="flex gap-6">
-                  <div
+                  {/* <div
                     onClick={toggleFavorite}
                     className="flex items-center gap-2 cursor-pointer"
                   >
@@ -129,7 +130,7 @@ const ProfileHeader = ({
                         <FaRegHeart className="text-xl transition-all duration-300 ease-out text-black" />
                       )}
                     </div>
-                  </div>
+                  </div> */}
                   <div className="flex items-center gap-2 cursor-pointer">
                     <div className="relative">
                       {/* Share Button */}
@@ -141,16 +142,16 @@ const ProfileHeader = ({
                       </button>
 
                       {/* Share Modal */}
-                      {isShareOpen && <Share onClose={closeShareModal} redirect_url = {redirect_url} />}
+                      {isShareOpen && <Share onClose={closeShareModal} redirect_url = {redirect_uri} />}
                     </div>
                   </div>
                   {/* Button to toggle Top Rated badge */}
-                  <button
+                  {/* <button
                     className="px-3 py-1 text-sm bg-gray-200 rounded-full"
                     onClick={toggleTopRated}
                   >
                     Toggle Top Rated
-                  </button>
+                  </button> */}
                 </div>
               </div>
               <div className="mt-4 text-right">

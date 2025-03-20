@@ -25,8 +25,8 @@ const expertBasicDetails = async (req, res, next) => {
       mobile,
       countryCode,
       languages,
-      // bio,
-      // socialLinks
+      bio,
+      socialLinks
     } = req.body;
 
     const user_id = req.user.id;
@@ -65,8 +65,8 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
       expertbasic.languages = languages;
-      // expertbasic.bio = bio;
-      // expertbasic.socialLinks = socialLinks;
+      expertbasic.bio = bio;
+      expertbasic.socialLinks = socialLinks;
     } else {
       console.log("No existing expert found, creating new...");
       isNewExpert = true; // Mark as a new expert
@@ -85,51 +85,51 @@ const expertBasicDetails = async (req, res, next) => {
         // bio,
         // socialLinks,
         redirect_url:'',
-        // profileImage: { public_id: "Dummy", secure_url: "Dummy" },
-        // coverImage: { public_id: "Dummy", secure_url: "Dummy" },
+        profileImage: { public_id: "Dummy", secure_url: "Dummy" },
+        coverImage: { public_id: "Dummy", secure_url: "Dummy" },
         credentials:{services:[]}
       });
     }
     console.log("this is user id after",expertbasic.user_id)
 
     // Log if files exist
-    // if (req.files) {
-    //   console.log("Image incoming...", req.files);
+    if (req.files) {
+      console.log("Image incoming...", req.files);
 
-    //   if (req.files.profileImage) {
-    //     console.log("Uploading profile image...");
-    //     const profileResult = await cloudinary.v2.uploader.upload(
-    //       req.files.profileImage[0].path,
-    //       { folder: "Advizy/profile" }
-    //     );
+      if (req.files.profileImage) {
+        console.log("Uploading profile image...");
+        const profileResult = await cloudinary.v2.uploader.upload(
+          req.files.profileImage[0].path,
+          { folder: "Advizy/profile" }
+        );
 
-    //     if (profileResult) {
-    //       console.log("Profile Image Uploaded: ", profileResult);
-    //       expertbasic.profileImage = {
-    //         public_id: profileResult.public_id,
-    //         secure_url: profileResult.secure_url
-    //       };
-    //     }
-    //   }
+        if (profileResult) {
+          console.log("Profile Image Uploaded: ", profileResult);
+          expertbasic.profileImage = {
+            public_id: profileResult.public_id,
+            secure_url: profileResult.secure_url
+          };
+        }
+      }
 
-    //   if (req.files.coverImage) {
-    //     console.log("Uploading cover image...");
-    //     const coverResult = await cloudinary.v2.uploader.upload(
-    //       req.files.coverImage[0].path,
-    //       { folder: "Advizy/cover" }
-    //     );
+      if (req.files.coverImage) {
+        console.log("Uploading cover image...");
+        const coverResult = await cloudinary.v2.uploader.upload(
+          req.files.coverImage[0].path,
+          { folder: "Advizy/cover" }
+        );
 
-    //     if (coverResult) {
-    //       console.log("Cover Image Uploaded: ", coverResult);
-    //       expertbasic.coverImage = {
-    //         public_id: coverResult.public_id,
-    //         secure_url: coverResult.secure_url
-    //       };
-    //     }
-    //   }
-    // } else {
-    //   console.log("No images found in request.");
-    // }
+        if (coverResult) {
+          console.log("Cover Image Uploaded: ", coverResult);
+          expertbasic.coverImage = {
+            public_id: coverResult.public_id,
+            secure_url: coverResult.secure_url
+          };
+        }
+      }
+    } else {
+      console.log("No images found in request.");
+    }
 
     console.log("Final expert data before saving:", expertbasic);
     const generateRandomString = (length = 8) => {
@@ -202,12 +202,9 @@ const expertBasicDetails = async (req, res, next) => {
 };
 
 const expertCredentialsDetails = async (req, res, next) => {
+  const { domain, niche, professionalTitle, skills, experienceYears } = req.body;
 
-  const { domain, niche, professionalTitle,skills } = req.body;
-  console.log("THis is the req.body response",req.body)
-  if (!domain || !niche || !professionalTitle ||!skills) {
-    return next(new AppError("All fields are required", 400)); // Use 400 for bad request
-  }
+  console.log("This is the req.body response:", req.body);
 
   try {
     const expertId = req.expert.id;
@@ -222,9 +219,10 @@ const expertCredentialsDetails = async (req, res, next) => {
     expertBasics.credentials = {
       ...expertBasics.credentials, // Preserve existing fields in credentials
       domain,
-      niche: Array.isArray(niche) ? niche : [niche],
-      expertise: Array.isArray(professionalTitle) ? professionalTitle : [professionalTitle],
-      skills: Array.isArray(skills) ? skills : [skills],
+      niche: Array.isArray(niche) ? niche : [niche], // Ensure niche is stored as an array
+      professionalTitle: Array.isArray(professionalTitle) ? professionalTitle : [professionalTitle], // Store as array
+      skills: Array.isArray(skills) ? skills : [skills], // Store as array
+      experienceYears
     };
 
     await expertBasics.save();
@@ -238,6 +236,7 @@ const expertCredentialsDetails = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
+
 
   
 const expertcertifiicate = async (req, res, next) => {
@@ -748,15 +747,11 @@ const deleteService = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
+
 const updateService = async (req, res, next) => {
-  const { id, serviceName, shortDescription, detailedDescription, timeSlot, features, timeSlots } = req.body;
+  const { id, serviceName, shortDescription, detailedDescription, hourlyRate, timeSlots, features } = req.body;
   const serviceId = id; // Ensure correct ID mapping
   const expertId = req.expert.id;
-
-  // Extract duration and price from timeSlot
-  const duration = timeSlot?.duration || null;
-  const price = timeSlot?.price || null;
-  const title = serviceName; // Store serviceName as title
 
   console.log("This is req.body", req.body);
 
@@ -777,14 +772,30 @@ const updateService = async (req, res, next) => {
 
     const service = expert.credentials.services[serviceIndex];
 
-    // Update only provided fields
-    if (title) service.title = title; // Using serviceName as title
-    if (shortDescription) service.shortDescription = shortDescription;
-    if (detailedDescription) service.detailedDescription = detailedDescription;
-    if (duration !== null) service.duration = duration;
-    if (price !== null) service.price = price;
-    if (Array.isArray(features)) service.features = features;
-    if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
+    // Check if the service is "One-on-One Mentoring"
+    if (serviceName === "One-on-One Mentoring") {
+      // Update only relevant fields for One-on-One Mentoring
+      if(hourlyRate) service.hourlyRate = hourlyRate
+      if (shortDescription) service.shortDescription = shortDescription;
+      if (detailedDescription) service.detailedDescription = detailedDescription;
+      if (Array.isArray(features)) service.features = features;
+
+      // Update one_on_one field with timeSlots data
+      if (Array.isArray(timeSlots)) {
+        service.one_on_one = timeSlots.map(slot => ({
+          duration: slot.duration,
+          price: slot.price,
+          enabled: slot.enabled ?? false, // Ensure default value for enabled
+        }));
+      }
+    } else {
+      // Default behavior for other services
+      if (serviceName) service.title = serviceName;
+      if (shortDescription) service.shortDescription = shortDescription;
+      if (detailedDescription) service.detailedDescription = detailedDescription;
+      if (Array.isArray(features)) service.features = features;
+      if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
+    }
 
     await expert.save();
 
@@ -798,6 +809,7 @@ const updateService = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
+
 
 
 const getService = async (req, res, next) => {
@@ -947,81 +959,105 @@ const extpertPortfolioDetails = async (req, res, next) => {
   
   const getAllExperts = async (req, res, next) => {
     try {
-      const filters = {};
-  
-      if (req.query.admin_approved_expert) {
-        filters.admin_approved_expert = req.query.admin_approved_expert === "true";
-      }
-      if (req.query.gender) {
-        filters.gender = req.query.gender;
-      }
-      if (req.query.nationality) {
-        filters.nationality = req.query.nationality;
-      }
-      if (req.query.country_living) {
-        filters.country_living = req.query.country_living;
-      }
-      if (req.query.city) {
-        filters.city = req.query.city;
-      }
-      if (req.query.languages) {
-        filters.languages = { $in: req.query.languages.split(",") };
-      }
-      if (req.query.skills) {
-        filters["credentials.skills"] = { $in: req.query.skills.split(",") };
-      }
-      if (req.query.domain) {
-        filters["credentials.domain"] = req.query.domain;
-      }
-      if (req.query.niche) {
-        filters["credentials.niche"] = { $in: req.query.niche.split(",") };
-      }
-      if (req.query.professionalTitle) {
-        filters["credentials.professionalTitle"] = { $in: req.query.professionalTitle.split(",") };
-      }
-  
-      // Validate and apply earning filters
-      const minEarnings = parseFloat(req.query.minEarnings);
-      const maxEarnings = parseFloat(req.query.maxEarnings);
-      if (!isNaN(minEarnings) && !isNaN(maxEarnings)) {
-        filters.total_earnings = { $gte: minEarnings, $lte: maxEarnings };
-      } else if (!isNaN(minEarnings)) {
-        filters.total_earnings = { $gte: minEarnings };
-      } else if (!isNaN(maxEarnings)) {
-        filters.total_earnings = { $lte: maxEarnings };
-      }
-  
-      // Pagination
-      // const page = Math.max(1, parseInt(req.query.page) || 1); // Ensure minimum page is 1
-      // const limit = Math.max(1, parseInt(req.query.limit) || 10); // Ensure minimum limit is 1
-      // const skip = (page - 1) * limit;
-  
-      // Sorting
-      const sortBy = req.query.sortBy || "createdAt"; // Default sorting by createdAt
-      const order = req.query.order === "asc" ? 1 : -1;
-      const sortCriteria = { [sortBy]: order, createdAt: -1 }; // Secondary sort by createdAt for consistency
-  
-      // Fetch experts with sorting, pagination, and filtering
-      const experts = await ExpertBasics.find(filters)
-        .sort(sortCriteria)
-        // .skip(skip)
-        // .limit(limit)
-        .lean(); // Use .lean() for better performance
-  
-      const totalExperts = await ExpertBasics.countDocuments(filters);
-  
-      return res.status(200).json({
-        success: true,
-        message: "Filtered Experts",
-        totalExperts,
-        // currentPage: page,
-        // totalPages: Math.ceil(totalExperts / limit),
-        experts,
-      });
+        const filters = {};
+
+        if (req.query.admin_approved_expert) {
+            filters.admin_approved_expert = req.query.admin_approved_expert === "true";
+        }
+        if (req.query.gender) {
+            filters.gender = req.query.gender;
+        }
+        if (req.query.nationality) {
+            filters.nationality = req.query.nationality;
+        }
+        if (req.query.country_living) {
+            filters.country_living = req.query.country_living;
+        }
+        if (req.query.city) {
+            filters.city = req.query.city;
+        }
+        if (req.query.languages) {
+            const languagesArray = req.query.languages.split(",");
+            filters["$or"] = [
+                { languages: { $in: languagesArray } },
+                { languages: { $in: languagesArray.map(lang => new RegExp(`^${lang}$`, "i")) } }
+            ];
+        }
+        if (req.query.skills) {
+            filters["credentials.skills"] = { $in: req.query.skills.split(",") };
+        }
+        if (req.query.domain) {
+          filters["credentials.domain"] = req.query.domain;
+        }
+        if (req.query.niches) {
+            const nichesArray = req.query.niches.split(",");
+            filters["$or"] = [
+                { "credentials.niche": { $in: nichesArray } },
+                { "credentials.niche": { $in: nichesArray.map(n => new RegExp(`^${n}$`, "i")) } }
+            ];
+        }
+        if (req.query.professionalTitle) {
+            filters["credentials.professionalTitle"] = { $in: req.query.professionalTitle.split(",") };
+        }
+
+        // Validate and apply price range filters
+        if (req.query.priceMin || req.query.priceMax) {
+            const minPrice = Number(req.query.priceMin) || 0;
+            const maxPrice = Number(req.query.priceMax) || Number.MAX_SAFE_INTEGER;
+        
+            filters["credentials.services"] = {
+                $elemMatch: {
+                    $or: [
+                        { price: { $gte: minPrice, $lte: maxPrice } },
+                        { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } }
+                    ]
+                }
+            };
+        }
+
+        // Add Rating Filter
+        if (req.query.ratings) {
+            const minRating = parseInt(req.query.ratings, 10); // Convert to integer
+            filters.$expr = {
+                $gte: [
+                    {
+                        $toInt: {
+                            $ifNull: [
+                                {
+                                    $divide: [
+                                        { $sum: "$reviews.rating" },
+                                        { $cond: { if: { $gt: [{ $size: "$reviews" }, 0] }, then: { $size: "$reviews" }, else: 1 } }
+                                    ]
+                                },
+                                0
+                            ]
+                        }
+                    },
+                    minRating
+                ]
+            };
+        }
+
+        // Sorting
+        const sortBy = req.query.sorting || "createdAt";
+        const order = req.query.order === "asc" ? 1 : -1;
+        const sortCriteria = { [sortBy]: order, createdAt: -1 };
+
+        // Fetch experts with sorting and filtering
+        const experts = await ExpertBasics.find(filters).sort(sortCriteria).lean();
+        const totalExperts = await ExpertBasics.countDocuments(filters);
+
+        return res.status(200).json({
+            success: true,
+            message: "Filtered Experts",
+            totalExperts,
+            experts,
+        });
     } catch (error) {
-      next(error);
+        next(error);
     }
-  };
+};
+
   
   
 

@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
+    import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import axiosInstance from '../../Helperw/axiosInstance'
 import toast from 'react-hot-toast'
 
@@ -8,7 +8,20 @@ const initialState = {
     data:localStorage.getItem('data') || {},
     expertData:localStorage.getItem('expertData') || {},
     admin_approved_expert:localStorage.getItem('admin_approved_expert') || false    
-}       
+}  
+export const validateToken = createAsyncThunk(
+    'auth/validateToken',
+    async (_, { rejectWithValue }) => {  // No need for `data` parameter
+        try {
+            const response = await axiosInstance.get('user/validate_token', { withCredentials: true }); // Ensure cookies are sent
+            return response.data;
+        } catch (error) {
+            const errorMessage = error?.response?.data?.message || "Please Log in Again .";
+            toast.error(errorMessage);
+            return rejectWithValue(errorMessage);
+        }
+    }
+);     
 export const validateOtpEmail = createAsyncThunk(
     "auth/validateOtpEmail",
     async (data, { rejectWithValue }) => {

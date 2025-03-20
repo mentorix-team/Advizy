@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createVideoCall, getMeet, payed } from "@/Redux/Slices/meetingSlice";
 import { getServicebyid } from "@/Redux/Slices/expert.Slice";
 import { createpaymentOrder, verifypaymentOrder } from "@/Redux/Slices/paymentSlice";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const OrderSummary = () => {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ const OrderSummary = () => {
   }, []);
 
   if (loading || expertLoading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   if (error) {
@@ -93,7 +94,7 @@ const OrderSummary = () => {
     includes: selectedService.features,
   };
 
-  const { selectedDate, startTime, endTime } = location.state || {};
+  const { selectedDate, startTime, endTime ,Price} = location.state || {};
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
 
   const formatSelectedDate = (date) => {
@@ -145,7 +146,7 @@ const OrderSummary = () => {
       endDateTime.setHours(endHours, endMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
   
       const dateStr = parsedDate.toISOString().split("T")[0]; // Get date in YYYY-MM-DD format
-      const amountInPaise = selectedService?.price * 100;
+      const amountInPaise = priceforsession * 100;
   
       const paymentData = {
         serviceId: selectedMeeting.serviceId,
@@ -214,6 +215,8 @@ const OrderSummary = () => {
     }
   };
 
+  const priceforsession = selectedService?.price || Price
+
   return (
     <div className="min-h-screen flex items-start justify-center gap-6 bg-gray-50 p-6">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
@@ -249,7 +252,7 @@ const OrderSummary = () => {
           <h1 className="text-lg font-semibold mb-4">Order Summary</h1>
           <div className="flex justify-between mb-4">
             <p className="text-gray-700">{selectedService.title}</p>
-            <span>{selectedService?.price || "0"}</span>
+            <span>{priceforsession || "0"}</span>
           </div>
           <div className="flex justify-between mb-4">
             <span className="text-gray-500">Platform fee</span>
@@ -258,7 +261,7 @@ const OrderSummary = () => {
           <hr className="mb-4" />
           <div className="flex justify-between mb-4">
             <span className="font-semibold">Total</span>
-            <span className="font-bold">₹{selectedService?.price || "0"}</span>
+            <span className="font-bold">₹{priceforsession || "0"}</span>
           </div>
 
           <p className="text-green-600 font-semibold mb-2">
@@ -278,7 +281,7 @@ const OrderSummary = () => {
           onClick={handleConfirmPayment}
           disabled={paymentLoading}
         >
-          {paymentLoading ? "Processing..." : `Confirm and Pay ₹${selectedService?.price || "0"}`}
+          {paymentLoading ? "Processing..." : `Confirm and Pay ₹${priceforsession || "0"}`}
         </button>
       </div>
     </div>

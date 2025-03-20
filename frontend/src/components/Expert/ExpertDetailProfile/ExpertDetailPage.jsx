@@ -10,6 +10,7 @@ import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ExpertDetailPage = () => {
   // const { id } = useParams(); // Get the ID from URL params
@@ -44,7 +45,7 @@ const ExpertDetailPage = () => {
   
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Spinner />
   }
 
   if (error) {
@@ -62,21 +63,28 @@ const ExpertDetailPage = () => {
       <ProfileHeader
         coverImage={expert?.coverImage?.secure_url}
         name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
-        title={expert?.credentials?.domain || "No Title Provided"}
-        location={expert?.credentials?.location || "Unknown"}
-        rating={expert?.rating || 0}
+        title={expert?.credentials?.professionalTitle[0] || "No Title Provided"}
+        location={expert?.city || "Unknown"}
+        rating={expert?.reviews?.length > 0
+          ? Math.round(
+              expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+                expert.reviews.length
+            )
+          : 0 
+        }
         reviewsCount={expert?.reviews?.length || 0}
         image={expert?.profileImage?.secure_url}
+        redirect_uri={redirect_url}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <ProfileInfo
-              experience={expert?.credentials?.work_experiences?.[0]?.years_of_experience || 0}
-              languages={expert?.languages || []}
+              experience={expert?.credentials?.experienceYears || 0}
+              languages={JSON.parse(expert?.languages?.[0] || "[]").map(lang => lang.label)}
               about={expert?.bio || "No details provided"}
             />
-            <Expertise skills={expert?.credentials?.expertise || []} />
+            <Expertise skills={expert?.credentials?.skills || []} />
             <ServicesOffered services={expert?.credentials?.services || []} />
             <Reviews reviews={Array.isArray(feedbackofexpert) ? feedbackofexpert : []} />
             <FAQ faqs={expert?.credentials?.faqs || []} />

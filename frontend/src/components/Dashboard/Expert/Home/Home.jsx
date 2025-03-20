@@ -43,6 +43,13 @@ function Home() {
     day.slots?.some((slot) => slot.startTime)
   );
 
+  const oneOnOneService = expertData?.credentials?.services?.find(
+    (service) => service.title === "One-on-One Mentoring"
+  );
+
+  const hasEditedOneOnOneService = oneOnOneService?.one_on_one?.some(
+      (session) => session.price > 0
+  );
   // Check if expert has added at least one service
   const hasServices = expertData?.credentials?.services?.length > 0;
 
@@ -71,6 +78,12 @@ function Home() {
       icon: "calendar",
       text: "Set your Availability",
       completed: hasAvailability,
+    },
+    {
+      id: 4,
+      icon: "edit",
+      text: "Edit your One-on-One Service",
+      completed: hasEditedOneOnOneService,
     },
   ];
 

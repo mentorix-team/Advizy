@@ -6,6 +6,7 @@ import AddServiceModal from './modals/AddServiceModal';
 import EditDefaultServiceModal from './modals/EditDefaultServiceModal';
 import EditNonDefaultServiceModal from './modals/EditNonDefaultServiceModal';
 import { deleteService, updateServicebyId } from '@/Redux/Slices/expert.Slice';
+import MentoringCard from '../ProfileDetails/components/preview/src/components/ServicesOffered/MentoringCard';
 
 function ServicePricing() {
   const dispatch = useDispatch(); // Initialize dispatch
@@ -17,7 +18,9 @@ function ServicePricing() {
   // Get expert data from Redux store
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || []; // Fallback to empty array if not available
-
+  const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
+  const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
+  console.log('thhis is ',filteredServices)
   useEffect(() => {
     console.log('Expert Data:', expertData);
     console.log('Services:', services);
@@ -26,7 +29,7 @@ function ServicePricing() {
   const handleEditService = (service) => {
     console.log('this is the service',service)
     setEditingService(service);
-    if (service.serviceId === 'default') {
+    if (service.title === 'One-on-One Mentoring') {
       setIsEditDefaultModalOpen(true);
     } else {
       setIsEditNonDefaultModalOpen(true);
@@ -39,16 +42,6 @@ function ServicePricing() {
     setEditingService(null);
   };
 
-  // const handleDeleteService = (serviceId) => {
-  //   // Dispatch deleteService action
-  //   dispatch(deleteService(serviceId))
-  //     .then(() => {
-  //       console.log(`Service with ID ${serviceId} deleted successfully.`);
-  //     })
-  //     .catch((error) => {
-  //       console.error(`Failed to delete service with ID ${serviceId}:`, error);
-  //     });
-  // };
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] p-4 sm:p-6 md:p-8">
@@ -66,11 +59,12 @@ function ServicePricing() {
             <span>+</span> Add Service
           </button>
         </div>
-  
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {services.length > 0 ? (
-            services.map((service, index) => (
+
+        {/* Display services */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {mentoringService && <MentoringCard service={mentoringService}  onEdit={handleEditService} />} 
+          {filteredServices.length > 0 ? (
+            filteredServices.map((service, index) => (
               <ServiceCard
                 key={index}
                 service={service}

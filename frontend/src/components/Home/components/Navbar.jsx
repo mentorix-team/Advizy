@@ -383,11 +383,17 @@ const Navbar = ({ onSearch }) => {
   // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
+    setIsExpertMode(true);
     if (expertData) {
-      setIsExpertMode(true);
       setHasExpertData(true); // Update hasExpertData state
     }
   }, []);
+
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode") === "true";
+    setIsExpertMode(expertMode);
+  }, []);
+  
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode");
@@ -412,27 +418,26 @@ const Navbar = ({ onSearch }) => {
   };
 
   const handleToggleExpertMode = () => {
-    const newMode = !isExpertMode;
-    setIsExpertMode(newMode);
-
-    // Update localStorage to reflect the new mode
+    const newMode = !isExpertMode; // Toggle the mode
+  
     if (newMode) {
       localStorage.setItem("expertMode", "true");
     } else {
       localStorage.removeItem("expertMode");
     }
-
-   
-
+  
+    setIsExpertMode(newMode);
+  
     // Redirect based on the mode
     if (newMode) {
       console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
-      console.log("Navigating to Landing Page");
-      navigate("/"); // Navigate to the landing page
+      console.log("Navigating to User Dashboard");
+      navigate("/dashboard/user/meetings");
     }
   };
+  
 
   const UserDropdown = () => (
     <div className="relative">
@@ -506,6 +511,7 @@ const Navbar = ({ onSearch }) => {
                 </button>
               </>
             )}
+
           </motion.div>
         )}
       </AnimatePresence>

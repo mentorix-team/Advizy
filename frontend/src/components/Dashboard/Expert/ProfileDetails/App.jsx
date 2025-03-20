@@ -53,9 +53,16 @@ const [formData, setFormData] = useState({
     countryCode: expert?.countryCode || '',
     email: expert?.email || '',
     bio: expert?.bio || '',
+    // languages: expert?.languages
+    //   ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label))
+    //   : [],
     languages: expert?.languages
-      ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label))
-      : [],
+    ? expert.languages.flatMap(lang => 
+        JSON.parse(lang).map(l => 
+          expert?.languages.find(opt => opt.label === l.label) || { value: l.value, label: l.label }
+        )
+      )
+    : [],
     socialLinks: expert?.socialLinks?.length
       ? JSON.parse(expert.socialLinks[0])
       : [''],

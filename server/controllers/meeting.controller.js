@@ -198,6 +198,14 @@ const payedForMeeting = async (req, res, next) => {
     meeting.isPayed = true;
     await meeting.save();
 
+    const expert = await ExpertBasics.findById(expertId);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Add the meeting ID to the expert's sessions array
+    expert.sessions.push(meeting._id);
+    await expert.save();
     // Create a notification
     const notification = new Notification({
       expertId: meeting.expertId,
@@ -1022,26 +1030,40 @@ const giveFeedback = async(req,res,next) =>{
   }
 }
 
-const getFeedbackbyexpertId = async(req,res,next) =>{
-  const {id} = req.body;
-  console.log(req.body);
-  if(!id){
-    return next(new AppError('Id is not there',500))
-  }
-  
-  const feedback = await Feedback.find({expert_id:id})
 
+const getFeedbackbyexpertId = async (req, res, next) => {
+  let id;
 
-  if(!feedback){
-    return next(new AppError('Feedback not found',406))
+  // Handle both cases: { id: '67d7ca3bc94ed029b3cc426b' } and { '67d7ca3bc94ed029b3cc426b': '' }
+  if (req.body.id) {
+    id = req.body.id;
+  } else {
+    id = Object.keys(req.body)[0]; // Extract the key if it's formatted differently
   }
 
-  res.status(200).json({
-    success:true,
-    message:'All Feedback of the users',
-    feedback
-  })
-}
+  console.log('This is req.body', req.body);
+  console.log('This is id', id);
+
+  if (!id || id.length !== 24) {
+    return next(new AppError('Invalid or missing ID', 400));
+  }
+
+  try {
+    const feedback = await Feedback.find({ expert_id: id });
+
+    if (!feedback ) {
+      return next(new AppError('Feedback not found', 406));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'All Feedback of the users',
+      feedback,
+    });
+  } catch (error) {
+    return next(new AppError('Error fetching feedback', 500));
+  }
+};
 const getthemeet = async(req,res,next) =>{
   try {
     const {id} = req.body;

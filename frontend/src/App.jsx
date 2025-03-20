@@ -1,5 +1,5 @@
-import { Routes, Route } from "react-router-dom";
-import { useState } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
 import UserDashboardRoutes from "./routes/UserDashboardRoutes";
 import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
@@ -24,15 +24,15 @@ import AuthPopup from "./components/Auth/AuthPopup.auth";
 import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
-import ComingSoon from "./ComingSoon";
-import NoData2 from "./NoData2";
-import NoData from "./NoData";
-import NoUpcoming from "./NoUpcoming";
+import { useDispatch } from "react-redux";
+import { validateToken } from "./Redux/Slices/authSlice";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const location = useLocation()
   const handleAuthPopupOpen = () => {
     setShowAuthPopup(true);
   };
@@ -41,11 +41,48 @@ const App = () => {
     setShowAuthPopup(false);
   };
 
+  useEffect(() => {
+    const excludedPaths = [
+      "/", 
+      "/home", 
+      "/auth-error", 
+      "/about-us", 
+      "/contact", 
+      "/cookie-policy", 
+      "/privacy-policy", 
+      "/refund-policy", 
+      "/terms-of-service", 
+      "/explore", 
+      "/meeting"
+    ];
+  
+    // if (!excludedPaths.includes(location.pathname)) {
+    //   dispatch(validateToken())
+    //     .unwrap()
+    //     .catch(() => {
+    //       console.log("Token expired, logging out...");
+    //       localStorage.clear(); // Clear storage when token is invalid
+    //       navigate("/home"); // Redirect to login or error page
+    //     });
+    // }
+  }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
+  
+  
+ 
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode") === "true";
+
+    // If expert mode is enabled and the user tries to access a non-expert route, redirect
+    if (expertMode && !location.pathname.startsWith("/dashboard/expert")) {
+      console.log("Redirecting to Expert Dashboard due to expert mode.");
+      navigate("/dashboard/expert/");
+    }
+  }, [location, navigate]);
+
   return (
     <div>
       <Routes>
-        <Route path="/" element={<ComingSoon />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/" element={<HomePage />} />
         {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
@@ -86,7 +123,7 @@ const App = () => {
 
         <Route
           path="/dashboard/user/*"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
+          element={<ProtectedRoute showAuth={() => setShowAuthPopup(true)} />}
         >
           <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
@@ -96,7 +133,7 @@ const App = () => {
           element={
             <ProtectedRoute
               requireExpert={true}
-              showAuth={handleAuthPopupOpen}
+              showAuth={() => setShowAuthPopup(true)}
             />
           }
         >
@@ -112,7 +149,7 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
       </Routes>
 
-      <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
+      <AuthPopup isOpen={showAuthPopup} onClose={() => setShowAuthPopup(false)} />
     </div>
   );
 };

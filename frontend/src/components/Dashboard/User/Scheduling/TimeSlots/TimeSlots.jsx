@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createMeet } from '@/Redux/Slices/meetingSlice';
 
-function TimeSlots({ selectedDate, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
+function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
@@ -13,72 +13,83 @@ function TimeSlots({ selectedDate, sessionDuration, selectedAvailability, expert
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
       console.warn("Missing availability data or selectedDate");
-      setTimeSlots([]); // Reset slots when no data
+      setTimeSlots([]);
       return;
     }
-  
+
     const dayName = selectedDate.toLocaleString("en-US", { weekday: "long" });
-  
-    // Find the availability for the selected day
     const dayData = selectedAvailability.availability.daySpecific.find(
       (day) => day.day === dayName
     );
-  
+
     if (!dayData || !dayData.slots || dayData.slots.length === 0) {
       console.warn(`No slots available for ${dayName}`);
-      setTimeSlots([]); // Clear slots if no data found
+      setTimeSlots([]);
       return;
     }
-  
+
+    const now = new Date();
+    const noticePeriodMinutes = parseInt(selectedAvailability.availability.reschedulePolicy.noticeperiod) || 0;
+    const bookingPeriodMonths = parseInt(selectedAvailability.availability.bookingperiod) || 0;
+    const maxBookingDate = new Date();
+    maxBookingDate.setMonth(maxBookingDate.getMonth() + bookingPeriodMonths);
+
+    if (selectedDate > maxBookingDate) {
+      console.warn("Selected date exceeds booking period");
+      setTimeSlots([]);
+      return;
+    }
+
     const generatedSlots = [];
-  
+    const batchSize = sessionDuration;
+    const startTimeMap = {};
+
     dayData.slots.forEach(slot => {
-      console.log("Processing Slot:", slot);
-  
-      // Parse the time from slot
       const [startHour, startMinute] = slot.startTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
       const [endHour, endMinute] = slot.endTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
-  
-      // Convert to 24-hour format if AM/PM exists
       const isStartPM = slot.startTime.includes("PM");
       const isEndPM = slot.endTime.includes("PM");
-  
+      
       const start = new Date(selectedDate);
       start.setHours(isStartPM && startHour !== 12 ? startHour + 12 : startHour, startMinute, 0, 0);
-  
+      
       const end = new Date(selectedDate);
       end.setHours(isEndPM && endHour !== 12 ? endHour + 12 : endHour, endMinute, 0, 0);
-  
+      
       let currentTime = new Date(start);
-  
+      if (selectedDate.toDateString() === now.toDateString()) {
+        let minAllowedTime = new Date(now);
+        minAllowedTime.setMinutes(now.getMinutes() + noticePeriodMinutes);
+        if (currentTime < minAllowedTime) {
+          currentTime = new Date(minAllowedTime);
+        }
+      }
+      
+      currentTime.setMinutes(Math.ceil(currentTime.getMinutes() / batchSize) * batchSize, 0, 0);
+      
       while (currentTime < end) {
         const nextTime = new Date(currentTime);
-        nextTime.setMinutes(nextTime.getMinutes() + sessionDuration);
-  
+        nextTime.setMinutes(nextTime.getMinutes() + batchSize);
         if (nextTime <= end) {
-          generatedSlots.push({
-            startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          });
+          const slotKey = currentTime.toTimeString();
+          if (!startTimeMap[slotKey]) {
+            generatedSlots.push({
+              startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            });
+            startTimeMap[slotKey] = true;
+          }
         }
-  
         currentTime = nextTime;
       }
     });
-  
-    console.log("Generated Slots:", generatedSlots);
-  
-    // Set the generated slots to state
+
     setTimeSlots(generatedSlots);
-  
   }, [selectedDate, selectedAvailability, sessionDuration]);
-  
+
   const handleBooking = async (time) => {
     try {
-      console.log("This is selectedDate",selectedDate);
-      // const formattedDate = selectedDate.toISOString().split("T")[0]; // Ensures "YYYY-MM-DD" format
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
-      console.log("this is formated data",formattedDate);
       const meetData = {
         expertId,
         serviceId,
@@ -93,15 +104,15 @@ function TimeSlots({ selectedDate, sessionDuration, selectedAvailability, expert
         serviceName,
         expertName,
       };
-  
-      console.log("This is meetData", meetData);
+
       const result = await dispatch(createMeet(meetData)).unwrap();
-  
+
       if (result) {
         navigate(`/expert/order-summary/`, {
           state: {
             selectedDate: formattedDate,
             selectedTime: time,
+            Price: sessionPrice,
           },
         });
       }
@@ -109,7 +120,6 @@ function TimeSlots({ selectedDate, sessionDuration, selectedAvailability, expert
       console.error("Error during booking:", error);
     }
   };
-  
 
   if (timeSlots.length === 0) {
     return <p>No available slots for the selected date.</p>;

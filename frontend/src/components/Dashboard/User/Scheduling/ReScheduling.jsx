@@ -9,6 +9,7 @@ import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { verifyRescheduleToken } from '@/Redux/Slices/meetingSlice';
 import { useParams } from 'react-router-dom';
 import TimeSlotsforReschedule from './TimeSlots/TimeSlotforReschedule';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function ReScheduling() {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ function ReScheduling() {
 
 
   if (expertLoading || availabilityLoading) {
-    return <p>Loading expert and availability data...</p>;
+    return <Spinner />;
   }
 
   if (expertError || availabilityError) {

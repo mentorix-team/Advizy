@@ -293,6 +293,7 @@ const ExpertCard = ({ expert }) => {
           <motion.button 
             className="btn-expert text-sm"
             whileHover={{ scale: 1.05 }}
+            onClick={() => navigate(`/expert/${expert.redirect_url}`)}
             whileTap={{ scale: 0.95 }}
           >
             Book
