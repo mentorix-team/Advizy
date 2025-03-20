@@ -8,6 +8,7 @@ import { cn } from "../../lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import { cva } from "class-variance-authority";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
+import { useDispatch } from "react-redux";
 
 // Badge Component
 const Badge = React.forwardRef(({ className, variant = "default", ...props }, ref) => {
