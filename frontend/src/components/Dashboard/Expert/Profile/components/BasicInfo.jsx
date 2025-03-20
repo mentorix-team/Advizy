@@ -82,30 +82,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       });
     }
   };
-  // const handlePhoneChange = (phoneData) => {
-  //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
-
-  //   const formattedPhoneNumber = phoneNumber.startsWith(countryCode)
-  //     ? phoneNumber.replace(countryCode, "")
-  //     : phoneNumber;
-
-  //   onUpdate({
-  //     ...formData,
-  //     countryCode: countryCode,
-  //     mobile: formattedPhoneNumber,
-  //   });
-
-  //   // Optionally, you can also set some state to indicate if the phone number is valid
-  //   setIsPhoneValid(isValid);
-  // };
-
-  // const handleAddSocialLink = () => {
-  //   onUpdate({
-  //     ...formData,
-  //     socialLinks: [...formData.socialLinks, ""],
-  //   });
-  // };
-
+  
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
     setContactInfo(
@@ -128,43 +105,42 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   };
 
   return (
-    <div className="py-6">
-      <Toaster position="top-right" />
-      {/* Info Banner */}
-      <div className="bg-[#F0FFF2] p-6 rounded-lg mb-8">
-        <h3 className="text-[#16A348] text-lg font-semibold mb-2">
-          Why Basic Info Matters
-        </h3>
-        <p className="text-[#16A348]">
-          Your basic information is the first thing potential clients see. A
-          complete and professional profile increases your chances of making a
-          great first impression and attracting more clients.
-        </p>
-      </div>
+    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
+    <Toaster position="top-right" />
+    
+    {/* Info Banner */}
+    <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
+      <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
+        Why Basic Info Matters
+      </h3>
+      <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
+        Your basic information is the first thing potential clients see. A
+        complete and professional profile increases your chances of making a
+        great first impression and attracting more clients.
+      </p>
+    </div>
 
       {/* Form Grid */}
-      <div className="grid grid-cols-2 gap-6">
-        {/* First Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            onBlur={() => onBlur("firstName")}
-            placeholder="John"
-            className={`w-full p-2.5 border ${
-              errors.firstName && touched.firstName
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.firstName && touched.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-          )}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+  {/* First Name */}
+  <div>
+    <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+      First Name <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      value={formData.firstName}
+      onChange={(e) => handleChange("firstName", e.target.value)}
+      onBlur={() => onBlur("firstName")}
+      placeholder="John"
+      className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
+        errors.firstName && touched.firstName ? "border-red-500" : "border-gray-300"
+      }`}
+    />
+    {errors.firstName && touched.firstName && (
+      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
+    )}
+  </div>
 
         {/* Last Name */}
         <div>
@@ -344,13 +320,13 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 dropdownClass="phone-input-dropdown"
               />
             </div>
-            <button
+            {/* <button
               type="button"
               onClick={() => handleVerifyClick("mobile")}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
             >
               Verify
-            </button>
+            </button> */}
           </div>
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
@@ -375,13 +351,13 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-            <button
+            {/* <button
               type="button"
               onClick={() => handleVerifyClick("email")}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
             >
               Verify
-            </button>
+            </button> */}
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -412,64 +388,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         )}
       </div>
 
-      {/* Bio Description */}
-      {/* <div className="mt-6">
-        <p className="block text-xs font-medium text-gray-700 mb-1">
-          You can add this later*
-        </p>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Bio Description
-        </label>
-        <textarea
-          value={formData.bio}
-          onChange={(e) => handleChange("bio", e.target.value)}
-          onBlur={() => onBlur("bio")}
-          placeholder="Write a short description about yourself"
-          rows={4}
-          className={`w-full p-2.5 border ${
-            errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
-        />
-        <p className="text-sm text-gray-500 mt-1">
-          Your bio is your chance to showcase your expertise and personality.
-          Make it count!
-        </p>
-        {errors.bio && touched.bio && (
-          <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
-        )}
-      </div> */}
-
-      {/* Social Media Links */}
-      {/* <div className="mt-6 rounded-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-[#16A348]">
-            Social Media Links
-          </h3>
-          <button
-            type="button"
-            onClick={handleAddSocialLink}
-            className="flex items-center px-4 py-2 gap-2 bg-primary text-white rounded-lg hover:bg-green-600"
-          >
-            Add More Link
-          </button>
-        </div>
-        <div className="space-y-4">
-          {formData.socialLinks.map((link, index) => (
-            <input
-              key={index}
-              type="url"
-              value={link}
-              onChange={(e) => {
-                const newLinks = [...formData.socialLinks];
-                newLinks[index] = e.target.value;
-                handleChange("socialLinks", newLinks);
-              }}
-              placeholder="https://linkedin.com/in/username"
-              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary"
-            />
-          ))}
-        </div>
-      </div> */}
+  
 
       {/* OTP Popup */}
       {showOtpPopup && (
