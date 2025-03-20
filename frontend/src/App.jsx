@@ -26,13 +26,14 @@ import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
 import { useDispatch } from "react-redux";
 import { validateToken } from "./Redux/Slices/authSlice";
+import ScrollToTop from "./utils/ScrollToTop";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
   const handleAuthPopupOpen = () => {
     setShowAuthPopup(true);
   };
@@ -43,19 +44,19 @@ const App = () => {
 
   useEffect(() => {
     const excludedPaths = [
-      "/", 
-      "/home", 
-      "/auth-error", 
-      "/about-us", 
-      "/contact", 
-      "/cookie-policy", 
-      "/privacy-policy", 
-      "/refund-policy", 
-      "/terms-of-service", 
-      "/explore", 
-      "/meeting"
+      "/",
+      "/home",
+      "/auth-error",
+      "/about-us",
+      "/contact",
+      "/cookie-policy",
+      "/privacy-policy",
+      "/refund-policy",
+      "/terms-of-service",
+      "/explore",
+      "/meeting",
     ];
-  
+
     // if (!excludedPaths.includes(location.pathname)) {
     //   dispatch(validateToken())
     //     .unwrap()
@@ -66,9 +67,7 @@ const App = () => {
     //     });
     // }
   }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
-  
-  
- 
+
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
 
@@ -81,6 +80,7 @@ const App = () => {
 
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
@@ -149,7 +149,10 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
       </Routes>
 
-      <AuthPopup isOpen={showAuthPopup} onClose={() => setShowAuthPopup(false)} />
+      <AuthPopup
+        isOpen={showAuthPopup}
+        onClose={() => setShowAuthPopup(false)}
+      />
     </div>
   );
 };
