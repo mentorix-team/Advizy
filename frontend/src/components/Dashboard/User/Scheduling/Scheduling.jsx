@@ -8,6 +8,8 @@ import { getExpertById } from '@/Redux/Slices/expert.Slice';
 import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { useLocation } from 'react-router-dom';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
+import Footer from '@/components/Home/components/Footer';
+import Navbar from '@/utils/Navbar/Navbar';
 
 function Scheduling() {
   const dispatch = useDispatch();
@@ -75,6 +77,7 @@ function Scheduling() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <Navbar />
       <div className="max-w-6xl mx-auto px-4 flex flex-col lg:grid lg:grid-cols-[minmax(320px,400px),1fr] gap-6 lg:gap-8">
         <ExpertProfileInSchedule
           expert ={expert}
@@ -94,10 +97,13 @@ function Scheduling() {
              expertId={selectedExpert._id} 
              serviceId={selectedService.serviceId} 
           />
+          
 
         </div>
       </div>
+      <Footer />
     </div>
+    
   );
 }
 
