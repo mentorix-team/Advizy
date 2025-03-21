@@ -76,8 +76,9 @@ function Scheduling() {
   }
 
   return (
+    
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
-      
+      <Navbar />
       <div className="max-w-6xl mx-auto px-4 flex flex-col lg:grid lg:grid-cols-[minmax(320px,400px),1fr] gap-6 lg:gap-8">
         <ExpertProfileInSchedule
           expert ={expert}
@@ -101,7 +102,7 @@ function Scheduling() {
 
         </div>
       </div>
-      
+      <Footer />
     </div>
     
   );
