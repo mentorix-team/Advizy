@@ -101,7 +101,7 @@ const ProfileShare = ({expert}) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="border border-gray-300 text-white px-6 py-2 rounded-lg flex items-center justify-center space-x-2 mx-auto transition-colors"
+        className="border border-gray-300 text-white px-1 py-2 rounded-lg flex items-center justify-center space-x-2 mx-auto transition-colors "
       >
         <span className="text-black">Share Your Profile</span>
         <Share2 size={20} className="text-gray-800"/>

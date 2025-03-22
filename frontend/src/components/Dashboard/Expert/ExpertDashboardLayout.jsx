@@ -26,6 +26,7 @@ import {
   X,
   PanelRightCloseIcon,
   HouseIcon,
+  Search,
 } from "lucide-react";
 
 const ExpertDashboardLayout = () => {
@@ -43,19 +44,17 @@ const ExpertDashboardLayout = () => {
       parsedData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
       console.error("Error parsing JSON:", error);
-      parsedData = data; // Fallback to original data
+      parsedData = data;
   }
 
   const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isDropdownOpen && !event.target.closest('.user-dropdown')) {
@@ -66,6 +65,29 @@ const ExpertDashboardLayout = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isDropdownOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const sidebar = document.getElementById('mobile-sidebar');
+      const menuButton = document.getElementById('mobile-menu-button');
+      
+      if (isMobileMenuOpen && sidebar && !sidebar.contains(event.target) && !menuButton?.contains(event.target)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
 
   const isLinkActive = (path) => {
     return location.pathname === path;
@@ -123,9 +145,8 @@ const ExpertDashboardLayout = () => {
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
       >
-        <div className="flex items-center ">
-          <CircleUserRound className="w-7 h-7 " strokeWidth={1.5} />
-          <span className="text-sm font-medium hidden md:block"></span>
+        <div className="flex items-center gap-2">
+          <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
           <ChevronDown className="w-4 h-4" />
         </div>
       </button>
@@ -207,18 +228,30 @@ const ExpertDashboardLayout = () => {
   return (
     <div className="overflow-x-hidden">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
-        <div className="max-w-7xl px-4 sm:px-6">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <a href="/" className="flex items-center font-bold text-gray-900">
-                <img src="/logo104.99&44.svg" alt="Advizy Logo" />
+            {/* Left section */}
+            <div className="flex items-center gap-8">
+              <a href="/" className="flex items-center">
+                <img src="/logo104.99&44.svg" alt="Advizy Logo" className="h-12" />
               </a>
+
+              {!isExpertMode && (
+                <div className="hidden lg:flex items-center relative flex-1 max-w-2xl">
+                  <Search className="absolute left-3 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search mentors by name or expertise..."
+                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex items-center gap-6">
+            {/* Right section */}
+            <div className="flex items-center lg:pr-10">
+              <div className="hidden lg:flex items-center gap-8 mr-8">
                 <a
                   href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
@@ -245,7 +278,7 @@ const ExpertDashboardLayout = () => {
               </div>
 
               {/* User Profile & Mobile Menu */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 lg:pr-10">
                 {isLoggedIn ? (
                   <UserDropdown />
                 ) : (
@@ -261,6 +294,7 @@ const ExpertDashboardLayout = () => {
 
                 {/* Hamburger Menu Button */}
                 <button
+                  id="mobile-menu-button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
                 >
@@ -277,8 +311,21 @@ const ExpertDashboardLayout = () => {
         <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
       </nav>
 
+      {/* Blur Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <aside
+        id="mobile-sidebar"
         className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}

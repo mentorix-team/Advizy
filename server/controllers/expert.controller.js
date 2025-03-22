@@ -11,6 +11,7 @@ import bcrypt from 'bcryptjs'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from "url";
+
 const expertBasicDetails = async (req, res, next) => {
   console.log("Response coming");
   try {
@@ -24,14 +25,15 @@ const expertBasicDetails = async (req, res, next) => {
       email,
       mobile,
       countryCode,
-      languages,
+      languages: languagesString, // Expecting a stringified JSON array
       bio,
       socialLinks
     } = req.body;
 
     const user_id = req.user.id;
-    console.log("aasdfs",req.user.id)
-    console.log("this is user id befor",user_id)
+    console.log("aasdfs", req.user.id);
+    console.log("this is user id befor", user_id);
+
     if (
       !firstName ||
       !lastName ||
@@ -41,12 +43,23 @@ const expertBasicDetails = async (req, res, next) => {
       !city ||
       !email ||
       !mobile ||
-      !countryCode||
-      !languages
-      // !bio ||
-      // !socialLinks
+      !countryCode ||
+      !languagesString // Check if languagesString exists
     ) {
       return next(new AppError("All fields are required", 400));
+    }
+
+    // Parse the languages field from stringified JSON to an array of objects
+    let languages;
+    try {
+      languages = JSON.parse(languagesString);
+    } catch (error) {
+      return next(new AppError("Invalid format for languages field", 400));
+    }
+
+    // Check if languages is an array
+    if (!Array.isArray(languages)) {
+      return next(new AppError("Languages must be an array", 400));
     }
 
     // Check if an expert already exists for the given user_id
@@ -64,7 +77,7 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.email = email;
       expertbasic.mobile = mobile;
       expertbasic.countryCode = countryCode;
-      expertbasic.languages = languages;
+      expertbasic.languages = languages; // Use the parsed languages array
       expertbasic.bio = bio;
       expertbasic.socialLinks = socialLinks;
     } else {
@@ -81,16 +94,16 @@ const expertBasicDetails = async (req, res, next) => {
         email,
         mobile,
         countryCode,
-        languages,
-        // bio,
-        // socialLinks,
-        redirect_url:'',
+        languages, // Use the parsed languages array
+        bio,
+        socialLinks,
+        redirect_url: '',
         profileImage: { public_id: "Dummy", secure_url: "Dummy" },
         coverImage: { public_id: "Dummy", secure_url: "Dummy" },
-        credentials:{services:[]}
+        credentials: { services: [] }
       });
     }
-    console.log("this is user id after",expertbasic.user_id)
+    console.log("this is user id after", expertbasic.user_id);
 
     // Log if files exist
     if (req.files) {
@@ -135,6 +148,7 @@ const expertBasicDetails = async (req, res, next) => {
     const generateRandomString = (length = 8) => {
       return crypto.randomBytes(length).toString("hex").slice(0, length);
     };
+
     // Save the updated or newly created expert record
     await expertbasic.save();
 
@@ -144,7 +158,7 @@ const expertBasicDetails = async (req, res, next) => {
 
       const randomString = generateRandomString(); // Generate unique identifier
       expertbasic.redirect_url = `${firstName}_${randomString}`; // Set redirect URL
-      console.log("This is the redirect url before",expertbasic.redirect_url)
+      console.log("This is the redirect url before", expertbasic.redirect_url);
 
       const serviceData = {
         title: "One-on-One Mentoring",
@@ -165,7 +179,7 @@ const expertBasicDetails = async (req, res, next) => {
       if (!Array.isArray(expertbasic.credentials.services)) {
         expertbasic.credentials.services = [];
       }
-      
+
       expertbasic.credentials.services.push(serviceData);
       await expertbasic.save(); // Save the service addition
     }
@@ -180,7 +194,7 @@ const expertBasicDetails = async (req, res, next) => {
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite:"None" ,
+      sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -191,13 +205,11 @@ const expertBasicDetails = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Error in expertBasicDetails:", error);
-    // return next(new AppError(error.message, 500));
     if (error.name === "ValidationError") {
       return next(new AppError("Invalid data format", 400));
     } else {
       return next(new AppError("Something went wrong. Please try again.", 500));
     }
-    
   }
 };
 
@@ -977,11 +989,8 @@ const extpertPortfolioDetails = async (req, res, next) => {
             filters.city = req.query.city;
         }
         if (req.query.languages) {
-            const languagesArray = req.query.languages.split(",");
-            filters["$or"] = [
-                { languages: { $in: languagesArray } },
-                { languages: { $in: languagesArray.map(lang => new RegExp(`^${lang}$`, "i")) } }
-            ];
+          const languagesArray = req.query.languages.split(",");
+          filters.languages = { $elemMatch: { value: { $in: languagesArray } } };
         }
         if (req.query.skills) {
             filters["credentials.skills"] = { $in: req.query.skills.split(",") };
