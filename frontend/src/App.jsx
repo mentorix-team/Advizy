@@ -26,13 +26,14 @@ import ContactUs from "./ContactUs";
 import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
 import { useDispatch } from "react-redux";
 import { validateToken } from "./Redux/Slices/authSlice";
+import ScrollToTop from "./utils/ScrollToTop";
 // import ModeRestrictionError from "./Protected/ModeRestrictionError";
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
   const handleAuthPopupOpen = () => {
     setShowAuthPopup(true);
   };
@@ -84,6 +85,7 @@ const App = () => {
 
   return (
     <div>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
         {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
@@ -152,7 +154,10 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
       </Routes>
 
-      <AuthPopup isOpen={showAuthPopup} onClose={() => setShowAuthPopup(false)} />
+      <AuthPopup
+        isOpen={showAuthPopup}
+        onClose={() => setShowAuthPopup(false)}
+      />
     </div>
   );
 };
