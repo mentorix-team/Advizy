@@ -53,19 +53,22 @@ const App = () => {
       "/refund-policy", 
       "/terms-of-service", 
       "/explore", 
-      "/meeting"
+      "/meeting",
+      "/expert/:redirect_url",
+      "/expert/scheduling/:serviceId"
     ];
   
-    // if (!excludedPaths.includes(location.pathname)) {
-    //   dispatch(validateToken())
-    //     .unwrap()
-    //     .catch(() => {
-    //       console.log("Token expired, logging out...");
-    //       localStorage.clear(); // Clear storage when token is invalid
-    //       navigate("/home"); // Redirect to login or error page
-    //     });
-    // }
+    if (!excludedPaths.includes(location.pathname)) {
+      dispatch(validateToken()).then((response) => {
+        if (!response?.payload?.valid) {
+          localStorage.clear(); 
+          setShowAuthPopup(true)
+          // navigate("/auth-error"); 
+        }
+      });
+    }
   }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
+
   
   
  

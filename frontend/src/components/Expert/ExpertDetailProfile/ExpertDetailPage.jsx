@@ -57,7 +57,19 @@ const ExpertDetailPage = () => {
   }
 
   const expert = selectedExpert?.expert; // Shorten the chain for readability
-
+  const parseLanguages = (languages) => {
+    if (typeof languages === "string") {
+      try {
+        return JSON.parse(languages); // Parse if it's a stringified JSON array
+      } catch (error) {
+        console.error("Error parsing languages:", error);
+        return []; // Return an empty array if parsing fails
+      }
+    } else if (Array.isArray(languages)) {
+      return languages; // Use directly if it's already an array
+    }
+    return []; // Return an empty array for invalid formats
+  };
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <ProfileHeader
@@ -81,7 +93,7 @@ const ExpertDetailPage = () => {
           <div className="md:col-span-2">
             <ProfileInfo
               experience={expert?.credentials?.experienceYears || 0}
-              languages={JSON.parse(expert?.languages?.[0] || "[]").map(lang => lang.label)}
+              languages={parseLanguages(expert?.languages).map(lang => lang.label)} 
               about={expert?.bio || "No details provided"}
             />
             <Expertise skills={expert?.credentials?.skills || []} />

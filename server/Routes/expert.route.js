@@ -14,15 +14,16 @@ router.post('/expertEducation',upload.single('certificate'),isLoggedIn,isExpert,
 router.post('/singleexpertEducation',upload.single('certificate'),isLoggedIn,isExpert,singleexperteducation)
 router.post('/updateExpertDetails',isLoggedIn,isExpert,updateProfileStatus)
 router.get('/getexperts',getAllExperts)
-router.get('/getServices',isLoggedIn,isExpert,getExpertServices)
+router.get('/getServices',isExpert,getExpertServices)
 router.get('/getexpert/:id',getExpertById)
 router.get('/getexpert/by-url/:redirect_url', getExpertByRedirectURL);
 router.post('/createservice',isLoggedIn,isExpert,manageService)
 router.post('/service',isLoggedIn,isExpert,createService)
 router.post('/updateService',isLoggedIn,isExpert,updateService)
 router.post("/deleteService", isExpert,isLoggedIn, deleteService);
-router.post('/service/:serviceId', isLoggedIn, getService);
+router.post('/service/:serviceId', getService);
 router.get('/sync-algolia', pushExpertsToAlgolia);
 router.post('/generateotpforvalidating',generateOtpForVerifying)
 router.post('/verifyingotpgot',validatethnumberormobile)
+
 export default router;

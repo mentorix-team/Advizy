@@ -16,5 +16,5 @@ router.post('/book',isLoggedIn,bookSlot)
 router.post('/set',isLoggedIn,isExpert,changeSettings)
 router.post('/setpolicy',isLoggedIn,isExpert,reschedulePolicy)
 router.post('/settimezone',isLoggedIn,isExpert,changeTimezone)
-router.get('/get/:id',isLoggedIn,getAvailabilitybyid)
+router.get('/get/:id',getAvailabilitybyid)
 export default router;
