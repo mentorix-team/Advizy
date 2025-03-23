@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReviewCard from "./ReviewCard";
 import Pagination from "./Pagination";
+import { Star } from "lucide-react";
 
 const Reviews = ({ reviews }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +27,10 @@ const Reviews = ({ reviews }) => {
   const totalPages = Math.ceil(formattedReviews.length / reviewsPerPage);
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
-  const currentReviews = formattedReviews.slice(indexOfFirstReview, indexOfLastReview);
+  const currentReviews = formattedReviews.slice(
+    indexOfFirstReview,
+    indexOfLastReview
+  );
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -54,10 +58,19 @@ const Reviews = ({ reviews }) => {
                 </svg>
               ))}
             </div>
-            <span className="text-sm text-gray-500">Based on {formattedReviews.length} reviews</span>
+            <span className="text-sm text-gray-500">
+              Based on {formattedReviews.length} reviews
+            </span>
           </div>
         ) : (
-          <p className="text-gray-500">No reviews available yet.</p> // Show message when no reviews
+          <div className="border rounded-lg flex flex-col items-center justify-center p-4 bg-background">
+            <div className="mb-3">
+              <Star className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <div className="text-center text-sm text-muted-foreground">
+              No reviews available yet
+            </div>
+          </div> // Show message when no reviews
         )}
       </div>
 
@@ -72,11 +85,17 @@ const Reviews = ({ reviews }) => {
           </div>
 
           {totalPages > 1 && (
-            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           )}
         </>
       ) : (
-        <p className="text-gray-500">Be the first to leave a review!</p> // Alternative fallback
+        <p className="text-xs mt-1 text-primary">
+          Be the first to leave a review
+        </p> // Alternative fallback
       )}
     </div>
   );

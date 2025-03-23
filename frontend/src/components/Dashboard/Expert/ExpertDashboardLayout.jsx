@@ -25,6 +25,7 @@ import {
   Menu,
   X,
   PanelRightCloseIcon,
+  HouseIcon,
   Search,
 } from "lucide-react";
 
@@ -343,7 +344,7 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <Menu className="w-5 h-5" />
+                <HouseIcon className="w-5 h-5" />
                 <span className="ms-3">Home</span>
               </NavLink>
             </li>
