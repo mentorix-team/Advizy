@@ -1,12 +1,12 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
 import { deleteServicebyId, updateServicebyId } from "@/Redux/Slices/expert.Slice";
+import ConfirmDialog from "./ConfirmDialog";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
-import ConfirmDialog from "./ConfirmDialog.jsx";
-
-function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
+const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
   const dispatch = useDispatch();
   const [isEnabled, setIsEnabled] = useState(true);
   const [editedService, setEditedService] = useState(service);
@@ -15,7 +15,11 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleToggleConfirm = () => {
-    setShowToggleConfirm(true);
+    if (isEnabled) {
+      setShowToggleConfirm(true);
+    } else {
+      handleToggle();
+    }
   };
 
   const handleToggle = () => {
@@ -168,6 +172,6 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
       </div>
     </div>
   );
-}
+};
 
 export default ServiceCard;

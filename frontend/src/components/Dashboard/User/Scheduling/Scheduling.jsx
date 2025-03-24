@@ -9,8 +9,10 @@ import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { useLocation } from 'react-router-dom';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
 import Footer from '@/components/Home/components/Footer';
-import Navbar from '@/utils/Navbar/Navbar';
+import Navbar from '@/components/Home/components/Navbar';
 import SearchModal from '@/components/Home/components/SearchModal';
+
+
 function Scheduling() {
   const dispatch = useDispatch();
   // const [selectedDuration, setSelectedDuration] = useState(null);
