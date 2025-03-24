@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, Star, Heart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "../../lib/utils";
-import { Slot } from "@radix-ui/react-slot";
-import { cva } from "class-variance-authority";
+import { User, Star, Heart } from "lucide-react";
+// import { motion, AnimatePresence } from "framer-motion";
+// import { cn } from "../../lib/utils";
+// import { Slot } from "@radix-ui/react-slot";
+// import { cva } from "class-variance-authority";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 const ExpertCard = ({
@@ -61,16 +61,24 @@ const ExpertCard = ({
             alt={name}
             className="w-[80px] h-[80px] sm:w-[108px] sm:h-[108px] rounded-full object-cover"
           />
-          <div className="flex-1 min-w-0"> {/* Added min-w-0 to prevent text overflow */}
+          <div className="flex-1 min-w-0">
+            {" "}
+            {/* Added min-w-0 to prevent text overflow */}
             <div className="flex items-start justify-between">
               <div className="space-y-1 sm:space-y-2">
-                <h2 className="text-[18px] sm:text-[22px] font-semibold text-[#1D1D1D] truncate">{name}</h2>
-                <p className="text-[13px] sm:text-[15px] text-[#1D1F1D] opacity-80">{title}</p>
-                
+                <h2 className="text-[18px] sm:text-[22px] font-semibold text-[#1D1D1D] truncate">
+                  {name}
+                </h2>
+                <p className="text-[13px] sm:text-[15px] text-[#1D1F1D] opacity-80">
+                  {title}
+                </p>
+
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                   <div className="flex items-center gap-1">
                     <Star className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px] fill-yellow-400 text-yellow-400" />
-                    <span className="text-[13px] sm:text-[14px] font-medium text-[#1D1F1D]">{rating}/5</span>
+                    <span className="text-[13px] sm:text-[14px] font-medium text-[#1D1F1D]">
+                      {rating}/5
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-[11px] sm:text-[12px] flex gap-1 items-center bg-[#C4F3D34C] px-2 sm:px-3 py-[2px] rounded-[24px] text-[#1D1F1D]">
@@ -81,13 +89,18 @@ const ExpertCard = ({
                 </div>
 
                 <p className="text-[13px] sm:text-[15px] text-[#1D1D1D]">
-                  Experience: <span className="font-medium">{experience}</span> in industry
+                  Experience: <span className="font-medium">{experience}</span>{" "}
+                  in industry
                 </p>
                 <p className="text-[13px] sm:text-[15px]">
                   Starts at{" "}
-                  <span className="text-[#0049B3] font-medium">${startingPrice}</span>{" "}
+                  <span className="text-[#0049B3] font-medium">
+                    Rs. {startingPrice}
+                  </span>{" "}
                   for{" "}
-                  <span className="text-[#0049B3] font-medium">{duration}</span>
+                  <span className="text-[#0049B3] font-medium">
+                    {duration} min
+                  </span>
                 </p>
               </div>
 
@@ -110,7 +123,9 @@ const ExpertCard = ({
         {/* Expertise Tags */}
         <div className="mt-2">
           <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            <span className="text-[13px] sm:text-[15px] text-[#1D1F1D]">Expertise:</span>
+            <span className="text-[13px] sm:text-[15px] text-[#1D1F1D]">
+              Expertise:
+            </span>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {expertise.map((skill, index) => (
                 <span
@@ -144,7 +159,9 @@ const ExpertCard = ({
               View Profile
             </button>
             <button
-              onClick={() => navigate(`/expert/scheduling/${id}`)}
+              onClick={() => {
+                navigate(`/expert/${redirect_url}?scrollTo=services-offered`);
+              }}
               className="flex-1 sm:flex-none px-4 sm:px-6 py-2 bg-[#EDFBF1] rounded-[11px] text-[13px] sm:text-[14px] font-semibold text-[#169544] hover:bg-[#E5F9EB] transition-colors shadow-[0px_2px_5px_rgba(0,0,0,0.1)]"
             >
               BOOK

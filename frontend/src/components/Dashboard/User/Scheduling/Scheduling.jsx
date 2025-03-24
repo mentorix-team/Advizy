@@ -28,7 +28,7 @@ function Scheduling() {
   const { selectedAvailability, loading: availabilityLoading, error: availabilityError } = useSelector((state) => state.availability);
   console.log("This is availability",selectedAvailability)
   const {data} = useSelector((state)=>state.auth)
-  console.log("this is data",JSON.parse(data))
+  // console.log("this is data",JSON.parse(data))
   // const userData = JSON.parse(data)
   let userData;
 

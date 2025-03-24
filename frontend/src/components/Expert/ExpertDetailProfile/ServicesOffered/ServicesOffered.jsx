@@ -2,12 +2,12 @@ import React from 'react';
 import MentoringCard from './MentoringCard';
 import ServiceCard from './ServiceCard';
 
-const ServicesOffered = ({ services }) => {
+const ServicesOffered = ({ id, services }) => {
   console.log('THis is service',services)
   const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
   const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+    <div id={id} className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
       <div className="border border-[#E5E7EB] rounded-2xl p-4 sm:p-6 mb-6">
         <h2 className="text-[#101828] text-lg sm:text-xl font-medium mb-1">
           Services Offered <span className="text-gray-500 font-normal">(Select service)</span>
