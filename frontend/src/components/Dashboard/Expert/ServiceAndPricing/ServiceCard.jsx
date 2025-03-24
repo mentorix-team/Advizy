@@ -3,7 +3,8 @@ import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
 import { deleteServicebyId, updateServicebyId } from "@/Redux/Slices/expert.Slice";
-import { ConfirmDialog } from "./ConfirmDialog.jsx";
+
+import ConfirmDialog from "./ConfirmDialog.jsx";
 
 function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
   const dispatch = useDispatch();
