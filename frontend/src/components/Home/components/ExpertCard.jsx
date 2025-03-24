@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { User } from 'lucide-react';
 
 const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -189,7 +190,7 @@ const ExpertCard = ({ expert }) => {
                   : "0.0"}</span>
               </div>
               <span
-                className="text-[#1D1F1D] text-xs sm:text-sm whitespace-nowrap"
+                className="text-[#1D1F1D] text-xs sm:text-sm whitespace-nowrap items-center"
                 style={{
                   borderRadius: '25px',
                   background: 'rgba(196, 243, 211, 0.30)',
@@ -199,9 +200,7 @@ const ExpertCard = ({ expert }) => {
                   gap: '4px',
                 }}
               >
-                <svg className="w-3 h-3 sm:w-4 sm:h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 14" fill="none">
-                  <path d="M8.84328 1.36304C9.06136 1.5458 9.25353 1.73121 9.42586 1.95835C9.44113 1.97828 9.4564 1.99821 9.47213 2.01874C9.76124 2.41291 9.92067 2.84259 10.0069 3.32244C10.0115 3.34829 10.0162 3.37415 10.0211 3.40079C10.1164 4.25062 9.9222 5.06552 9.40059 5.74748C9.32816 5.83518 9.25202 5.91807 9.17325 6.00009C9.15195 6.02298 9.13065 6.04587 9.10871 6.06946C8.94201 6.24365 8.76916 6.37594 8.56699 6.50531C8.54598 6.51931 8.52498 6.53331 8.50334 6.54774C8.03707 6.84621 7.46592 6.97063 6.91871 6.9679C6.88897 6.96777 6.85923 6.96765 6.82859 6.96752C6.5919 6.96436 6.37125 6.94213 6.14194 6.88422C6.11695 6.87792 6.11695 6.87792 6.09144 6.87149C5.63572 6.75278 5.20438 6.52731 4.86044 6.20504C4.81268 6.16056 4.76409 6.11968 4.71312 6.07903C4.5915 5.97544 4.49613 5.84822 4.39894 5.72222C4.38383 5.70275 4.36872 5.68328 4.35316 5.66321C3.95955 5.1293 3.7823 4.51396 3.78321 3.85449C3.78322 3.83744 3.78323 3.82039 3.78325 3.80281C3.7849 3.35354 3.85535 2.94787 4.04529 2.53935C4.05669 2.51356 4.06808 2.48777 4.07982 2.4612C4.32291 1.93933 4.75233 1.48531 5.23255 1.17526C5.25476 1.16074 5.27697 1.14622 5.29985 1.13125C6.36927 0.468387 7.86949 0.570909 8.84328 1.36304Z" fill="#1D1D1D"/>
-                </svg>
+                <User className='w-3 h-3'/>
                 {expert.sessions?.length} Session{expert.sessions?.length !== 1 ? 's' : ''} done
               </span>
             </motion.div>
@@ -299,14 +298,14 @@ const ExpertCard = ({ expert }) => {
           >
             View Profile
           </motion.button>
-          <motion.button 
+          <button 
             className="flex-1 sm:flex-none btn-expert text-xs sm:text-sm"
-            whileHover={{ scale: 1.05 }}
-            onClick={() => navigate(`/expert/${expert.redirect_url}`)}
-            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              navigate(`/expert/${redirect_url}?scrollTo=services-offered`);
+            }}
           >
             Book
-          </motion.button>
+          </button>
         </div>
       </motion.div>
     </motion.div>

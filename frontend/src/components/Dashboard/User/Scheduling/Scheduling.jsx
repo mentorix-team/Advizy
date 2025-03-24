@@ -9,11 +9,15 @@ import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 import { useLocation } from 'react-router-dom';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
 import Footer from '@/components/Home/components/Footer';
-import Navbar from '@/utils/Navbar/Navbar';
+import Navbar from '@/components/Home/components/Navbar';
+import SearchModal from '@/components/Home/components/SearchModal';
+
 
 function Scheduling() {
   const dispatch = useDispatch();
   // const [selectedDuration, setSelectedDuration] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const location = useLocation();
   const { duration, price } = location.state || {};
@@ -38,6 +42,13 @@ function Scheduling() {
   }
 
   useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
+
+  useEffect(() => {
     
     console.log("this is my expert ",selectedExpert)
     console.log("this is my Serice ",selectedService)
@@ -52,7 +63,10 @@ function Scheduling() {
   const sessionDuration = duration || selectedService?.duration;
   const sessionPrice = price || selectedService?.price;
 
- 
+  const handleToggle = () => {
+    setIsExpertMode(!isExpertMode);
+  };
+
   if (expertLoading || availabilityLoading) {
     return <Spinner />;
   }
@@ -78,7 +92,11 @@ function Scheduling() {
   return (
     
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
-      
+      <Navbar
+          onSearch={() => setIsModalOpen(true)}
+          isExpertMode={isExpertMode}
+          onToggleExpertMode={handleToggle}
+        />
       <div className="max-w-6xl mx-auto px-4 flex flex-col lg:grid lg:grid-cols-[minmax(320px,400px),1fr] gap-6 lg:gap-8">
         <ExpertProfileInSchedule
           expert ={expert}
@@ -102,7 +120,8 @@ function Scheduling() {
 
         </div>
       </div>
-      
+      <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
     
   );

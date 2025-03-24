@@ -154,7 +154,7 @@ const TermsOfService = () => {
                 <li>Razorpay Services</li>
               </ul>
               <p>
-                You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Services. All payments and transactions on this platform are processed via Razorpay under the business name: Akate Vivek Pundalik. All payments shall be in USD, EUR, CAD, AUD, SGD, INR. Users acknowledge that they may be responsible for currency conversion fees or other bank-imposed charges.
+                You agree to provide current, complete, and accurate purchase and account information for all purchases made via the Services. All payments and transactions on this platform are processed via Razorpay under the business name: RITESH VIJAYKUMAR KOLTE. All payments shall be in USD, EUR, CAD, AUD, SGD, INR. Users acknowledge that they may be responsible for currency conversion fees or other bank-imposed charges.
               </p>
             </section>
 

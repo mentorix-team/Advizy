@@ -4,18 +4,18 @@ import AppError from '../utils/AppError.js';
 import moment from 'moment-timezone'
 
 const addAvailability = async (req, res, next) => {
-  console.log("Received Request Body:", JSON.stringify(req.body, null, 2)); // Log request body
+  console.log("Received Request Body:", JSON.stringify(req.body, null, 2));
 
-  const { data, features, timezone } = req.body; // Extract features, data, and timezone
+  const { data, features, timezone } = req.body;
   const expertid = req.expert.id;
 
-  // Default to IST if no timezone provided
   const userTimezone = timezone || "Asia/Kolkata"; 
-  const timezoneLabel = timezone ? `(GMT${moment.tz(userTimezone).utcOffset() / 60}) ${moment.tz(userTimezone).format('z')}` : "(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi";
+  const timezoneLabel = timezone 
+    ? `(GMT${moment.tz(userTimezone).utcOffset() / 60}) ${moment.tz(userTimezone).format('z')}` 
+    : "(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi";
   const timezoneOffset = moment.tz(userTimezone).utcOffset();
 
   try {
-    // Fetch or create availability document
     let availabilityDoc = await Availability.findOne({ expert_id: expertid });
 
     if (!availabilityDoc) {
@@ -36,10 +36,14 @@ const addAvailability = async (req, res, next) => {
           { day: "Sunday", slots: null },
         ],
         features: [],
+        bookingperiod: "2", // Set default booking period
+        reschedulePolicy: {
+          recheduleType: "Request reschedule", // Default reschedule type
+          noticeperiod: "30 mins", // Default notice period
+        },
       });
     }
 
-    // Process day-specific availability
     if (data && Array.isArray(data)) {
       for (const { day, slots } of data) {
         console.log(`Processing day: ${day}, slots: ${JSON.stringify(slots)}`);
@@ -54,25 +58,23 @@ const addAvailability = async (req, res, next) => {
         if (dayEntry) {
           dayEntry.slots = slots && Array.isArray(slots) && slots.length > 0
             ? slots.map(({ startTime, endTime, dates }) => {
-                // Convert times to UTC based on the user's timezone
                 const startTimeUTC = moment.tz(startTime, "hh:mm A", userTimezone).utc().format("HH:mm");
                 const endTimeUTC = moment.tz(endTime, "hh:mm A", userTimezone).utc().format("HH:mm");
 
-                // Convert dates to UTC and include `startTime` and `endTime`
                 const formattedDates = Array.isArray(dates)
                   ? dates.map((date) => {
-                      const parsedDate = moment.tz(date, userTimezone); // Parse in user's timezone
+                      const parsedDate = moment.tz(date, userTimezone);
                       if (!parsedDate.isValid()) {
                         throw new Error(`Invalid date format in request: ${date}`);
                       }
                       return {
-                        date: parsedDate.utc().toDate(), // Convert to UTC before saving
-                        isBooked: false, // Default booking status
-                        startTime: startTimeUTC, // Store UTC time
-                        endTime: endTimeUTC, // Store UTC time
+                        date: parsedDate.utc().toDate(),
+                        isBooked: false,
+                        startTime: startTimeUTC,
+                        endTime: endTimeUTC,
                       };
                     })
-                  : []; // Default to empty array if no dates provided
+                  : [];
 
                 return {
                   startTime: startTimeUTC,
@@ -81,11 +83,9 @@ const addAvailability = async (req, res, next) => {
                 };
               })
             : null;
-
         }
       }
 
-      // Reset slots for days not in the request
       const daysInRequest = data.map((entry) => entry.day);
       availabilityDoc.daySpecific.forEach((entry) => {
         if (!daysInRequest.includes(entry.day)) {
@@ -93,18 +93,34 @@ const addAvailability = async (req, res, next) => {
         }
       });
     } else {
-      // Reset all days to null if data is not provided
       availabilityDoc.daySpecific.forEach((entry) => {
         entry.slots = null;
       });
     }
 
-    // Update features if provided
     if (features && Array.isArray(features)) {
       availabilityDoc.features = features;
     }
 
-    // Save the updated document
+    // Set default values if not already set
+    if (!availabilityDoc.bookingperiod) {
+      availabilityDoc.bookingperiod = "2";
+    }
+
+    if (!availabilityDoc.reschedulePolicy) {
+      availabilityDoc.reschedulePolicy = {
+        recheduleType: "Request reschedule",
+        noticeperiod: "30 mins",
+      };
+    } else {
+      if (!availabilityDoc.reschedulePolicy.recheduleType) {
+        availabilityDoc.reschedulePolicy.recheduleType = "Request reschedule";
+      }
+      if (!availabilityDoc.reschedulePolicy.noticeperiod) {
+        availabilityDoc.reschedulePolicy.noticeperiod = "30 mins";
+      }
+    }
+
     await availabilityDoc.save();
     console.log("Saved Availability Document:", JSON.stringify(availabilityDoc.daySpecific, null, 2));
 

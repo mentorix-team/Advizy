@@ -3,45 +3,89 @@ import CertificationList from "./CertificationList";
 import CertificationForm from "./CertificationForm";
 import { toast, Toaster } from "react-hot-toast";
 
-export default function CertificationsTab({ formData, onUpdate }) {
-  const [certifications, setCertifications] = useState(formData);
-  const [showForm, setShowForm] = useState(formData.length === 0);
+const STORAGE_KEY = 'user_certifications';
+
+export default function CertificationsTab({ formData = [], onUpdate }) {
+  const [certifications, setCertifications] = useState(() => {
+    // Initialize from localStorage or props
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+      try {
+        return JSON.parse(storedData);
+      } catch (e) {
+        console.error('Error parsing stored certifications:', e);
+      }
+    }
+    return formData;
+  });
+  
+  const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
 
-  // Update local state when props change
+  // Sync with localStorage whenever certifications change
   useEffect(() => {
-    setCertifications(formData);
-    setShowForm(formData.length === 0);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(certifications));
+    } catch (e) {
+      console.error('Error storing certifications:', e);
+    }
+  }, [certifications]);
+
+  // Update local state when props change and no local storage exists
+  useEffect(() => {
+    if (Array.isArray(formData) && !localStorage.getItem(STORAGE_KEY)) {
+      setCertifications(formData);
+      setShowForm(formData.length === 0);
+    }
   }, [formData]);
 
   const handleAddCertification = (newCertification) => {
+    if (!newCertification) return;
+
     const updatedCertifications = [...certifications, newCertification];
     setCertifications(updatedCertifications);
-    onUpdate(updatedCertifications);
+    if (onUpdate) {
+      onUpdate(updatedCertifications);
+    }
     setShowForm(false);
     toast.success("Certification added successfully!");
   };
 
   const handleEditCertification = (index) => {
-    setEditingIndex(index);
-    setShowForm(true);
+    if (index >= 0 && index < certifications.length) {
+      setEditingIndex(index);
+      setShowForm(true);
+    }
   };
 
   const handleUpdateCertification = (updatedCertification) => {
+    if (!updatedCertification || editingIndex === null) return;
+
     const updatedCertifications = [...certifications];
     updatedCertifications[editingIndex] = updatedCertification;
     setCertifications(updatedCertifications);
-    onUpdate(updatedCertifications);
+    if (onUpdate) {
+      onUpdate(updatedCertifications);
+    }
     setShowForm(false);
     setEditingIndex(null);
     toast.success("Certification updated successfully!");
   };
 
   const handleDeleteCertification = (index) => {
+    if (index < 0 || index >= certifications.length) return;
+
     const updatedCertifications = certifications.filter((_, i) => i !== index);
     setCertifications(updatedCertifications);
-    onUpdate(updatedCertifications);
+    if (onUpdate) {
+      onUpdate(updatedCertifications);
+    }
     toast.success("Certification deleted successfully!");
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setEditingIndex(null);
   };
 
   return (
@@ -64,10 +108,7 @@ export default function CertificationsTab({ formData, onUpdate }) {
               ? handleUpdateCertification
               : handleAddCertification
           }
-          onCancel={() => {
-            setShowForm(false);
-            setEditingIndex(null);
-          }}
+          onCancel={handleCancel}
           initialData={
             editingIndex !== null ? certifications[editingIndex] : null
           }
