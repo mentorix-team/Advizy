@@ -18,13 +18,13 @@ function App({ formData, profileImage, coverImage }) {
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
       <ProfileHeader 
-        firstName={expert.firstName || ''}  
-        lastName={expert.lastName || ''}
-        city={expert.city || ''}
-        nationality={expert.nationality || ''}
-        professionalTitle={expert.credentials.professionalTitle|| ''}
-        profileImage={expert.profileImage.secure_url||'' }
-        coverImage={expert.coverImage.secure_url||''}
+        firstName={expert?.firstName || ''}  
+        lastName={expert?.lastName || ''}
+        city={expert?.city || ''}
+        nationality={expert?.nationality || ''}
+        professionalTitle={expert?.credentials.professionalTitle|| ''}
+        profileImage={expert?.profileImage?.secure_url||'' }
+        coverImage={expert?.coverImage?.secure_url||''}
       />
       {/* Add margin-top to account for the overlapping profile section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-[120px]">
@@ -32,7 +32,7 @@ function App({ formData, profileImage, coverImage }) {
           <div className="md:col-span-2">
             <ProfileInfo 
               bio={expert.bio || ''}
-              languages={expert.languages|| []}
+              languages={JSON.parse(expert?.languages?.[0] || "[]").map(lang => lang.label)}
             />
             <Expertise skills={expert.credentials.skills||[]} />
             <ServicesOffered services={expert.credentials.services||[]} />

@@ -2,7 +2,8 @@ import crypto from 'crypto';
 import AppError from '../utils/AppError.js';
 import axios from 'axios';
 import Razorpay from 'razorpay';
-
+import { config } from 'dotenv';
+config(); 
 const razorpay = new Razorpay({
   key_id: process.env.razorpaykey_id,
   key_secret: process.env.razorpaykey_secret
@@ -39,6 +40,7 @@ const createOrder = async (req, res, next) => {
       receipt: order.receipt,
     });
   } catch (error) {
+    console.log(error)
     console.error("Error creating Razorpay order:", error.message, error.stack);
     return next(new AppError("Error creating order", 500));
   }

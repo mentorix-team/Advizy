@@ -46,33 +46,33 @@ const App = () => {
     setShowAuthPopup(false);
   };
 
-  // useEffect(() => {
-  //   const excludedPaths = [
-  //     "/", 
-  //     "/home", 
-  //     "/auth-error", 
-  //     "/about-us", 
-  //     "/contact", 
-  //     "/cookie-policy", 
-  //     "/privacy-policy", 
-  //     "/refund-policy", 
-  //     "/terms-of-service", 
-  //     "/explore", 
-  //     "/meeting",
-  //     "/expert/:redirect_url",
-  //     "/expert/scheduling/:serviceId"
-  //   ];
+  useEffect(() => {
+    const excludedPaths = [
+      "/", 
+      "/home", 
+      "/auth-error", 
+      "/about-us", 
+      "/contact", 
+      "/cookie-policy", 
+      "/privacy-policy", 
+      "/refund-policy", 
+      "/terms-of-service", 
+      "/explore", 
+      "/meeting",
+      "/expert/:redirect_url",
+      "/expert/scheduling/:serviceId"
+    ];
   
-  //   if (!excludedPaths.includes(location.pathname)) {
-  //     dispatch(validateToken())
-  //       .unwrap()
-  //       .catch(() => {
-  //         console.log("Token expired, logging out...");
-  //         localStorage.clear(); // Clear storage when token is invalid
-  //         navigate("/home"); // Redirect to login or error page
-  //       });
-  //   }
-  // }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
+    if (!excludedPaths.includes(location.pathname)) {
+      dispatch(validateToken()).then((response) => {
+        if (!response?.payload?.valid) {
+          localStorage.clear(); 
+          setShowAuthPopup(true)
+          // navigate("/auth-error"); 
+        }
+      });
+    }
+  }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";

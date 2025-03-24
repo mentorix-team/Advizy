@@ -84,10 +84,10 @@ const ExpertCard = ({
               <p className="text-gray-900">
                 Starts at{" "}
                 <span className="text-[#004ab3] font-semibold">
-                  ${startingPrice}
+                  Rs. {startingPrice}
                 </span>{" "}
                 for{" "}
-                <span className="text-[#004ab3] font-semibold">{duration}</span>
+                <span className="text-[#004ab3] font-semibold">{duration} min</span>
               </p>
             </div>
 

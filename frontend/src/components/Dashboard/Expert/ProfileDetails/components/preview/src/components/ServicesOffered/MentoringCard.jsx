@@ -21,7 +21,7 @@ const MentoringCard = ({ service,onEdit }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   return (
     <div className="border border-[#16A348] rounded-lg p-4 bg-white">
-      <h3 className="text-[#101828] font-medium">{service.title}</h3>
+      <h3 className="text-[#101828] font-medium">{service?.title}</h3>
       <div className="flex items-center gap-3">
          
           <button
@@ -34,12 +34,12 @@ const MentoringCard = ({ service,onEdit }) => {
             <EditIcon className="w-5 h-4.5 text-gray-600" />
           </button>
         </div>
-      <p className="text-sm text-gray-600">{service.shortDescription}</p>
+      <p className="text-sm text-gray-600">{service?.shortDescription}</p>
       <div className="mt-4">
-        <ServiceFeatures features={service.features} />
+        <ServiceFeatures features={service?.features} />
       </div>
       <div className="grid grid-cols-4 gap-3 mt-4">
-        {service.one_on_one.map(({ duration, price, enabled, _id }) => (
+        {service?.one_on_one.map(({ duration, price, enabled, _id }) => (
           <DurationOption
             key={_id}
             duration={duration}

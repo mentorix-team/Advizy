@@ -1,6 +1,6 @@
 import Router from 'express'
 import { isExpert, isLoggedIn } from '../middlewares/auth.middleare.js'
-import manageService, {  createService, deleteService, expertBasicDetails, expertCredentialsDetails, expertEducation, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpertById, getExpertByRedirectURL, getExpertServices, getService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
+import manageService, {  createService, deleteService, expertBasicDetails, expertCredentialsDetails, expertEducation, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpertById, getExpertByRedirectURL, getExpertServices, getService, handleToggleService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
 import upload from '../middlewares/multer.middleware.js'
 const router= Router()
 
@@ -21,8 +21,9 @@ router.post('/createservice',isLoggedIn,isExpert,manageService)
 router.post('/service',isLoggedIn,isExpert,createService)
 router.post('/updateService',isLoggedIn,isExpert,updateService)
 router.post("/deleteService", isExpert,isLoggedIn, deleteService);
-router.post('/service/:serviceId', isLoggedIn, getService);
+router.post('/service/:serviceId', getService);
 router.get('/sync-algolia', pushExpertsToAlgolia);
 router.post('/generateotpforvalidating',generateOtpForVerifying)
 router.post('/verifyingotpgot',validatethnumberormobile)
+router.post('/handletoggle',isExpert,isLoggedIn,handleToggleService)
 export default router;

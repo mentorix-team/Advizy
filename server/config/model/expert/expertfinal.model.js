@@ -18,7 +18,13 @@ const ExpertBasicsSchema = new Schema({
   mobile: { type: Number },
   countryCode:{type:String},
   city: { type: String },
-  languages: { type: [String], default: [] },
+  languages: {
+    type: [{
+        value: { type: String },
+        label: { type: String }
+    }],
+    default: []
+  },
   bio:{type:String},
   socialLinks:{type:[String],default:[]},
   profileImage:{

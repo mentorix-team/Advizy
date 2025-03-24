@@ -23,7 +23,7 @@ function Scheduling() {
   const { selectedAvailability, loading: availabilityLoading, error: availabilityError } = useSelector((state) => state.availability);
   console.log("This is availability",selectedAvailability)
   const {data} = useSelector((state)=>state.auth)
-  console.log("this is data",JSON.parse(data))
+  // console.log("this is data",JSON.parse(data))
   // const userData = JSON.parse(data)
   let userData;
 
@@ -38,7 +38,7 @@ function Scheduling() {
     
     console.log("this is my expert ",selectedExpert)
     console.log("this is my Serice ",selectedService)
-    if (selectedExpert._id && !availabilityLoading) {
+    if (selectedExpert?._id && !availabilityLoading) {
       dispatch(getAvailabilitybyid(selectedExpert._id));
     }
   }, [dispatch, selectedExpert]);

@@ -59,6 +59,7 @@ function Home() {
     expertData?.credentials?.niche?.length > 0 &&
     expertData?.credentials?.professionalTitle?.length > 0;
 
+  const hasPaymentDetails = expertData?.credentials?.PaymentDetails?.length > 0;
   // Define actions needed based on the checks above
   const actionsNeeded = [
     {
@@ -84,6 +85,12 @@ function Home() {
       icon: "edit",
       text: "Edit your One-on-One Service",
       completed: hasEditedOneOnOneService,
+    },
+    {
+      id: 5,
+      icon: "payment", // Use an appropriate icon
+      text: "Update your Payment Details",
+      completed: hasPaymentDetails, // True if PaymentDetails is not empty
     },
   ];
 

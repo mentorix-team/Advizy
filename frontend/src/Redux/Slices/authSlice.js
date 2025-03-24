@@ -8,7 +8,8 @@ const initialState = {
     data:localStorage.getItem('data') || {},
     expertData:localStorage.getItem('expertData') || {},
     admin_approved_expert:localStorage.getItem('admin_approved_expert') || false    
-}      
+}    
+  
 export const validateToken = createAsyncThunk(
     'auth/validateToken',
     async (_, { rejectWithValue }) => {  // No need for `data` parameter
@@ -383,7 +384,19 @@ const authSlice = createSlice({
             state.admin_approved_expert = expert?.admin_approved_expert ;
             
         })
-        
+        // builder.addCase(validateToken.fulfilled,(state,action)=>{
+        //     // state.isLoggedIn = false,
+        //     // localStorage.setItem('role',''),
+        //     // localStorage.setItem('data',{}),
+        //     // localStorage.getItem('expertData',{}),
+        //     // localStorage.setItem('admin_approved_expert',false)  
+        //     localStorage.clear(); 
+        //     state.isLoggedIn= false,
+        //     state.role= " ",
+        //     state.data = {},
+        //     state.expertData =  {},
+        //     state.admin_approved_expert= false    
+        // })
 
     }
 });

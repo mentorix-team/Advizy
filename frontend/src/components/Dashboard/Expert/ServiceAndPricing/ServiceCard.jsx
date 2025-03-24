@@ -1,18 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Add useEffect
 import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
-import { deleteServicebyId, updateServicebyId } from "@/Redux/Slices/expert.Slice";
+import { deleteServicebyId, toggleService, updateServicebyId } from "@/Redux/Slices/expert.Slice";
 
 function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
   const dispatch = useDispatch();
-  const [isEnabled, setIsEnabled] = useState(true);
+
+  // Set isEnabled based on the service.showMore property
+  const [isEnabled, setIsEnabled] = useState(service?.showMore );
+
+  // Update isEnabled whenever the service.showMore property changes
+  useEffect(() => {
+    setIsEnabled(service?.showMore || false);
+  }, [service?.showMore]);
+
   const [editedService, setEditedService] = useState(service);
 
+  // Updated handleToggle to accept the service object
   const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    
-    onToggle?.(!isEnabled);
+    if (service) {
+      dispatch(toggleService(service.serviceId)); // Pass serviceId from the service object
+      setIsEnabled((prev) => !prev); // Toggle the local state
+      onToggle?.(!isEnabled); // Call the onToggle callback if provided
+    }
   };
 
   const handleDelete = () => {
@@ -22,7 +33,6 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
     }
   };
 
-  // Update state with new edited data before dispatching update
   const handleEdit = (updatedService) => {
     setEditedService((prevService) => {
       const newService = { ...prevService, ...updatedService }; // Merge updates
@@ -31,7 +41,6 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
       return newService;
     });
   };
-  
 
   const handleUpdate = () => {
     if (isEnabled && editedService?._id) {
@@ -51,7 +60,6 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
     _id,
   } = editedService;
 
-  
   return (
     <div
       className={`rounded-xl shadow-md p-5 transition-opacity border ${
@@ -75,7 +83,7 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
         <div className="flex items-center gap-3">
           {!isDefault && (
             <button
-              onClick={handleToggle}
+              onClick={handleToggle} // Call handleToggle directly
               className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
                 isEnabled ? "bg-[#16A348] text-white" : "bg-gray-300 text-gray-500"
               }`}
@@ -89,7 +97,7 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
           )}
           <button
             onClick={() => {
-              onEdit(service); 
+              onEdit(service); // Pass the service object to onEdit
             }}
             className={`rounded-full transition-colors ${
               isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
@@ -98,7 +106,7 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
           >
             <EditIcon className="w-5 h-4.5 text-gray-600" />
           </button>
-          {!isDefault && service.title !== "One-on-One Mentoring" &&(
+          {!isDefault && service.title !== "One-on-One Mentoring" && (
             <button
               onClick={handleDelete}
               className={`rounded-full transition-colors ${

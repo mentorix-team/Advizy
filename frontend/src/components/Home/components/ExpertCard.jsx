@@ -35,9 +35,16 @@ const ExpertCard = ({ expert }) => {
     return years > 0 ? `${years} years ${months} months` : `${months} months`;
   };
 
-  const firstService = expert.credentials?.services?.[0];
-  const startingPrice = firstService?.price || 0;
-  const duration = firstService?.duration || "N/A";
+  const mentoringService = expert.credentials?.services?.find(
+    (service) => service.title === "One-on-One Mentoring"
+  );
+
+  const firstEnabledSlot = mentoringService?.one_on_one?.find(
+    (slot) => slot.enabled
+  );
+
+  const startingPrice = firstEnabledSlot?.price || 0;
+  const duration = firstEnabledSlot?.duration || "N/A";
 
   const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
   useEffect(() => {
@@ -168,7 +175,7 @@ const ExpertCard = ({ expert }) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              {expert.credentials?.domain}
+              {expert.credentials?.professionalTitle[0]}
             </motion.p>
             <motion.div 
               className="flex items-center gap-1"
@@ -206,7 +213,7 @@ const ExpertCard = ({ expert }) => {
                     </clipPath>
                   </defs>
                 </svg>
-                {expert.reviews} Session done
+                {expert.sessions?.length} Session done
               </span>
             </motion.div>
           </div>
@@ -243,20 +250,20 @@ const ExpertCard = ({ expert }) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
       >
-        <p className="text-gray-600 text-sm">Experience: {totalExperience}</p>
+        <p className="text-gray-600 text-sm">Experience: {expert?.credentials?.experienceYears} Years</p>
         <p className="text-sm">
-          Starts at <span className="text-primary font-medium">Rs{startingPrice}</span> for {duration}mins
+          Starts at <span className="text-primary font-medium">Rs. {startingPrice}</span> for {duration}mins
         </p>
       </motion.div>
 
-      {/* <motion.div
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <div className="flex flex-wrap gap-2">
           <p className="text-sm text-gray-600">Expertise:</p>
-          {expert.credentials.expertise.map((skill, index) => (
+          {expert.credentials?.skills?.map((skill, index) => (
             <motion.span 
               key={index}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -269,7 +276,7 @@ const ExpertCard = ({ expert }) => {
             </motion.span>
           ))}
         </div>
-      </motion.div> */}
+      </motion.div>
 
       <motion.div 
         className="flex items-center justify-between mt-4"

@@ -317,7 +317,19 @@ export const deleteService = createAsyncThunk(
     }
   }
 );
-
+export const toggleService = createAsyncThunk(
+  'expert/handletoggleService',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/handletoggle',data)
+      return await response.data
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+      return rejectWithValue(error?.response?.data || { message: "Unknown error occurred" });
+    }
+  }
+)
 export const getServicebyid = createAsyncThunk(
   "expert/getServicebyid",
   async ({ serviceId, expertId }, { rejectWithValue }) => {
@@ -545,6 +557,10 @@ const expertSlice = createSlice({
       })
       .addCase(deleteServicebyId.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(toggleService.fulfilled,(state,action)=>{
+        const {expert} = action.payload
+        state.expertData  = expert
       })
       .addCase(updateServicebyId.fulfilled, (state, action) => {
         const { expert } = action.payload;
