@@ -82,7 +82,11 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
 
+    // Always disable future dates
+    if (date > today) return true;
+    
     switch (type) {
       case 'dob':
         return date > today;

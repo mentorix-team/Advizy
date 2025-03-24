@@ -10,7 +10,7 @@ import { useLocation } from 'react-router-dom';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
 import Footer from '@/components/Home/components/Footer';
 import Navbar from '@/utils/Navbar/Navbar';
-
+import SearchModal from '@/components/Home/components/SearchModal';
 function Scheduling() {
   const dispatch = useDispatch();
   // const [selectedDuration, setSelectedDuration] = useState(null);

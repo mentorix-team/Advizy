@@ -27,19 +27,18 @@ function App() {
   const [enabledTabs, setEnabledTabs] = useState(['basic','certifications','experience','education','expertise']);
   let expert = null;
 
-if (expertData) {
-  if (typeof expertData === 'string') {
-    try {
-      expert = JSON.parse(expertData);
-      // console.log("This is expertData",expert);
-    } catch (error) {
-      console.error('Error parsing expertData:', error);
-      expert = null; // Handle parsing errors safely
+  if (expertData) {
+    if (typeof expertData === 'string') {
+      try {
+        expert = JSON.parse(expertData);
+      } catch (error) {
+        console.error('Error parsing expertData:', error);
+        expert = null;
+      }
+    } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
+      expert = expertData;
     }
-  } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
-    expert = expertData; // Already an object and not empty
   }
-}
 
 const [formData, setFormData] = useState({
   basic: {
