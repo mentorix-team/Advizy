@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { format, addYears, subYears, addMonths, subMonths, startOfYear } from 'date-fns';
+import { format } from 'date-fns';
 
 const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState('date');
   const [displayDate, setDisplayDate] = useState(selectedDate || new Date());
-  const [yearRangeStart, setYearRangeStart] = useState(new Date().getFullYear() - 20);
+  const [yearRangeStart, setYearRangeStart] = useState(() => {
+    const currentYear = new Date().getFullYear();
+    return Math.floor(currentYear / 12) * 12;
+  });
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -39,30 +42,37 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
   };
 
   const navigateYearRange = (direction) => {
-    const offset = direction === 'prev' ? -12 : 12;
-    setYearRangeStart(prev => prev + offset);
+    setYearRangeStart(prevStart => {
+      if (direction === 'prev') {
+        return prevStart - 12;
+      } else {
+        return prevStart + 12;
+      }
+    });
   };
 
   const generateYearRanges = () => {
     const ranges = [];
-    let startYear = yearRangeStart;
-    
     for (let i = 0; i < 12; i++) {
+      const year = yearRangeStart + i;
       ranges.push({
-        year: startYear + i,
-        isSelected: displayDate.getFullYear() === startYear + i
+        year,
+        isSelected: displayDate.getFullYear() === year
       });
     }
     return ranges;
   };
 
   const handleYearClick = (year) => {
-    setDisplayDate(new Date(year, displayDate.getMonth(), 1));
+    const newDate = new Date(displayDate);
+    newDate.setFullYear(year);
+    setDisplayDate(newDate);
     setView('month');
   };
 
   const handleMonthClick = (monthIndex) => {
-    const newDate = new Date(displayDate.getFullYear(), monthIndex, 1);
+    const newDate = new Date(displayDate);
+    newDate.setMonth(monthIndex);
     setDisplayDate(newDate);
     setView('date');
   };
@@ -84,13 +94,12 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
   const handleDateClick = (day) => {
     if (disabled) return;
     
-    const newDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day, 12, 0, 0);
+    const newDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day);
     
     if (isDateDisabled(newDate)) {
       return;
     }
     
-    setDisplayDate(newDate);
     onChange(newDate);
     setIsOpen(false);
   };
@@ -271,12 +280,14 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
                 </span>
                 <div className="flex gap-4">
                   <button 
+                    type="button"
                     onClick={() => navigateYearRange('prev')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ‹
                   </button>
                   <button 
+                    type="button"
                     onClick={() => navigateYearRange('next')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >

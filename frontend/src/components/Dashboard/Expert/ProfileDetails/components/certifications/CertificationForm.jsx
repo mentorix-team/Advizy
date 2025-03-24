@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
-import ImageUploadModal from '../ImageUploadModal';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { CertificateForm } from '@/Redux/Slices/expert.Slice';
@@ -15,59 +14,61 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     issueDate: null,
     certificates: []
   });
+
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
         ...initialData,
-        issueDate: initialData.issueDate ? new Date(initialData.issueDate) : null
+        issueDate: initialData.issueDate ? new Date(initialData.issueDate) : null,
+        certificates: initialData.certificates || []
       });
     }
   }, [initialData]);
 
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     console.log('Selected file:', file);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       certificate: file,
-  //     }));
-  //     setUploadedFileName(file.name);
-  //   }
-  // };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formDataInstance = new FormData();
-    formDataInstance.append('name', formData.name);
-    formDataInstance.append('issuingOrganization', formData.issuingOrganization);
-    formDataInstance.append('issueDate', formData.issueDate);
+    // Create a plain object with the form data
+    const certificationData = {
+      name: formData.name,
+      issuingOrganization: formData.issuingOrganization,
+      issueDate: formData.issueDate,
+      certificates: formData.certificates
+    };
 
-    if (formData.certificates) {
-      formDataInstance.append('certificates', formData.certificates);
+    // Create FormData for Redux action
+    const formDataForRedux = new FormData();
+    formDataForRedux.append('name', formData.name);
+    formDataForRedux.append('issuingOrganization', formData.issuingOrganization);
+    formDataForRedux.append('issueDate', formData.issueDate);
+
+    if (formData.certificates.length > 0) {
+      formData.certificates.forEach((file, index) => {
+        formDataForRedux.append(`certificates[${index}]`, file);
+      });
     }
 
-    dispatch(CertificateForm(formDataInstance));
+    // Dispatch Redux action
+    dispatch(CertificateForm(formDataForRedux));
 
-    // Optionally clear the form after submitting
+    // Submit the plain object to parent component
+    onSubmit(certificationData);
+
+    // Clear the form
     setFormData({
       name: '',
       issuingOrganization: '',
-      issueDate: '',
-      certificates: null,
+      issueDate: null,
+      certificates: []
     });
-
-    onSubmit(formDataInstance);
   };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+  const handleFileUpload = (files) => {
     setFormData(prev => ({
       ...prev,
-      certificates: [...prev.certificates, ...files]
+      certificates: [...prev.certificates, ...Array.from(files)]
     }));
     setShowUploadModal(false);
   };
@@ -80,7 +81,8 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
   };
 
   const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
+    const url = file instanceof File ? URL.createObjectURL(file) : file;
+    window.open(url, '_blank');
   };
 
   return (
@@ -146,7 +148,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      {file.type.includes('pdf') ? (
+                      {file.type?.includes('pdf') ? (
                         <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -212,16 +214,9 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
       <DocumentUploadModal
         isOpen={showUploadModal}
-        onClose={()=>setShowUploadModal(false)}
-        onUpload={handleFileUpload}
-      /> 
-      {/* <ImageUploadModal
-        isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        type="certificate"
         onUpload={handleFileUpload}
-        existingFiles={formData.certificates}
-      /> */}
+      />
     </div>
   );
 }
