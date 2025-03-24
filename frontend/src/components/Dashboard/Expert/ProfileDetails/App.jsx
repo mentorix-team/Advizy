@@ -58,14 +58,12 @@ const [formData, setFormData] = useState({
     //   : [],
     languages: expert?.languages
     ? expert.languages.flatMap(lang => 
-        JSON.parse(lang).map(l => 
-          expert?.languages.find(opt => opt.label === l.label) || { value: l.value, label: l.label }
-        )
+        typeof lang === 'string' ? JSON.parse(lang) : lang
       )
     : [],
-    socialLinks: expert?.socialLinks?.length
+    socialLinks: expert?.socialLinks?.length && typeof expert.socialLinks[0] === 'string'
       ? JSON.parse(expert.socialLinks[0])
-      : [''],
+      : expert?.socialLinks || [''],
     coverImage: expert?.coverImage?.secure_url || coverImage || '',
     profileImage: expert?.profileImage?.secure_url || profileImage || ''
   },

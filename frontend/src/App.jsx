@@ -56,7 +56,8 @@ const App = () => {
       "/explore", 
       "/meeting",
       "/expert/:redirect_url",
-      "/expert/scheduling/:serviceId"
+      "/expert/scheduling/:serviceId",
+      "/become-expert"
     ];
   
     if (!excludedPaths.includes(location.pathname)) {
