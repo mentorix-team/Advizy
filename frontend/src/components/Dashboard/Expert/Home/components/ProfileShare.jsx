@@ -44,7 +44,7 @@ const ProfileShare = ({expert}) => {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const redirect_url = expert?.redirect_url
-  console.log("thisi sexpert ",expert)
+  console.log("this sexpert ",expert)
   const profileUrl = `https://advizy.in/expert/${redirect_url}`;
 
   const handleCopy = async () => {
@@ -145,6 +145,7 @@ const ProfileShare = ({expert}) => {
           </div>
 
           <div className="text-center space-y-4">
+            {}
             <h2 className="text-2xl font-bold text-gray-800">Profile Complete!</h2>
             <p className="text-gray-600 max-w-md mx-auto">
               Your expertise is now ready to shine. It's time to connect, inspire, and earn.

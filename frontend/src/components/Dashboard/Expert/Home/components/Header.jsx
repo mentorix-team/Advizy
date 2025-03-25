@@ -12,7 +12,7 @@ import ProfileShare from "./ProfileShare";
 import { Bell, BellOff, X } from "lucide-react";
 import NotificationSkeleton from "@/components/LoadingSkeleton/NotificationSkeleton";
 
-export default function Header() {
+export default function Header({pendingActions}) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { notifications, loading, error, currentMeeting } = useSelector(
@@ -174,7 +174,8 @@ export default function Header() {
 
       {/* Actions Section */}
       <div className="flex gap-4 items-center">
-        <ProfileShare expert={expertData} />
+        {pendingActions && (<ProfileShare expert={expertData} />)}
+        {/* <ProfileShare expert={expertData} /> */}
         {/* Notification Bell - Hidden on mobile, visible on desktop */}
         <div className="hidden sm:block">
           <button
