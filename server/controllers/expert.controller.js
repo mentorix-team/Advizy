@@ -320,6 +320,155 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
+const editExpertCertificate = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    const { name, issuingOrganization, issueDate, certificateIndex } = req.body; // Extract fields from the body
+    const expert_id = req.expert.id; // Assuming expert ID is in the request
+
+    // Validate required fields
+    if (
+      !name ||
+      !issuingOrganization ||
+      !issueDate ||
+      certificateIndex === undefined
+    ) {
+      return next(
+        new AppError(
+          "All fields (name, issuingOrganization, issueDate, certificateIndex) are required",
+          400
+        )
+      );
+    }
+
+    // Fetch expert document from the database
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Ensure the credentials and certifications_courses exist
+    if (
+      !expert.credentials ||
+      !Array.isArray(expert.credentials.certifications_courses)
+    ) {
+      return next(
+        new AppError("No certifications or courses found for this expert", 404)
+      );
+    }
+
+    // Validate certificateIndex
+    if (
+      certificateIndex < 0 ||
+      certificateIndex >= expert.credentials.certifications_courses.length
+    ) {
+      return next(new AppError("Invalid certificate index", 400));
+    }
+
+    // Get the specific certificate entry
+    const certificateEntry =
+      expert.credentials.certifications_courses[certificateIndex];
+
+    // Update the fields
+    certificateEntry.title = name;
+    certificateEntry.issue_organization = issuingOrganization;
+    certificateEntry.year = issueDate;
+
+    // Handle file upload (update certificate file if provided)
+    if (req.file) {
+      try {
+        console.log("Uploading new file to Cloudinary...");
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "Advizy",
+          resource_type: "raw", // Assuming it's a raw file like a PDF
+        });
+
+        if (result) {
+          certificateEntry.certificate = {
+            public_id: result.public_id,
+            secure_url: result.secure_url,
+          };
+        }
+      } catch (error) {
+        return next(
+          new AppError("Error uploading certificate: " + error.message, 500)
+        );
+      }
+    }
+
+    // Save the updated expert document
+    await expert.save();
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: "Certificate updated successfully",
+      expert,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 500));
+  }
+};
+const deleteExpertCertificate = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    const { certificateIndex } = req.body; // Index of the certificate to delete
+    const expert_id = req.expert.id; // Assuming expert ID is in the request
+
+    // Validate required fields
+    if (certificateIndex === undefined) {
+      return next(new AppError("certificateIndex is required", 400));
+    }
+
+    // Fetch expert document from the database
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Ensure the expert has credentials and certifications_courses
+    if (!expert.credentials || !Array.isArray(expert.credentials.certifications_courses)) {
+      return next(new AppError("No certifications found for this expert", 404));
+    }
+
+    // Validate certificateIndex
+    if (certificateIndex < 0 || certificateIndex >= expert.credentials.certifications_courses.length) {
+      return next(new AppError("Invalid certificate index", 400));
+    }
+
+    // Get the specific certificate entry
+    const certificateToDelete = expert.credentials.certifications_courses[certificateIndex];
+
+    // If the certificate has a file uploaded to Cloudinary, delete it
+    if (certificateToDelete.certificate?.public_id) {
+      try {
+        console.log("Deleting file from Cloudinary...");
+        await cloudinary.v2.uploader.destroy(certificateToDelete.certificate.public_id);
+      } catch (error) {
+        return next(new AppError("Error deleting certificate file: " + error.message, 501));
+      }
+    }
+
+    // Remove the certificate from the array
+    expert.credentials.certifications_courses.splice(certificateIndex, 1);
+
+    // Save the updated expert document
+    await expert.save();
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: "Certificate deleted successfully",
+      expert,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(new AppError(error.message, 501));
+  }
+};
 
 
 const expertEducation = async (req, res, next) => {
@@ -468,6 +617,132 @@ const singleexperteducation = async (req, res, next) => {
   }
 };
 
+const editSingleExpertEducation = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    const { degree, institution, passingYear, educationIndex } = req.body; // Extract fields from the request body
+    const expert_id = req.expert.id;
+
+    // Validate required fields
+    if (!degree || !institution || !passingYear || educationIndex === undefined) {
+      return next(new AppError("All fields (degree, institution, passingYear, educationIndex) are required", 400));
+    }
+
+    // Fetch the expert
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Check if credentials and education exist
+    if (!expert.credentials || !expert.credentials.education) {
+      return next(new AppError("No education records found for this expert", 404));
+    }
+
+    // Check if the education index is valid
+    if (educationIndex < 0 || educationIndex >= expert.credentials.education.length) {
+      return next(new AppError("Invalid education index", 400));
+    }
+
+    // Update the specific education entry
+    const educationEntry = expert.credentials.education[educationIndex];
+    educationEntry.degree = degree;
+    educationEntry.institution = institution;
+    educationEntry.passingYear = passingYear;
+
+    // Handle certificate file if uploaded
+    if (req.file) {
+      try {
+        console.log("Uploading file to Cloudinary...");
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "Advizy",
+          resource_type: "raw",
+        });
+
+        if (result) {
+          educationEntry.certificate = {
+            public_id: result.public_id,
+            secure_url: result.secure_url,
+          };
+        }
+      } catch (error) {
+        return next(new AppError("Error uploading certificate: " + error.message, 501));
+      }
+    }
+
+    // Save the updated expert document
+    await expert.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Education updated successfully",
+      expert,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 501));
+  }
+};
+const deleteExpertEducation = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    const { educationIndex } = req.body; // Index of the education to delete
+    const expert_id = req.expert.id; // Assuming expert ID is in the request
+
+    // Validate required fields
+    if (educationIndex === undefined) {
+      return next(new AppError("educationIndex is required", 400));
+    }
+
+    // Fetch expert document from the database
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Ensure the expert has credentials and education
+    if (!expert.credentials || !Array.isArray(expert.credentials.education)) {
+      return next(new AppError("No education records found for this expert", 404));
+    }
+
+    // Validate educationIndex
+    if (educationIndex < 0 || educationIndex >= expert.credentials.education.length) {
+      return next(new AppError("Invalid education index", 400));
+    }
+
+    // Get the specific education entry
+    const educationToDelete = expert.credentials.education[educationIndex];
+
+    // If the education has a certificate file uploaded to Cloudinary, delete it
+    if (educationToDelete.certificate?.public_id) {
+      try {
+        console.log("Deleting file from Cloudinary...");
+        await cloudinary.v2.uploader.destroy(educationToDelete.certificate.public_id);
+      } catch (error) {
+        return next(new AppError("Error deleting certificate file: " + error.message, 501));
+      }
+    }
+
+    // Remove the education from the array
+    expert.credentials.education.splice(educationIndex, 1);
+
+    // Save the updated expert document
+    await expert.save();
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: "Education deleted successfully",
+      expert,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(new AppError(error.message, 501));
+  }
+};
+
 
 
 const expertexperience = async (req, res, next) => {
@@ -555,6 +830,142 @@ const expertexperience = async (req, res, next) => {
     });
   } catch (error) {
     return next(new AppError(error.message, 500));
+  }
+};
+
+const editExpertExperience = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body);
+
+    const { companyName, jobTitle, startDate, endDate, currentlyWork, experienceIndex } = req.body; // Extract fields
+    const expert_id = req.expert.id;
+
+    // Validate required fields
+    if (
+      !companyName ||
+      !jobTitle ||
+      !startDate ||
+      (currentlyWork !== true && !endDate) ||
+      experienceIndex === undefined
+    ) {
+      return next(new AppError("All fields (companyName, jobTitle, startDate, endDate, currentlyWork, experienceIndex) are required", 400));
+    }
+
+    // Fetch the expert
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Ensure credentials and work_experiences exist
+    if (!expert.credentials || !Array.isArray(expert.credentials.work_experiences)) {
+      return next(new AppError("No work experience records found for this expert", 404));
+    }
+
+    // Validate experienceIndex
+    if (experienceIndex < 0 || experienceIndex >= expert.credentials.work_experiences.length) {
+      return next(new AppError("Invalid experience index", 400));
+    }
+
+    // Get the specific experience entry
+    const experienceEntry = expert.credentials.work_experiences[experienceIndex];
+
+    // Update the fields
+    experienceEntry.companyName = companyName;
+    experienceEntry.jobTitle = jobTitle;
+    experienceEntry.startDate = startDate;
+    experienceEntry.endDate = currentlyWork ? null : endDate;
+    experienceEntry.currentlyWork = currentlyWork === true || currentlyWork === "true";
+
+    // Handle document upload if a new file is provided
+    if (req.file) {
+      try {
+        console.log(`Uploading new file for ${companyName}...`);
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "Advizy",
+          resource_type: "raw",
+        });
+
+        if (result) {
+          experienceEntry.document = {
+            public_id: result.public_id,
+            secure_url: result.secure_url,
+          };
+        }
+      } catch (error) {
+        return next(new AppError("Error uploading document: " + error.message, 500));
+      }
+    }
+
+    // Save the updated expert document
+    await expert.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Experience updated successfully",
+      expert,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 500));
+  }
+};
+const deleteExpertExperience = async (req, res, next) => {
+  try {
+    console.log("Received Request Body:", req.body); // Debugging log
+
+    const { experienceIndex } = req.body; // Index of the experience to delete
+    const expert_id = req.expert.id; // Assuming expert ID is in the request
+
+    // Validate required fields
+    if (experienceIndex === undefined) {
+      return next(new AppError("experienceIndex is required", 400));
+    }
+
+    // Fetch expert document from the database
+    const expert = await ExpertBasics.findById(expert_id);
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    // Ensure the expert has credentials and work_experiences
+    if (!expert.credentials || !Array.isArray(expert.credentials.work_experiences)) {
+      return next(new AppError("No work experience records found for this expert", 404));
+    }
+
+    // Validate experienceIndex
+    if (experienceIndex < 0 || experienceIndex >= expert.credentials.work_experiences.length) {
+      return next(new AppError("Invalid experience index", 400));
+    }
+
+    // Get the specific experience entry to delete
+    const experienceToDelete = expert.credentials.work_experiences[experienceIndex];
+
+    // If the experience has a document uploaded, delete it from Cloudinary
+    if (experienceToDelete.document?.public_id) {
+      try {
+        console.log("Deleting file from Cloudinary...");
+        await cloudinary.v2.uploader.destroy(experienceToDelete.document.public_id);
+      } catch (error) {
+        return next(new AppError("Error deleting document file: " + error.message, 501));
+      }
+    }
+
+    // Remove the experience from the work_experiences array
+    expert.credentials.work_experiences.splice(experienceIndex, 1);
+
+    // Save the updated expert document
+    await expert.save();
+
+    // Respond with success
+    return res.status(200).json({
+      success: true,
+      message: "Experience deleted successfully",
+      expert,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return next(new AppError(error.message, 501));
   }
 };
 
@@ -1268,24 +1679,43 @@ const validatethnumberormobile = async(req,res,next) =>{
  
 export {
     expertBasicDetails,
+
     expertCredentialsDetails,
+    
     extpertPortfolioDetails,
+    
     expertcertifiicate,
+    editExpertCertificate,
+    deleteExpertCertificate,
+    
     expertexperience,
+    editExpertExperience,
+    deleteExpertExperience,
+
     expertEducation,
     singleexperteducation,
+    editSingleExpertEducation,
+    deleteExpertEducation,
+    
     updateProfileStatus,
+    
     getAllExperts,
+    
     getExpertById,
+    
     getExpertByRedirectURL,
+    
     manageService,
     getExpertServices,
     deleteService,
     getService,
+    
     expertPaymentDetails,
     createService,
     updateService,
+    
     pushExpertsToAlgolia,
+    
     generateOtpForVerifying,
     validatethnumberormobile
 }

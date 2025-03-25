@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import CertificationList from "./CertificationList";
 import CertificationForm from "./CertificationForm";
 import { toast, Toaster } from "react-hot-toast";
+import { deleteCerti, EditCertificate } from "@/Redux/Slices/expert.Slice";
 
 const STORAGE_KEY = 'user_certifications';
 
@@ -58,30 +59,59 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     }
   };
 
-  const handleUpdateCertification = (updatedCertification) => {
+  const handleUpdateCertification = async (updatedCertification) => {
     if (!updatedCertification || editingIndex === null) return;
 
     const updatedCertifications = [...certifications];
     updatedCertifications[editingIndex] = updatedCertification;
-    setCertifications(updatedCertifications);
-    if (onUpdate) {
-      onUpdate(updatedCertifications);
+
+    try {
+      // Dispatch the EditCertificate action
+      const response = await dispatch(
+        EditCertificate(updatedCertification)
+      ).unwrap(); // Unwrap the result to handle it directly
+      console.log("Response from server:", response);
+
+      setCertifications(updatedCertifications);
+      if (onUpdate) {
+        onUpdate(updatedCertifications);
+      }
+      setShowForm(false);
+      setEditingIndex(null);
+      toast.success("Certification updated successfully!");
+    } catch (error) {
+      console.error("Error updating certification:", error);
+      toast.error("Failed to update certification. Please try again.");
     }
-    setShowForm(false);
-    setEditingIndex(null);
-    toast.success("Certification updated successfully!");
   };
 
-  const handleDeleteCertification = (index) => {
+  const handleDeleteCertification = async (index) => {
     if (index < 0 || index >= certifications.length) return;
-
-    const updatedCertifications = certifications.filter((_, i) => i !== index);
-    setCertifications(updatedCertifications);
-    if (onUpdate) {
-      onUpdate(updatedCertifications);
+  
+    const certificationToDelete = certifications[index];
+  
+    try {
+      // Dispatch deleteCerti action with the certification to be deleted
+      const response = await dispatch(deleteCerti(certificationToDelete)).unwrap(); // Unwrap to handle success or failure
+      console.log('Certification deleted successfully:', response);
+  
+      // Remove the certification from local state
+      const updatedCertifications = certifications.filter((_, i) => i !== index);
+      setCertifications(updatedCertifications);
+  
+      // Update the parent component
+      if (onUpdate) {
+        onUpdate(updatedCertifications);
+      }
+  
+      // Show success toast notification
+      toast.success('Certification deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting certification:', error);
+      toast.error('Failed to delete certification. Please try again.');
     }
-    toast.success("Certification deleted successfully!");
   };
+  
 
   const handleCancel = () => {
     setShowForm(false);

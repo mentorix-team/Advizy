@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExperienceList from './ExperienceList';
 import ExperienceForm from './ExperienceForm';
 import { toast } from 'react-hot-toast';
+import { deleteExpertExperience, editExperience } from '@/Redux/Slices/expert.Slice';
 
 export default function ExperienceTab({ formData, onUpdate }) {
   // Initialize state from localStorage if available, otherwise use formData
@@ -40,21 +41,48 @@ export default function ExperienceTab({ formData, onUpdate }) {
     setShowForm(true);
   };
 
-  const handleUpdateExperience = (updatedExperience) => {
+  const handleUpdateExperience = async (updatedExperience) => {
     const updatedExperiences = [...experiences];
     updatedExperiences[editingIndex] = updatedExperience;
-    setExperiences(updatedExperiences);
-    onUpdate(updatedExperiences);
-    setShowForm(false);
-    setEditingIndex(null);
-    toast.success('Experience updated successfully!');
+
+    try {
+      const response = await dispatch(editExperience(updatedExperience)).unwrap();
+      console.log('Response from server:', response);
+
+      setExperiences(updatedExperiences);
+      onUpdate(updatedExperiences);
+      setShowForm(false);
+      setEditingIndex(null);
+      toast.success('Experience updated successfully!');
+    } catch (error) {
+      console.error('Error updating experience:', error);
+      toast.error('Failed to update experience. Please try again.');
+    }
   };
 
-  const handleDeleteExperience = (index) => {
-    const updatedExperiences = experiences.filter((_, i) => i !== index);
-    setExperiences(updatedExperiences);
-    onUpdate(updatedExperiences);
-    toast.success('Experience deleted successfully!');
+  const handleDeleteExperience = async (index) => {
+    if (index < 0 || index >= experiences.length) return;
+  
+    const experienceToDelete = experiences[index];
+  
+    try {
+      // Dispatch deleteExpertExperience action with the experience to be deleted
+      const response = await dispatch(deleteExpertExperience(experienceToDelete)).unwrap();
+      console.log('Experience deleted successfully:', response);
+  
+      // Remove the experience from local state
+      const updatedExperiences = experiences.filter((_, i) => i !== index);
+      setExperiences(updatedExperiences);
+  
+      // Update the parent component
+      onUpdate(updatedExperiences);
+  
+      // Show success toast notification
+      toast.success('Experience deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting experience:', error);
+      toast.error('Failed to delete experience. Please try again.');
+    }
   };
 
   return (

@@ -70,7 +70,7 @@ const [formData, setFormData] = useState({
     domain: expert?.credentials?.domain||'',
     niche: expert?.credentials?.niche||'',
     professionalTitle: expert?.credentials?.domain||'',
-    experienceYears: '',
+    experienceYears: expert?.credentials?.experienceYears||'',
     skills:expert?.credentials?.skills|| []
   },
   education: expert?.credentials?.education || [],

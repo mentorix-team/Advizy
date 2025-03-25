@@ -28,6 +28,7 @@ import {
   HouseIcon,
   Search,
 } from "lucide-react";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ExpertDashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,14 +38,14 @@ const ExpertDashboardLayout = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const {data} = useSelector((state) => state.auth);
-  
+  const { data } = useSelector((state) => state.auth);
+
   let parsedData;
   try {
-      parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    parsedData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
-      console.error("Error parsing JSON:", error);
-      parsedData = data;
+    console.error("Error parsing JSON:", error);
+    parsedData = data;
   }
 
   const [hasExpertData, setHasExpertData] = useState(false);
@@ -57,35 +58,40 @@ const ExpertDashboardLayout = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isDropdownOpen && !event.target.closest('.user-dropdown')) {
+      if (isDropdownOpen && !event.target.closest(".user-dropdown")) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDropdownOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      const sidebar = document.getElementById('mobile-sidebar');
-      const menuButton = document.getElementById('mobile-menu-button');
-      
-      if (isMobileMenuOpen && sidebar && !sidebar.contains(event.target) && !menuButton?.contains(event.target)) {
+      const sidebar = document.getElementById("mobile-sidebar");
+      const menuButton = document.getElementById("mobile-menu-button");
+
+      if (
+        isMobileMenuOpen &&
+        sidebar &&
+        !sidebar.contains(event.target) &&
+        !menuButton?.contains(event.target)
+      ) {
         setIsMobileMenuOpen(false);
       }
     };
 
     if (isMobileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'hidden';
+      document.addEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "unset";
     };
   }, [isMobileMenuOpen]);
 
@@ -161,7 +167,9 @@ const ExpertDashboardLayout = () => {
             className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
             <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{parsedData?.firstName} {parsedData?.lastName}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {parsedData?.firstName} {parsedData?.lastName}
+              </p>
               <p className="text-xs text-gray-500">Expert Account</p>
             </div>
             {isExpertMode ? (
@@ -234,7 +242,11 @@ const ExpertDashboardLayout = () => {
             {/* Left section */}
             <div className="flex items-center gap-8">
               <a href="/" className="flex items-center">
-                <img src="/logo104.99&44.svg" alt="Advizy Logo" className="h-12" />
+                <img
+                  src="/logo104.99&44.svg"
+                  alt="Advizy Logo"
+                  className="h-12"
+                />
               </a>
 
               {!isExpertMode && (
@@ -472,11 +484,16 @@ const ExpertDashboardLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
-        <div className="mx-auto px-4">
-          <Outlet />
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-screen">
+            <Spinner />
+          </div>
+        ) : (
+          <div className="mx-auto px-4">
+            <Outlet />
+          </div>
+        )}
       </main>
 
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
