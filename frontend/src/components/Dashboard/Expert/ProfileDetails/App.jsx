@@ -27,19 +27,18 @@ function App() {
   const [enabledTabs, setEnabledTabs] = useState(['basic','certifications','experience','education','expertise']);
   let expert = null;
 
-if (expertData) {
-  if (typeof expertData === 'string') {
-    try {
-      expert = JSON.parse(expertData);
-      // console.log("This is expertData",expert);
-    } catch (error) {
-      console.error('Error parsing expertData:', error);
-      expert = null; // Handle parsing errors safely
+  if (expertData) {
+    if (typeof expertData === 'string') {
+      try {
+        expert = JSON.parse(expertData);
+      } catch (error) {
+        console.error('Error parsing expertData:', error);
+        expert = null;
+      }
+    } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
+      expert = expertData;
     }
-  } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
-    expert = expertData; // Already an object and not empty
   }
-}
 
 const [formData, setFormData] = useState({
   basic: {
@@ -58,14 +57,12 @@ const [formData, setFormData] = useState({
     //   : [],
     languages: expert?.languages
     ? expert.languages.flatMap(lang => 
-        JSON.parse(lang).map(l => 
-          expert?.languages.find(opt => opt.label === l.label) || { value: l.value, label: l.label }
-        )
+        typeof lang === 'string' ? JSON.parse(lang) : lang
       )
     : [],
-    socialLinks: expert?.socialLinks?.length
+    socialLinks: expert?.socialLinks?.length && typeof expert.socialLinks[0] === 'string'
       ? JSON.parse(expert.socialLinks[0])
-      : [''],
+      : expert?.socialLinks || [''],
     coverImage: expert?.coverImage?.secure_url || coverImage || '',
     profileImage: expert?.profileImage?.secure_url || profileImage || ''
   },

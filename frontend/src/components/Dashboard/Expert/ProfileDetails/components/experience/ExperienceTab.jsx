@@ -4,14 +4,27 @@ import ExperienceForm from './ExperienceForm';
 import { toast } from 'react-hot-toast';
 
 export default function ExperienceTab({ formData, onUpdate }) {
-  const [experiences, setExperiences] = useState(formData);
-  const [showForm, setShowForm] = useState(formData.length === 0);
+  // Initialize state from localStorage if available, otherwise use formData
+  const [experiences, setExperiences] = useState(() => {
+    const savedExperiences = localStorage.getItem('experiences');
+    return savedExperiences ? JSON.parse(savedExperiences) : formData;
+  });
+  
+  const [showForm, setShowForm] = useState(experiences.length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
 
-  // Update local state when props change
+  // Update local storage whenever experiences change
   useEffect(() => {
-    setExperiences(formData);
-    setShowForm(formData.length === 0);
+    localStorage.setItem('experiences', JSON.stringify(experiences));
+  }, [experiences]);
+
+  // Update local state when props change, but only if localStorage is empty
+  useEffect(() => {
+    const savedExperiences = localStorage.getItem('experiences');
+    if (!savedExperiences) {
+      setExperiences(formData);
+      setShowForm(formData.length === 0);
+    }
   }, [formData]);
 
   const handleAddExperience = (newExperience) => {

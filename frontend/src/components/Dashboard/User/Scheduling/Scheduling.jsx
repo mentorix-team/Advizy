@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import ExpertProfileInSchedule from "./ExpertProfileInSchedule";
 import Calendar from "./components/Calendar/Calendar";
@@ -10,10 +11,28 @@ import { useLocation } from "react-router-dom";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Footer from "@/components/Home/components/Footer";
 import Navbar from "@/utils/Navbar/Navbar";
+=======
+import { useEffect, useState } from 'react';
+import ExpertProfileInSchedule from './ExpertProfileInSchedule';
+import Calendar from './components/Calendar/Calendar';
+import TimeSlots from './TimeSlots/TimeSlots';
+import './Scheduling.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { getExpertById } from '@/Redux/Slices/expert.Slice';
+import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
+import { useLocation } from 'react-router-dom';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
+import Footer from '@/components/Home/components/Footer';
+import Navbar from '@/components/Home/components/Navbar';
+import SearchModal from '@/components/Home/components/SearchModal';
+
+>>>>>>> f882b8a013d1c2d52502c8fe606b511d83092f3e
 
 function Scheduling() {
   const dispatch = useDispatch();
   // const [selectedDuration, setSelectedDuration] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const location = useLocation();
   const { duration, price } = location.state || {};
@@ -46,8 +65,21 @@ function Scheduling() {
   }
 
   useEffect(() => {
+<<<<<<< HEAD
     console.log("this is my expert ", selectedExpert);
     console.log("this is my Serice ", selectedService);
+=======
+    const expertData = localStorage.getItem("expertData");
+    if (expertData) {
+      setIsExpertMode(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    
+    console.log("this is my expert ",selectedExpert)
+    console.log("this is my Serice ",selectedService)
+>>>>>>> f882b8a013d1c2d52502c8fe606b511d83092f3e
     if (selectedExpert._id && !availabilityLoading) {
       dispatch(getAvailabilitybyid(selectedExpert._id));
     }
@@ -59,6 +91,13 @@ function Scheduling() {
   const sessionDuration = duration || selectedService?.duration;
   const sessionPrice = price || selectedService?.price;
 
+<<<<<<< HEAD
+=======
+  const handleToggle = () => {
+    setIsExpertMode(!isExpertMode);
+  };
+
+>>>>>>> f882b8a013d1c2d52502c8fe606b511d83092f3e
   if (expertLoading || availabilityLoading) {
     return <Spinner />;
   }
@@ -91,6 +130,14 @@ function Scheduling() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+<<<<<<< HEAD
+=======
+      <Navbar
+          onSearch={() => setIsModalOpen(true)}
+          isExpertMode={isExpertMode}
+          onToggleExpertMode={handleToggle}
+        />
+>>>>>>> f882b8a013d1c2d52502c8fe606b511d83092f3e
       <div className="max-w-6xl mx-auto px-4 flex flex-col lg:grid lg:grid-cols-[minmax(320px,400px),1fr] gap-6 lg:gap-8">
         <ExpertProfileInSchedule expert={expert} />
 
@@ -115,6 +162,11 @@ function Scheduling() {
           />
         </div>
       </div>
+<<<<<<< HEAD
+=======
+      <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+>>>>>>> f882b8a013d1c2d52502c8fe606b511d83092f3e
     </div>
   );
 }

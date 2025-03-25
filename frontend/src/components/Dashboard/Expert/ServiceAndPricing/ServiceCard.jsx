@@ -1,18 +1,35 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
 import { deleteServicebyId, updateServicebyId } from "@/Redux/Slices/expert.Slice";
+import ConfirmDialog from "./ConfirmDialog";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
-function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
+const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
   const dispatch = useDispatch();
   const [isEnabled, setIsEnabled] = useState(true);
   const [editedService, setEditedService] = useState(service);
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const handleToggleConfirm = () => {
+    if (isEnabled) {
+      setShowToggleConfirm(true);
+    } else {
+      handleToggle();
+    }
+  };
 
   const handleToggle = () => {
     setIsEnabled(!isEnabled);
-    
     onToggle?.(!isEnabled);
+    setShowToggleConfirm(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    setShowDeleteConfirm(true);
   };
 
   const handleDelete = () => {
@@ -20,18 +37,17 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
       console.log("This is service id", service._id);
       dispatch(deleteServicebyId(service._id));
     }
+    setShowDeleteConfirm(false);
   };
 
-  // Update state with new edited data before dispatching update
   const handleEdit = (updatedService) => {
     setEditedService((prevService) => {
-      const newService = { ...prevService, ...updatedService }; // Merge updates
+      const newService = { ...prevService, ...updatedService };
       console.log("Updated Service Data: ", newService);
-      dispatch(updateServicebyId(newService)); // Dispatch after updating state
+      dispatch(updateServicebyId(newService));
       return newService;
     });
   };
-  
 
   const handleUpdate = () => {
     if (isEnabled && editedService?._id) {
@@ -59,6 +75,20 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
           : "bg-gray-50 text-gray-500"
       }`}
     >
+      {/* Confirmation Dialogs */}
+      <ConfirmDialog
+        isOpen={showToggleConfirm}
+        message="Are you sure you want to turn off your service?"
+        onConfirm={handleToggle}
+        onCancel={() => setShowToggleConfirm(false)}
+      />
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        message="Are you sure you want to delete this service?"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+
       {/* Top Row: Service Name, Toggle, Edit, and Delete */}
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
@@ -73,22 +103,31 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
         </div>
         <div className="flex items-center gap-3">
           {!isDefault && (
-            <button
-              onClick={handleToggle}
-              className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
-                isEnabled ? "bg-[#16A348] text-white" : "bg-gray-300 text-gray-500"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  isEnabled ? "translate-x-6" : "translate-x-1"
+            <div className="relative">
+              <button
+                onClick={handleToggleConfirm}
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
+                  isEnabled ? "bg-[#16A348] text-white" : "bg-gray-300 text-gray-500"
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    isEnabled ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              {showTooltip && isEnabled && (
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded-md whitespace-nowrap">
+                  Click to toggle service status
+                </div>
+              )}
+            </div>
           )}
           <button
             onClick={() => {
-              onEdit(service); 
+              onEdit(service);
             }}
             className={`rounded-full transition-colors ${
               isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
@@ -97,9 +136,9 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
           >
             <EditIcon className="w-5 h-4.5 text-gray-600" />
           </button>
-          {!isDefault && service.title !== "One-on-One Mentoring" &&(
+          {!isDefault && service.title !== "One-on-One Mentoring" && (
             <button
-              onClick={handleDelete}
+              onClick={handleDeleteConfirm}
               className={`rounded-full transition-colors ${
                 isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
               }`}
@@ -133,6 +172,6 @@ function ServiceCard({ service, isDefault = false, onEdit, onToggle }) {
       </div>
     </div>
   );
-}
+};
 
 export default ServiceCard;
