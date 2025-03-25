@@ -265,8 +265,15 @@ const BecomeExpertPage = () => {
   const navigate = useNavigate();
 
   const handleExpertOnboarding = () => {
-    navigate("/expert-onboarding");
+    const expertData = localStorage.getItem('expertData');
+  
+    if (!expertData) {
+      navigate("/expert-onboarding");
+    } else {
+      alert("You're already an expert! Switching to expert mode.");
+    }
   };
+  
 
   // useEffect(() => {
   // setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
