@@ -174,8 +174,7 @@ export default function Header({pendingActions}) {
 
       {/* Actions Section */}
       <div className="flex gap-4 items-center">
-        {pendingActions && (<ProfileShare expert={expertData} />)}
-        {console.log(pendingActions)}
+        {!pendingActions && (<ProfileShare expert={expertData} />)}
         {/* <ProfileShare expert={expertData} /> */}
         {/* Notification Bell - Hidden on mobile, visible on desktop */}
         <div className="hidden sm:block">
