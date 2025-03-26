@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-import { useEffect, useState } from "react";
-import ExpertProfileInSchedule from "./ExpertProfileInSchedule";
-import Calendar from "./components/Calendar/Calendar";
-import TimeSlots from "./TimeSlots/TimeSlots";
-import "./Scheduling.css";
-import { useDispatch, useSelector } from "react-redux";
-import { getExpertById } from "@/Redux/Slices/expert.Slice";
-import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
-import { useLocation } from "react-router-dom";
-import Spinner from "@/components/LoadingSkeleton/Spinner";
-import Footer from "@/components/Home/components/Footer";
-import Navbar from "@/components/Home/components/Navbar";
-import SearchModal from "@/components/Home/components/SearchModal";
-=======
 import { useEffect, useState } from 'react';
 import ExpertProfileInSchedule from './ExpertProfileInSchedule';
 import Calendar from './components/Calendar/Calendar';
@@ -28,7 +13,6 @@ import Navbar from '@/components/Home/components/Navbar';
 import SearchModal from '@/components/Home/components/SearchModal';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
->>>>>>> ce7424e1f7bfacb00e7f1e6d22a387fab1a11131
 
 function Scheduling() {
   const dispatch = useDispatch();
@@ -133,29 +117,6 @@ function Scheduling() {
             </div>
 
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
-<<<<<<< HEAD
-              <h2 className="text-xl sm:text-2xl font-semibold mb-6">
-                Schedule Your Session
-              </h2>
-              <Calendar
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-                availability={selectedAvailability}
-              />
-              <TimeSlots
-                sessionDuration={sessionDuration}
-                sessionPrice={sessionPrice}
-                selectedDate={selectedDate}
-                selectedAvailability={selectedAvailability}
-                expertName={
-                  selectedExpert.firstName + " " + selectedExpert.lastName
-                }
-                userName={userData.firstName + " " + userData.lastName}
-                serviceName={selectedService.title}
-                expertId={selectedExpert._id}
-                serviceId={selectedService.serviceId}
-              />
-=======
               <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
               <div className="grid grid-cols-1 md:grid-cols-[350px,1fr] gap-6">
                 <div className="w-full max-w-[350px]">
@@ -179,7 +140,6 @@ function Scheduling() {
                   />
                 </div>
               </div>
->>>>>>> ce7424e1f7bfacb00e7f1e6d22a387fab1a11131
             </div>
           </div>
         </div>

@@ -8,19 +8,21 @@ const ProtectedRoute = ({ requireExpert = false, showAuth }) => {
 
   useEffect(() => {
     if (!isLoggedIn) {
+      // Store the last attempted URL before forcing login
+      localStorage.setItem("redirectAfterLogin", location.pathname);
       showAuth();
     }
-  }, [isLoggedIn, showAuth]);
+  }, [isLoggedIn, showAuth, location.pathname]);
 
   if (!isLoggedIn) {
-    return <Navigate to="/" replace />;
+    return null;
   }
 
   if (requireExpert && !expertData) {
     return <Navigate to="/not-authorized" replace />;
   }
 
-  return <Outlet />; 
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
