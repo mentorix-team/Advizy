@@ -28,7 +28,6 @@ import {
   HouseIcon,
   Search,
 } from "lucide-react";
-import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ExpertDashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
