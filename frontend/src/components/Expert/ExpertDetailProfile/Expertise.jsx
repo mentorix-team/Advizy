@@ -10,9 +10,9 @@ const ExpertiseTag = ({ text }) => (
 
 const Expertise = ({ skills }) => {
   // If no skills are passed, show a fallback message
-  if (!skills || skills.length === 0) {
-    return <p>No expertise listed.</p>;
-  }
+  // if (!skills || skills.length === 0) {
+  //   return <p>No expertise listed.</p>;
+  // }
 
   return (
     <div className="bg-white rounded-lg p-6 mt-6">

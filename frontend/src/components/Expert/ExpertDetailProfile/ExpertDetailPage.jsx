@@ -129,6 +129,7 @@ const ExpertDetailPage = () => {
             <EducationCertifications
               education={expert?.credentials?.education || []}
               certifications={expert?.credentials?.certifications_courses || []}
+              workExperiences={expert?.credentials?.work_experiences || []}
             />
           </div>
         </div>
