@@ -30,9 +30,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     currentRow.push(date);
 
     if (currentRow.length === 7) {
-      if (currentRow.some(date => date && !isDateInPast(date))) {
-        calendarDays.push(currentRow);
-      }
+      calendarDays.push([...currentRow]);
       currentRow = [];
     }
   }
@@ -42,12 +40,18 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     while (currentRow.length < 7) {
       currentRow.push(null);
     }
-    if (currentRow.some(date => date && !isDateInPast(date))) {
-      calendarDays.push(currentRow);
-    }
+    calendarDays.push([...currentRow]);
   }
 
-  if (!availability || !availability.daySpecific) {
+  // Check if the day has available slots
+  const hasAvailableSlots = (date) => {
+    if (!availability?.daySpecific) return false;
+    const dayName = date.toLocaleString('en-US', { weekday: 'long' });
+    const dayData = availability.daySpecific.find(day => day.day === dayName);
+    return dayData && dayData.slots && dayData.slots.length > 0;
+  };
+
+  if (!availability) {
     return <Spinner />;
   }
 
@@ -71,17 +75,19 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
             const isPast = isDateInPast(date);
             const isSelected = selectedDate && isSameDay(date, selectedDate);
             const isToday = isSameDay(date, today);
+            const hasSlots = hasAvailableSlots(date);
 
             return (
               <div key={`day-${weekIndex}-${dayIndex}`} className="flex justify-center">
                 <button
-                  onClick={() => !isPast && onDateSelect(date)}
-                  disabled={isPast}
+                  onClick={() => !isPast && hasSlots && onDateSelect(date)}
+                  disabled={isPast || !hasSlots}
                   className={`
                     w-9 h-9 flex items-center justify-center rounded-full text-sm transition-colors
-                    ${isPast ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
+                    ${isPast || !hasSlots ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
                     ${isSelected ? 'bg-green-500 text-white hover:bg-green-600' : ''}
                     ${isToday && !isSelected ? 'border border-green-500' : ''}
+                    ${hasSlots && !isPast && !isSelected ? 'text-green-600' : ''}
                   `}
                 >
                   {date.getDate()}
@@ -104,7 +110,7 @@ CalendarGrid.propTypes = {
       day: PropTypes.string.isRequired,
       slots: PropTypes.array
     }))
-  }).isRequired
+  })
 };
 
 export default CalendarGrid;
