@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { FileBadge2 } from 'lucide-react';
 
 const Experience = ({ workExperiences }) => {
   if (!workExperiences || workExperiences.length === 0) {
@@ -8,9 +9,10 @@ const Experience = ({ workExperiences }) => {
 
   return (
     <div className="bg-white rounded-lg p-6 mt-6">
-      <h2 className="text-black font-Figtree text-2xl font-semibold leading-9 mb-4">
-        Work Experience
-      </h2>
+      <div className="flex items-center gap-2 mb-4">
+        <FileBadge2 className='text-[#16A348] w-6 h-6' />
+        <h3 className="text-xl font-semibold text-gray-800">Work Experience</h3>
+      </div>
       <ul className="space-y-4">
         {workExperiences.map((exp, index) => (
           <li key={index} className="text-gray-700 border-b pb-4 last:border-b-0">

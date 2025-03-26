@@ -1,17 +1,7 @@
 import React from "react";
 import EducationItem from "./EducationItem";
-import { GraduationCap } from "lucide-react";
 
 const EducationList = ({ education }) => {
-  // If no education is passed, show a fallback message
-  if (!education || education.length === 0) {
-    return (
-      <div className="w-[284px] h-[200px] border rounded-lg flex flex-col items-center justify-center p-4 bg-background">
-        <div className="mb-3"><GraduationCap className="w-10 h-10 text-muted-foreground" /></div>
-        <div className="text-center text-sm text-muted-foreground">No education available</div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
