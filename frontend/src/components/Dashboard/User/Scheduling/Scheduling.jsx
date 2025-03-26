@@ -20,9 +20,25 @@ function Scheduling() {
   const location = useLocation();
   const { duration, price } = location.state || {};
 
-  const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
-  const { selectedAvailability, loading: availabilityLoading, error: availabilityError } = useSelector((state) => state.availability);
+  console.log("Selected Duration:", duration);
+  console.log("Selected Price:", price);
+
+  const {
+    selectedExpert,
+    loading: expertLoading,
+    error: expertError,
+    selectedService,
+  } = useSelector((state) => state.expert);
+  const {
+    selectedAvailability,
+    loading: availabilityLoading,
+    error: availabilityError,
+  } = useSelector((state) => state.availability);
+  console.log("This is availability", selectedAvailability);
   const { data } = useSelector((state) => state.auth);
+  // console.log("this is data",JSON.parse(data))
+  // const userData = JSON.parse(data)
+  // let userData;
 
   let userData;
   try {
@@ -56,11 +72,17 @@ function Scheduling() {
   }
 
   if (expertError || availabilityError) {
-    return <p className="text-red-500">Error: {expertError || availabilityError}</p>;
+    return (
+      <p className="text-red-500">Error: {expertError || availabilityError}</p>
+    );
   }
 
   if (!selectedExpert || !selectedAvailability?.availability) {
-    return <p>Expert or Availability data is not available. Please try again later.</p>;
+    return (
+      <p>
+        Expert or Availability data is not available. Please try again later.
+      </p>
+    );
   }
 
   const expert = {

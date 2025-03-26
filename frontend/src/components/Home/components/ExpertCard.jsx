@@ -298,14 +298,14 @@ const ExpertCard = ({ expert }) => {
           >
             View Profile
           </motion.button>
-          <button 
+          {/* <button 
             className="flex-1 sm:flex-none btn-expert text-xs sm:text-sm"
             onClick={() => {
               navigate(`/expert/${redirect_url}?scrollTo=services-offered`);
             }}
           >
             Book
-          </button>
+          </button> */}
         </div>
       </motion.div>
     </motion.div>

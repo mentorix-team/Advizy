@@ -161,7 +161,7 @@ const OrderSummary = () => {
       const orderResponse = await dispatch(createpaymentOrder(paymentData)).unwrap();
   
       const options = {
-        key: "rzp_test_B8zZZPygaPUZWS",
+        key: "rzp_test_1LI16MdQqpqI62",
         amount: orderResponse.amount,
         currency: orderResponse.currency,
         name: "Advizy",

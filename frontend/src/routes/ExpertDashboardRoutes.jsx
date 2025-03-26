@@ -15,7 +15,7 @@ const ExpertDashboardRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<ExpertDashboardLayout />}>
-        <Route index element={<Home  />} />
+        <Route index element={<Home />} />
         <Route path="/chats" element={<Chats />} />
         <Route path="/availability" element={<Availability />} />
         <Route path="/meetings" element={<Meetings />} />
@@ -23,9 +23,8 @@ const ExpertDashboardRoutes = () => {
         <Route path="/profile-detail" element={<ProfileDetails />} />
         <Route path="/payments" element={<Payments />} />
         <Route path="/reviews" element={<Testimonials />} />
-        <Route path = '/clients' element ={<Clients/>}/>
+        <Route path="/clients" element={<Clients />} />
         <Route path="/clients/:id" element={<ClientDetails />} />
-
       </Route>
     </Routes>
   );

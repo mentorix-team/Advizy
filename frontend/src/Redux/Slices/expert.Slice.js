@@ -84,6 +84,40 @@ export const ExperienceFormSubmit = createAsyncThunk(
   }
 );
 
+export const editExperience=createAsyncThunk(
+  'expert/editExperience',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('/expert/editExpertExperience',data)
+      return response?.data
+    } catch (error) {
+      console.error("Error submitting experience form:", error);
+
+      toast.error(error.response?.data?.message || "Something went wrong");
+
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      );
+    }
+  }
+)
+export const deleteExpertExperience = createAsyncThunk(
+  'expert/deleteexpertexperience',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/deleteExpertExperience')
+    } catch (error) {
+      console.error("Error submitting experience form:", error);
+
+      toast.error(error.response?.data?.message || "Something went wrong");
+
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      );
+    }
+  }
+)
+
 export const PaymentFormSubmit = createAsyncThunk(
   'expert/paymentForm',
   async(data,{rejectWithValue}) =>{
@@ -121,6 +155,37 @@ export const EducationFormSubmit = createAsyncThunk(
   }
 );
 
+export const EditEducationForm = createAsyncThunk(
+  'expert/editEducation',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post("/expert/editExpertEducation",data)
+      return await response?.data;
+    } catch (error) {
+      console.error("Error submitting education form:", error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      );
+    }
+  }
+)
+
+export const deleteEducation = createAsyncThunk(
+  'expert/deleteExpertEducation',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/deleteExpertEducation',data)
+      return await response.data
+    } catch (error) {
+      console.error("Error submitting education form:", error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      );
+    }
+  }
+)
 
 export const SingleEducationForm = createAsyncThunk(
   "expert/singleeducationform",
@@ -153,6 +218,38 @@ export const CertificateForm = createAsyncThunk(
     }
   }
 )
+
+export const EditCertificate = createAsyncThunk(
+  'expert/editCertificate',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/editExpertCerti',data)
+      return response?.data
+    } catch (error) {
+      console.error("Error submitting certificate form:", error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      );
+    }
+  }
+)
+export const deleteCerti = createAsyncThunk(
+  'expert/delete',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/deleteExpertCerti',data)
+      return response.data
+    } catch (error) {
+      console.error("Error submitting certificate form:", error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data || { message: "Unknown error occurred" }
+      ); 
+    }
+  }
+)
+
 
 export const PortfolioForm = createAsyncThunk(
   "expert/portfolioform",

@@ -2,11 +2,17 @@ import React, { useState, useEffect } from 'react';
 import EducationList from './EducationList';
 import EducationForm from './EducationForm';
 import { toast } from 'react-hot-toast';
+import { deleteEducation, EditEducationForm } from '@/Redux/Slices/expert.Slice';
 
 export default function EducationTab({ formData, onUpdate }) {
-  // Initialize educations from formData.education, defaulting to empty array if undefined
-  const [educations, setEducations] = useState(formData.education || []);
-  const [showForm, setShowForm] = useState((formData.education || []).length === 0);
+  console.log('This is formdata',formData)
+  // const [educations, setEducations] = useState(formData);
+
+  const [educations,setEducations] = useState(()=>{
+    const savedEducation = localStorage.getItem('educations');
+    return savedEducation ? JSON.parse(savedEducation) : formData
+  })
+  const [showForm, setShowForm] = useState(formData.length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
 
   // Update local state when formData.education changes
@@ -42,31 +48,46 @@ export default function EducationTab({ formData, onUpdate }) {
     setShowForm(true);
   };
 
-  const handleUpdateEducation = (updatedEducation) => {
+  const handleUpdateEducation = async (updatedEducation) => {
     const updatedEducations = [...educations];
     updatedEducations[editingIndex] = updatedEducation;
-    
-    // Update both local state and parent form data
-    setEducations(updatedEducations);
-    onUpdate({
-      ...formData,
-      education: updatedEducations
-    });
-    setShowForm(false);
-    setEditingIndex(null);
-    toast.success('Education updated successfully!');
+
+    try {
+      // Dispatch the EditEducationForm action
+      const response = await dispatch(
+        EditEducationForm(updatedEducation)
+      ).unwrap(); // Unwrap to handle success or failure
+      console.log('Response from server:', response);
+
+      setEducations(updatedEducations);
+      onUpdate(updatedEducations);
+      setShowForm(false);
+      setEditingIndex(null);
+      toast.success('Education updated successfully!');
+    } catch (error) {
+      console.error('Error updating education:', error);
+      toast.error('Failed to update education. Please try again.');
+    }
   };
 
-  const handleDeleteEducation = (index) => {
-    const updatedEducations = educations.filter((_, i) => i !== index);
-    
-    // Update both local state and parent form data
-    setEducations(updatedEducations);
-    onUpdate({
-      ...formData,
-      education: updatedEducations
-    });
-    toast.success('Education deleted successfully!');
+  const handleDeleteEducation = async (index) => {
+    const educationToDelete = educations[index];
+  
+    // Dispatch deleteEducation action
+    try {
+      const response = await dispatch(deleteEducation(educationToDelete)).unwrap(); // Unwrap to handle success or failure
+      console.log('Education deleted successfully:', response);
+  
+      // Remove the education from local state
+      const updatedEducations = educations.filter((_, i) => i !== index);
+      setEducations(updatedEducations);
+      onUpdate(updatedEducations);
+  
+      toast.success('Education deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting education:', error);
+      toast.error('Failed to delete education. Please try again.');
+    }
   };
 
   return (
