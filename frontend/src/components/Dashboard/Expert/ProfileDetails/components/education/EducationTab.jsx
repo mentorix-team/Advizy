@@ -4,29 +4,37 @@ import EducationForm from './EducationForm';
 import { toast } from 'react-hot-toast';
 
 export default function EducationTab({ formData, onUpdate }) {
-  const [educations, setEducations] = useState(formData);
-  const [showForm, setShowForm] = useState(formData.length === 0);
+  // Initialize educations from formData.education, defaulting to empty array if undefined
+  const [educations, setEducations] = useState(formData.education || []);
+  const [showForm, setShowForm] = useState((formData.education || []).length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
 
-  // Update local state when props change
+  // Update local state when formData.education changes
   useEffect(() => {
-    setEducations(formData.education || []);
-    setShowForm((formData.education || []).length === 0);
-  }, [formData.education]); // Depend only on `formData.education`
+    if (formData.education) {
+      setEducations(formData.education);
+      setShowForm(formData.education.length === 0);
+    }
+  }, [formData.education]);
 
   const handleAddEducation = (formData) => {
     const newEducation = {
       degree: formData.get("degree") || "",
       institution: formData.get("institution") || "",
       passingYear: formData.get("passingYear") || "",
-      certificate: formData.get("certificate") || null, // File remains as it is
+      certificate: formData.get("certificate") || null,
     };
 
     const updatedEducations = [...educations, newEducation];
-
+    
+    // Update both local state and parent form data
     setEducations(updatedEducations);
-    onUpdate({ ...formData, education: updatedEducations }); // Update only `education`
+    onUpdate({ 
+      ...formData,
+      education: updatedEducations 
+    });
     setShowForm(false);
+    toast.success('Education added successfully!');
   };
 
   const handleEditEducation = (index) => {
@@ -37,8 +45,13 @@ export default function EducationTab({ formData, onUpdate }) {
   const handleUpdateEducation = (updatedEducation) => {
     const updatedEducations = [...educations];
     updatedEducations[editingIndex] = updatedEducation;
+    
+    // Update both local state and parent form data
     setEducations(updatedEducations);
-    onUpdate(updatedEducations);
+    onUpdate({
+      ...formData,
+      education: updatedEducations
+    });
     setShowForm(false);
     setEditingIndex(null);
     toast.success('Education updated successfully!');
@@ -46,8 +59,13 @@ export default function EducationTab({ formData, onUpdate }) {
 
   const handleDeleteEducation = (index) => {
     const updatedEducations = educations.filter((_, i) => i !== index);
+    
+    // Update both local state and parent form data
     setEducations(updatedEducations);
-    onUpdate(updatedEducations);
+    onUpdate({
+      ...formData,
+      education: updatedEducations
+    });
     toast.success('Education deleted successfully!');
   };
 
