@@ -20,9 +20,6 @@ function Scheduling() {
   const location = useLocation();
   const { duration, price } = location.state || {};
 
-  console.log("Selected Duration:", duration);
-  console.log("Selected Price:", price);
-
   const {
     selectedExpert,
     loading: expertLoading,
@@ -34,11 +31,7 @@ function Scheduling() {
     loading: availabilityLoading,
     error: availabilityError,
   } = useSelector((state) => state.availability);
-  console.log("This is availability", selectedAvailability);
   const { data } = useSelector((state) => state.auth);
-  // console.log("this is data",JSON.parse(data))
-  // const userData = JSON.parse(data)
-  // let userData;
 
   let userData;
   try {
@@ -79,9 +72,7 @@ function Scheduling() {
 
   if (!selectedExpert || !selectedAvailability?.availability) {
     return (
-      <p>
-        Expert or Availability data is not available. Please try again later.
-      </p>
+      <p>Expert or Availability data is not available. Please try again later.</p>
     );
   }
 
@@ -103,27 +94,54 @@ function Scheduling() {
         onToggleExpertMode={handleToggle}
       />
       
-      <main className="flex-grow py-6 sm:py-8 lg:py-12">
+      <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-16">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,400px),1fr] gap-6 lg:gap-8">
+            {/* Mobile: Schedule box first */}
+            <div className="lg:hidden w-full">
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
+                <div className="max-w-[400px] mx-auto">
+                  <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+                </div>
+                <TimeSlots
+                  sessionDuration={sessionDuration}
+                  sessionPrice={sessionPrice}
+                  selectedDate={selectedDate}
+                  selectedAvailability={selectedAvailability}
+                  expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
+                  userName={userData.firstName + " " + userData.lastName}
+                  serviceName={selectedService.title}
+                  expertId={selectedExpert._id}
+                  serviceId={selectedService.serviceId}
+                />
+              </div>
+            </div>
+
+            {/* Expert Profile */}
             <div className="w-full">
               <ExpertProfileInSchedule expert={expert} />
             </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
-              <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
-              <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-              <TimeSlots
-                sessionDuration={sessionDuration}
-                sessionPrice={sessionPrice}
-                selectedDate={selectedDate}
-                selectedAvailability={selectedAvailability}
-                expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
-                userName={userData.firstName + " " + userData.lastName}
-                serviceName={selectedService.title}
-                expertId={selectedExpert._id}
-                serviceId={selectedService.serviceId}
-              />
+            {/* Desktop: Schedule box */}
+            <div className="hidden lg:block">
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+                <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
+                <div className="max-w-[400px] mx-auto">
+                  <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+                </div>
+                <TimeSlots
+                  sessionDuration={sessionDuration}
+                  sessionPrice={sessionPrice}
+                  selectedDate={selectedDate}
+                  selectedAvailability={selectedAvailability}
+                  expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
+                  userName={userData.firstName + " " + userData.lastName}
+                  serviceName={selectedService.title}
+                  expertId={selectedExpert._id}
+                  serviceId={selectedService.serviceId}
+                />
+              </div>
             </div>
           </div>
         </div>
