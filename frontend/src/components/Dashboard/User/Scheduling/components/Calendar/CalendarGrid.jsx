@@ -56,7 +56,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg p-2">
+    <div className="border border-gray-400 rounded-lg p-2">
       <div className="grid grid-cols-7 mb-2">
         {weekDays.map(day => (
           <div key={`weekDay-${day}`} className="text-center text-sm text-gray-600 py-2 font-medium">

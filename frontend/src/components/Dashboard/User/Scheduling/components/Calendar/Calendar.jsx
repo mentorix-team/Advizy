@@ -26,7 +26,7 @@ function Calendar({ selectedDate, onDateSelect, availability }) {
   const canGoNext = !isNextMonth(currentDate);
 
   return (
-    <div className="bg-white rounded-lg p-3 sm:p-4">
+    <div className="bg-white rounded-lg p-2 sm:p-3 w-full">
       <CalendarHeader
         currentDate={currentDate}
         onPrevMonth={handlePrevMonth}
