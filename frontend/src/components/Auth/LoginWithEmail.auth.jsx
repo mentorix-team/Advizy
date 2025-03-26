@@ -19,17 +19,9 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     password: "",
   });
 
-  // const handleGoogleSignup = (event) => {
-  //   event.preventDefault(); // Prevent the form from submitting
-  //   window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
-  // };
-
   const handleGoogleSignup = (event) => {
-    event.preventDefault();
-    // Store login state (simulate login)
-    localStorage.setItem("isLoggedIn", "true");
-    // Redirect the user after login
-    handleLoginRedirect(navigate);
+    event.preventDefault(); // Prevent the form from submitting
+    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
   const [touched, setTouched] = useState({
@@ -41,14 +33,13 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const dispatch = useDispatch();
 
   // Function to redirect user after login
+  // const handleLoginRedirect = (navigate) => {
+  //   // Check if there's a saved URL
+  //   const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
+  //   localStorage.removeItem("redirectAfterLogin"); // Clear stored path
 
-  const handleLoginRedirect = (navigate) => {
-    // Check if there's a saved URL
-    const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
-    localStorage.removeItem("redirectAfterLogin"); // Clear stored path
-
-    navigate(redirectPath, { replace: true });
-  };
+  //   navigate(redirectPath, { replace: true });
+  // };
 
   const validateField = (name, value) => {
     switch (name) {
@@ -117,8 +108,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      localStorage.setItem("isLoggedIn", "true"); // Mark user as logged in
-      handleLoginRedirect(navigate); // Redirect to previous page
+      navigate('/');
     } else {
       navigate("/signup");
     }
