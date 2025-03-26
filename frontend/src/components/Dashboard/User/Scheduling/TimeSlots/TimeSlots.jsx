@@ -9,7 +9,6 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState(null);
 
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
@@ -88,11 +87,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     setTimeSlots(generatedSlots);
   }, [selectedDate, selectedAvailability, sessionDuration]);
 
-  const handleTimeSelect = (time) => {
-    setSelectedSlot(time);
-  };
-
-  const handleProceed = async () => {
+  const handleBooking = async (time) => {
     try {
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
       const meetData = {
@@ -101,8 +96,8 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
         daySpecific: {
           date: formattedDate,
           slot: {
-            startTime: selectedSlot.startTime,
-            endTime: selectedSlot.endTime,
+            startTime: time.startTime,
+            endTime: time.endTime,
           },
         },
         userName,
@@ -116,7 +111,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
         navigate(`/expert/order-summary/`, {
           state: {
             selectedDate: formattedDate,
-            selectedTime: selectedSlot,
+            selectedTime: time,
             Price: sessionPrice,
           },
         });
@@ -127,36 +122,23 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   };
 
   if (timeSlots.length === 0) {
-    return <p className="text-gray-500 text-center py-4">No available slots for the selected date.</p>;
+    return <p>No available slots for the selected date.</p>;
   }
 
   return (
-    <div>
+    <div className="mt-6">
       <h3 className="text-[15px] text-gray-900 mb-4">
         Available Time Slots for {selectedDate.toLocaleDateString('en-US')}
       </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6">
         {timeSlots.map((slot, index) => (
           <TimeButton
             key={index}
             time={slot}
-            isSelected={selectedSlot && selectedSlot.startTime === slot.startTime}
-            onClick={() => handleTimeSelect(slot)}
+            onClick={() => handleBooking(slot)}
           />
         ))}
       </div>
-      
-      {selectedSlot && (
-        <button
-          onClick={handleProceed}
-          className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-        >
-          <span>Proceed to Next Step</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      )}
     </div>
   );
 }
