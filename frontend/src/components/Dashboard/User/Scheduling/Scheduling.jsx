@@ -12,10 +12,8 @@ import Footer from '@/components/Home/components/Footer';
 import Navbar from '@/components/Home/components/Navbar';
 import SearchModal from '@/components/Home/components/SearchModal';
 
-
 function Scheduling() {
   const dispatch = useDispatch();
-  // const [selectedDuration, setSelectedDuration] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -40,11 +38,11 @@ function Scheduling() {
   const { data } = useSelector((state) => state.auth);
   // console.log("this is data",JSON.parse(data))
   // const userData = JSON.parse(data)
-  let userData;
+  // let userData;
 
+  let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
-    console.log("this is data", userData);
   } catch (error) {
     console.error("Error parsing data:", error);
   }
@@ -57,16 +55,10 @@ function Scheduling() {
   }, []);
 
   useEffect(() => {
-    
-    console.log("this is my expert ",selectedExpert)
-    console.log("this is my Serice ",selectedService)
     if (selectedExpert._id && !availabilityLoading) {
       dispatch(getAvailabilitybyid(selectedExpert._id));
     }
   }, [dispatch, selectedExpert]);
-
-  console.log("Selected Date:", selectedDate);
-  console.log("Selected Availability:", selectedAvailability);
 
   const sessionDuration = duration || selectedService?.duration;
   const sessionPrice = price || selectedService?.price;
@@ -94,48 +86,49 @@ function Scheduling() {
   }
 
   const expert = {
-    image:
-      selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url ||
-      "https://via.placeholder.com/100",
+    image: selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url || 'https://via.placeholder.com/100',
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: selectedExpert.credentials?.domain || "No Title Provided",
+    title: selectedExpert.credentials?.domain || 'No Title Provided',
     sessionDuration,
     price: sessionPrice,
     description: selectedService.detailedDescription,
-    includes: selectedService.features,
+    includes: selectedService.features
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar
-          onSearch={() => setIsModalOpen(true)}
-          isExpertMode={isExpertMode}
-          onToggleExpertMode={handleToggle}
-        />
-      <div className="max-w-6xl mx-auto px-4 flex flex-col lg:grid lg:grid-cols-[minmax(320px,400px),1fr] gap-6 lg:gap-8">
-        <ExpertProfileInSchedule expert={expert} />
+        onSearch={() => setIsModalOpen(true)}
+        isExpertMode={isExpertMode}
+        onToggleExpertMode={handleToggle}
+      />
+      
+      <main className="flex-grow py-6 sm:py-8 lg:py-12">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,400px),1fr] gap-6 lg:gap-8">
+            <div className="w-full">
+              <ExpertProfileInSchedule expert={expert} />
+            </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-          <h2 className="text-xl font-semibold mb-6">Schedule Your Session</h2>
-          <Calendar
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-          />
-          <TimeSlots
-            sessionDuration={sessionDuration}
-            sessionPrice={sessionPrice}
-            selectedDate={selectedDate}
-            selectedAvailability={selectedAvailability}
-            expertName={
-              selectedExpert.firstName + " " + selectedExpert.lastName
-            }
-            userName={userData.firstName + " " + userData.lastName}
-            serviceName={selectedService.title}
-            expertId={selectedExpert._id}
-            serviceId={selectedService.serviceId}
-          />
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
+              <Calendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+              <TimeSlots
+                sessionDuration={sessionDuration}
+                sessionPrice={sessionPrice}
+                selectedDate={selectedDate}
+                selectedAvailability={selectedAvailability}
+                expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
+                userName={userData.firstName + " " + userData.lastName}
+                serviceName={selectedService.title}
+                expertId={selectedExpert._id}
+                serviceId={selectedService.serviceId}
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
+
       <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
