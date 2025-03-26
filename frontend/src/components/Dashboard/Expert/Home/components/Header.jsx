@@ -150,7 +150,7 @@ export default function Header({pendingActions}) {
       <div className="w-full flex justify-between items-start sm:items-center mb-4 sm:mb-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">
-            Welcome back, {expertData.firstName}
+            Welcome, {expertData.firstName}
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
             Let's make today productive!
