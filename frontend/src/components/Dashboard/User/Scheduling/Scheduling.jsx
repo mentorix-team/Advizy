@@ -11,7 +11,8 @@ import Spinner from '@/components/LoadingSkeleton/Spinner';
 import Footer from '@/components/Home/components/Footer';
 import Navbar from '@/components/Home/components/Navbar';
 import SearchModal from '@/components/Home/components/SearchModal';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 function Scheduling() {
   const dispatch = useDispatch();
