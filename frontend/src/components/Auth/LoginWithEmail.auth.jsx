@@ -25,10 +25,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // };
 
   const handleGoogleSignup = (event) => {
-    event.preventDefault(); // Prevent form submission
-    localStorage.setItem("isLoggedIn", "true"); // Store login state
-    handleLoginRedirect(); // Redirect after Google login
-    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
+    event.preventDefault();
+    // Store login state (simulate login)
+    localStorage.setItem("isLoggedIn", "true");
+    // Redirect the user after login
+    handleLoginRedirect();
   };
 
   const [touched, setTouched] = useState({
@@ -40,10 +41,15 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const dispatch = useDispatch();
 
   // Function to redirect user after login
+
   const handleLoginRedirect = () => {
+    const navigate = useNavigate();
+
+    // Check if there's a saved URL
     const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
     localStorage.removeItem("redirectAfterLogin"); // Clear stored path
-    navigate(redirectPath);
+
+    navigate(redirectPath, { replace: true });
   };
 
   const validateField = (name, value) => {
