@@ -91,7 +91,7 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
 
       {/* Top Row: Service Name, Toggle, Edit, and Delete */}
       <div className="flex justify-between items-start">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col">
           <h3
             className={`text-xl font-semibold ${
               isEnabled ? "text-gray-900" : "text-gray-500"
@@ -100,17 +100,6 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
           >
             {title.length > 15 ? `${title.slice(0, 15)}...` : title}
           </h3>
-          <button
-            onClick={() => {
-              onEdit(service);
-            }}
-            className={`rounded-full transition-colors ${
-              isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
-            }`}
-            disabled={!isEnabled}
-          >
-            <EditIcon className="w-5 h-4.5 text-gray-600" />
-          </button>
         </div>
         <div className="flex items-center gap-3">
           {!isDefault && (
@@ -136,6 +125,17 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
               )}
             </div>
           )}
+          <button
+            onClick={() => {
+              onEdit(service);
+            }}
+            className={`rounded-full transition-colors ${
+              isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
+            }`}
+            disabled={!isEnabled}
+          >
+            <EditIcon className="w-5 h-4.5 text-gray-600" />
+          </button>
           {!isDefault && service.title !== "One-on-One Mentoring" && (
             <button
               onClick={handleDeleteConfirm}
