@@ -142,7 +142,7 @@ export default function AvailabilityCalendar({
         {/* Meetings Section */}
         <div className="flex-1">
           <h3 className="font-medium mb-4">
-            Meetings for {selectedDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}
+            Meetings for {selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: 'numeric' })}
           </h3>
           <div className="space-y-3">
             {filteredMeetings.length > 0 ? (
