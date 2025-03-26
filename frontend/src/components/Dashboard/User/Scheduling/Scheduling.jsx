@@ -102,14 +102,14 @@ function Scheduling() {
       />
 
       <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-16">
-      <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-800 hover:underline mb-4"
-        >
-          <ArrowLeft className="w-5 h-5 text-gray-800" />
-          <span>Back</span>
-        </button>
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors mb-6 p-2 rounded-lg hover:bg-green-50"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Back to Previous Page</span>
+          </button>
 
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,400px),1fr] gap-6 lg:gap-8">
             <div className="w-full">
