@@ -30,7 +30,6 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     currentRow.push(date);
 
     if (currentRow.length === 7) {
-      // Only add the row if it contains future dates
       if (currentRow.some(date => date && !isDateInPast(date))) {
         calendarDays.push(currentRow);
       }
@@ -48,22 +47,15 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     }
   }
 
-  // Function to get slots for a specific day (e.g., Friday)
-  const getSlotsForDay = (dayName) => {
-    // Check if availability is undefined or missing daySpecific
-    const daySpecific = availability?.daySpecific?.find(day => day.day === dayName);
-    return daySpecific ? daySpecific.slots : [];
-  };
-
   if (!availability || !availability.daySpecific) {
-    return <Spinner />; // Or some other loading state
+    return <Spinner />;
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-7 mb-2 bg-emerald-50">
+    <div className="border border-gray-200 rounded-lg p-2">
+      <div className="grid grid-cols-7 mb-2">
         {weekDays.map(day => (
-          <div key={`weekDay-${day}`} className="text-center text-sm text-gray-600 py-2">
+          <div key={`weekDay-${day}`} className="text-center text-sm text-gray-600 py-2 font-medium">
             {day}
           </div>
         ))}
@@ -73,23 +65,20 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
         {calendarDays.map((week, weekIndex) => (
           week.map((date, dayIndex) => {
             if (!date) {
-              return <div key={`empty-${weekIndex}-${dayIndex}`} />;
+              return <div key={`empty-${weekIndex}-${dayIndex}`} className="h-9" />;
             }
 
             const isPast = isDateInPast(date);
             const isSelected = selectedDate && isSameDay(date, selectedDate);
             const isToday = isSameDay(date, today);
 
-            const dayName = weekDays[date.getDay()];
-            const slots = getSlotsForDay(dayName); // Get slots for the day
-
             return (
-              <div key={`day-${weekIndex}-${dayIndex}-${date.getDate()}`}>
+              <div key={`day-${weekIndex}-${dayIndex}`} className="flex justify-center">
                 <button
                   onClick={() => !isPast && onDateSelect(date)}
                   disabled={isPast}
                   className={`
-                    py-2 rounded-full text-sm transition-colors
+                    w-9 h-9 flex items-center justify-center rounded-full text-sm transition-colors
                     ${isPast ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
                     ${isSelected ? 'bg-green-500 text-white hover:bg-green-600' : ''}
                     ${isToday && !isSelected ? 'border border-green-500' : ''}
@@ -97,17 +86,6 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
                 >
                   {date.getDate()}
                 </button>
-
-                {/* Render slots if available for this day */}
-                {slots && slots.length > 0 && (
-                  <div className="mt-1 text-xs text-gray-500">
-                    {slots.map((slot, index) => (
-                      <div key={index}>
-                        {slot.startTime} - {slot.endTime} {slot.isBooked ? '(Booked)' : '(Available)'}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             );
           })
@@ -127,12 +105,6 @@ CalendarGrid.propTypes = {
       slots: PropTypes.array
     }))
   }).isRequired
-};
-
-CalendarGrid.defaultProps = {
-  availability: {
-    daySpecific: []
-  }
 };
 
 export default CalendarGrid;
