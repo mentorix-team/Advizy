@@ -36,7 +36,7 @@ function Calendar({ selectedDate, onDateSelect, availability }) {
   const canGoNext = !isNextMonth(currentDate);
 
   return (
-    <div className="w-full">
+    <div className="bg-white rounded-lg p-3 sm:p-4">
       <CalendarHeader
         currentDate={currentDate}
         onPrevMonth={handlePrevMonth}
@@ -44,24 +44,12 @@ function Calendar({ selectedDate, onDateSelect, availability }) {
         canGoPrev={canGoPrev}
         canGoNext={canGoNext}
       />
-      <div className="mt-6">
-        <div className="grid grid-cols-7 mb-2">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-            <div
-              key={day}
-              className="h-10 flex items-center justify-center text-sm font-medium text-gray-700"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-        <CalendarGrid
-          currentDate={currentDate}
-          selectedDate={selectedDate}
-          onDateSelect={onDateSelect}
-          availableDays={availableDays}
-        />
-      </div>
+      <CalendarGrid
+        currentDate={currentDate}
+        selectedDate={selectedDate}
+        onDateSelect={onDateSelect}
+        availableDays={availableDays}
+      />
     </div>
   );
 }
