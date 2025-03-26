@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import ExpertProfileInSchedule from "./ExpertProfileInSchedule";
 import Calendar from "./components/Calendar/Calendar";
@@ -11,10 +12,28 @@ import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Footer from "@/components/Home/components/Footer";
 import Navbar from "@/components/Home/components/Navbar";
 import SearchModal from "@/components/Home/components/SearchModal";
+=======
+import { useEffect, useState } from 'react';
+import ExpertProfileInSchedule from './ExpertProfileInSchedule';
+import Calendar from './components/Calendar/Calendar';
+import TimeSlots from './TimeSlots/TimeSlots';
+import './Scheduling.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { getExpertById } from '@/Redux/Slices/expert.Slice';
+import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
+import { useLocation } from 'react-router-dom';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
+import Footer from '@/components/Home/components/Footer';
+import Navbar from '@/components/Home/components/Navbar';
+import SearchModal from '@/components/Home/components/SearchModal';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+>>>>>>> ce7424e1f7bfacb00e7f1e6d22a387fab1a11131
 
 function Scheduling() {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const location = useLocation();
@@ -99,13 +118,22 @@ function Scheduling() {
       />
 
       <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-16">
+      <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-800 hover:underline mb-4"
+        >
+          <ArrowLeft className="w-5 h-5 text-gray-800" />
+          <span>Back</span>
+        </button>
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,400px),1fr] gap-6 lg:gap-8">
             <div className="w-full">
               <ExpertProfileInSchedule expert={expert} />
             </div>
 
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+<<<<<<< HEAD
               <h2 className="text-xl sm:text-2xl font-semibold mb-6">
                 Schedule Your Session
               </h2>
@@ -127,6 +155,31 @@ function Scheduling() {
                 expertId={selectedExpert._id}
                 serviceId={selectedService.serviceId}
               />
+=======
+              <h2 className="text-xl sm:text-2xl font-semibold mb-6">Schedule Your Session</h2>
+              <div className="grid grid-cols-1 md:grid-cols-[350px,1fr] gap-6">
+                <div className="w-full max-w-[350px]">
+                  <Calendar 
+                    selectedDate={selectedDate}
+                    onDateSelect={setSelectedDate}
+                    availability={selectedAvailability}
+                  />
+                </div>
+                <div>
+                  <TimeSlots
+                    sessionDuration={sessionDuration}
+                    sessionPrice={sessionPrice}
+                    selectedDate={selectedDate}
+                    selectedAvailability={selectedAvailability}
+                    expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
+                    userName={userData.firstName + " " + userData.lastName}
+                    serviceName={selectedService.title}
+                    expertId={selectedExpert._id}
+                    serviceId={selectedService.serviceId}
+                  />
+                </div>
+              </div>
+>>>>>>> ce7424e1f7bfacb00e7f1e6d22a387fab1a11131
             </div>
           </div>
         </div>
