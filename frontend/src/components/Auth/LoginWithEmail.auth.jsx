@@ -29,7 +29,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     // Store login state (simulate login)
     localStorage.setItem("isLoggedIn", "true");
     // Redirect the user after login
-    handleLoginRedirect();
+    handleLoginRedirect(navigate);
   };
 
   const [touched, setTouched] = useState({
@@ -42,9 +42,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   // Function to redirect user after login
 
-  const handleLoginRedirect = () => {
-    const navigate = useNavigate();
-
+  const handleLoginRedirect = (navigate) => {
     // Check if there's a saved URL
     const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
     localStorage.removeItem("redirectAfterLogin"); // Clear stored path
@@ -120,7 +118,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
       localStorage.setItem("isLoggedIn", "true"); // Mark user as logged in
-      handleLoginRedirect(); // Redirect to previous page
+      handleLoginRedirect(navigate); // Redirect to previous page
     } else {
       navigate("/signup");
     }
