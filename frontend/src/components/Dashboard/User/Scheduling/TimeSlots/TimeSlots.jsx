@@ -130,7 +130,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       <h3 className="text-[15px] text-gray-900 mb-4">
         Available Time Slots for {selectedDate.toLocaleDateString('en-US')}
       </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-6">
         {timeSlots.map((slot, index) => (
           <TimeButton
             key={index}

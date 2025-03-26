@@ -18,9 +18,24 @@ function ExpertProfileInSchedule({ expert }) {
         </div>
       </div>
 
-      <div className="mb-8">
-        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Career Strategy Session</h3>
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="mb-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Career Strategy Session</h3>
+          <button 
+            onClick={() => setShowMore(!showMore)}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <svg 
+              className={`w-5 h-5 transform transition-transform ${showMore ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap mt-4">
           <span className="flex items-center text-gray-600 text-sm sm:text-base">
             <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -31,18 +46,10 @@ function ExpertProfileInSchedule({ expert }) {
         </div>
       </div>
 
-      {/* Show More Button */}
-      <button 
-        onClick={() => setShowMore(!showMore)}
-        className="w-full py-2 px-4 mb-6 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-      >
-        {showMore ? 'Show Less' : 'Show More'}
-      </button>
-
       {/* Collapsible Content */}
       {showMore && (
-        <>
-          <div className="mb-6">
+        <div className="mt-6 space-y-6">
+          <div>
             <h4 className="font-medium text-gray-900 mb-2">Description:</h4>
             <p className="text-gray-600 text-sm leading-relaxed">{expert.description}</p>
           </div>
@@ -58,7 +65,7 @@ function ExpertProfileInSchedule({ expert }) {
               ))}
             </ul>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
