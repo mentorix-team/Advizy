@@ -101,7 +101,7 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route
-          path="/expert-ing"
+          path="/expert-onboarding"
           element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
         >
           <Route path="" element={<ProfileDetails />} />
