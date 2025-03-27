@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import PhoneInput from "react-phone-input-2";
 import { FaPlus } from "react-icons/fa";
 import CustomDatePicker from "./CustomDatePicker";
@@ -14,40 +12,17 @@ import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
 
-const validationSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  gender: Yup.string().required('Gender is required'),
-  dateOfBirth: Yup.string().required('Date of birth is required'),
-  nationality: Yup.string().required('Nationality is required'),
-  city: Yup.string().required('City is required'),
-  mobile: Yup.string().required('Mobile number is required'),
-  email: Yup.string().email('Invalid email format').required('Email is required'),
-  languages: Yup.array().min(1, 'Please select at least one language')
-});
-
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
-  const [verificationType, setVerificationType] = useState("");
-
-  const formik = useFormik({
-    initialValues: formData,
-    validationSchema,
-    onSubmit: (values) => {
-      onUpdate(values);
-    },
-    validateOnBlur: true,
-    validateOnChange: true
-  });
+  const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
 
   const handleChange = (field, value) => {
-    formik.setFieldValue(field, value);
     onUpdate({ ...formData, [field]: value });
   };
 
-  console.log("This is formdata passed to basic", formData);
+  console.log("Ths is formadata passed to basic", formData);
   const languageOptions = [
     { value: "english", label: "English" },
     { value: "hindi", label: "Hindi" },
@@ -100,12 +75,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
   const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
     if (isValid) {
-      handleChange('countryCode', countryCode);
-      handleChange('mobile', phoneNumber);
-      formik.setFieldTouched('mobile', true);
+      onUpdate({
+        ...formData,
+        countryCode,
+        mobile: phoneNumber,
+      });
     }
   };
-
+  
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
     setContactInfo(
@@ -124,45 +101,46 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
+    // You can add additional logic here if needed, such as updating the form state
   };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-      <Toaster position="top-right" />
-      
-      {/* Info Banner */}
-      <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
-        <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
-          Why Basic Info Matters
-        </h3>
-        <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
-          Your basic information is the first thing potential clients see. A
-          complete and professional profile increases your chances of making a
-          great first impression and attracting more clients.
-        </p>
-      </div>
+    <Toaster position="top-right" />
+    
+    {/* Info Banner */}
+    <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
+      <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
+        Why Basic Info Matters
+      </h3>
+      <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
+        Your basic information is the first thing potential clients see. A
+        complete and professional profile increases your chances of making a
+        great first impression and attracting more clients.
+      </p>
+    </div>
 
-      <form onSubmit={formik.handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        {/* First Name */}
-        <div>
-          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="firstName"
-            value={formik.values.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            onBlur={formik.handleBlur}
-            placeholder="John"
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
-              formik.touched.firstName && formik.errors.firstName ? "border-red-500" : "border-gray-300"
-            }`}
-          />
-          {formik.touched.firstName && formik.errors.firstName && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.firstName}</p>
-          )}
-        </div>
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+  {/* First Name */}
+  <div>
+    <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+      First Name <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      value={formData.firstName}
+      onChange={(e) => handleChange("firstName", e.target.value)}
+      onBlur={() => onBlur("firstName")}
+      placeholder="John"
+      className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
+        errors.firstName && touched.firstName ? "border-red-500" : "border-gray-300"
+      }`}
+    />
+    {errors.firstName && touched.firstName && (
+      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
+    )}
+  </div>
 
         {/* Last Name */}
         <div>
@@ -171,17 +149,18 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           </label>
           <input
             type="text"
-            name="lastName"
-            value={formik.values.lastName}
+            value={formData.lastName}
             onChange={(e) => handleChange("lastName", e.target.value)}
-            onBlur={formik.handleBlur}
+            onBlur={() => onBlur("lastName")}
             placeholder="Doe"
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
-              formik.touched.lastName && formik.errors.lastName ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full p-2.5 border ${
+              errors.lastName && touched.lastName
+                ? "border-red-500"
+                : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
           />
-          {formik.touched.lastName && formik.errors.lastName && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.lastName}</p>
+          {errors.lastName && touched.lastName && (
+            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
           )}
         </div>
 
@@ -191,21 +170,22 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             Gender <span className="text-red-500">*</span>
           </label>
           <select
-            name="gender"
-            value={formik.values.gender}
+            value={formData.gender}
             onChange={(e) => handleChange("gender", e.target.value)}
-            onBlur={formik.handleBlur}
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
-              formik.touched.gender && formik.errors.gender ? "border-red-500" : "border-gray-300"
-            }`}
+            onBlur={() => onBlur("gender")}
+            className={`w-full p-2.5 border ${
+              errors.gender && touched.gender
+                ? "border-red-500"
+                : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
           </select>
-          {formik.touched.gender && formik.errors.gender && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.gender}</p>
+          {errors.gender && touched.gender && (
+            <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
           )}
         </div>
 
@@ -215,31 +195,34 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             Date of Birth <span className="text-red-500">*</span>
           </label>
           <CustomDatePicker
-            selectedDate={formik.values.dateOfBirth ? new Date(formik.values.dateOfBirth) : null}
+            selectedDate={
+              formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
+            }
             onChange={(date) => {
               handleChange("dateOfBirth", date.toISOString().split("T")[0]);
-              formik.setFieldTouched('dateOfBirth', true);
+              onBlur("dateOfBirth");
             }}
             type="dob"
           />
-          {formik.touched.dateOfBirth && formik.errors.dateOfBirth && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.dateOfBirth}</p>
+          {errors.dateOfBirth && touched.dateOfBirth && (
+            <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>
           )}
         </div>
 
         {/* Nationality */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nationality <span className="text-red-500">*</span>
+            Nationality
           </label>
           <select
-            name="nationality"
-            value={formik.values.nationality}
+            value={formData.nationality}
             onChange={(e) => handleChange("nationality", e.target.value)}
-            onBlur={formik.handleBlur}
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
-              formik.touched.nationality && formik.errors.nationality ? "border-red-500" : "border-gray-300"
-            }`}
+            onBlur={() => onBlur("nationality")}
+            className={`w-full p-2.5 border ${
+              errors.nationality && touched.nationality
+                ? "border-red-500"
+                : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select nationality</option>
             <option value="in">Indian</option>
@@ -291,102 +274,121 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <option value="mz">Mozambican</option>
             <option value="ye">Yemeni</option>
           </select>
-          {formik.touched.nationality && formik.errors.nationality && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.nationality}</p>
+          {errors.nationality && touched.nationality && (
+            <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
           )}
         </div>
 
         {/* City */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            City <span className="text-red-500">*</span>
+            City
           </label>
           <input
             type="text"
-            name="city"
-            value={formik.values.city}
+            value={formData.city}
             onChange={(e) => handleChange("city", e.target.value)}
-            onBlur={formik.handleBlur}
+            onBlur={() => onBlur("city")}
             placeholder="New Delhi"
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
-              formik.touched.city && formik.errors.city ? "border-red-500" : "border-gray-300"
-            }`}
+            className={`w-full p-2.5 border ${
+              errors.city && touched.city ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
           />
-          {formik.touched.city && formik.errors.city && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.city}</p>
+          {errors.city && touched.city && (
+            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
           )}
         </div>
 
         {/* Mobile Number */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mobile Number <span className="text-red-500">*</span>
+            Mobile Number
           </label>
           <div className="flex gap-2">
             <div className="flex-1">
               <PhoneNumberValidation
-                country={"in"}
-                value={formik.values.countryCode + formik.values.mobile}
-                onChange={handlePhoneChange}
+                country={"in"} // Default country
+                value={formData.countryCode + formData.mobile}
+                onChange={handlePhoneChange} // Pass the cleaned and separated values
                 inputProps={{
                   required: true,
-                  className: `w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary pl-12 ${
-                    formik.touched.mobile && formik.errors.mobile ? "border-red-500" : "border-gray-300"
-                  }`,
+                  className:
+                    "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary pl-12",
                 }}
                 containerClass="phone-input"
                 buttonClass="phone-input-button"
                 dropdownClass="phone-input-dropdown"
               />
             </div>
+            {/* <button
+              type="button"
+              onClick={() => handleVerifyClick("mobile")}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            >
+              Verify
+            </button> */}
           </div>
-          {formik.touched.mobile && formik.errors.mobile && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.mobile}</p>
+          {errors.mobile && touched.mobile && (
+            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
         </div>
 
         {/* Email Address */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address <span className="text-red-500">*</span>
+            Email Address
           </label>
           <div className="flex gap-2">
             <input
               type="email"
-              name="email"
-              value={formik.values.email}
+              value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              onBlur={formik.handleBlur}
+              onBlur={() => onBlur("email")}
               placeholder="john@example.com"
-              className={`flex-1 p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
-                formik.touched.email && formik.errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`flex-1 p-2.5 border ${
+                errors.email && touched.email
+                  ? "border-red-500"
+                  : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
             />
+            {/* <button
+              type="button"
+              onClick={() => handleVerifyClick("email")}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            >
+              Verify
+            </button> */}
           </div>
-          {formik.touched.email && formik.errors.email && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.email}</p>
+          {errors.email && touched.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
+      </div>
 
-        {/* Languages Known */}
-        <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Languages Known <span className="text-red-500">*</span>
-          </label>
-          <Select
-            name="languages"
-            options={languageOptions}
-            isMulti
-            value={formik.values.languages}
-            onChange={(value) => handleChange("languages", value)}
-            onBlur={() => formik.setFieldTouched('languages', true)}
-            className={formik.touched.languages && formik.errors.languages ? 'border-red-500' : ''}
-          />
-          {formik.touched.languages && formik.errors.languages && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.languages}</p>
-          )}
-        </div>
-      </form>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Languages Known
+        </label>
+        <Select
+          name="languages"
+          options={languageOptions}
+          isMulti
+          hideSelectedOptions={false}
+          onBlur={() => onBlur("languages")}
+          value={formData.languages}
+          onChange={(value) => handleChange("languages", value)}
+          className={`flex-1 p-2.5 border ${
+            errors.languages && touched.languages
+              ? "border-red-500"
+              : "border-gray-300"
+          } rounded-lg focus:ring-1 focus:ring-primary`}
+        />
+        {errors.languages && touched.languages && (
+          <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
+        )}
+      </div>
+
+  
 
       {/* OTP Popup */}
       {showOtpPopup && (
