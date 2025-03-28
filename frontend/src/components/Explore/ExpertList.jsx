@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
-import { SearchX } from 'lucide-react';
+import { SearchX, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 14;
 
@@ -16,18 +16,16 @@ const ExpertList = ({ filters, sorting }) => {
     loading: state.expert.loading,
     error: state.expert.error,
   }));
+  
   const experts = expertsData?.experts || [];
-  // console.log('This is experts',experts);
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
 
-  // Calculate the slice of experts to display for the current page
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
   useEffect(() => {
-    // Construct query parameters
     const queryParams = {
       domain: filters.selectedDomain?.value || "",
       niches: filters.selectedNiches || [],
@@ -39,7 +37,6 @@ const ExpertList = ({ filters, sorting }) => {
       sorting: sorting || "",
     };
 
-    // Clean up query parameters: remove empty arrays and empty strings
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
@@ -61,6 +58,7 @@ const ExpertList = ({ filters, sorting }) => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const calculateTotalExperience = (workExperiences) => {
     if (!Array.isArray(workExperiences) || workExperiences.length === 0) return "0 years";
   
@@ -85,21 +83,21 @@ const ExpertList = ({ filters, sorting }) => {
   };
 
   return (
-    <div className="mx-auto p-6">
+    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* Available Experts Header */}
-      <div className="my-2">
-        <h2 className="text-xl font-semibold">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold">
           Available Experts -{" "}
           <span className="text-green-600 underline">{totalExperts}</span>
         </h2>
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
-              <div key={index} className="flex justify-center">
+              <div key={index} className="w-full">
                 <ExpertCardSkeleton />
               </div>
             ))}
@@ -107,15 +105,15 @@ const ExpertList = ({ filters, sorting }) => {
         )}
 
         {error && (
-          <div className="col-span-2 flex justify-center items-center py-8">
-            <p className="text-lg text-red-500">Error: {error}</p>
+          <div className="col-span-1 lg:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
+            <p className="text-base sm:text-lg text-red-500 mt-2">Error: {error}</p>
           </div>
         )}
 
         {!loading && !error && paginatedExperts.length === 0 && (
-          <div className="col-span-2 flex justify-center items-center py-8">
-            <SearchX className='w-8 h-8' />
-            <p className="text-lg">No experts found</p>
+          <div className="col-span-1 lg:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
+            <SearchX className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
+            <p className="text-base sm:text-lg text-gray-600 mt-2">No experts found</p>
           </div>
         )}
 
@@ -133,8 +131,9 @@ const ExpertList = ({ filters, sorting }) => {
             const startingPrice = firstEnabledSlot?.price || 0;
             const duration = firstEnabledSlot?.duration || "N/A";
             const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
+            
             return (
-              <div key={expert._id} className="flex justify-center">
+              <div key={expert._id} className="w-full">
                 <ExpertCard
                   id={expert._id}
                   redirect_url={expert.redirect_url}
@@ -155,7 +154,7 @@ const ExpertList = ({ filters, sorting }) => {
                       : 0
                   }
                   totalRatings={expert.sessions?.length || 0}
-                  experience={expert?.credentials?.experienceYears} 
+                  experience={expert?.credentials?.experienceYears}
                   languages={expert.languages || []}
                   startingPrice={startingPrice}
                   duration={duration}
@@ -167,93 +166,57 @@ const ExpertList = ({ filters, sorting }) => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-8 pt-4 flex items-center justify-between border-t border-gray-200">
-        <div className="flex-1 flex justify-between sm:hidden">
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 1}
-            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-              currentPage === 1
-                ? "text-gray-300 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Previous
-          </button>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages}
-            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-              currentPage === totalPages
-                ? "text-gray-300 cursor-not-allowed"
-                : "text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            Next
-          </button>
-        </div>
-        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm text-gray-700">
-              Showing{" "}
-              <span className="font-medium">
-                {Math.min(startIndex + 1, totalExperts)}
-              </span>{" "}
-              to{" "}
-              <span className="font-medium">
-                {Math.min(endIndex, totalExperts)}
-              </span>{" "}
-              of <span className="font-medium">{totalExperts}</span> results
-            </p>
+      {totalPages > 1 && (
+        <div className="mt-6 sm:mt-8 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="w-full sm:w-auto order-2 sm:order-1">
+              <p className="text-sm text-gray-700 text-center sm:text-left">
+                Showing{" "}
+                <span className="font-medium">
+                  {Math.min(startIndex + 1, totalExperts)}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium">
+                  {Math.min(endIndex, totalExperts)}
+                </span>{" "}
+                of <span className="font-medium">{totalExperts}</span> results
+              </p>
+            </div>
+            
+            <div className="flex items-center justify-center gap-2 order-1 sm:order-2">
+              <button
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+                className={`inline-flex items-center justify-center p-2 rounded-md border ${
+                  currentPage === 1
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100"
+                } transition-colors duration-200`}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              <div className="text-sm font-medium text-gray-700 px-2">
+                Page {currentPage} of {totalPages}
+              </div>
+              
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`inline-flex items-center justify-center p-2 rounded-md border ${
+                  currentPage === totalPages
+                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    : "bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100"
+                } transition-colors duration-200`}
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1}
-              className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                currentPage === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-50"
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                currentPage === totalPages
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-50"
-              }`}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </nav>
         </div>
-      </div>
+      )}
     </div>
   );
 };
