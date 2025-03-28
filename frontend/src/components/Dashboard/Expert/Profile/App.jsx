@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// import ProfileHeader from './components/ProfileHeader';
 import BasicInfo from "./components/BasicInfo";
 import { basicFormSubmit } from "@/Redux/Slices/expert.Slice";
 import { ArrowLeft } from "lucide-react";
@@ -13,15 +12,12 @@ function App() {
   const { expertData, data, loading, error } = useSelector(
     (state) => state.auth
   );
-  // console.log("This is data",data);
+
   let user = null;
   if (data) {
     user = typeof data === "string" ? JSON.parse(data) : data;
   }
-  console.log("this is user", user);
-  // const [activeTab, setActiveTab] = useState('basic');
-  // const [profileImage, setProfileImage] = useState('');
-  // const [coverImage, setCoverImage] = useState('');
+
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loadingState, setLoadingState] = useState(false);
@@ -32,16 +28,15 @@ function App() {
     if (typeof expertData === "string") {
       try {
         expert = JSON.parse(expertData);
-        console.log("This is expertData", expert);
       } catch (error) {
         console.error("Error parsing expertData:", error);
-        expert = null; // Handle parsing errors safely
+        expert = null;
       }
     } else if (
       typeof expertData === "object" &&
       Object.keys(expertData).length > 0
     ) {
-      expert = expertData; // Already an object and not empty
+      expert = expertData;
     }
   }
 
@@ -56,44 +51,77 @@ function App() {
       mobile: user?.number || "",
       countryCode: expert?.countryCode || "",
       email: user?.email || "",
-      // bio: expert?.bio || '',
       languages: [],
-      // socialLinks: [''],
-      // coverImage: expert?.coverImage?.secure_url || coverImage || '',
-      // profileImage: expert?.profileImage?.secure_url || profileImage || ''
     },
   });
-
-  // useEffect(() => {
-  //   setFormData((prevFormData) => ({
-  //     ...prevFormData,
-  //     basic: {
-  //       ...prevFormData.basic,
-  //       profileImage,
-  //       coverImage
-  //     }
-  //   }));
-  // }, [profileImage, coverImage]);
 
   const validateBasicInfo = () => {
     const newErrors = {};
     const { basic } = formData;
 
-    if (!basic.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!basic.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!basic.gender) newErrors.gender = "Gender is required";
-    if (!basic.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
-    if (!basic.nationality) newErrors.nationality = "Nationality is required";
-    if (!basic.city.trim()) newErrors.city = "City is required";
-    if (!basic.mobile) newErrors.mobile = "Mobile number is required";
+    // First Name validation
+    if (!basic.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    } else if (basic.firstName.length < 2) {
+      newErrors.firstName = "First name must be at least 2 characters";
+    }
+
+    // Last Name validation
+    if (!basic.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    } else if (basic.lastName.length < 2) {
+      newErrors.lastName = "Last name must be at least 2 characters";
+    }
+
+    // Gender validation
+    if (!basic.gender) {
+      newErrors.gender = "Gender is required";
+    }
+
+    // Date of Birth validation
+    if (!basic.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
+    } else {
+      const dob = new Date(basic.dateOfBirth);
+      const today = new Date();
+      const age = today.getFullYear() - dob.getFullYear();
+      if (age < 18) {
+        newErrors.dateOfBirth = "You must be at least 18 years old";
+      }
+    }
+
+    // Nationality validation
+    if (!basic.nationality) {
+      newErrors.nationality = "Nationality is required";
+    }
+
+    // City validation
+    if (!basic.city.trim()) {
+      newErrors.city = "City is required";
+    } else if (basic.city.length < 2) {
+      newErrors.city = "City name must be at least 2 characters";
+    }
+
+    // Mobile validation
+    if (!basic.mobile) {
+      newErrors.mobile = "Mobile number is required";
+    } else if (basic.mobile.length < 10) {
+      newErrors.mobile = "Please enter a valid mobile number";
+    }
+
+    // Email validation
     if (!basic.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
-      newErrors.email = "Invalid email format";
+      newErrors.email = "Please enter a valid email address";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Languages validation (optional but recommended)
+    if (basic.languages.length === 0) {
+      newErrors.languages = "Please select at least one language";
+    }
+
+    return newErrors;
   };
 
   const handleUpdateFormData = (tab, data) => {
@@ -102,6 +130,7 @@ function App() {
       [tab]: data,
     }));
 
+    // Clear errors for fields that are now valid
     if (tab === "basic") {
       const updatedErrors = { ...errors };
       Object.keys(data).forEach((field) => {
@@ -113,78 +142,50 @@ function App() {
     }
   };
 
-  // const handleImageChange = (event, imageType) => {
-  //   const uploadedImage = event.target.files[0];
-
-  //   if (uploadedImage) {
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       basic: {
-  //         ...prev.basic,
-  //         [imageType]: uploadedImage, // Store the File object for the image
-  //       },
-  //     }));
-
-  //     const imagePreviewUrl = URL.createObjectURL(uploadedImage);
-
-  //     if (imageType === 'profileImage') {
-  //       setProfileImage(imagePreviewUrl);
-  //     } else if (imageType === 'coverImage') {
-  //       setCoverImage(imagePreviewUrl);
-  //     }
-  //   }
-  // };
-
   const handleNext = async () => {
-    if (validateBasicInfo()) {
-      const requiredFields = [
-        "firstName",
-        "lastName",
-        "gender",
-        "dateOfBirth",
-        "nationality",
-        "city",
-        "mobile",
-        "email",
-      ];
-      const allTouched = {};
-      requiredFields.forEach((field) => {
-        allTouched[field] = true;
-      });
-      setTouched(allTouched);
+    // Validate all fields and show all errors
+    const validationErrors = validateBasicInfo();
+    setErrors(validationErrors);
 
+    // Mark all fields as touched to show all errors
+    const allFields = Object.keys(formData.basic);
+    const allTouched = {};
+    allFields.forEach((field) => {
+      allTouched[field] = true;
+    });
+    setTouched(allTouched);
+
+    // If there are validation errors, show a toast and return
+    if (Object.keys(validationErrors).length > 0) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+
+    setLoadingState(true);
+
+    try {
       const basicData = new FormData();
-      basicData.append("firstName", formData.basic.firstName);
-      basicData.append("lastName", formData.basic.lastName);
-      basicData.append("city", formData.basic.city);
-      basicData.append("bio", formData.basic.bio);
-      basicData.append("gender", formData.basic.gender);
-      basicData.append("dateOfBirth", formData.basic.dateOfBirth);
-      basicData.append("email", formData.basic.email);
-      basicData.append("countryCode", formData.basic.countryCode);
-      basicData.append("mobile", formData.basic.mobile);
-      basicData.append("nationality", formData.basic.nationality);
-      basicData.append("languages", JSON.stringify(formData.basic.languages));
-      // basicData.append('socialLinks', JSON.stringify(formData.basic.socialLinks));
-      // basicData.append('coverImage', formData.basic.coverImage);
-      // basicData.append('profileImage', formData.basic.profileImage);
-
-      setLoadingState(true);
-
-      try {
-        const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
-        if (response.success) {
-          toast.success("Basic information submitted successfully!");
-          navigate("/dashboard/expert"); // Navigate to the dashboard on success
+      Object.keys(formData.basic).forEach(key => {
+        if (key === 'languages') {
+          basicData.append(key, JSON.stringify(formData.basic[key]));
         } else {
-          toast.error("Failed to submit basic information");
+          basicData.append(key, formData.basic[key]);
         }
-      } catch (error) {
-        console.error("Error submitting basic form:", error);
-        toast.error("An error occurred while submitting the form");
-      } finally {
-        setLoadingState(false);
+      });
+
+      const response = await dispatch(basicFormSubmit(basicData)).unwrap();
+      
+      if (response.success) {
+        toast.success("Basic information submitted successfully!");
+        navigate("/dashboard/expert");
+      } else {
+        toast.error(response.message || "Failed to submit basic information");
       }
+    } catch (error) {
+      console.error("Error submitting basic form:", error);
+      toast.error(error.message || "An error occurred while submitting the form");
+    } finally {
+      setLoadingState(false);
     }
   };
 
@@ -199,17 +200,18 @@ function App() {
           <ArrowLeft className="w-5 h-5 text-gray-800" />
           <span>Back</span>
         </button>
+        
         <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8 mb-6">
-  <div className="flex flex-col items-start gap-4">
-    <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-      Join <span className="text-primary font-extrabold">Advizy</span>
-    </h1>
-    <p className="text-md font-semibold text-gray-600">
-      Empower others with your knowledge while growing your influence and
-      professional reach.
-    </p>
-  </div>
-</div>
+          <div className="flex flex-col items-start gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+              Join <span className="text-primary font-extrabold">Advizy</span>
+            </h1>
+            <p className="text-md font-semibold text-gray-600">
+              Empower others with your knowledge while growing your influence and
+              professional reach.
+            </p>
+          </div>
+        </div>
 
         <div className="bg-white rounded-lg shadow">
           <div className="px-4 sm:px-6 lg:px-8">

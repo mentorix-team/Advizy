@@ -16,13 +16,12 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
-  const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
+  const [verificationType, setVerificationType] = useState("");
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
   };
 
-  console.log("Ths is formadata passed to basic", formData);
   const languageOptions = [
     { value: "english", label: "English" },
     { value: "hindi", label: "Hindi" },
@@ -101,46 +100,43 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
-    // You can add additional logic here if needed, such as updating the form state
   };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
-    <Toaster position="top-right" />
-    
-    {/* Info Banner */}
-    <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
-      <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
-        Why Basic Info Matters
-      </h3>
-      <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
-        Your basic information is the first thing potential clients see. A
-        complete and professional profile increases your chances of making a
-        great first impression and attracting more clients.
-      </p>
-    </div>
+      <Toaster position="top-right" />
+      
+      <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
+        <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
+          Why Basic Info Matters
+        </h3>
+        <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
+          Your basic information is the first thing potential clients see. A
+          complete and professional profile increases your chances of making a
+          great first impression and attracting more clients.
+        </p>
+      </div>
 
-      {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-  {/* First Name */}
-  <div>
-    <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
-      First Name <span className="text-red-500">*</span>
-    </label>
-    <input
-      type="text"
-      value={formData.firstName}
-      onChange={(e) => handleChange("firstName", e.target.value)}
-      onBlur={() => onBlur("firstName")}
-      placeholder="John"
-      className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
-        errors.firstName && touched.firstName ? "border-red-500" : "border-gray-300"
-      }`}
-    />
-    {errors.firstName && touched.firstName && (
-      <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
-    )}
-  </div>
+        {/* First Name */}
+        <div>
+          <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+            First Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={formData.firstName}
+            onChange={(e) => handleChange("firstName", e.target.value)}
+            onBlur={() => onBlur("firstName")}
+            placeholder="John"
+            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
+              errors.firstName && touched.firstName ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.firstName && touched.firstName && (
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
+          )}
+        </div>
 
         {/* Last Name */}
         <div>
@@ -212,7 +208,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {/* Nationality */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nationality
+            Nationality <span className="text-red-500">*</span>
           </label>
           <select
             value={formData.nationality}
@@ -282,7 +278,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {/* City */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            City
+            City <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -302,14 +298,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {/* Mobile Number */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mobile Number
+            Mobile Number <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">
             <div className="flex-1">
               <PhoneNumberValidation
-                country={"in"} // Default country
+                country={"in"}
                 value={formData.countryCode + formData.mobile}
-                onChange={handlePhoneChange} // Pass the cleaned and separated values
+                onChange={handlePhoneChange}
                 inputProps={{
                   required: true,
                   className:
@@ -320,13 +316,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 dropdownClass="phone-input-dropdown"
               />
             </div>
-            {/* <button
-              type="button"
-              onClick={() => handleVerifyClick("mobile")}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
-            >
-              Verify
-            </button> */}
           </div>
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
@@ -336,7 +325,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {/* Email Address */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
+            Email Address <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">
             <input
@@ -351,13 +340,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-            {/* <button
-              type="button"
-              onClick={() => handleVerifyClick("email")}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
-            >
-              Verify
-            </button> */}
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -388,9 +370,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         )}
       </div>
 
-  
-
-      {/* OTP Popup */}
       {showOtpPopup && (
         <VerifyThedetails
           onClose={() => setShowOtpPopup(false)}
