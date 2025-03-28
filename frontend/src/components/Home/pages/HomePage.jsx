@@ -22,6 +22,8 @@ import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from 'framer-motion';
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+import Spinner from "@/LoadingSkeleton/Spinner";
+import { useNavigate } from "react-router-dom";
 
 // Sample categories remain unchanged
 const categories = [
@@ -77,10 +79,12 @@ const categories = [
 
 function HomePage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const {experts} = useSelector((state)=>state.expert)
+  const { isLoggedIn,loading,error } = useSelector((state) => state.auth);
   console.log(experts);
   // Local state for filtered experts
   const [fitnessExperts, setFitnessExperts] = useState([]);
@@ -141,6 +145,11 @@ function HomePage() {
       });
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!loading && isLoggedIn) {
+      navigate("/home"); // Redirect after login completes
+    }
+  }, [loading, isLoggedIn, navigate]); 
   // useEffect to fetch Career Mentors
   useEffect(() => {
     const queryParams = {
@@ -166,6 +175,10 @@ function HomePage() {
         console.error("Error fetching career experts:", error);
       });
   }, [dispatch]);
+
+  if(loading){
+    return <Spinner/>
+  }
 
   return (
     <div>

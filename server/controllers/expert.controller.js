@@ -52,8 +52,9 @@ const expertBasicDetails = async (req, res, next) => {
     // Parse the languages field from stringified JSON to an array of objects
     let languages;
     try {
+    // if(languagesString){
       languages = JSON.parse(languagesString);
-    } catch (error) {
+    }catch (error) {
       return next(new AppError("Invalid format for languages field", 400));
     }
 
@@ -213,6 +214,63 @@ const expertBasicDetails = async (req, res, next) => {
   }
 };
 
+const expertImages = async(req,res,next) =>{
+
+  const user_id = req.user.id;
+  try {
+    
+    let expertbasic = await ExpertBasics.findOne({ user_id });
+  
+  
+    if (req.files) {
+      console.log("Image incoming...", req.files);
+  
+      if (req.files.profileImage) {
+        console.log("Uploading profile image...");
+        const profileResult = await cloudinary.v2.uploader.upload(
+          req.files.profileImage[0].path,
+          { folder: "Advizy/profile" }
+        );
+  
+        if (profileResult) {
+          console.log("Profile Image Uploaded: ", profileResult);
+          expertbasic.profileImage = {
+            public_id: profileResult.public_id,
+            secure_url: profileResult.secure_url
+          };
+        }
+      }
+  
+      if (req.files.coverImage) {
+        console.log("Uploading cover image...");
+        const coverResult = await cloudinary.v2.uploader.upload(
+          req.files.coverImage[0].path,
+          { folder: "Advizy/cover" }
+        );
+  
+        if (coverResult) {
+          console.log("Cover Image Uploaded: ", coverResult);
+          expertbasic.coverImage = {
+            public_id: coverResult.public_id,
+            secure_url: coverResult.secure_url
+          };
+        }
+      }
+    } else {
+      console.log("No images found in request.");
+    }
+  
+    await expertbasic.save();
+    res.status(200).json({
+      success:true,
+      message:'Images updated',
+      expertbasic
+    })
+  } catch (error) {
+    return next(new AppError(error,503))
+  }
+}
+
 const expertCredentialsDetails = async (req, res, next) => {
   const { domain, niche, professionalTitle, skills, experienceYears } = req.body;
 
@@ -233,12 +291,12 @@ const expertCredentialsDetails = async (req, res, next) => {
       domain,
       niche: Array.isArray(niche) ? niche : [niche], // Ensure niche is stored as an array
       professionalTitle: Array.isArray(professionalTitle) ? professionalTitle : [professionalTitle], // Store as array
-      skills: Array.isArray(skills) ? skills : [skills], // Store as array
+      skills: Array.isArray(skills) ? skills : [skills],
       experienceYears
     };
 
     await expertBasics.save();
-
+    console.log('THis is expert saved',expertBasics);
     res.status(200).json({
       success: true,
       message: "Expert credentials updated successfully",
@@ -579,8 +637,8 @@ const singleexperteducation = async (req, res, next) => {
       institution,
       passingYear,
       certificate: {
-        public_id: null,
-        secure_url: null,
+        public_id: 'dummy',
+        secure_url: 'dummy',
       },
     };
 
@@ -590,7 +648,7 @@ const singleexperteducation = async (req, res, next) => {
         console.log("Uploading file to Cloudinary...");
         const result = await cloudinary.v2.uploader.upload(req.file.path, {
           folder: "Advizy",
-          resource_type: "raw",
+          resource_type: "auto",
         });
 
         if (result) {
@@ -616,7 +674,6 @@ const singleexperteducation = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
-
 const editSingleExpertEducation = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log
@@ -688,12 +745,12 @@ const deleteExpertEducation = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log
 
-    const { educationIndex } = req.body; // Index of the education to delete
-    const expert_id = req.expert.id; // Assuming expert ID is in the request
+    const { _id } = req.body; // Get the education _id
+    const expert_id = req.expert.id; // Get the expert ID from token
 
     // Validate required fields
-    if (educationIndex === undefined) {
-      return next(new AppError("educationIndex is required", 400));
+    if (!_id) {
+      return next(new AppError("Education ID (_id) is required", 400));
     }
 
     // Fetch expert document from the database
@@ -702,14 +759,17 @@ const deleteExpertEducation = async (req, res, next) => {
       return next(new AppError("Expert not found", 404));
     }
 
-    // Ensure the expert has credentials and education
+    // Ensure the expert has education records
     if (!expert.credentials || !Array.isArray(expert.credentials.education)) {
       return next(new AppError("No education records found for this expert", 404));
     }
 
-    // Validate educationIndex
-    if (educationIndex < 0 || educationIndex >= expert.credentials.education.length) {
-      return next(new AppError("Invalid education index", 400));
+    // Find the education entry by _id
+    const educationIndex = expert.credentials.education.findIndex(edu => edu._id.toString() === _id);
+    
+    // Validate if the education exists
+    if (educationIndex === -1) {
+      return next(new AppError("Education entry not found", 404));
     }
 
     // Get the specific education entry
@@ -742,7 +802,6 @@ const deleteExpertEducation = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
-
 
 
 const expertexperience = async (req, res, next) => {
@@ -832,7 +891,6 @@ const expertexperience = async (req, res, next) => {
     return next(new AppError(error.message, 500));
   }
 };
-
 const editExpertExperience = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body);
@@ -1233,8 +1291,6 @@ const updateService = async (req, res, next) => {
   }
 };
 
-
-
 const getService = async (req, res, next) => {
   const { serviceId } = req.params;
   const { expertId } = req.body;
@@ -1380,7 +1436,7 @@ const extpertPortfolioDetails = async (req, res, next) => {
     }
   };
   
-  const getAllExperts = async (req, res, next) => {
+const getAllExperts = async (req, res, next) => {
     try {
         const filters = {};
 
@@ -1418,6 +1474,30 @@ const extpertPortfolioDetails = async (req, res, next) => {
         }
         if (req.query.professionalTitle) {
             filters["credentials.professionalTitle"] = { $in: req.query.professionalTitle.split(",") };
+        }
+
+        if (req.query.durations) {
+          const durationValue = parseInt(req.query.durations); // Extract numeric value (e.g., 15 from "15+mins")
+          if (!isNaN(durationValue)) {
+              filters["credentials.services"] = filters["credentials.services"] || {};
+              filters["credentials.services"].$elemMatch = filters["credentials.services"].$elemMatch || {};
+              filters["credentials.services"].$elemMatch.$or = filters["credentials.services"].$elemMatch.$or || [];
+
+              // Add duration filter for direct `duration` field under `services`
+              filters["credentials.services"].$elemMatch.$or.push({
+                  duration: durationValue,
+              });
+
+              // Add duration filter for `one_on_one` duration where `enabled` is true
+              filters["credentials.services"].$elemMatch.$or.push({
+                  "one_on_one": {
+                      $elemMatch: {
+                          duration: durationValue,
+                          enabled: true,
+                      },
+                  },
+              });
+          }
         }
 
         // Validate and apply price range filters
@@ -1478,8 +1558,6 @@ const extpertPortfolioDetails = async (req, res, next) => {
     }
 };
 
-  
-  
 
   
 const getExpertById = async (req, res, next) => {
@@ -1677,45 +1755,131 @@ const validatethnumberormobile = async(req,res,next) =>{
   }
 }
  
+const handleToggleService = async (req, res, next) => {
+  try {
+    console.log('Raw request body:', req.body); // Debugging line
+
+    // Extract the first key from req.body
+    const serviceId = Object.keys(req.body)[0];
+
+    if (!serviceId) {
+      return next(new AppError('Service ID is required', 400));
+    }
+
+    const expert_id = req.expert.id;
+    console.log('Expert ID:', expert_id); // Debugging line
+
+    // Find the expert by ID
+    const expert = await ExpertBasics.findById(expert_id);
+
+    if (!expert) {
+      return next(new AppError('Expert not found', 404));
+    }
+
+    // Find the index of the service in the services array
+    const serviceIndex = expert.credentials.services.findIndex(
+      (service) => service.serviceId === serviceId
+    );
+
+    if (serviceIndex === -1) {
+      return next(new AppError('Service not found', 404));
+    }
+
+    // Log the current value of showMore before toggling
+    console.log(
+      `Before Toggle - Service ID: ${serviceId}, showMore: ${expert.credentials.services[serviceIndex].showMore}`
+    );
+
+    // Toggle the showMore field
+    expert.credentials.services[serviceIndex].showMore =
+      !expert.credentials.services[serviceIndex].showMore;
+
+    // Log the updated value of showMore after toggling
+    console.log(
+      `After Toggle - Service ID: ${serviceId}, showMore: ${expert.credentials.services[serviceIndex].showMore}`
+    );
+
+    // Save the updated expert document
+    await expert.save();
+
+    // Log the updated expert document
+    console.log('Updated Expert Document:', expert);
+
+    res.status(200).json({
+      success: true,
+      message: 'Service toggle updated successfully',
+      expert,
+    });
+  } catch (error) {
+    return next(new AppError(error, 503));
+  }
+};
+
+const getExpert = async(req,res,next) =>{
+  const user_id = req.user.id;
+  try {
+    
+    if(!user_id){
+      return next(new AppError('User id not found',500))
+    }
+  
+    let expertbasic = await ExpertBasics.findOne({ user_id });
+   if(!expertbasic){
+    return next(new AppError('Expert details not found',502))
+   }
+
+   res.status(200).json({
+    success:true,
+    message:'expert details',
+    expert:expertbasic
+   })
+  } catch (error) {
+    return next(new AppError(error,400))
+  }
+}
+
 export {
-    expertBasicDetails,
+  getExpert,
 
-    expertCredentialsDetails,
-    
-    extpertPortfolioDetails,
-    
-    expertcertifiicate,
-    editExpertCertificate,
-    deleteExpertCertificate,
-    
-    expertexperience,
-    editExpertExperience,
-    deleteExpertExperience,
+  expertBasicDetails,
+  expertImages,
 
-    expertEducation,
-    singleexperteducation,
-    editSingleExpertEducation,
-    deleteExpertEducation,
-    
-    updateProfileStatus,
-    
-    getAllExperts,
-    
-    getExpertById,
-    
-    getExpertByRedirectURL,
-    
-    manageService,
-    getExpertServices,
-    deleteService,
-    getService,
-    
-    expertPaymentDetails,
-    createService,
-    updateService,
-    
-    pushExpertsToAlgolia,
-    
-    generateOtpForVerifying,
-    validatethnumberormobile
+  expertCredentialsDetails,
+  
+  extpertPortfolioDetails,
+  
+  expertcertifiicate,
+  editExpertCertificate,
+  deleteExpertCertificate,
+  
+  expertexperience,
+  editExpertExperience,
+  deleteExpertExperience,
+
+  expertEducation,
+  singleexperteducation,
+  editSingleExpertEducation,
+  deleteExpertEducation,
+  
+  updateProfileStatus,
+  
+  getAllExperts,
+  
+  getExpertById,
+  
+  getExpertByRedirectURL,
+  
+  manageService,
+  getExpertServices,
+  deleteService,
+  getService,
+  
+  expertPaymentDetails,
+  createService,
+  updateService,
+  
+  pushExpertsToAlgolia,
+  
+  generateOtpForVerifying,
+  validatethnumberormobile
 }

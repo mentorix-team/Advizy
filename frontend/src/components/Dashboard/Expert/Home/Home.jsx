@@ -14,28 +14,45 @@ import { TwoPersonIcon } from "@/icons/Icons";
 import { useDispatch, useSelector } from "react-redux";
 import { getMeetingByExpertId, getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
+import { getmeasexpert } from "@/Redux/Slices/expert.Slice";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 function Home() {
   const dispatch = useDispatch();
-  const { expertData } = useSelector((state) => state.expert);
+  const { expertData,loading,error } = useSelector((state) => state.expert);
   const { meetings, loading, error ,feedbackofexpert} = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
   console.log("availabilty", selectedAvailability);
   const availability = selectedAvailability?.availability;
-  useEffect(() => {
-    const fetchMeetings = async () => {
-      const response = await dispatch(getMeetingByExpertId());
-      if (response?.payload?.success) {
-        dispatch(getAvailabilitybyid(expertData._id));
-      }
-    };
-    fetchMeetings();
-  }, [dispatch]);
 
-  useEffect(()=>{
-    dispatch(getfeedbackbyexpertid(expertData._id))
-  },[dispatch])
+  useEffect(() => {
+    dispatch(getmeasexpert())
+  }, [dispatch]);
+  useEffect(() => {
+    if (expertData?._id) {
+      const fetchInitialData = async () => {
+        await dispatch(getMeetingByExpertId());
+        dispatch(getAvailabilitybyid(expertData._id));
+        dispatch(getfeedbackbyexpertid(expertData._id));
+      };
+      fetchInitialData();
+    }
+  }, [dispatch, expertData?._id]);
+
+  // useEffect(() => {
+  //   const fetchMeetings = async () => {
+  //     const response = await dispatch(getMeetingByExpertId());
+  //     if (response?.payload?.success) {
+  //       dispatch(getAvailabilitybyid(expertData._id));
+  //     }
+  //   };
+  //   fetchMeetings();
+  // }, [dispatch]);
+
+  // useEffect(()=>{
+  //   dispatch(getfeedbackbyexpertid(expertData._id))
+  // },[dispatch])
 
 
   // Check if expert has set availability
@@ -97,6 +114,9 @@ function Home() {
   // Filter out actions that are already completed
   const pendingActions = actionsNeeded.filter((action) => !action.completed);
 
+  if(loading){
+    return <Spinner/>
+  }
   // Rest of your code remains unchanged...
   const bookingsData = [
     {

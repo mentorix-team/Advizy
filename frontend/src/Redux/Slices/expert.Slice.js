@@ -29,11 +29,24 @@ const initialState = {
   selectedService: null,
 };
 
+export const expertImages = createAsyncThunk(
+  'expert/expertimages',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('/expert/basic-image-details',data)
+      return await response.data
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+      return rejectWithValue(error.response?.data);
+    }
+  }
+)
 
 export const basicFormSubmit = createAsyncThunk(
   "expert/basicform",
   async (data, { rejectWithValue }) => {
     try {
+      console.log('Response being sent',data)
       const response = await axiosInstance.post("/expert/basic-details", data);
       return await response.data;
     } catch (error) {
@@ -487,11 +500,33 @@ export const validatetheotp = createAsyncThunk(
   }
 )
 
+export const toggleService = createAsyncThunk(
+  'expert/handletoggleService',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.post('expert/handletoggle',data)
+      return await response.data
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+      return rejectWithValue(error?.response?.data || { message: "Unknown error occurred" });
+    }
+  }
+)
 
-
-
-
-
+export const getmeasexpert = createAsyncThunk(
+  'expert/getmeas',
+  async(data,{rejectWithValue})=>{
+    try {
+      const response = await axiosInstance.get('expert/getmeasexpert')
+      return await response.data
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+      return rejectWithValue(error?.response?.data || { message: "Unknown error occurred" });
+    }
+  }
+)
 
 const expertSlice = createSlice({
   name: "expert",
@@ -500,6 +535,27 @@ const expertSlice = createSlice({
   
   extraReducers: (builder) => {
     builder
+    .addCase(expertImages.fulfilled,(state,action)=>{
+      console.log("Thi si s action",action.payload)
+      const  expert  = action.payload.expertbasic;
+      console.log("This is expert:", expert);
+
+      const adminApproved = expert?.admin_approved_expert ?? false; // Default to false if undefined
+      localStorage.setItem("expertData", JSON.stringify(expert));
+      localStorage.setItem("admin_approved_expert", adminApproved);
+
+      state.expertData = expert;
+      state.admin_approved_expert = adminApproved;
+      state.loading = false
+    })
+    .addCase(expertImages.pending,(state,action)=>{
+      state.loading = true
+      state.error = null
+    })
+    .addCase(expertImages.rejected,(state,action)=>{
+      state.loading = false,
+      state.error = action.payload.error
+    })
     .addCase(basicFormSubmit.fulfilled, (state, action) => {
       console.log("Thi si s action",action.payload)
       const  expert  = action.payload.expertbasic;
@@ -643,6 +699,10 @@ const expertSlice = createSlice({
       .addCase(deleteServicebyId.rejected, (state, action) => {
         state.error = action.payload;
       })
+      .addCase(toggleService.fulfilled,(state,action)=>{
+        const {expert} = action.payload
+        state.expertData  = expert
+      })
       .addCase(updateServicebyId.fulfilled, (state, action) => {
         const { expert } = action.payload;
         localStorage.setItem("expertData", JSON.stringify(expert));
@@ -651,6 +711,18 @@ const expertSlice = createSlice({
       })
       .addCase(updateServicebyId.rejected, (state, action) => {
         state.error = action.payload;
+      })
+      .addCase(getmeasexpert.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(getmeasexpert.fulfilled,(state,action)=>{
+        state.expertData = action.payload.expert
+        state.loading = false
+      })
+      .addCase(getmeasexpert.rejected,(state,action)=>{
+        state.loading = false,
+        state.error = action.payload.error
       })
   }
 });

@@ -2,7 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaCamera, FaEdit, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import ImageUploadModal from './ImageUploadModal';
 import Modal from './Modal';
-
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { basicFormSubmit, expertImages } from '@/Redux/Slices/expert.Slice';
 const ProfileHeader = ({ onProfileImageChange, onCoverImageChange, profileImage, coverImage, firstName = '' }) => {
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -15,45 +17,74 @@ const ProfileHeader = ({ onProfileImageChange, onCoverImageChange, profileImage,
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
   const containerRef = useRef(null);
-
+  const dispatch = useDispatch()
   // let coverPreview = ''; 
   // let profilePreview = ''; 
 
-  const handleCoverUpload = (e) => {
+  const handleCoverUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Store the file for form submission
-      onCoverImageChange(file);
+        onCoverImageChange(file); // Store file for form submission
 
-      // Create a preview URL for display
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result); 
-        setShowCoverModal(false);
-        setShowEditModal(true);
-        setZoom(1);
-        setImagePosition({ x: 0, y: 0 });
-      };
-      console.log("This is cover preview",coverPreview)
-      reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            setCoverPreview(reader.result);
+            setShowCoverModal(false);
+            setShowEditModal(true);
+            setZoom(1);
+            setImagePosition({ x: 0, y: 0 });
+
+            // Create FormData and Dispatch Action to Update Cover Image
+            const coverData = new FormData();
+            coverData.append("coverImage", file); // Append the image file
+
+            try {
+                const response = await dispatch(expertImages(coverData)).unwrap();
+                if (response.success) {
+                    toast.success("Cover image updated successfully!");
+                } else {
+                    toast.error("Failed to update cover image");
+                }
+            } catch (error) {
+                console.error("Error updating cover image:", error);
+                toast.error("An error occurred while updating the cover image");
+            }
+        };
+        reader.readAsDataURL(file);
     }
-  };
+};
 
-  const handleProfileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Store the file for form submission
-      onProfileImageChange(file);
 
-      // Create a preview URL for display
+const handleProfileUpload = async (e) => {
+  const file = e.target.files[0];
+  if (file) {
+      onProfileImageChange(file); // Store file for form submission
+
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setprofilePreview(reader.result); 
-        setShowProfileModal(false);
+      reader.onloadend = async () => {
+          setprofilePreview(reader.result);
+          setShowProfileModal(false);
+
+          // Create FormData and Dispatch Action to Update Profile Image
+          const profileData = new FormData();
+          profileData.append("profileImage", file); // Append the image file
+
+          try {
+              const response = await dispatch(expertImages(profileData)).unwrap();
+              if (response.success) {
+                  toast.success("Profile image updated successfully!");
+              } else {
+                  toast.error("Failed to update profile image");
+              }
+          } catch (error) {
+              console.error("Error updating profile image:", error);
+              toast.error("An error occurred while updating the profile image");
+          }
       };
       reader.readAsDataURL(file);
-    }
-  };
+  }
+};
+
   
   // const handleImageUpload = (type, file) => {
   //   if (type === 'cover') {
@@ -250,7 +281,7 @@ const ProfileHeader = ({ onProfileImageChange, onCoverImageChange, profileImage,
       <div className="relative h-32 sm:h-48 md:h-64 bg-gray-200 rounded-t-lg overflow-hidden">
         {coverImage ? (
           <img 
-            src={coverPreview} 
+            src={coverPreview||coverImage } 
             alt="Cover" 
             className="w-full h-full object-cover"
             style={{ 
@@ -288,7 +319,7 @@ const ProfileHeader = ({ onProfileImageChange, onCoverImageChange, profileImage,
         <div className="relative">
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
             {profileImage ? (
-              <img src={profilePreview} alt="Profile" className="w-full h-full object-cover" />
+              <img src={profilePreview||profileImage} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               getInitialsAvatar()
             )}

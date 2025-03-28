@@ -220,18 +220,18 @@ const ReviewSchema = new Schema({
 
 // Expert Token Method
 ExpertBasicsSchema.methods={
-    generateExpertToken : function () {
+  generateExpertToken: function (options = {}) {
       return jwt.sign(
-        {
-          id: this._id,
-          firstName: this.firstName,
-          lastName: this.lastName,
-          admin_approved_expert: this.admin_approved_expert,
-        },
-        "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=", 
-        { expiresIn: "7d" } 
+          {
+              id: this._id,
+              firstName: this.firstName,
+              lastName: this.lastName,
+              admin_approved_expert: this.admin_approved_expert,
+          },
+          "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=", // Use process.env.EXPERT_JWT_SECRET in production
+          { expiresIn: options.expiresIn || "7d" } // Default to 7 days if not provided
       );
-    }
+  }
 }
 
 

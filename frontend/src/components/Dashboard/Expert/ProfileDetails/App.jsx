@@ -6,18 +6,19 @@ import BasicInfo from './components/BasicInfo';
 import ExpertiseTab from './components/expertise/ExpertiseTab';
 import EducationTab from './components/education/EducationTab';
 import PreviewApp from './components/preview/src/App';
-import { basicFormSubmit, getExpertById, professionalFormSubmit } from '@/Redux/Slices/expert.Slice';
+import { basicFormSubmit, getExpertById, getmeasexpert, professionalFormSubmit } from '@/Redux/Slices/expert.Slice';
 import { useDispatch, useSelector } from 'react-redux';
 import CertificationsTab from './components/certifications/CertificationsTab';
 import ExperienceTab from './components/experience/ExperienceTab';
+import Spinner from '@/LoadingSkeleton/Spinner';
 
 function App() {
   const tabs = ['basic', 'expertise', 'education', 'experience', 'certifications'];
   const dispatch = useDispatch();
-  const {expertData,loading,error} = useSelector((state)=>state.auth);
+  const {expertData,loading,error} = useSelector((state)=>state.expert);
   const {selectedExpert} = useSelector((state)=>state.expert)
   const expertbyexpert = selectedExpert?.expert
-  console.log('this is expert by expert',expertbyexpert);
+  // console.log('this is expert by expert',expertbyexpert);
   const [activeTab, setActiveTab] = useState('basic');
   const [showPreview, setShowPreview] = useState(false);
   const [profileImage, setProfileImage] = useState('');
@@ -26,20 +27,26 @@ function App() {
   const [touched, setTouched] = useState({});
   const [enabledTabs, setEnabledTabs] = useState(['basic','certifications','experience','education','expertise']);
   let expert = null;
+  useEffect(() => {
+    dispatch(getmeasexpert())
+  }, [dispatch]);
 
-  if (expertData) {
-    if (typeof expertData === 'string') {
-      try {
-        expert = JSON.parse(expertData);
-      } catch (error) {
-        console.error('Error parsing expertData:', error);
-        expert = null;
-      }
-    } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
-      expert = expertData;
+if (expertData) {
+  if (typeof expertData === 'string') {
+    try {
+      expert = JSON.parse(expertData);
+      console.log("This is expertData",expert);
+    } catch (error) {
+      console.error('Error parsing expertData:', error);
+      expert = null; // Handle parsing errors safely
     }
+  } else if (typeof expertData === 'object' && Object.keys(expertData).length > 0) {
+    expert = expertData; // Already an object and not empty
   }
+}
 
+
+// console.log('this is languages',expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label)));
 const [formData, setFormData] = useState({
   basic: {
     firstName: expert?.firstName || '',
@@ -53,7 +60,7 @@ const [formData, setFormData] = useState({
     email: expert?.email || '',
     bio: expert?.bio || '',
     // languages: expert?.languages
-    //   ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.label))
+    //   ? expert.languages.flatMap(lang => JSON.parse(lang).map(l => l.value))
     //   : [],
     languages: expert?.languages
     ? expert.languages.flatMap(lang => 
@@ -61,22 +68,33 @@ const [formData, setFormData] = useState({
       )
     : [],
     socialLinks: expert?.socialLinks?.length && typeof expert.socialLinks[0] === 'string'
-      ? JSON.parse(expert.socialLinks[0])
-      : expert?.socialLinks || [''],
+    ? JSON.parse(expert.socialLinks[0])
+    : expert?.socialLinks || [''],
     coverImage: expert?.coverImage?.secure_url || coverImage || '',
     profileImage: expert?.profileImage?.secure_url || profileImage || ''
   },
   expertise: {
     domain: expert?.credentials?.domain||'',
     niche: expert?.credentials?.niche||'',
-    professionalTitle: expert?.credentials?.domain||'',
-    experienceYears: expert?.credentials?.experienceYears||'',
+    professionalTitle: Array.isArray(expert?.credentials?.professionalTitle) 
+    ? expert.credentials.professionalTitle[0] || '' 
+    : '',
+    experienceYears:expert?.credentials?.experienceYears || 0,
     skills:expert?.credentials?.skills|| []
   },
   education: expert?.credentials?.education || [],
   experience: expert?.credentials?.work_experiences || [],
   certifications: expert?.credentials?.certifications_courses || []
 });
+
+  useEffect(()=>{
+    if(expert?.coverImage?.secure_url){
+      setCoverImage(expert.coverImage.secure_url)
+    }
+    if(expert?.profileImage?.secure_url){
+      setProfileImage(expert.profileImage.secure_url)
+    }
+  },[expert])
 
   useEffect(() => {
     setFormData((prevFormData) => ({
@@ -269,6 +287,10 @@ const [formData, setFormData] = useState({
     console.log('Saving all data:', updatedFormData);
     toast.success('All changes saved successfully!');
   };
+
+  if(loading){
+    return <Spinner/>
+  }
 
   if (showPreview) {
     return (
