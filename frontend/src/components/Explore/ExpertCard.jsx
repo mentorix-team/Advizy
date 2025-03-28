@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { User, Star, Heart } from "lucide-react";
+import { User, Star, Heart, ChevronDown, ChevronUp } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 const ExpertCard = ({
@@ -20,8 +20,12 @@ const ExpertCard = ({
   const [liked, setLiked] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [availability, setAvailability] = useState(null);
+  const [showAllExpertise, setShowAllExpertise] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const visibleExpertise = showAllExpertise ? expertise : expertise.slice(0, 3);
+  const hasMoreExpertise = expertise.length > 3;
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -128,7 +132,7 @@ const ExpertCard = ({
                 Expertise:
               </span>
               <div className="flex flex-wrap gap-2">
-                {expertise.slice(0, 2).map((skill, index) => (
+                {visibleExpertise.map((skill, index) => (
                   <span
                     key={`${skill}-${index}`}
                     className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[15px] rounded-[8.03px] px-[11px] py-[1px]"
@@ -136,17 +140,25 @@ const ExpertCard = ({
                     {skill}
                   </span>
                 ))}
+                {hasMoreExpertise && (
+                  <button
+                    onClick={() => setShowAllExpertise(!showAllExpertise)}
+                    className="flex items-center gap-1 text-[#1f409b] text-[15px] hover:text-[#0049b3] transition-colors"
+                  >
+                    {showAllExpertise ? (
+                      <>
+                        Show Less
+                        <ChevronUp className="w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        Show More
+                        <ChevronDown className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {expertise.slice(2).map((skill, index) => (
-                <span
-                  key={`${skill}-${index}`}
-                  className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[15px] rounded-[8.03px] px-[11px] py-[1px]"
-                >
-                  {skill}
-                </span>
-              ))}
             </div>
           </div>
         </div>
