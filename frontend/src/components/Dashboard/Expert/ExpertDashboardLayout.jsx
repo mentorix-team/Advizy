@@ -120,10 +120,12 @@ const ExpertDashboardLayout = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
-    setIsDropdownOpen(false);
-    setIsMobileMenuOpen(false);
-    navigate("/");
+    const response = dispatch(logout());
+    if(response?.payload?.success){
+      setIsDropdownOpen(false);
+      setIsMobileMenuOpen(false);
+      navigate("/");
+    }
   };
 
   const handleToggleExpertMode = () => {

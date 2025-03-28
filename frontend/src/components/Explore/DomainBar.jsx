@@ -17,6 +17,7 @@ const DomainBar = ({
   const handleMoreClick = () => {
     setDropdownVisible((prev) => !prev);
   };
+  
 
   return (
     <div className="bg-white p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
