@@ -10,7 +10,8 @@ import { basicFormSubmit, getExpertById, getmeasexpert, professionalFormSubmit }
 import { useDispatch, useSelector } from 'react-redux';
 import CertificationsTab from './components/certifications/CertificationsTab';
 import ExperienceTab from './components/experience/ExperienceTab';
-import Spinner from '@/LoadingSkeleton/Spinner';
+// import Spinner from '@/LoadingSkeleton/Spinner';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function App() {
   const tabs = ['basic', 'expertise', 'education', 'experience', 'certifications'];

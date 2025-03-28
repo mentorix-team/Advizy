@@ -22,7 +22,8 @@ import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from 'framer-motion';
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
-import Spinner from "@/LoadingSkeleton/Spinner";
+// import Spinner from "@/LoadingSkeleton/Spinner";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 import { useNavigate } from "react-router-dom";
 
 // Sample categories remain unchanged
