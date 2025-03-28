@@ -87,6 +87,8 @@ const ExpertCard = ({
                         {totalRatings} Sessions done
                       </span>
                     </div>
+
+                    
                   </div>
 
                   <div className="flex flex-col gap-1 mt-1">
