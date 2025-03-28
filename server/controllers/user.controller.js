@@ -134,12 +134,17 @@ const handleGoogleCallback = async (req, res, next) => {
         }
 
         // Redirect to frontend with tokens
-        const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
-            JSON.stringify(user)
-        )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
+        // const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
+        //     JSON.stringify(user)
+        // )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
-        return res.redirect(frontendURL);
-
+        // return res.redirect(frontendURL);
+        return res.status(200).json({
+            success:true,
+            message:'User Logged in ',
+            user,
+            expert:expert||null
+        })
     } catch (error) {
         console.error("Error during Google authentication:", error.message);
         return next(new AppError("Error during Google authentication", 500));
