@@ -140,6 +140,15 @@ const ExpertDetailPage = () => {
                 id="services-offered"
                 services={expert?.credentials?.services || []}
               />
+              <div className="block md:hidden">
+                <EducationCertifications
+                  education={expert?.credentials?.education || []}
+                  certifications={
+                    expert?.credentials?.certifications_courses || []
+                  }
+                  workExperiences={expert?.credentials?.work_experiences || []}
+                />
+              </div>
               <Reviews
                 reviews={
                   Array.isArray(feedbackofexpert) ? feedbackofexpert : []
@@ -147,7 +156,7 @@ const ExpertDetailPage = () => {
               />
               <FAQ faqs={expert?.credentials?.faqs || []} />
             </div>
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 hidden md:block">
               <EducationCertifications
                 education={expert?.credentials?.education || []}
                 certifications={
@@ -163,6 +172,7 @@ const ExpertDetailPage = () => {
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
+  
 };
 
 export default ExpertDetailPage;
