@@ -74,13 +74,13 @@ const handleGoogleCallback = async (req, res, next) => {
         // Generate Access & Refresh Tokens
         const accessToken = jwt.sign(
             { id: user._id, email: user.email },
-            process.env.JWT_SECRET,
+            'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=',
             { expiresIn: '1h' }
         );
 
         const refreshToken = jwt.sign(
             { id: user._id, email: user.email },
-            process.env.JWT_SECRET,
+            'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=',
             { expiresIn: '7d' }
         );
 
@@ -110,10 +110,10 @@ const handleGoogleCallback = async (req, res, next) => {
         if (expert) {
             console.log("User is an expert, generating expert tokens...");
 
-            expertAccessToken = expert.generateExpertToken();
+            expertAccessToken = expert.generateExpertToken({ expiresIn: "1d" });
             expertRefreshToken = jwt.sign(
                 { id: expert._id, email: user.email },
-                process.env.JWT_SECRET,
+                '3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=',
                 { expiresIn: '7d' }
             );
 

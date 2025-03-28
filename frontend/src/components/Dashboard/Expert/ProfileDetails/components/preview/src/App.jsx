@@ -9,7 +9,8 @@ import Reviews from './components/Reviews';
 import FAQ from './components/FAQ';
 import { useDispatch, useSelector } from 'react-redux';
 import { getmeasexpert } from '@/Redux/Slices/expert.Slice';
-import Spinner from '@/LoadingSkeleton/Spinner';
+// import Spinner from '@/LoadingSkeleton/Spinner';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 function App({ formData, profileImage, coverImage }) {
   const { basic, expertise, education, experience, certifications, services } = formData;

@@ -15,12 +15,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMeetingByExpertId, getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import { getmeasexpert } from "@/Redux/Slices/expert.Slice";
+// import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 function Home() {
   const dispatch = useDispatch();
   const { expertData,loading,error } = useSelector((state) => state.expert);
-  const { meetings, loading, error ,feedbackofexpert} = useSelector((state) => state.meeting);
+  const { meetings,feedbackofexpert} = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
   console.log("availabilty", selectedAvailability);
