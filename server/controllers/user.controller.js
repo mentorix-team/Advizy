@@ -50,7 +50,7 @@ const handleGoogleCallback = async (req, res, next) => {
             if (existingUserByEmail) {
                 console.log("User found with the same email but without Google ID, redirecting to error page...");
 
-                const errorURL = `http://localhost:5173/auth-error?message=${encodeURIComponent(
+                const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
                     "An account with this email already exists. Please log in using your original method."
                 )}`;
                 return res.redirect(errorURL);
@@ -134,7 +134,7 @@ const handleGoogleCallback = async (req, res, next) => {
         }
 
         // Redirect to frontend with tokens
-        const frontendURL = `http://localhost:5173/google-auth-success?token=${accessToken}&refreshToken=${refreshToken}&user=${encodeURIComponent(
+        const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
             JSON.stringify(user)
         )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
