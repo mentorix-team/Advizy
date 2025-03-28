@@ -32,6 +32,15 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Function to redirect user after login
+  // const handleLoginRedirect = (navigate) => {
+  //   // Check if there's a saved URL
+  //   const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
+  //   localStorage.removeItem("redirectAfterLogin"); // Clear stored path
+
+  //   navigate(redirectPath, { replace: true });
+  // };
+
   const validateField = (name, value) => {
     switch (name) {
       case "email":
@@ -99,7 +108,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      // navigate("/");
+      navigate('/');
     } else {
       navigate("/signup");
     }

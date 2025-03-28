@@ -28,7 +28,6 @@ import {
   HouseIcon,
   Search,
 } from "lucide-react";
-import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ExpertDashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -485,15 +484,9 @@ const ExpertDashboardLayout = () => {
       </aside>
 
       <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-screen">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="mx-auto px-4">
-            <Outlet />
-          </div>
-        )}
+        <div className="mx-auto px-4">
+          <Outlet />
+        </div>
       </main>
 
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />

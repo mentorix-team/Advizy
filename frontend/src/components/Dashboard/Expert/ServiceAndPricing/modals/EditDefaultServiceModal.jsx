@@ -8,9 +8,9 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const DEFAULT_HOURLY_RATE = '100'
   console.log('THis is the default srvice',service)
   const calculatePrice = (hourlyRate, duration) => {
-    // Use exact integer arithmetic to avoid floating point issues
+    // Calculate price based on full hourly rate
     const rateNum = parseInt(hourlyRate, 10)
-    return Math.round((rateNum * 0.8 * duration) / 60)
+    return Math.round((rateNum * duration) / 60)
   }
 
   const getInitialState = (serviceData) => {
@@ -32,7 +32,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
     // Initialize timeSlots with enabled status and calculated prices based on duration
     const sixtyMinSlot = serviceData.timeSlots?.find(slot => slot.duration === 60)
-    const hourlyRate = sixtyMinSlot ? Math.round((sixtyMinSlot.price / 0.8) * (60/60)).toString() : serviceData.hourlyRate
+    const hourlyRate = sixtyMinSlot ? Math.round(sixtyMinSlot.price).toString() : serviceData.hourlyRate
 
     const timeSlots = [15, 30, 45, 60, 90].map(duration => {
       const existingSlot = serviceData.timeSlots?.find(slot => slot.duration === duration)
@@ -77,7 +77,6 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
     })
   }
   
-
   const toggleTimeSlot = (duration) => {
     const updatedTimeSlots = formData.timeSlots.map(slot => 
       slot.duration === duration 
@@ -91,7 +90,6 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
     })
   }
   
-
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave(formData)

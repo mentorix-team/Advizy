@@ -51,7 +51,9 @@ function App({ formData, profileImage, coverImage }) {
             <Expertise skills={expert.credentials.skills||[]} />
             <ServicesOffered services={expert.credentials.services||[]} />
           </div>
-          <div className="md:col-span-1">
+          
+          {/* Sidebar content - will appear below services in mobile */}
+          <div className="md:col-span-1 order-3 md:order-2">
             <ExperienceList experiences={expert.credentials.work_experiences} />
             <EducationCertifications 
               education={expert.credentials.education||[]} 

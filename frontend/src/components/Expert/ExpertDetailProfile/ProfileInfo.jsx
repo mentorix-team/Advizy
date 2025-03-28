@@ -19,14 +19,14 @@
 //       <p className="text-black font-figtree text-base font-normal leading-[150%] mb-3">
 //         {about || "No details provided"} {/* Display dynamic 'about' */}
 //       </p>
-      
+
 //       <div className="grid grid-cols-2 gap-4">
-//         <InfoItem 
+//         <InfoItem
 //           icon="⏱️"
 //           label="Experience"
 //           value={`${experience || 0} years`} // Display dynamic 'experience'
 //         />
-//         <InfoItem 
+//         <InfoItem
 //           icon="🌐"
 //           label="Language"
 //           value={languages.join(", ") || "No languages provided"} // Display dynamic 'languages'
@@ -45,7 +45,6 @@
 
 // export default ProfileInfo;
 
-
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -60,7 +59,12 @@ const InfoItem = ({ icon, label, value }) => (
   </div>
 );
 
-const ProfileInfo = ({ experience, languages, about, languageOptions = [] }) => {
+const ProfileInfo = ({
+  experience,
+  languages,
+  about,
+  languageOptions = [],
+}) => {
   return (
     <div className="bg-white rounded-lg p-6">
       <h2 className="text-black font-figtree text-xl font-semibold leading-[150%] mb-4">
@@ -74,7 +78,9 @@ const ProfileInfo = ({ experience, languages, about, languageOptions = [] }) => 
         <InfoItem
           icon="⏱️"
           label="Experience"
-          value={`${experience || 0} years`} // Display dynamic 'experience'
+          value={
+            experience === 0 ? "Less than one year" : `${experience} years`
+          }
         />
         <InfoItem
           icon="🌐"
@@ -84,7 +90,8 @@ const ProfileInfo = ({ experience, languages, about, languageOptions = [] }) => 
               ? languages
                   .map(
                     (lang) =>
-                      languageOptions.find((option) => option.value === lang)?.label || lang
+                      languageOptions.find((option) => option.value === lang)
+                        ?.label || lang
                   )
                   .join(", ")
               : "No languages provided"

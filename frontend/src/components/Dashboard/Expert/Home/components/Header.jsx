@@ -5,14 +5,14 @@ import {
   fetchMeeting,
   getnotification,
 } from "@/Redux/Slices/meetingSlice";
-import {toast, Toaster} from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import { initiatePayout } from "@/Redux/Slices/paymentSlice";
 import { useNavigate } from "react-router-dom";
 import ProfileShare from "./ProfileShare";
 import { Bell, BellOff, X } from "lucide-react";
 import NotificationSkeleton from "@/components/LoadingSkeleton/NotificationSkeleton";
 
-export default function Header({pendingActions}) {
+export default function Header({ pendingActions }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { notifications, loading, error, currentMeeting } = useSelector(
@@ -150,7 +150,7 @@ export default function Header({pendingActions}) {
       <div className="w-full flex justify-between items-start sm:items-center mb-4 sm:mb-0">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">
-            Welcome back, {expertData.firstName}
+            Welcome, {expertData.firstName}
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
             Let's make today productive!
@@ -174,7 +174,8 @@ export default function Header({pendingActions}) {
 
       {/* Actions Section */}
       <div className="flex gap-4 items-center">
-        {!pendingActions && (<ProfileShare expert={expertData} />)}
+        {pendingActions.length === 0 && <ProfileShare expert={expertData} />}
+
         {/* <ProfileShare expert={expertData} /> */}
         {/* Notification Bell - Hidden on mobile, visible on desktop */}
         <div className="hidden sm:block">
@@ -200,7 +201,7 @@ export default function Header({pendingActions}) {
                   onClick={() => setShowNotifications(false)}
                   className="text-gray-500 hover:text-gray-700"
                 >
-                  <X className="w-3 h-3 text-gray-700"/>
+                  <X className="w-3 h-3 text-gray-700" />
                 </button>
               </div>
             </div>
