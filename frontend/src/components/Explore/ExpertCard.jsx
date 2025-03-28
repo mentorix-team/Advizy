@@ -69,7 +69,6 @@ const ExpertCard = ({
                       {name}
                     </h2>
                     <BadgeCheck className="w-5 h-5 text-[#0000FF] flex-shrink-0" />
-                    
                   </div>
                   <p className="text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[23.2px]">
                     {title}
@@ -88,8 +87,7 @@ const ExpertCard = ({
                         {totalRatings} Sessions done
                       </span>
                     </div>
-
-
+                    
                   </div>
 
                   <div className="flex flex-col gap-1 mt-1">
@@ -161,7 +159,7 @@ const ExpertCard = ({
         </div>
 
         {/* Bottom Section - Always at the bottom */}
-        <div className="mt-1 pt-1 border-t border-gray-100">
+        <div className="mt-3 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col">
               <span className="font-['Figtree',Helvetica] font-medium text-[14.5px] text-[#1d1f1d] leading-[21.7px]">
