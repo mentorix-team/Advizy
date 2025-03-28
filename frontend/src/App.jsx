@@ -1,95 +1,77 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ExpertDashboardRoutes from "./routes/ExpertDashboardRoutes";
-import UserDashboardRoutes from "./routes/UserDashboardRoutes";
-import ExpertDetailPage from "./components/Expert/ExpertDetailProfile/ExpertDetailPage";
-import Scheduling from "./components/Dashboard/User/Scheduling/Scheduling";
-import OrderSummary from "./components/Dashboard/User/OrderSummary";
-import BookingConfirmation from "./components/Dashboard/Expert/Meetings/BookingConfirmation";
-import Meeting from "./components/Meeting/Meeting";
-import HomePage from "./components/Home/pages/HomePage";
-import BecomeExpertPage from "./components/Home/pages/BecomeExpertPage";
-import Homees from "./components/Explore/Homees";
-import ReScheduling from "./components/Dashboard/User/Scheduling/ReScheduling";
+import { useEffect, useState, Suspense, lazy } from "react";
+import { useDispatch } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
-import GoogleAuthSuccess from "./components/Auth/GoogleAuthSuccess";
+import Spinner from "@/LoadingSkeleton/Spinner"; // Loading indicator
+import Cookies from "js-cookie";
+import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
+
+// Regular Imports (Frequently Used Components)
+import AuthPopup from "./components/Auth/AuthPopup.auth";
 import Error404 from "./Protected/Error404";
-import AboutUs from "./../src/components/Home/pages/AboutUs";
+import HomePage from "./components/Home/pages/HomePage";
+import ComingSoon from "./ComingSoon";
+import AuthError from "./AuthError";
+import ContactUs from "./ContactUs";
+import AboutUs from "./components/Home/pages/AboutUs";
 import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
 import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
-import ProfileDetails from "@/components/Dashboard/Expert/Profile/App";
-import AuthPopup from "./components/Auth/AuthPopup.auth";
-import AuthError from "./AuthError";
-import ContactUs from "./ContactUs";
-import ReSchedulingUser from "./components/Dashboard/User/Scheduling/ReSchedulingUser";
-import { useDispatch } from "react-redux";
-import { validateToken } from "./Redux/Slices/authSlice";
-import ScrollToTop from "./utils/ScrollToTop";
-// import ModeRestrictionError from "./Protected/ModeRestrictionError";
+
+// Lazy Imports (Less Frequently Used Components)
+const ExpertDashboardRoutes = lazy(() => import("./routes/ExpertDashboardRoutes"));
+const UserDashboardRoutes = lazy(() => import("./routes/UserDashboardRoutes"));
+const ExpertDetailPage = lazy(() => import("./components/Expert/ExpertDetailProfile/ExpertDetailPage"));
+const Scheduling = lazy(() => import("./components/Dashboard/User/Scheduling/Scheduling"));
+const OrderSummary = lazy(() => import("./components/Dashboard/User/OrderSummary"));
+const BookingConfirmation = lazy(() => import("./components/Dashboard/Expert/Meetings/BookingConfirmation"));
+const Meeting = lazy(() => import("./components/Meeting/Meeting"));
+const BecomeExpertPage = lazy(() => import("./components/Home/pages/BecomeExpertPage"));
+const Homees = lazy(() => import("./components/Explore/Homees"));
+const ReScheduling = lazy(() => import("./components/Dashboard/User/Scheduling/ReScheduling"));
+const GoogleAuthSuccess = lazy(() => import("./components/Auth/GoogleAuthSuccess"));
+const ProfileDetails = lazy(() => import("@/components/Dashboard/Expert/Profile/App"));
+const ReSchedulingUser = lazy(() => import("./components/Dashboard/User/Scheduling/ReSchedulingUser"));
 
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const handleAuthPopupOpen = () => {
-    setShowAuthPopup(true);
-  };
 
-  const handleAuthPopupClose = () => {
-    setShowAuthPopup(false);
-  };
+  const handleAuthPopupOpen = () => setShowAuthPopup(true);
+  const handleAuthPopupClose = () => setShowAuthPopup(false);
 
   useEffect(() => {
     const excludedPaths = [
-      "/", 
-      "/home", 
-      "/auth-error", 
-      "/about-us", 
-      "/contact", 
-      "/cookie-policy", 
-      "/privacy-policy", 
-      "/refund-policy", 
-      "/terms-of-service", 
-      "/explore", 
-      "/meeting",
-      "/expert/:redirect_url",
-      "/expert/scheduling/:serviceId",
-      "/become-expert"
+      "/", "/home", "/auth-error", "/about-us", "/contact", "/cookie-policy",
+      "/privacy-policy", "/refund-policy", "/terms-of-service", "/explore", "/meeting",
+      "/expert/:redirect_url", "/expert/scheduling/:serviceId"
     ];
-  
+
     if (!excludedPaths.includes(location.pathname)) {
       dispatch(validateToken()).then((response) => {
         if (!response?.payload?.valid) {
-          localStorage.clear(); 
-          setShowAuthPopup(true)
-          // navigate("/auth-error"); 
+          localStorage.clear();
+          setShowAuthPopup(true);
         }
       });
     }
-  }, [dispatch, navigate, location.pathname]); // Depend on location.pathname
+  }, [dispatch, location.pathname]);
 
-  
-  
- 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
-
-    // If expert mode is enabled and the user tries to access a non-expert route, redirect
     if (expertMode && !location.pathname.startsWith("/dashboard/expert")) {
-      console.log("Redirecting to Expert Dashboard due to expert mode.");
       navigate("/dashboard/expert/");
     }
   }, [location, navigate]);
 
   return (
-    <div>
-      <ScrollToTop />
+    <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        {/* <Route path="/nodata" element={<NoUpcoming />} /> */}
+        <Route path="/" element={<ComingSoon />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
@@ -100,66 +82,34 @@ const App = () => {
         <Route path="/terms-of-service" element={<TermsOfService />} />
 
         {/* Protected Routes */}
-        <Route
-          path="/expert-onboarding"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
-        >
+        <Route path="/expert-onboarding" element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}>
           <Route path="" element={<ProfileDetails />} />
         </Route>
 
         <Route path="/explore" element={<Homees />} />
-        {/* <Route path="/expert/:id" element={<ExpertDetailPage />} /> */}
         <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
-        <Route
-          path="/expert/rescheduling/:updatemeetingtoken"
-          element={<ReScheduling />}
-        />
-        <Route
-          path="/user/rescheduling/:serviceId"
-          element={<ReSchedulingUser />}
-        />
-
+        <Route path="/expert/rescheduling/:updatemeetingtoken" element={<ReScheduling />} />
+        <Route path="/user/rescheduling/:serviceId" element={<ReSchedulingUser />} />
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
         <Route path="/payment-success" element={<BookingConfirmation />} />
         <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
-
-        {/* Add a route for the Meeting component */}
         <Route path="/meeting" element={<Meeting />} />
 
-        <Route
-          path="/dashboard/user/*"
-          element={<ProtectedRoute showAuth={() => setShowAuthPopup(true)} />}
-        >
+        {/* Dashboard Routes */}
+        <Route path="/dashboard/user/*" element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}>
           <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
 
-        <Route
-          path="/dashboard/expert/*"
-          element={
-            <ProtectedRoute
-              requireExpert={true}
-              showAuth={() => setShowAuthPopup(true)}
-            />
-          }
-        >
+        <Route path="/dashboard/expert/*" element={<ProtectedRoute requireExpert={true} showAuth={handleAuthPopupOpen} />}>
           <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
-
-        {/* Mode Restriction Error Page
-        <Route
-          path="/mode-restriction-error"
-          element={<ModeRestrictionError />}
-        /> */}
 
         <Route path="*" element={<Error404 />} />
       </Routes>
 
-      <AuthPopup
-        isOpen={showAuthPopup}
-        onClose={() => setShowAuthPopup(false)}
-      />
-    </div>
+      <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
+    </Suspense>
   );
 };
 

@@ -5,14 +5,14 @@ import { FaEye, FaTrash } from 'react-icons/fa';
 import { SingleEducationForm } from '@/Redux/Slices/expert.Slice';
 import { useDispatch } from 'react-redux';
 import DocumentUploadModal from '../services/DocumentUploadModal';
-
+import toast from 'react-hot-toast';
 export default function EducationForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     degree: '',
     institution: '',
     passingYear: '',
-    certificates: ''
+    certificates: []
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [errors, setErrors] = useState({});
@@ -30,16 +30,13 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
     formDataToSend.append("degree", formData.degree);
     formDataToSend.append("institution", formData.institution);
     formDataToSend.append("passingYear", formData.passingYear);
-    formDataToSend.append("certificates", formData.certificates);
-
+    
+    // Append each certificate file
     if (formData.certificates) {
-      console.log("Appending certificate:", formData.certificate);
-    } else {
-      console.log("No certificate selected");
+      formDataToSend.append("certificate", formData.certificate);
     }
 
-    dispatch(SingleEducationForm(formDataToSend)); // Dispatching the action
-    onSubmit(formDataToSend);
+    onSubmit(formDataToSend); // Just call the onSubmit prop with form data
   };
 
   const handleFileChange = (e) => {
@@ -82,12 +79,30 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
   };
 
   const handleFileUpload = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setFormData(prev => ({
-      ...prev,
-      certificates: [...prev.certificates, ...newFiles]
-    }));
-    setShowUploadModal(false);
+    const file = e.target.files[0]; // Get the first file only
+    
+    if (file) {
+      // Validate file type
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a PDF, JPEG, or PNG file');
+        return;
+      }
+  
+      // Validate file size (e.g., 5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        toast.error('File size must be less than 5MB');
+        return;
+      }
+  
+      setFormData(prev => ({
+        ...prev,
+        certificate: file // Store single file
+      }));
+      setShowUploadModal(false);
+      toast.success('File uploaded successfully');
+    }
   };
 
   const removeFile = (index) => {

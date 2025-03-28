@@ -1,10 +1,13 @@
 import Router from 'express'
 import { isExpert, isLoggedIn } from '../middlewares/auth.middleare.js'
-import manageService, {  createService, deleteExpertCertificate, deleteExpertEducation, deleteExpertExperience, deleteService, editExpertCertificate, editExpertExperience, editSingleExpertEducation, expertBasicDetails, expertCredentialsDetails, expertEducation, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpertById, getExpertByRedirectURL, getExpertServices, getService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
+import manageService, {  createService, deleteExpertCertificate, deleteExpertEducation, deleteExpertExperience, deleteService, editExpertCertificate, editExpertExperience, editSingleExpertEducation, expertBasicDetails, expertCredentialsDetails, expertEducation, expertImages, expertPaymentDetails, expertcertifiicate, expertexperience, extpertPortfolioDetails, generateOtpForVerifying, getAllExperts, getExpert, getExpertById, getExpertByRedirectURL, getExpertServices, getService, pushExpertsToAlgolia, singleexperteducation, updateProfileStatus, updateService, validatethnumberormobile } from '../controllers/expert.controller.js'
 import upload from '../middlewares/multer.middleware.js'
 const router= Router()
 
+router.get('/getmeasexpert',isLoggedIn,getExpert)
+
 router.post('/basic-details',isLoggedIn,upload.fields([{name:'profileImage',maxCount:1},{name:'coverImage',maxCount:1}]),expertBasicDetails)
+router.post('/basic-image-details',isLoggedIn,upload.fields([{name:'profileImage',maxCount:1},{name:'coverImage',maxCount:1}]),expertImages)
 
 router.post("/credentials-details", isLoggedIn, isExpert, expertCredentialsDetails);
 

@@ -47,22 +47,14 @@ const handleGoogleCallback = async (req, res, next) => {
 
             const existingUserByEmail = await User.findOne({ email });
 
-            // if (existingUserByEmail) {
-            //     console.log("User found with the same email but without Google ID, rejecting signup...");
-            //     return next(new AppError("An account with this email already exists. Please log in using your original method.", 400));
-            // }
-
             if (existingUserByEmail) {
                 console.log("User found with the same email but without Google ID, redirecting to error page...");
-                
-                // Construct the frontend error URL with a clear message
-                const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
+
+                const errorURL = `http://localhost:5173/auth-error?message=${encodeURIComponent(
                     "An account with this email already exists. Please log in using your original method."
                 )}`;
-            
                 return res.redirect(errorURL);
             }
-            
 
             console.log("User not found, creating new user...");
 
@@ -75,38 +67,74 @@ const handleGoogleCallback = async (req, res, next) => {
                 name,
                 firstName: firstName || "Google",
                 lastName: lastName || "User",
-                provider: "google", // Mark this as a Google-auth user
+                provider: "google",
             });
         }
 
-        // Generate JWT token
-        const token = jwt.sign(
+        // Generate Access & Refresh Tokens
+        const accessToken = jwt.sign(
             { id: user._id, email: user.email },
-            'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=', // Replace with environment variable in production
+            process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        console.log("JWT token generated:", token);
+        const refreshToken = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        );
 
-        // Set a cookie with the token
-        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None" ,maxAge: 3600000 });
+        console.log("Access & Refresh Tokens generated");
+
+        // Set Cookies
+        res.cookie("token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 60 * 60 * 1000, // 1 hour
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
 
         // Check if the user is an expert
         const expert = await ExpertBasics.findOne({ user_id: user._id });
 
-        if (expert) {
-            console.log("User is an expert, generating expertToken...");
-            const expertToken = expert.generateExpertToken();
+        let expertAccessToken = null;
+        let expertRefreshToken = null;
 
-            res.cookie("expertToken", expertToken, {
+        if (expert) {
+            console.log("User is an expert, generating expert tokens...");
+
+            expertAccessToken = expert.generateExpertToken();
+            expertRefreshToken = jwt.sign(
+                { id: expert._id, email: user.email },
+                process.env.JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            // Set Expert Tokens in Cookies
+            res.cookie("expertToken", expertAccessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite:"None", 
+                sameSite: "None",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            });
+
+            res.cookie("expertRefreshToken", expertRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "None",
+                maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
             });
         }
 
-        const frontendURL = `https://advizy.in/google-auth-success?token=${token}&user=${encodeURIComponent(
+        // Redirect to frontend with tokens
+        const frontendURL = `http://localhost:5173/google-auth-success?token=${accessToken}&refreshToken=${refreshToken}&user=${encodeURIComponent(
             JSON.stringify(user)
         )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
@@ -117,6 +145,7 @@ const handleGoogleCallback = async (req, res, next) => {
         return next(new AppError("Error during Google authentication", 500));
     }
 };
+
 
 
 const setPassword = async (req, res,next) => {
@@ -241,6 +270,7 @@ const register_with_mobile = async(req,res,next)=>{
 const login = async (req, res, next) => {
     try {
         const { email, number, password } = req.body;
+
         if ((!email && !number) || !password) {
             return next(new AppError('Email or number and password are required', 400));
         }
@@ -250,7 +280,7 @@ const login = async (req, res, next) => {
         if (email) {
             user = await User.findOne({ email }).select('+password');
         } else if (number) {
-            user = await User.findOne({ number }).select('+password'); // Change from email to number
+            user = await User.findOne({ number }).select('+password');
         }
 
         if (!user) {
@@ -262,23 +292,44 @@ const login = async (req, res, next) => {
             return next(new AppError('Invalid email/number or password', 401));
         }
 
-        const token = user.generateJWTToken();
-        res.cookie('token', token, cookieOption);
+        // ✅ Generate Access & Refresh Tokens for User
+        const accessToken = user.generateJWTToken({ expiresIn: "1d" });
+        const refreshToken = user.generateJWTToken({ expiresIn: "30d" });
 
-        // const details = jwt.verify(expertToken,'0C/VCsuGON6yZ0x2jKjh18Azt6W29JMOVSOBwbHik3k=')
-        // const expertInMaking = details;
-        console.log()
+        // ✅ Store User Tokens in HTTP-only Cookies
+        res.cookie("token", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        });
+
+        // ✅ Check if User is an Expert & Generate Expert Tokens
         const expert = await ExpertBasics.findOne({ user_id: user._id });
 
-
         if (expert) {
-            const expertToken = expert.generateExpertToken()
+            const expertToken = expert.generateExpertToken({ expiresIn: "7d" });
+            const expertRefreshToken = expert.generateExpertToken({ expiresIn: "30d" });
 
             res.cookie("expertToken", expertToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite:"None" ,
+                sameSite: "None",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            });
+
+            res.cookie("expertRefreshToken", expertRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "None",
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
             });
         }
 
@@ -286,32 +337,59 @@ const login = async (req, res, next) => {
             success: true,
             message: "User logged in successfully",
             user,
-            expert: expert, 
+            expert: expert || null,
         });
+
     } catch (error) {
         console.log(error);
-        return next(new AppError('Server error', 500)); // Return a generic server error
+        return next(new AppError('Server error', 500));
     }
 };
-const logout = async(req,res,next)=>{
-    res.cookie('token',null,{
-        httpOnly:true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite:"None" ,
-        maxAge:0
-    })
-    res.cookie('expertToken',null,{
-        httpOnly:true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite:"None" ,
-        maxAge:0
-    })
 
-    res.status(200).json({
-        success:true,
-        message:'user logged out succesfully'
-    })
-}
+
+const logout = async (req, res, next) => {
+    try {
+        // ✅ Clear Access Token
+        res.cookie('token', null, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 0,
+        });
+
+        // ✅ Clear Refresh Token
+        res.cookie('refreshToken', null, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 0,
+        });
+
+        // ✅ Clear Expert Token
+        res.cookie('expertToken', null, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 0,
+        });
+
+        // ✅ Clear Expert Refresh Token
+        res.cookie('expertRefreshToken', null, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 0,
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'User logged out successfully',
+        });
+
+    } catch (error) {
+        return next(new AppError('Server error', 500));
+    }
+};
 
 
 const myprofile = async(req,res,next)=>{
@@ -524,34 +602,61 @@ const login_with_otp = async (req, res, next) => {
     try {
         const { number, otpToken } = req.body;
 
+        // Normalize number
         const normalizedNumber = number.replace(/^(\+91|91)/, "");
 
+        // Find user
         const user = await User.findOne({ number: normalizedNumber });
         if (!user || !user.compareOtp(otpToken)) {
             return next(new AppError('Invalid OTP or OTP expired, please try again', 503));
         }
 
+        // Find expert details
         const expert = await ExpertBasics.findOne({ user_id: user._id });
 
-        const token = user.generateJWTToken();
-        res.cookie('token', token, {
-            httpOnly:true,
+        // Generate User Tokens
+        const accessToken = user.generateJWTToken({ expiresIn: "1d" });
+        const refreshToken = user.generateJWTToken({ expiresIn: "30d" });
+
+        // Set User Access Token (1 day)
+        res.cookie('token', accessToken, {
+            httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite:"None" ,
+            sameSite: "None",
             maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
 
+        // Set User Refresh Token (30 days)
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        });
+
+        // If user is an expert, generate Expert Tokens
         if (expert) {
-            const expertToken = expert.generateExpertToken();
-            res.cookie("expertToken", expertToken, {
-                httpOnly:true,
+            const expertAccessToken = expert.generateExpertToken({ expiresIn: "7d" });
+            const expertRefreshToken = expert.generateExpertToken({ expiresIn: "30d" });
+
+            // Set Expert Access Token (7 days)
+            res.cookie("expertToken", expertAccessToken, {
+                httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite:"None" ,
+                sameSite: "None",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            });
+
+            // Set Expert Refresh Token (30 days)
+            res.cookie("expertRefreshToken", expertRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "None",
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
             });
         }
 
-        // Send response with user and expert details
+        // Send response
         return res.status(200).json({
             success: true,
             message: 'User logged in successfully',
@@ -564,6 +669,7 @@ const login_with_otp = async (req, res, next) => {
         return next(new AppError('An error occurred while logging in with OTP.', 500));
     }
 };
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -672,6 +778,7 @@ const regenerate_otp = async (req, res, next) => {
         return next(new AppError(error.message, 500));
     }
 };
+
 const validate_otp_email = async (req, res, next) => {
     try {
         const { otp } = req.body;
@@ -704,7 +811,6 @@ const validate_otp_email = async (req, res, next) => {
 
         // OTP is valid; create the user
         const { firstName, lastName, email, password } = userData;
-        // const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({
             firstName,
@@ -724,9 +830,24 @@ const validate_otp_email = async (req, res, next) => {
         res.clearCookie("otpToken");
         res.clearCookie("tempUser");
 
-        // Generate JWT Token
-        const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production",sameSite:"None"  });
+        // ✅ Generate Access & Refresh Tokens
+        const accessToken = await user.generateJWTToken({ expiresIn: "1d" });
+        const refreshToken = await user.generateJWTToken({ expiresIn: "30d" });
+
+        // ✅ Store Refresh Token in an HTTP-only cookie
+        res.cookie("token", accessToken, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None", 
+            maxAge: 24 * 60 * 60 * 1000 // 1 day 
+        });
+
+        res.cookie("refreshToken", refreshToken, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None", 
+            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days 
+        });
 
         return res.status(200).json({
             success: true,
@@ -738,6 +859,7 @@ const validate_otp_email = async (req, res, next) => {
         return next(new AppError(error.message || "Server error", 500));
     }
 };
+
 
 const generate_otp_for_Signup_mobile = async(req,res,next)=>{
     try {
@@ -776,7 +898,7 @@ const generate_otp_for_Signup_mobile = async(req,res,next)=>{
     }
 }
 
-const validate_otp_mobile = async(req,res,next) =>{
+const validate_otp_mobile = async (req, res, next) => {
     const { otp } = req.body;
     const otpToken = req.cookies.otpToken; // Retrieve the hashed OTP
     const tempUser = req.cookies.tempUser; // Retrieve temporary user details
@@ -786,24 +908,30 @@ const validate_otp_mobile = async(req,res,next) =>{
     }
 
     try {
+        // Validate OTP
         const isOtpValid = bcrypt.compareSync(otp, otpToken);
-
         if (!isOtpValid) {
             return next(new AppError("Invalid OTP", 400));
         }
 
+        // Parse tempUser JSON
+        let userData;
+        try {
+            userData = JSON.parse(tempUser);
+        } catch (error) {
+            return next(new AppError("Invalid user data in cookies", 400));
+        }
+
         // OTP is valid; create the user
-        const { firstName, lastName, number, password } = tempUser;
-        // const hashedPassword = bcrypt.hashSync(password, 10);
+        const { firstName, lastName, number, password, countryCode } = userData;
 
         const user = await User.create({
             firstName,
             lastName,
             countryCode, // Save country code
             number,
-            password // Save hashed password
+            password, // Save hashed password
         });
-
 
         if (!user) {
             return next(new AppError("Failed to register user", 500));
@@ -813,8 +941,24 @@ const validate_otp_mobile = async(req,res,next) =>{
         res.clearCookie("otpToken");
         res.clearCookie("tempUser");
 
-        const token = await user.generateJWTToken();
-        res.cookie("token", token, { httpOnly: true,secure: process.env.NODE_ENV === "production",sameSite:"None"  });
+        // ✅ Generate Access & Refresh Tokens
+        const accessToken = await user.generateJWTToken({ expiresIn: "1d" });
+        const refreshToken = await user.generateJWTToken({ expiresIn: "30d" });
+
+        // ✅ Store Refresh Token in an HTTP-only cookie
+        res.cookie("token", accessToken, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None", 
+            maxAge: 24 * 60 * 60 * 1000 // 1 day 
+        });
+
+        res.cookie("refreshToken", refreshToken, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === "production", 
+            sameSite: "None", 
+            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days 
+        });
 
         return res.status(200).json({
             success: true,
@@ -822,10 +966,11 @@ const validate_otp_mobile = async(req,res,next) =>{
             user,
         });
     } catch (error) {
+        console.log(error);
         return next(new AppError(error.message, 500));
-        console.log(error)
     }
-}
+};
+
 
 
 
@@ -988,11 +1133,13 @@ const forgot_with_otp_mobile = async(res,req,next) =>{
     
 }
 
+
+
 const validateToken = async(req,res,next) =>{
     const token = req.cookies.token; 
 
     if(!token){
-        return next(new AppError('token not found',500))
+        return next(new AppError('token not found',401))
     }
     jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=',(err,decoded)=>{
         if(err){
@@ -1003,9 +1150,66 @@ const validateToken = async(req,res,next) =>{
     });
 }
 
+const refresh_token = async (req, res, next) => {
+    try {
+        const { refreshToken, expertRefreshToken } = req.cookies;
+
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        // Verify User Refresh Token
+        const decodedUser = jwt.verify(refreshToken, 'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
+        const user = await User.findById(decodedUser.id);
+        if (!user) {
+            return res.status(403).json({ message: "Invalid user refresh token" });
+        }
+
+        // Generate new User Access Token
+        const newAccessToken = user.generateJWTToken({ expiresIn: "1d" });
+
+        // Set new User Access Token in cookie
+        res.cookie("token", newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "None",
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+
+        let expert = null;
+        if (expertRefreshToken) {
+            const decodedExpert = jwt.verify(expertRefreshToken, '3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=');
+            expert = await ExpertBasics.findById(decodedExpert.id);
+            if (expert) {
+                // Generate new Expert Access Token
+                const newExpertToken = expert.generateExpertToken({ expiresIn: "7d" });
+
+                // Set new Expert Access Token in cookie
+                res.cookie("expertToken", newExpertToken, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "None",
+                    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                });
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Tokens refreshed",
+            user, // Send user details
+            expert // Send expert details (if exists)
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(403).json({ message: "Invalid refresh token" });
+    }
+};
 
 
 export {
+    refresh_token,
     register_with_email,
     register_with_mobile,
     

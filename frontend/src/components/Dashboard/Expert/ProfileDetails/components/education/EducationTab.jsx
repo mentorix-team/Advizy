@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import EducationList from './EducationList';
 import EducationForm from './EducationForm';
 import { toast } from 'react-hot-toast';
-import { deleteEducation, EditEducationForm } from '@/Redux/Slices/expert.Slice';
+import { deleteEducation, EditEducationForm, SingleEducationForm } from '@/Redux/Slices/expert.Slice';
+import { useDispatch } from 'react-redux';
 
 export default function EducationTab({ formData, onUpdate }) {
   console.log('This is formdata',formData)
@@ -12,38 +13,46 @@ export default function EducationTab({ formData, onUpdate }) {
     const savedEducation = localStorage.getItem('educations');
     return savedEducation ? JSON.parse(savedEducation) : formData
   })
+  console.log("Educations being passed to EducationList:", educations);
   const [showForm, setShowForm] = useState(formData.length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
-
-  // Update local state when formData.education changes
+  const dispatch = useDispatch()
+  // Update local state when props change
   useEffect(() => {
-    if (formData.education) {
-      setEducations(formData.education);
-      setShowForm(formData.education.length === 0);
+    console.log("Updated formData:", formData);
+    if (formData && Array.isArray(formData)) {
+      setEducations([...formData]); // Force state update with a new array reference
     }
-  }, [formData.education]);
+  }, [formData]);
+  
 
-  const handleAddEducation = (formData) => {
-    const newEducation = {
-      degree: formData.get("degree") || "",
-      institution: formData.get("institution") || "",
-      passingYear: formData.get("passingYear") || "",
-      certificate: formData.get("certificate") || null,
-    };
+  const handleAddEducation = async (formData) => {
+    try {
+      // Dispatch the action to add education
+      const response = await dispatch(SingleEducationForm(formData)).unwrap();
+      
+      // If successful, update local state
+      const newEducation = {
+        degree: formData.get("degree"),
+        institution: formData.get("institution"),
+        passingYear: formData.get("passingYear"),
+        certificates: formData.get("certificates") || null,
+      };
 
-    const updatedEducations = [...educations, newEducation];
-    
-    // Update both local state and parent form data
-    setEducations(updatedEducations);
-    onUpdate({ 
-      ...formData,
-      education: updatedEducations 
-    });
-    setShowForm(false);
-    toast.success('Education added successfully!');
+      const updatedEducations = [...educations, newEducation];
+      setEducations(updatedEducations);
+      onUpdate(updatedEducations);
+      setShowForm(false);
+      
+      toast.success('Education added successfully!');
+    } catch (error) {
+      console.error('Error adding education:', error);
+      toast.error('Failed to add education. Please try again.');
+    }
   };
 
   const handleEditEducation = (index) => {
+    console.log('This is iundex',index)
     setEditingIndex(index);
     setShowForm(true);
   };

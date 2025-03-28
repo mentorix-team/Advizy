@@ -3,6 +3,7 @@ import CertificationList from "./CertificationList";
 import CertificationForm from "./CertificationForm";
 import { toast, Toaster } from "react-hot-toast";
 import { deleteCerti, EditCertificate } from "@/Redux/Slices/expert.Slice";
+import { useDispatch } from "react-redux";
 
 const STORAGE_KEY = 'user_certifications';
 
@@ -22,7 +23,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
   
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-
+  const dispatch = useDispatch()
   // Sync with localStorage whenever certifications change
   useEffect(() => {
     try {

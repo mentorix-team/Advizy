@@ -89,7 +89,7 @@ userSchema.pre('save', async function (next) {
 
 // Define methods for JWT generation, password comparison, OTP generation, and token handling
 userSchema.methods = {
-  generateJWTToken: function () {
+  generateJWTToken: function (options = {}) {
     return jwt.sign(
       {
         id: this._id,
@@ -97,8 +97,8 @@ userSchema.methods = {
         number: this.number,
         role: this.role,
       },
-      'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=',
-      { expiresIn: '7d' }
+      'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=', // Use process.env.JWT_SECRET in production
+      { expiresIn: options.expiresIn || '7d' } // Default to 7 days if not provided
     );
   },
   comparePassword: async function (simpleTextPassword) {
