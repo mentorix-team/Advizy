@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { User, Star, Heart } from "lucide-react";
+import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 const ExpertCard = ({
@@ -51,7 +51,7 @@ const ExpertCard = ({
     <div className="w-full md:w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440]">
       <div className="flex flex-col h-full min-h-[300px]">
         {/* Content Section */}
-        <div className="flex-1 flex flex-col gap-[12px]">
+        <div className="flex-1 flex flex-col gap-[10px]">
           {/* Top Section */}
           <div className="flex items-start gap-4 relative">
             <div className="py-2.5">
@@ -64,9 +64,12 @@ const ExpertCard = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <h2 className="text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[29.8px] truncate">
-                    {name}
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[29.8px] truncate">
+                      {name}
+                    </h2>
+                    <BadgeCheck className="w-5 h-5 text-[#169544] flex-shrink-0" />
+                  </div>
                   <p className="text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[23.2px]">
                     {title}
                   </p>
@@ -124,7 +127,7 @@ const ExpertCard = ({
 
           {/* Expertise Tags */}
           <div className="w-full">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <span className="font-['Figtree',Helvetica] text-[15px] text-[#1d1f1d]">
                   Expertise:
@@ -155,7 +158,7 @@ const ExpertCard = ({
         </div>
 
         {/* Bottom Section - Always at the bottom */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-3 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col">
               <span className="font-['Figtree',Helvetica] font-medium text-[14.5px] text-[#1d1f1d] leading-[21.7px]">
