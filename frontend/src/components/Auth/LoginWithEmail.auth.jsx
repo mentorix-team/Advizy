@@ -99,6 +99,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     return !Object.values(newErrors).some((error) => error);
   };
 
+  
   async function login(event) {
     event.preventDefault();
 
