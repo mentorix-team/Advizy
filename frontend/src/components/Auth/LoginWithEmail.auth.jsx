@@ -107,11 +107,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     }
 
     const response = await dispatch(loginaccount(logindata));
-    if (response?.payload?.success) {
-      navigate('/');
-    } else {
-      navigate("/signup");
-    }
+    // if (response?.payload?.success) {
+      // navigate('/');
+    // } else {
+      // navigate("/signup");
+    // }
 
     setlogindata({
       email: "",
