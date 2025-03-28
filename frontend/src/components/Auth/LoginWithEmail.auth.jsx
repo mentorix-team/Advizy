@@ -99,6 +99,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     return !Object.values(newErrors).some((error) => error);
   };
 
+  
   async function login(event) {
     event.preventDefault();
 
@@ -107,11 +108,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     }
 
     const response = await dispatch(loginaccount(logindata));
-    if (response?.payload?.success) {
-      navigate('/');
-    } else {
-      navigate("/signup");
-    }
+    // if (response?.payload?.success) {
+      // navigate('/');
+    // } else {
+      // navigate("/signup");
+    // }
 
     setlogindata({
       email: "",
