@@ -156,7 +156,7 @@ const ExpertCard = ({
         </div>
 
         {/* Bottom Section - Always at the bottom */}
-        <div className="mt-4 pt-3 border-t border-gray-100">
+        <div className="mt-4 pt-1 border-t border-gray-100">
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col">
               <span className="font-['Figtree',Helvetica] font-medium text-[14.5px] text-[#1d1f1d] leading-[21.7px]">
