@@ -57,6 +57,7 @@ const Navbar = ({ onSearch }) => {
   const handleLogout = () => {
     dispatch(logout());
     setIsDropdownOpen(false);
+    navigate('/');
   };
 
   const handleToggleExpertMode = () => {

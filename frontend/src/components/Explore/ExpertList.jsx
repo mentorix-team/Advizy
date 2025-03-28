@@ -93,7 +93,7 @@ const ExpertList = ({ filters, sorting }) => {
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
@@ -105,13 +105,13 @@ const ExpertList = ({ filters, sorting }) => {
         )}
 
         {error && (
-          <div className="col-span-1 lg:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
+          <div className="col-span-1 2xl:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
             <p className="text-base sm:text-lg text-red-500 mt-2">Error: {error}</p>
           </div>
         )}
 
         {!loading && !error && paginatedExperts.length === 0 && (
-          <div className="col-span-1 lg:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
+          <div className="col-span-1 2xl:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
             <SearchX className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
             <p className="text-base sm:text-lg text-gray-600 mt-2">No experts found</p>
           </div>

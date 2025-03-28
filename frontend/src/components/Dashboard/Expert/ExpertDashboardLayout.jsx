@@ -119,11 +119,17 @@ const ExpertDashboardLayout = () => {
     setAuthPopupOpen(false);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    setIsDropdownOpen(false);
-    setIsMobileMenuOpen(false);
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const response = await dispatch(logout()).unwrap();
+      if (response?.success) {
+        setIsDropdownOpen(false);
+        setIsMobileMenuOpen(false);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const handleToggleExpertMode = () => {
