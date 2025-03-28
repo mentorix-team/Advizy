@@ -127,7 +127,7 @@ const ExpertCard = ({
 
           {/* Expertise Tags */}
           <div className="w-full">
-            <div className="flex flex-col gap-1 sm:gap-1.5">
+            <div className="flex flex-col">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-['Figtree',Helvetica] text-[13px] sm:text-[14px] md:text-[15px] text-[#1d1f1d]">
                   Expertise:
@@ -158,7 +158,7 @@ const ExpertCard = ({
         </div>
 
         {/* Bottom Section - Always at the bottom */}
-        <div className="mt-2 sm:mt-3 pt-3 sm:pt-4 border-t border-gray-100">
+        <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between w-full flex-wrap gap-2">
             <div className="flex flex-col">
               <span className="font-['Figtree',Helvetica] font-medium text-[12px] sm:text-[13px] md:text-[14.5px] text-[#1d1f1d] leading-tight sm:leading-[21.7px]">
