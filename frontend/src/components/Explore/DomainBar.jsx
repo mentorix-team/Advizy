@@ -19,7 +19,7 @@ const DomainBar = ({
   };
 
   return (
-    <div className="bg-white p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[60px] z-40 overflow-x-auto">
+    <div className="bg-white p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
       {/* Mobile Filter Button */}
       <button
         onClick={toggleSidebar}
