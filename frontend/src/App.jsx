@@ -45,7 +45,7 @@ const App = () => {
 
   useEffect(() => {
     const excludedPaths = [
-      "/", "/home", "/auth-error", "/about-us", "/contact", "/cookie-policy",
+      "/", "/auth-error", "/about-us", "/contact", "/cookie-policy",
       "/privacy-policy", "/refund-policy", "/terms-of-service", "/explore", "/meeting",
       "/expert/:redirect_url", "/expert/scheduling/:serviceId"
     ];

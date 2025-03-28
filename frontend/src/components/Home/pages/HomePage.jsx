@@ -148,7 +148,7 @@ function HomePage() {
 
   useEffect(() => {
     if (!loading && isLoggedIn) {
-      navigate("/home"); // Redirect after login completes
+      navigate("/"); // Redirect after login completes
     }
   }, [loading, isLoggedIn, navigate]); 
   // useEffect to fetch Career Mentors
