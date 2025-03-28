@@ -2,8 +2,8 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
 import { useDispatch } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
-import Spinner from "@/LoadingSkeleton/Spinner"; // Loading indicator
 import Cookies from "js-cookie";
+import Spinner from "./components/LoadingSkeleton/Spinner";
 import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
 
 // Regular Imports (Frequently Used Components)
