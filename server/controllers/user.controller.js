@@ -1160,7 +1160,7 @@ const refresh_token = async (req, res, next) => {
         const { refreshToken, expertRefreshToken } = req.cookies;
 
         if (!refreshToken) {
-            return res.status(401).json({ message: "Unauthorized" });
+            return next(new AppError('unauthorised',403))
         }
 
         // Verify User Refresh Token
@@ -1208,10 +1208,9 @@ const refresh_token = async (req, res, next) => {
 
     } catch (error) {
         console.error(error);
-        return res.status(403).json({ message: "Invalid refresh token" });
+        return next(new AppError(error,505))
     }
 };
-
 
 export {
     refresh_token,

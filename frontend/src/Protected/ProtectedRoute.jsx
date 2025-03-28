@@ -18,9 +18,9 @@ const ProtectedRoute = ({ requireExpert = false, showAuth }) => {
     return null;
   }
 
-  if (requireExpert && !expertData) {
-    return <Navigate to="/not-authorized" replace />;
-  }
+  // if (requireExpert && !expertData) {
+  //   return <Navigate to="/not-authorized" replace />;
+  // }
 
   return <Outlet />;
 };

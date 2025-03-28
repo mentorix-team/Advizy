@@ -47,7 +47,7 @@ const App = () => {
     const excludedPaths = [
       "/", "/auth-error", "/about-us", "/contact", "/cookie-policy",
       "/privacy-policy", "/refund-policy", "/terms-of-service", "/explore", "/meeting",
-      "/expert/:redirect_url", "/expert/scheduling/:serviceId"
+      "/expert/:redirect_url", "/expert/scheduling/:serviceId","become-expert"
     ];
 
     if (!excludedPaths.includes(location.pathname)) {
