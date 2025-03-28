@@ -68,7 +68,7 @@ const ExpertCard = ({
                     <h2 className="text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[29.8px] truncate">
                       {name}
                     </h2>
-                    <BadgeCheck className="w-5 h-5 text-[#169544] flex-shrink-0" />
+                    <BadgeCheck className="w-5 h-5 text-[#0000FF] flex-shrink-0" />
                   </div>
                   <p className="text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[23.2px]">
                     {title}
@@ -127,8 +127,8 @@ const ExpertCard = ({
 
           {/* Expertise Tags */}
           <div className="w-full">
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col ">
+              <div className="flex items-center ">
                 <span className="font-['Figtree',Helvetica] text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
