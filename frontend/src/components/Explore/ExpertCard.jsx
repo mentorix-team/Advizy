@@ -48,13 +48,13 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-full md:w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440]">
+    <div className="w-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
       <div className="flex flex-col h-full min-h-[300px]">
         {/* Content Section */}
-        <div className="flex-1 flex flex-col gap-[10px]">
+        <div className="flex-1 flex flex-col gap-3">
           {/* Top Section */}
           <div className="flex items-start gap-4 relative">
-            <div className="py-2.5">
+            <div className="py-2">
               <img
                 src={image}
                 alt={name}
@@ -63,18 +63,18 @@ const ExpertCard = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[29.8px] truncate">
                       {name}
                     </h2>
                     <BadgeCheck className="w-5 h-5 text-[#0000FF] flex-shrink-0" />
                   </div>
-                  <p className="text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[23.2px]">
+                  <p className="text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[23.2px] mb-2">
                     {title}
                   </p>
 
-                  <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-3 mb-2">
                     <div className="flex items-center gap-1">
                       <Star className="w-[18px] h-[18px] text-yellow-400 fill-yellow-400" />
                       <span className="font-['Figtree',Helvetica] font-medium text-[14.5px] text-[#1d1f1d] leading-[21.7px]">
@@ -87,10 +87,9 @@ const ExpertCard = ({
                         {totalRatings} Sessions done
                       </span>
                     </div>
-                    
                   </div>
 
-                  <div className="flex flex-col gap-1 mt-1">
+                  <div className="flex flex-col gap-1">
                     <p className="font-['Figtree',Helvetica] text-[15.5px] leading-[23.2px]">
                       <span className="text-[#1d1d1d]">Experience: </span>
                       <span className="font-medium text-[#1d1d1d]">
@@ -128,23 +127,21 @@ const ExpertCard = ({
 
           {/* Expertise Tags */}
           <div className="w-full">
-            <div className="flex flex-col ">
-              <div className="flex items-center ">
+            <div className="flex flex-col">
+              <div className="flex flex-wrap gap-2 items-center">
                 <span className="font-['Figtree',Helvetica] text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
-                <div className="flex flex-wrap gap-2">
-                  {expertise.slice(0, 2).map((skill, index) => (
-                    <span
-                      key={`${skill}-${index}`}
-                      className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[15px] rounded-[8.03px] px-[11px] py-[1px]"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                {expertise.slice(0, 2).map((skill, index) => (
+                  <span
+                    key={`${skill}-${index}`}
+                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[15px] rounded-[8.03px] px-[11px] py-[1px]"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {expertise.slice(2).map((skill, index) => (
                   <span
                     key={`${skill}-${index}`}
@@ -159,7 +156,7 @@ const ExpertCard = ({
         </div>
 
         {/* Bottom Section - Always at the bottom */}
-        <div className="mt-3 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-3 border-t border-gray-100">
           <div className="flex items-center justify-between w-full">
             <div className="flex flex-col">
               <span className="font-['Figtree',Helvetica] font-medium text-[14.5px] text-[#1d1f1d] leading-[21.7px]">
