@@ -154,6 +154,7 @@ const ExpertCard = ({
             </div>
           </div>
         </div>
+        
 
         {/* Bottom Section - Always at the bottom */}
         <div className="mt-3 sm:mt-4 pt-3 border-t border-gray-100">
