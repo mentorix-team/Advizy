@@ -154,12 +154,11 @@ const ExpertCard = ({
             </div>
           </div>
         </div>
-        
 
         {/* Bottom Section - Always at the bottom */}
         <div className="mt-3 sm:mt-4 pt-3 border-t border-gray-100">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-3 sm:gap-0">
-            <div className="flex flex-col">
+          <div className="flex flex-row items-center justify-between w-full gap-3">
+            <div className="flex flex-col flex-shrink-0">
               <span className="font-['Figtree',Helvetica] font-medium text-[13px] sm:text-[14.5px] text-[#1d1f1d] leading-[1.4] sm:leading-[21.7px]">
                 Next Available Slot:
               </span>
@@ -172,7 +171,7 @@ const ExpertCard = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(`/expert/${redirect_url}`)}
-                className="h-[32px] sm:h-[35px] rounded-[11.04px] px-3 sm:px-4 bg-white border border-gray-200 shadow-[0px_2.45px_6.13px_2.15px_#0000001a] font-medium text-[13px] sm:text-[14.5px] text-[#000000cc] hover:bg-gray-50"
+                className="h-[32px] sm:h-[35px] rounded-[11.04px] px-3 sm:px-4 bg-white border border-gray-200 shadow-[0px_2.45px_6.13px_2.15px_#0000001a] font-medium text-[13px] sm:text-[14.5px] text-[#000000cc] hover:bg-gray-50 whitespace-nowrap"
               >
                 View Profile
               </button>
@@ -180,7 +179,7 @@ const ExpertCard = ({
                 onClick={() => {
                   navigate(`/expert/${redirect_url}?scrollTo=services-offered`);
                 }}
-                className="h-[32px] sm:h-[34px] rounded-[11.04px] px-3 sm:px-4 bg-[#edfbf1] text-[#169544] font-semibold text-[13px] sm:text-[14.5px] shadow-[0px_2.45px_6.13px_2.15px_#0000001a] hover:bg-[#ddf9e5]"
+                className="h-[32px] sm:h-[34px] rounded-[11.04px] px-3 sm:px-4 bg-[#edfbf1] text-[#169544] font-semibold text-[13px] sm:text-[14.5px] shadow-[0px_2.45px_6.13px_2.15px_#0000001a] hover:bg-[#ddf9e5] whitespace-nowrap"
               >
                 BOOK
               </button>
