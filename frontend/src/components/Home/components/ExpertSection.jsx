@@ -7,7 +7,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const cardsPerView = {
     mobile: 1,
-    desktop: 3
+    desktop: 4 // Changed from 3 to 4
   };
 
   const getCardsPerView = () => {
@@ -79,7 +79,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="mb-12 relative"
+      className="mb-12 relative px-4 sm:px-6 lg:px-8" // Added padding for better spacing
     >
       <motion.div 
         variants={headerVariants}
