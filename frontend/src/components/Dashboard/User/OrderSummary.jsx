@@ -225,30 +225,34 @@ const OrderSummary = () => {
   const priceforsession = selectedService?.price || Price;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <div className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Navbar
-            onSearch={() => setIsModalOpen(true)}
-            isExpertMode={isExpertMode}
-            onToggleExpertMode={handleToggle}
-          />
-        </div>
-        <AnimatePresence>
-          {showCategoryNav && (
-            <div className="border-t">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <CategoryNav categories={categories} />
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Navbar */}
+      <div className="sticky top-0 z-50 bg-white border-b">
+        <div className="max-w-7xl mx-auto">
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
+            <Navbar
+              onSearch={() => setIsModalOpen(true)}
+              isExpertMode={isExpertMode}
+              onToggleExpertMode={handleToggle}
+            />
+          </div>
+          <AnimatePresence>
+            {showCategoryNav && (
+              <div className="border-t">
+                <div className="px-4 sm:px-6 lg:px-8">
+                  <CategoryNav categories={categories} />
+                </div>
               </div>
-            </div>
-          )}
-        </AnimatePresence>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      <main className="flex-grow py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      {/* Main Content */}
+      <main className="flex-grow bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row lg:items-start lg:gap-6">
-            {/* Expert Profile - Hidden on mobile initially */}
+            {/* Expert Profile - Desktop */}
             <div className="hidden lg:block lg:w-full lg:max-w-md">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <ExpertProfileInSchedule expert={expert} />
@@ -324,7 +328,7 @@ const OrderSummary = () => {
               </button>
             </div>
 
-            {/* Expert Profile - Mobile view at bottom */}
+            {/* Expert Profile - Mobile */}
             <div className="lg:hidden mt-6">
               <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
                 <ExpertProfileInSchedule expert={expert} />
@@ -334,8 +338,9 @@ const OrderSummary = () => {
         </div>
       </main>
 
-      <footer className="bg-white border-t mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Footer */}
+      <footer className="bg-[#1C2632] text-white mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <Footer />
         </div>
       </footer>
