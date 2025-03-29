@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircleIcon, User } from "lucide-react";
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "../../components/ui/avatar";
-import { Card, CardContent } from "../../components/ui/card";
+import { CheckCircle, Star, User } from 'lucide-react';
 
-export const ExpertCard = ({ expert }) => {
+const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -109,66 +103,110 @@ export const ExpertCard = ({ expert }) => {
     );
   };
 
+  const averageRating = expert.reviews?.length > 0
+    ? (expert.reviews.reduce((acc, review) => acc + review.rating, 0) / expert.reviews.length).toFixed(1)
+    : "0.0";
+
   return (
-    <div className="bg-white flex flex-row justify-center w-full">
-      <div className="bg-white w-[884px]">
-        <Card className="relative w-[289px] mx-auto mt-[41px] bg-neutral-50 border border-solid border-[#00000040]">
-          <CardContent className="p-5">
-            <div className="flex flex-col items-center">
-              <div className="py-2.5">
-                <Avatar className="w-[120px] h-[120px]">
-                  <AvatarImage src={expert?.profileImage?.secure_url || "/ellipse-10.png"} alt={`${expert.firstName} ${expert.lastName}`} />
-                  <AvatarFallback>{`${expert.firstName?.[0]}${expert.lastName?.[0]}`}</AvatarFallback>
-                </Avatar>
-              </div>
-
-              <div className="flex items-center gap-[1.22px] mt-6">
-                <span className="text-yellow-400">★</span>
-                <span className="font-medium text-black text-[13.4px] leading-[20.1px] font-['Figtree',Helvetica]">
-                  {expert.reviews?.length > 0
-                    ? (expert.reviews.reduce((acc, review) => acc + review.rating, 0) / expert.reviews.length).toFixed(1)
-                    : "0.0"}/5
-                </span>
-                
-                <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree',Helvetica]">
-                  ({expert.reviews?.length || 0})
-                </span>
-              </div>
-
-              <div className="flex flex-col items-center w-full mt-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-['Figtree',Helvetica] font-semibold text-[#1d1f1d] text-xl leading-7">
-                    {`${expert.firstName} ${expert.lastName}`}
-                  </h3>
-                  <CheckCircleIcon className="w-5 h-5 text-blue-500" />
-                </div>
-                <p className="opacity-80 font-['Figtree',Helvetica] font-normal text-black text-base text-center leading-6">
-                  {expert.credentials?.domain}
-                </p>
-              </div>
-
-              <div className="flex w-full items-center justify-between mt-6">
-                <div className="flex flex-col">
-                  <span className="font-['Figtree',Helvetica] font-medium text-[#1d1f1d] text-xs leading-[18px]">
-                    Next Available Slot:
-                  </span>
-                  <span className="font-['Figtree',Helvetica] font-normal text-[#1f409b] text-xs leading-[18px]">
-                    {firstAvailableDay ? `${firstAvailableDay.day}, ${firstAvailableTime}` : "No slots available"}
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => navigate(`/expert/${expert.redirect_url}`)}
-                  className="h-[27px] bg-neutral-50 rounded-[9px] border-[#00000040] shadow-[0px_2px_5px_1.75px_#0000001a] font-['Figtree',Helvetica] font-medium text-[#1d1d1fcc] text-[15px] px-4"
-                >
-                  View Profile
-                </button>
-              </div>
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ 
+        opacity: isVisible ? 1 : 0.3,
+        y: 0
+      }}
+      transition={{ duration: 0.5 }}
+      className="bg-white flex flex-row justify-center w-full"
+    >
+      <div className="w-[289px] mx-auto mt-[41px] bg-neutral-50 rounded-lg shadow-md border border-solid border-[#00000040] p-5">
+        <div className="flex flex-col items-center">
+          <div className="py-2.5">
+            <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
+              <img
+                src={expert?.profileImage?.secure_url || "https://via.placeholder.com/100"}
+                alt={`${expert.firstName} ${expert.lastName}`}
+                className="w-full h-full object-cover"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="flex items-center gap-[1.22px] mt-6">
+            <Star className="w-[14.64px] h-[14.64px] text-yellow-400 fill-yellow-400" />
+            <span className="font-medium text-black text-[13.4px] leading-[20.1px] font-['Figtree']">
+              {averageRating}
+            </span>
+            <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree']">
+              ({expert.reviews?.length || 0})
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center w-full mt-2">
+            <div className="flex items-center gap-2">
+              <h3 className="font-['Figtree'] font-semibold text-[#1d1f1d] text-xl leading-7">
+                {`${expert.firstName} ${expert.lastName}`}
+              </h3>
+              <CheckCircle className="w-5 h-5 text-blue-500" />
+            </div>
+            <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
+              {expert.credentials?.domain || "Expert"}
+            </p>
+          </div>
+
+          <div className="flex w-full items-center justify-between mt-6">
+            <div className="flex flex-col">
+              <span className="font-['Figtree'] font-medium text-[#1d1f1d] text-xs leading-[18px]">
+                Next Available Slot:
+              </span>
+              <span className="font-['Figtree'] font-normal text-[#1f409b] text-xs leading-[18px]">
+                {firstAvailableDay ? `${firstAvailableDay.day}, ${firstAvailableTime}` : "No slots available"}
+              </span>
+            </div>
+
+            <button
+              onClick={() => navigate(`/expert/${expert.redirect_url}`)}
+              className="h-[27px] bg-neutral-50 rounded-[9px] border border-[#00000040] shadow-[0px_2px_5px_1.75px_#0000001a] px-3 font-['Figtree'] font-medium text-[#1d1d1fcc] text-[15px] hover:bg-gray-50"
+            >
+              View Profile
+            </button>
+          </div>
+
+          <div className="mt-4 w-full">
+            <div className="flex flex-wrap gap-2">
+              {expert.credentials?.skills?.slice(0, 3).map((skill, index) => (
+                <span
+                  key={index}
+                  className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700"
+                >
+                  {skill}
+                </span>
+              ))}
+              {expert.credentials?.skills?.length > 3 && (
+                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
+                  +{expert.credentials.skills.length - 3} more
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 w-full">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4" />
+              <span className="text-sm">
+                {expert.sessions?.length} Session{expert.sessions?.length !== 1 ? 's' : ''} done
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-sm">Experience:</span>
+              <span className="text-sm font-medium">{totalExperience}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-sm">Starting at:</span>
+              <span className="text-sm font-medium">Rs. {startingPrice} for {duration}mins</span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
