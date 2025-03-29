@@ -106,8 +106,8 @@ const BookingConfirmation = () => {
       </div>
 
       {/* Manage Booking Section */}
-      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-4 w-96 flex justify-between items-center">
-        <span className="font-medium text-gray-800  py-8">Manage booking</span>
+      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-8 w-96 flex justify-between items-center">
+        <span className="font-medium text-gray-800  ">Manage booking</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-6 w-6"
@@ -122,15 +122,13 @@ const BookingConfirmation = () => {
             d="M9 5l7 7-7 7"
           />
         </svg>
+        
+        <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
 
-      <footer className=" border-t mt-auto">
-        
-          <Footer />
-        
-      </footer>
       
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        
     </div>
   );
 };
