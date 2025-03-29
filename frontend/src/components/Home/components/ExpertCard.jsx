@@ -116,7 +116,7 @@ const ExpertCard = ({ expert }) => {
         y: 0
       }}
       transition={{ duration: 0.5 }}
-      className="bg-white flex flex-row justify-center w-full"
+      className="flex flex-row justify-center w-full"
     >
       <div className="w-[289px] mx-auto mt-[41px] bg-neutral-50 rounded-lg shadow-md border border-solid border-[#00000040] p-5">
         <div className="flex flex-col items-center">
@@ -169,9 +169,6 @@ const ExpertCard = ({ expert }) => {
               View Profile
             </button>
           </div>
-
-         
-          
         </div>
       </div>
     </motion.div>
