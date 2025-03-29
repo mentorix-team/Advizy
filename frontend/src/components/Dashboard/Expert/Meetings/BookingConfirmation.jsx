@@ -27,12 +27,13 @@ const BookingConfirmation = () => {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen">
-
-<Navbar
-          onSearch={() => setIsModalOpen(true)}
-          isExpertMode={isExpertMode}
-          onToggleExpertMode={handleToggle}
-        />
+ <div className="max-w-7xl mx-auto px-4  py-8 sm:px-6 lg:px-8">
+          <Navbar
+            onSearch={() => setIsModalOpen(true)}
+            isExpertMode={isExpertMode}
+            onToggleExpertMode={handleToggle}
+          />
+        </div>
         <AnimatePresence>
           {showCategoryNav && <CategoryNav categories={categories} />}
         </AnimatePresence>
@@ -123,7 +124,12 @@ const BookingConfirmation = () => {
         </svg>
       </div>
 
-      <Footer />
+      <footer className=" border-t mt-auto">
+        
+          <Footer />
+        
+      </footer>
+      
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
