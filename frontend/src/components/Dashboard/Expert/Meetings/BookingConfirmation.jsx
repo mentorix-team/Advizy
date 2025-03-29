@@ -106,7 +106,7 @@ const BookingConfirmation = () => {
       </div>
 
       {/* Manage Booking Section */}
-      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-8 w-96 flex justify-between items-center">
+      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-4 py-8 w-96 flex justify-between items-center">
         <span className="font-medium text-gray-800  ">Manage booking</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
