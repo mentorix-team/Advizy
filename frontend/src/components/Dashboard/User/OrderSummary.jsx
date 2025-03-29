@@ -220,71 +220,90 @@ const OrderSummary = () => {
   const priceforsession = selectedService?.price || Price
 
   return (
-    <div className="min-h-screen flex items-start justify-center gap-6 bg-gray-50 p-6">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <ExpertProfileInSchedule expert={expert} />
-      </div>
-
-      <div className="w-full max-w-md">
-        <div className="bg-[#EDFDF5] rounded-lg shadow-md px-6 py-3 mb-6">
-          <div className="flex items-center">
-            <div className="bg-white px-3 py-0 flex flex-col items-center justify-center border-2 shadow-sm rounded-md mr-4">
-              <p className="text-sm font-bold">{month}</p>
-              <p className="text-lg font-extrabold">{date}</p>
-            </div>
-            <div className="flex-grow">
-              <p className="text-gray-900 font-bold">
-                {trimDay}, {date || "No date selected"} {month || "No month selected"}
-              </p>
-              <p className="text-gray-700 font-medium">
-                {`${selectedMeeting?.daySpecific?.slot?.startTime} - ${selectedMeeting?.daySpecific?.slot?.endTime} (GMT+5:30)` || "No time selected"}
-              </p>
-
-            </div>
-            <button
-              onClick={handlePrevious}
-              className="ml-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Change
-            </button>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-start lg:gap-6">
+        {/* Expert Profile - Hidden on mobile initially, shown at bottom */}
+        <div className="hidden lg:block lg:w-full lg:max-w-md">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <ExpertProfileInSchedule expert={expert} />
           </div>
         </div>
 
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h1 className="text-lg font-semibold mb-4">Order Summary</h1>
-          <div className="flex justify-between mb-4">
-            <p className="text-gray-700">{selectedService.title}</p>
-            <span>{priceforsession || "0"}</span>
-          </div>
-          <div className="flex justify-between mb-4">
-            <span className="text-gray-500">Platform fee</span>
-            <span className="text-green-600 font-semibold">FREE</span>
-          </div>
-          <hr className="mb-4" />
-          <div className="flex justify-between mb-4">
-            <span className="font-semibold">Total</span>
-            <span className="font-bold">₹{priceforsession || "0"}</span>
+        {/* Order Summary Section */}
+        <div className="w-full lg:max-w-md space-y-6">
+          {/* Date and Time Card */}
+          <div className="bg-[#EDFDF5] rounded-lg shadow-md px-4 py-3 md:px-6">
+            <div className="flex items-center flex-wrap sm:flex-nowrap gap-4">
+              <div className="bg-white px-3 py-1 flex flex-col items-center justify-center border-2 shadow-sm rounded-md">
+                <p className="text-sm font-bold">{month}</p>
+                <p className="text-lg font-extrabold">{date}</p>
+              </div>
+              <div className="flex-grow min-w-[200px]">
+                <p className="text-gray-900 font-bold">
+                  {trimDay}, {date || "No date selected"} {month || "No month selected"}
+                </p>
+                <p className="text-gray-700 font-medium text-sm">
+                  {`${selectedMeeting?.daySpecific?.slot?.startTime} - ${selectedMeeting?.daySpecific?.slot?.endTime} (GMT+5:30)` || "No time selected"}
+                </p>
+              </div>
+              <button
+                onClick={handlePrevious}
+                className="ml-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+              >
+                Change
+              </button>
+            </div>
           </div>
 
-          <p className="text-green-600 font-semibold mb-2">
-            Add message to Expert (optional)
-          </p>
-          <textarea
-            className="w-full border rounded-md p-2 text-gray-600"
-            placeholder="Share what you’d like to discuss in the session..."
-            rows="3"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          ></textarea>
+          {/* Payment Summary Card */}
+          <div className="bg-white shadow-md rounded-lg p-4 md:p-6">
+            <h1 className="text-lg font-semibold mb-4">Order Summary</h1>
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <p className="text-gray-700">{selectedService.title}</p>
+                <span>₹{priceforsession || "0"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Platform fee</span>
+                <span className="text-green-600 font-semibold">FREE</span>
+              </div>
+              <hr />
+              <div className="flex justify-between">
+                <span className="font-semibold">Total</span>
+                <span className="font-bold">₹{priceforsession || "0"}</span>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-green-600 font-semibold">
+                  Add message to Expert (optional)
+                </p>
+                <textarea
+                  className="w-full border rounded-md p-2 text-gray-600 resize-none"
+                  placeholder="Share what you'd like to discuss in the session..."
+                  rows="3"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Button */}
+          <button 
+            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            onClick={handleConfirmPayment}
+            disabled={paymentLoading}
+          >
+            {paymentLoading ? "Processing..." : `Confirm and Pay ₹${priceforsession || "0"}`}
+          </button>
         </div>
 
-        <button 
-          className="mt-6 w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700"
-          onClick={handleConfirmPayment}
-          disabled={paymentLoading}
-        >
-          {paymentLoading ? "Processing..." : `Confirm and Pay ₹${priceforsession || "0"}`}
-        </button>
+        {/* Expert Profile - Shown only on mobile at bottom */}
+        <div className="lg:hidden mt-6">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
+            <ExpertProfileInSchedule expert={expert} />
+          </div>
+        </div>
       </div>
     </div>
   );
