@@ -170,40 +170,8 @@ const ExpertCard = ({ expert }) => {
             </button>
           </div>
 
-          <div className="mt-4 w-full">
-            <div className="flex flex-wrap gap-2">
-              {expert.credentials?.skills?.slice(0, 3).map((skill, index) => (
-                <span
-                  key={index}
-                  className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700"
-                >
-                  {skill}
-                </span>
-              ))}
-              {expert.credentials?.skills?.length > 3 && (
-                <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-700">
-                  +{expert.credentials.skills.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-4 w-full">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              <span className="text-sm">
-                {expert.sessions?.length} Session{expert.sessions?.length !== 1 ? 's' : ''} done
-              </span>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm">Experience:</span>
-              <span className="text-sm font-medium">{totalExperience}</span>
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-sm">Starting at:</span>
-              <span className="text-sm font-medium">Rs. {startingPrice} for {duration}mins</span>
-            </div>
-          </div>
+         
+          
         </div>
       </div>
     </motion.div>
