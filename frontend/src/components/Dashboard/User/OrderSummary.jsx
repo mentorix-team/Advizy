@@ -227,7 +227,7 @@ const OrderSummary = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4  py-8 sm:px-6 lg:px-8">
           <Navbar
             onSearch={() => setIsModalOpen(true)}
             isExpertMode={isExpertMode}
@@ -335,9 +335,9 @@ const OrderSummary = () => {
       </main>
 
       <footer className=" border-t mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
           <Footer />
-        </div>
+        
       </footer>
 
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
