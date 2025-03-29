@@ -9,6 +9,7 @@ import Spinner from "@/components/LoadingSkeleton/Spinner";
 import CategoryNav from "@/components/Home/components/CategoryNav";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
+import { AnimatePresence } from "framer-motion";
 
 const OrderSummary = () => {
   const navigate = useNavigate();
