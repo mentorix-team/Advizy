@@ -27,7 +27,7 @@ const BookingConfirmation = () => {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen">
- <div className="max-w-7xl mx-auto px-4  py-8 sm:px-6 lg:px-8">
+ <div className="max-w-7xl mx-auto px-4  py-12 sm:px-6 lg:px-8">
           <Navbar
             onSearch={() => setIsModalOpen(true)}
             isExpertMode={isExpertMode}
@@ -107,7 +107,7 @@ const BookingConfirmation = () => {
 
       {/* Manage Booking Section */}
       <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-4 w-96 flex justify-between items-center">
-        <span className="font-medium text-gray-800">Manage booking</span>
+        <span className="font-medium text-gray-800  py-8">Manage booking</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="h-6 w-6"
