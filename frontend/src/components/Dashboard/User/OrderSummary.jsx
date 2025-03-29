@@ -6,11 +6,17 @@ import { createVideoCall, getMeet, payed } from "@/Redux/Slices/meetingSlice";
 import { getServicebyid } from "@/Redux/Slices/expert.Slice";
 import { createpaymentOrder, verifypaymentOrder } from "@/Redux/Slices/paymentSlice";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
+import CategoryNav from "@/components/Home/components/CategoryNav";
+import Navbar from "@/components/Home/components/Navbar";
+import Footer from "@/components/Home/components/Footer";
 
 const OrderSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showCategoryNav, setShowCategoryNav] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
 
   const { selectedMeeting, loading, error } = useSelector((state) => state.meeting);
   const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
@@ -21,6 +27,10 @@ const OrderSummary = () => {
   useEffect(() => {
     dispatch(getMeet());
   }, [dispatch]);
+
+  const handleToggle = () => {
+    setIsExpertMode(!isExpertMode);
+  };
 
   useEffect(() => {
     if (selectedMeeting?.serviceId && selectedMeeting?.expertId) {
@@ -214,6 +224,16 @@ const OrderSummary = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+       <Navbar
+          onSearch={() => setIsModalOpen(true)}
+          isExpertMode={isExpertMode}
+          onToggleExpertMode={handleToggle}
+        />
+        <AnimatePresence>
+          {showCategoryNav && <CategoryNav categories={categories} />}
+        </AnimatePresence>
+
+
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-start lg:gap-6">
         {/* Expert Profile - Hidden on mobile initially */}
         <div className="hidden lg:block lg:w-full lg:max-w-md">
@@ -298,6 +318,8 @@ const OrderSummary = () => {
           </div>
         </div>
       </div>
+      <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
