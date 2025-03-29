@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { CalendarIcon } from "@/icons/Icons";
 import ConfettiExplosion from "react-confetti-explosion";
+import CategoryNav from "@/components/Home/components/CategoryNav";
+import Navbar from "@/components/Home/components/Navbar";
+import Footer from "@/components/Home/components/Footer";
+import { AnimatePresence } from "framer-motion";
+import SearchModal from "@/components/Home/components/SearchModal";
 
 const BookingConfirmation = () => {
   const [showConfetti, setShowConfetti] = useState(false);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showCategoryNav, setShowCategoryNav] = useState(false);
+    const [isExpertMode, setIsExpertMode] = useState(false);
 
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
@@ -13,8 +21,23 @@ const BookingConfirmation = () => {
     }
   }, []);
 
+  const handleToggle = () => {
+    setIsExpertMode(!isExpertMode);
+  };
+
   return (
     <div className="flex flex-col justify-center items-center min-h-screen">
+
+<Navbar
+          onSearch={() => setIsModalOpen(true)}
+          isExpertMode={isExpertMode}
+          onToggleExpertMode={handleToggle}
+        />
+        <AnimatePresence>
+          {showCategoryNav && <CategoryNav categories={categories} />}
+        </AnimatePresence>
+
+
       {/* Confetti Explosion */}
       {showConfetti && (
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center z-50">
@@ -99,6 +122,9 @@ const BookingConfirmation = () => {
           />
         </svg>
       </div>
+
+      <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
