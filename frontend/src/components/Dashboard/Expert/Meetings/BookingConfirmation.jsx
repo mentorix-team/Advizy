@@ -40,7 +40,7 @@ const BookingConfirmation = () => {
 
       {/* Confetti Explosion */}
       {showConfetti && (
-        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center z-50">
+        <div className="absolute top-0 left-0 w-full h-full flex py-8 justify-center items-center z-50">
           <ConfettiExplosion
             force={0.6}
             duration={3000}
