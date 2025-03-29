@@ -5,9 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createVideoCall, getMeet, payed } from "@/Redux/Slices/meetingSlice";
 import { getServicebyid } from "@/Redux/Slices/expert.Slice";
 import { createpaymentOrder, verifypaymentOrder } from "@/Redux/Slices/paymentSlice";
-
 import Spinner from "@/components/LoadingSkeleton/Spinner";
-
 
 const OrderSummary = () => {
   const navigate = useNavigate();
@@ -83,8 +81,6 @@ const OrderSummary = () => {
   
     return { hours, minutes }; // Return an object
   };
-  
-  
 
   const expert = {
     image: selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url || 'https://via.placeholder.com/100',
@@ -96,7 +92,7 @@ const OrderSummary = () => {
     includes: selectedService.features,
   };
 
-  const { selectedDate, startTime, endTime ,Price} = location.state || {};
+  const { selectedDate, startTime, endTime, Price } = location.state || {};
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
 
   const formatSelectedDate = (date) => {
@@ -127,7 +123,6 @@ const OrderSummary = () => {
         throw new Error("Selected date is invalid.");
       }
   
-      // Parse `selectedDate` to ensure it's valid
       const parsedDate =
         typeof selectedDate === "string" || typeof selectedDate === "number"
           ? new Date(selectedDate)
@@ -137,27 +132,26 @@ const OrderSummary = () => {
         throw new Error("Failed to parse selected date into a valid Date object.");
       }
   
-      // Convert startTime and endTime to 24-hour format
       const { hours: startHours, minutes: startMinutes } = formatTime(selectedMeeting?.daySpecific?.slot?.startTime);
       const { hours: endHours, minutes: endMinutes } = formatTime(selectedMeeting?.daySpecific?.slot?.endTime);
   
       const startDateTime = new Date(parsedDate);
-      startDateTime.setHours(startHours, startMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
+      startDateTime.setHours(startHours, startMinutes, 0, 0);
   
       const endDateTime = new Date(parsedDate);
-      endDateTime.setHours(endHours, endMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
+      endDateTime.setHours(endHours, endMinutes, 0, 0);
   
-      const dateStr = parsedDate.toISOString().split("T")[0]; // Get date in YYYY-MM-DD format
+      const dateStr = parsedDate.toISOString().split("T")[0];
       const amountInPaise = priceforsession * 100;
   
       const paymentData = {
         serviceId: selectedMeeting.serviceId,
         expertId: selectedMeeting.expertId,
-        amount: amountInPaise, // Amount in paise
+        amount: amountInPaise,
         message: message,
         date: dateStr,
-        startTime: startDateTime.toISOString(), // Full ISO datetime for start time
-        endTime: endDateTime.toISOString(), // Full ISO datetime for end time
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString(),
       };
   
       const orderResponse = await dispatch(createpaymentOrder(paymentData)).unwrap();
@@ -178,7 +172,6 @@ const OrderSummary = () => {
   
           console.log("Verification Data:", verificationData);
   
-          // Verify payment
           const paymentResponse = await dispatch(verifypaymentOrder(verificationData));
   
           console.log("This is payment response", paymentResponse);
@@ -217,12 +210,12 @@ const OrderSummary = () => {
     }
   };
 
-  const priceforsession = selectedService?.price || Price
+  const priceforsession = selectedService?.price || Price;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-start lg:gap-6">
-        {/* Expert Profile - Hidden on mobile initially, shown at bottom */}
+        {/* Expert Profile - Hidden on mobile initially */}
         <div className="hidden lg:block lg:w-full lg:max-w-md">
           <div className="bg-white rounded-lg shadow-md p-6">
             <ExpertProfileInSchedule expert={expert} />
@@ -230,25 +223,25 @@ const OrderSummary = () => {
         </div>
 
         {/* Order Summary Section */}
-        <div className="w-full lg:max-w-md space-y-6">
+        <div className="w-full lg:max-w-md space-y-4 md:space-y-6">
           {/* Date and Time Card */}
-          <div className="bg-[#EDFDF5] rounded-lg shadow-md px-4 py-3 md:px-6">
-            <div className="flex items-center flex-wrap sm:flex-nowrap gap-4">
+          <div className="bg-[#EDFDF5] rounded-lg shadow-md px-4 md:px-6 py-3">
+            <div className="flex flex-wrap md:flex-nowrap items-center gap-4">
               <div className="bg-white px-3 py-1 flex flex-col items-center justify-center border-2 shadow-sm rounded-md">
                 <p className="text-sm font-bold">{month}</p>
                 <p className="text-lg font-extrabold">{date}</p>
               </div>
-              <div className="flex-grow min-w-[200px]">
-                <p className="text-gray-900 font-bold">
+              <div className="flex-grow min-w-0">
+                <p className="text-gray-900 font-bold truncate">
                   {trimDay}, {date || "No date selected"} {month || "No month selected"}
                 </p>
-                <p className="text-gray-700 font-medium text-sm">
+                <p className="text-gray-700 font-medium text-sm truncate">
                   {`${selectedMeeting?.daySpecific?.slot?.startTime} - ${selectedMeeting?.daySpecific?.slot?.endTime} (GMT+5:30)` || "No time selected"}
                 </p>
               </div>
               <button
                 onClick={handlePrevious}
-                className="ml-auto px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm whitespace-nowrap"
               >
                 Change
               </button>
@@ -259,16 +252,16 @@ const OrderSummary = () => {
           <div className="bg-white shadow-md rounded-lg p-4 md:p-6">
             <h1 className="text-lg font-semibold mb-4">Order Summary</h1>
             <div className="space-y-4">
-              <div className="flex justify-between">
-                <p className="text-gray-700">{selectedService.title}</p>
-                <span>₹{priceforsession || "0"}</span>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-700 truncate max-w-[70%]">{selectedService.title}</p>
+                <span className="font-medium">₹{priceforsession || "0"}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-gray-500">Platform fee</span>
                 <span className="text-green-600 font-semibold">FREE</span>
               </div>
-              <hr />
-              <div className="flex justify-between">
+              <hr className="border-gray-200" />
+              <div className="flex justify-between items-center">
                 <span className="font-semibold">Total</span>
                 <span className="font-bold">₹{priceforsession || "0"}</span>
               </div>
@@ -278,7 +271,7 @@ const OrderSummary = () => {
                   Add message to Expert (optional)
                 </p>
                 <textarea
-                  className="w-full border rounded-md p-2 text-gray-600 resize-none"
+                  className="w-full border border-gray-300 rounded-md p-3 text-gray-600 resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Share what you'd like to discuss in the session..."
                   rows="3"
                   value={message}
@@ -290,7 +283,7 @@ const OrderSummary = () => {
 
           {/* Payment Button */}
           <button 
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleConfirmPayment}
             disabled={paymentLoading}
           >
@@ -298,7 +291,7 @@ const OrderSummary = () => {
           </button>
         </div>
 
-        {/* Expert Profile - Shown only on mobile at bottom */}
+        {/* Expert Profile - Mobile view at bottom */}
         <div className="lg:hidden mt-6">
           <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
             <ExpertProfileInSchedule expert={expert} />
