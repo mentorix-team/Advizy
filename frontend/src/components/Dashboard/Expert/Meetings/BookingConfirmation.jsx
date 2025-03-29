@@ -123,12 +123,12 @@ const BookingConfirmation = () => {
           />
         </svg>
         
-        <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      
       </div>
 
       
-        
+      <Footer />
+      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
