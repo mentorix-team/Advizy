@@ -129,6 +129,7 @@ export const ExpertCard = ({ expert }) => {
                     ? (expert.reviews.reduce((acc, review) => acc + review.rating, 0) / expert.reviews.length).toFixed(1)
                     : "0.0"}/5
                 </span>
+                
                 <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree',Helvetica]">
                   ({expert.reviews?.length || 0})
                 </span>
