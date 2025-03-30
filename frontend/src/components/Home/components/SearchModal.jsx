@@ -21,11 +21,16 @@ const categories = [
 ];
 
 // Memoized Category Button Component
-const CategoryButton = memo(({ category }) => {
+const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
   const navigate = useNavigate();
 
   const handleExplore = () => {
-    navigate("/explore");
+    // Update the selected category in parent component
+    onCategorySelect(category.value);
+    // Navigate to explore page with category as query parameter
+    navigate(`/explore?category=${category.value}`);
+    // Close the modal
+    onClose();
   };
   return (
     <motion.button
@@ -47,7 +52,7 @@ const CategoryButton = memo(({ category }) => {
 CategoryButton.displayName = "CategoryButton";
 
 // Rest of the code remains exactly the same as in the previous artifact...
-const SearchModal = ({ isOpen, onClose }) => {
+const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
   const searchRef = useRef(null);
   const searchClient = useRef(null);
   const searchInputRef = useRef(null);
@@ -193,11 +198,16 @@ const SearchModal = ({ isOpen, onClose }) => {
     () => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {categories.map((category) => (
-          <CategoryButton key={category.title} category={category} />
+          <CategoryButton
+            key={category.title}
+            category={category}
+            onCategorySelect={onCategorySelect}
+            onClose={onClose}
+          />
         ))}
       </div>
     ),
-    []
+    [onCategorySelect, onClose]
   );
 
   return (
