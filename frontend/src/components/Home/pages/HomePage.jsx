@@ -103,9 +103,9 @@ function HomePage() {
     setIsExpertMode(!isExpertMode);
   };
 
-  const handleCategorySelect = (categoryValue) => {
-    // Navigate to explore page with category parameter
-    navigate(`/explore?category=${categoryValue}`);
+  const handleCategorySelect = (category) => {
+    console.log('category selected: ', category)
+    navigate(`/explore?category=${category.value}`);
     setIsModalOpen(false); // Close the modal
   };
 

@@ -4,6 +4,7 @@ import ExpertList from "./ExpertList";
 import DomainBar from "./DomainBar";
 import Navbar from "../Home/components/Navbar";
 import { useSearchParams } from "react-router-dom";
+import { domainOptions } from "@/utils/Options";
 
 const Homees = () => {
   const [searchParams] = useSearchParams();
@@ -25,10 +26,12 @@ const Homees = () => {
   }, [filters]);
 
   useEffect(() => {
-    // Check for category in URL when component mounts
     const categoryFromUrl = searchParams.get("category");
     if (categoryFromUrl) {
-      setSelectedDomain(categoryFromUrl);
+      const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
+      if (domain) {
+        setSelectedDomain(domain);
+      }
     }
   }, [searchParams]);
 
@@ -79,6 +82,7 @@ const Homees = () => {
           sorting={sorting} // Pass sorting state
           setSorting={setSorting} // Pass setSorting function
           toggleSidebar={toggleSidebar}
+          selectedDomain={selectedDomain}
         />
       </div>
 

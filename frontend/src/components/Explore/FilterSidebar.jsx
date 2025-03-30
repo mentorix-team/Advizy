@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Range } from "react-range";
-import { nicheOptions, languageOptions } from "../../utils/Options";
+import { domainOptions, nicheOptions, languageOptions } from "../../utils/Options";
 import { X } from "lucide-react";
 import "../../index.css";
 
