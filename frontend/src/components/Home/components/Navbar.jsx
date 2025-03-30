@@ -54,8 +54,8 @@ const Navbar = ({ onSearch }) => {
     setAuthPopupOpen(false);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    await dispatch(logout());
     setIsDropdownOpen(false);
     navigate('/');
   };

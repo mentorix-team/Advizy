@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
-import { SearchX, ChevronLeft, ChevronRight } from 'lucide-react';
+import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ITEMS_PER_PAGE = 14;
 
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
+  const prevFiltersRef = useRef();
 
   const { expertsData, loading, error } = useSelector((state) => ({
     expertsData: state.expert.experts,
     loading: state.expert.loading,
     error: state.expert.error,
   }));
-  
+
   const experts = expertsData?.experts || [];
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
@@ -26,27 +27,31 @@ const ExpertList = ({ filters, sorting }) => {
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
   useEffect(() => {
-    const queryParams = {
-      domain: filters.selectedDomain?.value || "",
-      niches: filters.selectedNiches || [],
-      priceMin: filters.priceRange?.[0] || 200,
-      priceMax: filters.priceRange?.[1] || 100000,
-      languages: filters.selectedLanguages || [],
-      ratings: filters.selectedRatings || [],
-      durations: filters.selectedDurations || [],
-      sorting: sorting || "",
-    };
+    if (JSON.stringify(filters) !== JSON.stringify(prevFiltersRef.current)) {
+      const queryParams = {
+        domain: filters.selectedDomain?.value || "",
+        niches: filters.selectedNiches || [],
+        priceMin: filters.priceRange?.[0] || 200,
+        priceMax: filters.priceRange?.[1] || 100000,
+        languages: filters.selectedLanguages || [],
+        ratings: filters.selectedRatings || [],
+        durations: filters.selectedDurations || [],
+        sorting: sorting || "",
+      };
 
-    const cleanedQueryParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([key, value]) => {
-        if (Array.isArray(value)) {
-          return value.length > 0;
-        }
-        return value !== "";
-      })
-    );
+      const cleanedQueryParams = Object.fromEntries(
+        Object.entries(queryParams).filter(([key, value]) => {
+          if (Array.isArray(value)) {
+            return value.length > 0;
+          }
+          return value !== "";
+        })
+      );
 
-    dispatch(getAllExperts(cleanedQueryParams));
+      dispatch(getAllExperts(cleanedQueryParams));
+      prevFiltersRef.current = filters;
+      setCurrentPage(1);
+    }
   }, [dispatch, filters, sorting]);
 
   const handlePreviousPage = () => {
@@ -60,25 +65,26 @@ const ExpertList = ({ filters, sorting }) => {
   };
 
   const calculateTotalExperience = (workExperiences) => {
-    if (!Array.isArray(workExperiences) || workExperiences.length === 0) return "0 years";
-  
+    if (!Array.isArray(workExperiences) || workExperiences.length === 0)
+      return "0 years";
+
     let totalMonths = 0;
-  
+
     workExperiences.forEach((job) => {
       if (!job.startDate || !job.endDate) return;
-  
+
       const start = new Date(job.startDate);
       const end = new Date(job.endDate);
-  
+
       const yearsDiff = end.getFullYear() - start.getFullYear();
       const monthsDiff = end.getMonth() - start.getMonth();
-  
+
       totalMonths += yearsDiff * 12 + monthsDiff;
     });
-  
+
     const years = Math.floor(totalMonths / 12);
     const months = totalMonths % 12;
-  
+
     return years > 0 ? `${years} years ${months} months` : `${months} months`;
   };
 
@@ -106,14 +112,18 @@ const ExpertList = ({ filters, sorting }) => {
 
         {error && (
           <div className="col-span-1 2xl:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
-            <p className="text-base sm:text-lg text-red-500 mt-2">Error: {error}</p>
+            <p className="text-base sm:text-lg text-red-500 mt-2">
+              Error: {error}
+            </p>
           </div>
         )}
 
         {!loading && !error && paginatedExperts.length === 0 && (
           <div className="col-span-1 2xl:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
             <SearchX className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
-            <p className="text-base sm:text-lg text-gray-600 mt-2">No experts found</p>
+            <p className="text-base sm:text-lg text-gray-600 mt-2">
+              No experts found
+            </p>
           </div>
         )}
 
@@ -123,15 +133,17 @@ const ExpertList = ({ filters, sorting }) => {
             const mentoringService = expert.credentials?.services?.find(
               (service) => service.title === "One-on-One Mentoring"
             );
-        
+
             const firstEnabledSlot = mentoringService?.one_on_one?.find(
               (slot) => slot.enabled
             );
-        
+
             const startingPrice = firstEnabledSlot?.price || 0;
             const duration = firstEnabledSlot?.duration || "N/A";
-            const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
-            
+            const totalExperience = calculateTotalExperience(
+              expert.credentials?.work_experiences
+            );
+
             return (
               <div key={expert._id} className="w-full">
                 <ExpertCard
@@ -143,13 +155,16 @@ const ExpertList = ({ filters, sorting }) => {
                     "https://via.placeholder.com/100"
                   }
                   title={
-                    expert.credentials?.professionalTitle?.[0] || "No Title Provided"
+                    expert.credentials?.professionalTitle?.[0] ||
+                    "No Title Provided"
                   }
                   rating={
                     expert.reviews?.length > 0
                       ? Math.round(
-                          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-                            expert.reviews.length
+                          expert.reviews.reduce(
+                            (acc, review) => acc + review.rating,
+                            0
+                          ) / expert.reviews.length
                         )
                       : 0
                   }
@@ -182,7 +197,7 @@ const ExpertList = ({ filters, sorting }) => {
                 of <span className="font-medium">{totalExperts}</span> results
               </p>
             </div>
-            
+
             <div className="flex items-center justify-center gap-2 order-1 sm:order-2">
               <button
                 onClick={handlePreviousPage}
@@ -196,11 +211,11 @@ const ExpertList = ({ filters, sorting }) => {
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              
+
               <div className="text-sm font-medium text-gray-700 px-2">
                 Page {currentPage} of {totalPages}
               </div>
-              
+
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}

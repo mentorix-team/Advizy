@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginaccount } from "../../Redux/Slices/authSlice";
 import toast from "react-hot-toast";
 import SignupWithEmail from "./SignupWithEmail.auth";
@@ -19,11 +19,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     password: "",
   });
 
-  const handleGoogleSignup = (event) => {
-    event.preventDefault(); // Prevent the form from submitting
-    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
-  };
-
   const [touched, setTouched] = useState({
     email: false,
     password: false,
@@ -31,15 +26,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
-  // Function to redirect user after login
-  // const handleLoginRedirect = (navigate) => {
-  //   // Check if there's a saved URL
-  //   const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
-  //   localStorage.removeItem("redirectAfterLogin"); // Clear stored path
-
-  //   navigate(redirectPath, { replace: true });
-  // };
+  // Get the redirect path from location state or default to home
+  const from = location.state?.from?.pathname || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -99,7 +89,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     return !Object.values(newErrors).some((error) => error);
   };
 
-
   async function login(event) {
     event.preventDefault();
 
@@ -109,9 +98,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      navigate('/');
-    } else {
-      // navigate("/signup");
+      navigate(from, { replace: true });
     }
 
     setlogindata({
@@ -119,6 +106,21 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
       password: "",
     });
   }
+
+  const handleGoogleSignup = (event) => {
+    event.preventDefault(); // Prevent the form from submitting
+    sessionStorage.setItem("redirectAfterLogin", from);
+    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
+  };
+
+  // Check for redirect path after component mounts (for Google auth callback)
+  useEffect(() => {
+    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+    if (redirectPath) {
+      sessionStorage.removeItem("redirectAfterLogin");
+      navigate(redirectPath, { replace: true });
+    }
+  }, [navigate]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">

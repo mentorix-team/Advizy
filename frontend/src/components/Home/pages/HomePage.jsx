@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 // import Spinner from "@/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
@@ -80,17 +80,16 @@ const categories = [
 
 function HomePage() {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
-  const {experts} = useSelector((state)=>state.expert)
-  const { isLoggedIn,loading,error } = useSelector((state) => state.auth);
+  const { experts } = useSelector((state) => state.expert);
+  const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
   console.log(experts);
   // Local state for filtered experts
   const [fitnessExperts, setFitnessExperts] = useState([]);
   const [careerExperts, setCareerExperts] = useState([]);
-
 
   // Check expert mode from localStorage
   useEffect(() => {
@@ -102,6 +101,12 @@ function HomePage() {
 
   const handleToggle = () => {
     setIsExpertMode(!isExpertMode);
+  };
+
+  const handleCategorySelect = (category) => {
+    console.log('category selected: ', category)
+    navigate(`/explore?category=${category.value}`);
+    setIsModalOpen(false); // Close the modal
   };
 
   // Show category navigation on scroll
@@ -150,7 +155,7 @@ function HomePage() {
     if (!loading && isLoggedIn) {
       navigate("/"); // Redirect after login completes
     }
-  }, [loading, isLoggedIn, navigate]); 
+  }, [loading, isLoggedIn, navigate]);
   // useEffect to fetch Career Mentors
   useEffect(() => {
     const queryParams = {
@@ -177,8 +182,8 @@ function HomePage() {
       });
   }, [dispatch]);
 
-  if(loading){
-    return <Spinner/>
+  if (loading) {
+    return <Spinner />;
   }
 
   return (
@@ -320,7 +325,11 @@ function HomePage() {
         </div>
         <Footer />
       </div>
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleCategorySelect}
+      />
     </div>
   );
 }
