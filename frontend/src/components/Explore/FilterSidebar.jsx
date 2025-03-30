@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Range } from "react-range";
-import { domainOptions, nicheOptions, languageOptions } from "../../utils/Options";
+import {
+  domainOptions,
+  nicheOptions,
+  languageOptions,
+} from "../../utils/Options";
 import { X } from "lucide-react";
 import "../../index.css";
 
@@ -84,6 +88,16 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
   return (
     <div className="w-full h-full p-6 border-r overflow-y-auto overflow-x-hidden">
+      {/* Fixed Apply Filters Button */}
+      <div className="sticky top-0 bg-white z-10 p-4 border-b">
+        <button
+          onClick={handleApplyFilters}
+          className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition text-base font-medium"
+        >
+          Apply Filters
+        </button>
+      </div>
+      
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Filters</h2>
         <button
@@ -308,14 +322,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           ))}
         </div>
       </div>
-
-      {/* Apply Filters Button */}
-      <button
-        onClick={handleApplyFilters}
-        className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition text-base font-medium"
-      >
-        Apply Filters
-      </button>
     </div>
   );
 };
