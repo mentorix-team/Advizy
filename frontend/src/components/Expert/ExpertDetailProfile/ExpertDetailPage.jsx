@@ -98,7 +98,7 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
   return (
-    <div className="min-h-screen bg-[#F5F5F5]">
+    <div className="min-h-screen top-[65px] bg-[#F5F5F5]">
       <Navbar
         onSearch={() => setIsModalOpen(true)}
         isExpertMode={isExpertMode}
