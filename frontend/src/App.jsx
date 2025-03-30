@@ -5,7 +5,6 @@ import ProtectedRoute from "./Protected/ProtectedRoute";
 import Cookies from "js-cookie";
 import Spinner from "./components/LoadingSkeleton/Spinner";
 import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
-
 // Regular Imports (Frequently Used Components)
 import AuthPopup from "./components/Auth/AuthPopup.auth";
 import Error404 from "./Protected/Error404";
@@ -71,7 +70,6 @@ const App = () => {
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        {/* <Route path="/home" element={<HomePage />} /> */}
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />

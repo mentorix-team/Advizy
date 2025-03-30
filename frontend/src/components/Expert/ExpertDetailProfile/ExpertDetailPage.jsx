@@ -98,13 +98,13 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
   return (
-    <>
+    <div className="min-h-screen bg-[#F5F5F5]">
       <Navbar
         onSearch={() => setIsModalOpen(true)}
         isExpertMode={isExpertMode}
         onToggleExpertMode={handleToggle}
       />
-      <div className="min-h-screen bg-[#F5F5F5]">
+      <main>
         <ProfileHeader
           coverImage={expert?.coverImage?.secure_url}
           name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
@@ -168,12 +168,11 @@ const ExpertDetailPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </>
+    </div>
   );
-  
 };
 
 export default ExpertDetailPage;
