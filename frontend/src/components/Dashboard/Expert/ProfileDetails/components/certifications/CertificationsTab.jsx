@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import CertificationList from "./CertificationList";
 import CertificationForm from "./CertificationForm";
 import { toast, Toaster } from "react-hot-toast";
-import { deleteCerti, EditCertificate } from "@/Redux/Slices/expert.Slice";
+import { CertificateForm, deleteCerti, EditCertificate } from "@/Redux/Slices/expert.Slice";
 import { useDispatch } from "react-redux";
 
 const STORAGE_KEY = 'user_certifications';
 
 export default function CertificationsTab({ formData = [], onUpdate }) {
+  const [certificateToEdit,setCertificateToEdit] = useState(null)
+
+  console.log('Thiis is formData',formData)
   const [certifications, setCertifications] = useState(() => {
     // Initialize from localStorage or props
     const storedData = localStorage.getItem(STORAGE_KEY);
@@ -20,10 +23,11 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     }
     return formData;
   });
-  
+  console.log('THis is certificats',certifications)
+  const dispatch = useDispatch()
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-  const dispatch = useDispatch()
+
   // Sync with localStorage whenever certifications change
   useEffect(() => {
     try {
@@ -41,48 +45,94 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     }
   }, [formData]);
 
-  const handleAddCertification = (newCertification) => {
-    if (!newCertification) return;
+  const handleAddCertification = async (formData) => {
 
-    const updatedCertifications = [...certifications, newCertification];
-    setCertifications(updatedCertifications);
-    if (onUpdate) {
+    try {
+      const certificateData = {
+        name: formData.name,
+        issuingOrganization: formData.issuingOrganization,
+        issueDate: formData.issueDate,
+        certificates: formData.certificates
+      }
+
+      const response = await dispatch(CertificateForm(certificateData))
+
+      const newCertificate = {
+        name: formData.get('name'),
+        issuingOrganization: formData.get('issuingOrganization'),
+        issueDate: formData.get('issueDate'),
+        certificates: formData.get('certificates')
+      }
+      const updatedCertifications = [...certifications, newCertificate];
+      setCertifications(updatedCertifications);
       onUpdate(updatedCertifications);
+      setShowForm(false);
+      toast.success("Certification added successfully!");
+
+    } catch (error) {
+      console.error('Error adding education:', error);
+      toast.error('Failed to add education. Please try again.');
     }
-    setShowForm(false);
-    toast.success("Certification added successfully!");
+
+    
   };
 
   const handleEditCertification = (index) => {
-    if (index >= 0 && index < certifications.length) {
-      setEditingIndex(index);
-      setShowForm(true);
+
+    const selectedCerti = certifications[index]
+
+    if (!selectedCerti || !selectedCerti._id) {
+      console.error("Selected certification entry is missing ID!", selectedCerti);
+      return;
     }
+  
+    console.log("Editing education at index:", index);
+    console.log("Selected education:", selectedEducation);
+
+    setEducationToEdit(selectedEducation); // Ensure state is updated properly
+    setEditingIndex(index);
+    setShowForm(true);
   };
 
   const handleUpdateCertification = async (updatedCertification) => {
-    if (!updatedCertification || editingIndex === null) return;
 
-    const updatedCertifications = [...certifications];
-    updatedCertifications[editingIndex] = updatedCertification;
+    console.log("Before updating, educationToEdit:", certificateToEdit);
 
-    try {
-      // Dispatch the EditCertificate action
-      const response = await dispatch(
-        EditCertificate(updatedCertification)
-      ).unwrap(); // Unwrap the result to handle it directly
-      console.log("Response from server:", response);
-
-      setCertifications(updatedCertifications);
-      if (onUpdate) {
-        onUpdate(updatedCertifications);
+    if (!certificateToEdit || !certificateToEdit._id) {
+      console.error("Certificate entry ID is missing. Setting it manually.");
+      
+      if (certificateToEdit._id) {
+        setCertificateToEdit(updatedCertification);
+      } else {
+        toast.error("Error updating certificate. Please try again.");
+        return;
       }
+    }
+
+    const dataToUpdate = {
+      ...updatedCertification, // New values first
+      _id: certificateToEdit._id, // Preserve the ID
+      // Preserve certificate if not updated
+      certificate: updatedCertification.certificate || certificateToEdit.certificate
+    };
+
+    console.log("Updating certificate with Data:", dataToUpdate);
+  
+    try {
+      const response = await dispatch(EditCertificate(dataToUpdate)).unwrap();
+      console.log('Response from server:', response);
+  
+      const updatedCertification = [...certifications];
+      updatedCertification[editingIndex] = response;
+  
+      setCertifications(updatedCertification);
+      onUpdate(updatedCertification);
       setShowForm(false);
       setEditingIndex(null);
-      toast.success("Certification updated successfully!");
+      toast.success('Certificate updated successfully!');
     } catch (error) {
-      console.error("Error updating certification:", error);
-      toast.error("Failed to update certification. Please try again.");
+      console.error('Error updating certificate:', error);
+      toast.error('Failed to update certificate. Please try again.');
     }
   };
 

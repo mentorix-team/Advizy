@@ -31,7 +31,7 @@ const EducationList = ({ education = [], onEdit, onDelete, onAddClick }) => {
               <p className="text-[#475467] text-sm">{edu.institution}, {edu.passingYear}</p>
               
               {/* Certificates Section */}
-              {edu.certificate && edu.certificate.length > 0 && (
+              {edu.certificate && edu.certificate?.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {edu.certificate.map((file, fileIndex) => (
                     <div key={fileIndex} className="flex items-center gap-2">

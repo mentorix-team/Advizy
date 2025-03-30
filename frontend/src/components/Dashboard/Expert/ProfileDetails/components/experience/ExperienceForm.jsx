@@ -10,13 +10,14 @@ import DocumentUploadModal from '../services/DocumentUploadModal';
 export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    companyName: '',
-    jobTitle: '',
-    startDate: null,
-    endDate: null,
+    _id:initialData?._id||'',
+    companyName: initialData?.companyName||'',
+    jobTitle: initialData?.jobTitle||'',
+    startDate:initialData?.startDate|| null,
+    endDate: initialData?.endDate||null,
 
-    currentlyWork: false,
-    documents: []
+    currentlyWork: initialData?.currentlyWork||false,
+    documents: initialData?.documents||[]
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -43,19 +44,21 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const experienceData = new FormData();
-    experienceData.append('companyName', formData.companyName);
-    experienceData.append('jobTitle', formData.jobTitle);
-    experienceData.append('startDate', formData.startDate);
-    experienceData.append('endDate', formData.currentlyWork ? '' : formData.endDate);
-    experienceData.append('currentlyWork', formData.currentlyWork);
-    if (formData.documents) {
-      experienceData.append('documents', formData.documents);
-    }
-
-    dispatch(ExperienceFormSubmit(experienceData));
-    onSubmit(formData);
-  };
+    
+    const formDataToSend = {
+      _id: formData._id,
+      companyName: formData.companyName,
+      currentlyWork: formData.currentlyWork,
+      endDate: formData.endDate,
+      jobTitle: formData.jobTitle,
+      startDate: formData.startDate,
+      documents: formData.documents
+    };
+  
+    console.log('submitting FormData', formDataToSend);
+    onSubmit(formDataToSend);
+  };  
+  
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);

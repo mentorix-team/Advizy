@@ -600,9 +600,9 @@ const getAvailabilitybyid = async (req, res, next) => {
 
     // Fetch availability
     const availability = await Availability.findOne({ expert_id }).lean();
-    if (!availability) {
-      return res.status(404).json({ success: false, message: "Expert availability not found" });
-    }
+    // if (!availability) {
+    //   return res.status(404).json({ success: false, message: "Expert availability not found" });
+    // }
 
     const istTimezone = availability.timezone?.value || "Asia/Kolkata"; // Ensure correct timezone (IST)
 
