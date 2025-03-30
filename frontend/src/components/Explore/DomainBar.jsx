@@ -8,16 +8,20 @@ const DomainBar = ({
   sorting,
   setSorting,
   toggleSidebar,
+  selectedDomain,
 }) => {
   const primaryDomains = domainOptions.slice(0, 5);
   const remainingDomains = domainOptions.slice(5);
-
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const handleMoreClick = () => {
     setDropdownVisible((prev) => !prev);
   };
-  
+
+  // Helper function to check if a domain is selected
+  const isDomainSelected = (domainValue) => {
+    return selectedDomain?.value === domainValue;
+  };
 
   return (
     <div className="bg-white p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
@@ -33,7 +37,11 @@ const DomainBar = ({
       {primaryDomains.map((domain) => (
         <button
           key={domain.value}
-          className="hidden md:block px-3 py-1 md:px-4 md:py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-xs md:text-sm font-medium whitespace-nowrap"
+          className={`px-3 py-1 md:px-4 md:py-2 rounded-md border transition text-xs md:text-sm font-medium whitespace-nowrap ${
+            isDomainSelected(domain.value)
+              ? "bg-primary text-white border-primary"
+              : "border-gray-200 hover:bg-gray-100"
+          } hidden md:block`}
           onClick={() => onDomainSelect(domain)}
         >
           {domain.label}
@@ -41,11 +49,15 @@ const DomainBar = ({
       ))}
 
       {/* More Dropdown - Visible on both mobile and desktop*/}
-      {/* {remainingDomains.length > 0 && ( */}
       <div className="relative">
         <button
           onClick={handleMoreClick}
-          className="px-3 py-1 md:px-4 md:py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-xs md:text-sm font-medium whitespace-nowrap flex items-center gap-1"
+          className={`px-3 py-1 md:px-4 md:py-2 rounded-md border transition text-xs md:text-sm font-medium whitespace-nowrap flex items-center gap-1 ${
+            selectedDomain &&
+            !primaryDomains.some((d) => d.value === selectedDomain.value)
+              ? "bg-primary text-white border-primary"
+              : "border-gray-200 hover:bg-gray-100"
+          }`}
         >
           More
           <svg
@@ -81,7 +93,11 @@ const DomainBar = ({
               {primaryDomains.map((domain) => (
                 <button
                   key={domain.value}
-                  className="w-full text-left px-4 py-2 text-xs md:text-sm font-medium hover:bg-gray-100 transition"
+                  className={`w-full text-left px-4 py-2 text-xs md:text-sm font-medium transition ${
+                    isDomainSelected(domain.value)
+                      ? "bg-primary text-white"
+                      : "hover:bg-gray-100"
+                  }`}
                   onClick={() => {
                     onDomainSelect(domain);
                     setDropdownVisible(false);
@@ -97,7 +113,11 @@ const DomainBar = ({
             {remainingDomains.map((domain) => (
               <button
                 key={domain.value}
-                className="w-full text-left px-4 py-2 text-xs md:text-sm font-medium hover:bg-gray-100 transition"
+                className={`w-full text-left px-4 py-2 text-xs md:text-sm font-medium transition ${
+                  isDomainSelected(domain.value)
+                    ? "bg-primary text-white"
+                    : "hover:bg-gray-100"
+                }`}
                 onClick={() => {
                   onDomainSelect(domain);
                   setDropdownVisible(false);
