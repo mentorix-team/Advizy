@@ -31,6 +31,10 @@ const Homees = () => {
       const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
       if (domain) {
         setSelectedDomain(domain);
+        setFilters((prev) => ({
+          ...prev,
+          selectedDomain: domain,
+        }));
       }
     }
   }, [searchParams]);
@@ -133,7 +137,11 @@ const Homees = () => {
         )}
         {/* Content Area - Full width on mobile, adjusted on desktop */}
         <div className="w-full md:ml-80 p-4 md:p-6">
-          <ExpertList filters={filters} sorting={sorting} />
+          <ExpertList
+            filters={filters}
+            sorting={sorting}
+            key={filters.selectedDomain?.value || "all"}
+          />
         </div>
       </div>
     </div>
