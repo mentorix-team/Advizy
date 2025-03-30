@@ -32,10 +32,6 @@ const Homees = () => {
     }
   }, [searchParams]);
 
-  const handleCategorySelect = (categoryValue) => {
-    setSelectedDomain(categoryValue);
-  };
-
   // Update filters whenever selectedDomain changes
   useEffect(() => {
     setFilters((prevFilters) => ({

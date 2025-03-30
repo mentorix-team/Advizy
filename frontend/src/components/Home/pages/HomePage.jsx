@@ -103,6 +103,12 @@ function HomePage() {
     setIsExpertMode(!isExpertMode);
   };
 
+  const handleCategorySelect = (categoryValue) => {
+    // Navigate to explore page with category parameter
+    navigate(`/explore?category=${categoryValue}`);
+    setIsModalOpen(false); // Close the modal
+  };
+
   // Show category navigation on scroll
   useEffect(() => {
     const handleScroll = () => {
