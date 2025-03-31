@@ -106,7 +106,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
       
-      <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
+      {/* <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
         <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
           Why Basic Info Matters
         </h3>
@@ -115,7 +115,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           complete and professional profile increases your chances of making a
           great first impression and attracting more clients.
         </p>
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* First Name */}

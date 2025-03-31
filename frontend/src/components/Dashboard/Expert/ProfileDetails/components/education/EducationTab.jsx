@@ -16,6 +16,8 @@ export default function EducationTab({ formData, onUpdate }) {
   console.log("Educations being passed to EducationList:", educations);
   const [showForm, setShowForm] = useState(formData.length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [educationToEdit, setEducationToEdit] = useState(null);
+  // const {loading,}
   const dispatch = useDispatch()
   // Update local state when props change
   useEffect(() => {
@@ -28,15 +30,24 @@ export default function EducationTab({ formData, onUpdate }) {
 
   const handleAddEducation = async (formData) => {
     try {
+
+      const educationData = {
+        degree:formData.degree,
+        institution:formData.institution,
+        passingYear:formData.passingYear,
+        certificate:formData.certificate,
+      }
+
+
       // Dispatch the action to add education
-      const response = await dispatch(SingleEducationForm(formData)).unwrap();
+      const response = await dispatch(SingleEducationForm(educationData)).unwrap();
       
       // If successful, update local state
       const newEducation = {
         degree: formData.get("degree"),
         institution: formData.get("institution"),
         passingYear: formData.get("passingYear"),
-        certificates: formData.get("certificates") || null,
+        certificate: formData.get("certificate") || null,
       };
 
       const updatedEducations = [...educations, newEducation];
@@ -51,23 +62,59 @@ export default function EducationTab({ formData, onUpdate }) {
     }
   };
 
+
+  // let educationToEdit = null; // Store the full education entry
+
   const handleEditEducation = (index) => {
-    console.log('This is iundex',index)
+    const selectedEducation = educations[index];
+  
+    if (!selectedEducation || !selectedEducation._id) {
+      console.error("Selected education entry is missing ID!", selectedEducation);
+      return;
+    }
+  
+    console.log("Editing education at index:", index);
+    console.log("Selected education:", selectedEducation);
+  
+    setEducationToEdit(selectedEducation); // Ensure state is updated properly
     setEditingIndex(index);
     setShowForm(true);
   };
-
+  
+  
+  
+  
   const handleUpdateEducation = async (updatedEducation) => {
-    const updatedEducations = [...educations];
-    updatedEducations[editingIndex] = updatedEducation;
-
+    console.log("Before updating, educationToEdit:", educationToEdit);
+  
+    if (!educationToEdit || !educationToEdit._id) {
+      console.error("Education entry ID is missing. Setting it manually.");
+      
+      if (updatedEducation._id) {
+        setEducationToEdit(updatedEducation);
+      } else {
+        toast.error("Error updating education. Please try again.");
+        return;
+      }
+    }
+  
+    // Create the data to update - new values should overwrite old ones
+    const dataToUpdate = {
+      ...updatedEducation, // New values first
+      _id: educationToEdit._id, // Preserve the ID
+      // Preserve certificate if not updated
+      certificate: updatedEducation.certificate || educationToEdit.certificate
+    };
+  
+    console.log("Updating Education with Data:", dataToUpdate);
+  
     try {
-      // Dispatch the EditEducationForm action
-      const response = await dispatch(
-        EditEducationForm(updatedEducation)
-      ).unwrap(); // Unwrap to handle success or failure
+      const response = await dispatch(EditEducationForm(dataToUpdate)).unwrap();
       console.log('Response from server:', response);
-
+  
+      const updatedEducations = [...educations];
+      updatedEducations[editingIndex] = response;
+  
       setEducations(updatedEducations);
       onUpdate(updatedEducations);
       setShowForm(false);
@@ -78,7 +125,7 @@ export default function EducationTab({ formData, onUpdate }) {
       toast.error('Failed to update education. Please try again.');
     }
   };
-
+  
   const handleDeleteEducation = async (index) => {
     const educationToDelete = educations[index];
   
