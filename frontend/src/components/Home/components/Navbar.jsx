@@ -78,7 +78,6 @@ const Navbar = ({ onSearch }) => {
       navigate("/dashboard/user/meetings");
     }
     
-    // Close mobile menu after switching modes
     setIsMenuOpen(false);
   };
 
@@ -272,128 +271,131 @@ const Navbar = ({ onSearch }) => {
           </div>
         </div>
 
-        {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden py-4 border-t border-gray-200 bg-white"
-          >
-            <div className="flex flex-col space-y-4">
-              <div className="w-full px-4">
-                <motion.div
-                  className="relative"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                >
-                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-primary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search mentors..."
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                    onClick={onSearch}
-                    readOnly
-                  />
-                </motion.div>
-              </div>
-              <a
-                href="/about-us"
-                className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                  isLinkActive("/about-us")
-                    ? "text-primary underline underline-offset-4"
-                    : "text-gray-600 hover:text-primary"
-                }`}
-              >
-                About Us
-              </a>
-              {!isExpertMode && (
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden py-4 border-t border-gray-200 bg-white"
+            >
+              <div className="flex flex-col space-y-4">
+                <div className="w-full px-4">
+                  <motion.div
+                    className="relative"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  >
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                      <svg
+                        className="w-4 h-4 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search mentors..."
+                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                      onClick={onSearch}
+                      readOnly
+                    />
+                  </motion.div>
+                </div>
                 <a
-                  href="/become-expert"
+                  href="/about-us"
                   className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                    isLinkActive("/become-expert")
+                    isLinkActive("/about-us")
                       ? "text-primary underline underline-offset-4"
                       : "text-gray-600 hover:text-primary"
                   }`}
                 >
-                  Share Your Expertise
+                  About Us
                 </a>
-              )}
-              <div className="px-4">
-                {isLoggedIn ? (
-                  <div className="space-y-2">
-                    {isExpertMode ? (
-                      <>
-                        <a
-                          href="/dashboard/expert"
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          Expert Dashboard
-                        </a>
-                        <button
-                          onClick={handleToggleExpertMode}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full"
-                        >
-                          <User className="w-4 h-4" />
-                          Switch to User Mode
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <a
-                          href="/dashboard/user/meetings"
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          User Dashboard
-                        </a>
-                        {hasExpertData && (
+                {!isExpertMode && (
+                  <a
+                    href="/become-expert"
+                    className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
+                      isLinkActive("/become-expert")
+                        ? "text-primary underline underline-offset-4"
+                        : "text-gray-600 hover:text-primary"
+                    }`}
+                  >
+                    Share Your Expertise
+                  </a>
+                )}
+                <div className="px-4">
+                  {isLoggedIn ? (
+                    <div className="space-y-2">
+                      {isExpertMode ? (
+                        <>
+                          <a
+                            href="/dashboard/expert"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            Expert Dashboard
+                          </a>
                           <button
                             onClick={handleToggleExpertMode}
                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full"
                           >
-                            <UserCheck className="w-4 h-4" />
-                            Switch to Expert Mode
+                            <User className="w-4 h-4" />
+                            Switch to User Mode
                           </button>
-                        )}
-                      </>
-                    )}
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full"
+                        </>
+                      ) : (
+                        <>
+                          <a
+                            href="/dashboard/user/meetings"
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            User Dashboard
+                          </a>
+                          {hasExpertData && (
+                            <button
+                              onClick={handleToggleExpertMode}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full"
+                            >
+                              <UserCheck className="w-4 h-4" />
+                              Switch to Expert Mode
+                            </button>
+                          )}
+                        </>
+                      )}
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                      onClick={handleOpenAuthPopup}
                     >
-                      <LogOut className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
-                    onClick={handleOpenAuthPopup}
-                  >
-                    Login
-                  </motion.button>
-                )}
+                      Login
+                    </motion.button>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>
