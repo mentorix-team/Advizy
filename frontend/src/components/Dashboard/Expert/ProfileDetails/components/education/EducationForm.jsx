@@ -9,11 +9,13 @@ import toast from 'react-hot-toast';
 export default function EducationForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch()
   const [formData, setFormData] = useState({
-    degree: '',
-    institution: '',
-    passingYear: '',
-    certificates: []
+    _id: initialData?._id || '',
+    degree: initialData?.degree || '',
+    institution: initialData?.institution || '',
+    passingYear: initialData?.passingYear || '',
+    certificate: initialData?.certificate || []
   });
+  
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -25,19 +27,19 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formDataToSend = new FormData();
-    formDataToSend.append("degree", formData.degree);
-    formDataToSend.append("institution", formData.institution);
-    formDataToSend.append("passingYear", formData.passingYear);
     
-    // Append each certificate file
-    if (formData.certificates) {
-      formDataToSend.append("certificate", formData.certificate);
-    }
-
-    onSubmit(formDataToSend); // Just call the onSubmit prop with form data
+    const formDataToSend = {
+      _id: formData._id,
+      degree: formData.degree,
+      institution: formData.institution,
+      passingYear: formData.passingYear,
+      certificate: formData.certificate
+    };
+  
+    console.log("Submitting Form Data:", formDataToSend);
+    onSubmit(formDataToSend);
   };
+  
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -46,7 +48,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
       console.log("Selected file:", file);
       setFormData((prev) => ({
         ...prev,
-        certificates: file,
+        certificate: file,
       }));
       setShowUploadModal(false);
     }
@@ -108,7 +110,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
   const removeFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      certificates: prev.certificates.filter((_, i) => i !== index)
+      certificate: prev.certificate.filter((_, i) => i !== index)
     }));
   };
 
@@ -180,9 +182,9 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
           </label>
           
           {/* File List */}
-          {formData.certificates.length > 0 && (
+          {formData.certificate?.length > 0 && (
             <div className="mb-4 space-y-2">
-              {formData.certificates.map((file, index) => (
+              {formData.certificate.map((file, index) => (
                 <div 
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"

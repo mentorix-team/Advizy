@@ -7,25 +7,23 @@ import { hits, configure } from "instantsearch.js/es/widgets";
 import { ArrowRight, CircleX, Search, X } from "lucide-react";
 import debounce from "lodash/debounce";
 import { useNavigate } from "react-router-dom";
+import { domainOptions } from "@/utils/Options";
 
-// Move categories outside component to prevent recreation
-const categories = [
-  { icon: "👨‍⚕", title: "Health", value: "health", hasArrow: true },
-  { icon: "💪", title: "Fitness", value: "fitness", hasArrow: true },
-  { icon: "💼", title: "Career", value: "career", hasArrow: true },
-  { icon: "🎓", title: "Education", value: "education", hasArrow: true },
-  { icon: "💰", title: "Finance", value: "finance", hasArrow: true },
-  { icon: "💻", title: "Technology", value: "technology", hasArrow: true },
-  { icon: "🎨", title: "Arts", value: "arts", hasArrow: true },
-  { icon: "📊", title: "Business", value: "business", hasArrow: true },
-];
+// Update your categories to match domainOptions
+const categories = domainOptions.map(domain => ({
+  icon: "⭐", // Add appropriate icons
+  title: domain.label,
+  value: domain.value,
+  hasArrow: true
+}));
 
-// Memoized Category Button Component
-const CategoryButton = memo(({ category }) => {
+const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
   const navigate = useNavigate();
 
   const handleExplore = () => {
-    navigate("/explore");
+    onCategorySelect(category);
+    navigate(`/explore?category=${category.value}`);
+    onClose();
   };
   return (
     <motion.button
@@ -47,7 +45,7 @@ const CategoryButton = memo(({ category }) => {
 CategoryButton.displayName = "CategoryButton";
 
 // Rest of the code remains exactly the same as in the previous artifact...
-const SearchModal = ({ isOpen, onClose }) => {
+const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
   const searchRef = useRef(null);
   const searchClient = useRef(null);
   const searchInputRef = useRef(null);
@@ -193,11 +191,16 @@ const SearchModal = ({ isOpen, onClose }) => {
     () => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {categories.map((category) => (
-          <CategoryButton key={category.title} category={category} />
+          <CategoryButton
+            key={category.value}
+            category={category}
+            onCategorySelect={onCategorySelect}
+            onClose={onClose}
+          />
         ))}
       </div>
     ),
-    []
+    [onCategorySelect, onClose]
   );
 
   return (

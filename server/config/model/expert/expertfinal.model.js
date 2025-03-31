@@ -58,7 +58,7 @@ const ExpertBasicsSchema = new Schema({
         startDate: { type: Date },
         endDate: { type: Date },
         currentlyWork:{type:Boolean},
-        document: {
+        documents: {
           public_id: { type: String },
           secure_url: { type: String },
         },
@@ -78,7 +78,7 @@ const ExpertBasicsSchema = new Schema({
       type: [{
         degree: { type: String },
         institution: { type: String },
-        passing_year: { type: String },
+        passingYear: { type: String },
         certificate: {
           public_id: { type: String },
           secure_url: { type: String },
@@ -117,7 +117,7 @@ const ExpertBasicsSchema = new Schema({
         },
         one_on_one:[{
           duration: { type: Number },
-          price: { type: Number }, 
+          price: { type: Number },
           enabled:{type:Boolean,default:false} 
         }],
         duration: { type: Number }, 
@@ -129,8 +129,18 @@ const ExpertBasicsSchema = new Schema({
     ],
   },
   total_earnings: { type: Number, default: 0 },
-  sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Session", default: [] }],
-  reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review", default: [] }],
+  sessions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Meeting", default: [] }],
+  reviews: [{ 
+    meeting_id:{ type:String},
+    rating:{type:Number},
+    user_id:{
+      type:String,
+    },
+    feedback:{
+      type:String,
+    },
+    default: [] 
+  }],
 });
 
 
@@ -220,18 +230,18 @@ const ReviewSchema = new Schema({
 
 // Expert Token Method
 ExpertBasicsSchema.methods={
-  generateExpertToken: function (options = {}) {
+    generateExpertToken : function (options ={}) {
       return jwt.sign(
-          {
-              id: this._id,
-              firstName: this.firstName,
-              lastName: this.lastName,
-              admin_approved_expert: this.admin_approved_expert,
-          },
-          "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=", // Use process.env.EXPERT_JWT_SECRET in production
-          { expiresIn: options.expiresIn || "7d" } // Default to 7 days if not provided
+        {
+          id: this._id,
+          firstName: this.firstName,
+          lastName: this.lastName,
+          admin_approved_expert: this.admin_approved_expert,
+        },
+        "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=", 
+        { expiresIn: options.expiresIn ||   "7d" } 
       );
-  }
+    }
 }
 
 

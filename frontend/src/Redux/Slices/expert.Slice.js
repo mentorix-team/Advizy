@@ -117,9 +117,17 @@ export const editExperience=createAsyncThunk(
 export const deleteExpertExperience = createAsyncThunk(
   'expert/deleteexpertexperience',
   async(data,{rejectWithValue})=>{
+    console.log('data,',data)
     try {
-      const response = await axiosInstance.post('expert/deleteExpertExperience')
-    } catch (error) {
+      const isFormData = data instanceof FormData;
+      const response = await axiosInstance.post(
+        '/expert/deleteExpertExperience',data,
+        isFormData
+          ? {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            }
+          : {}
+      );    } catch (error) {
       console.error("Error submitting experience form:", error);
 
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -172,6 +180,7 @@ export const EditEducationForm = createAsyncThunk(
   'expert/editEducation',
   async(data,{rejectWithValue})=>{
     try {
+      console.log('this is in slice',data)
       const response = await axiosInstance.post("/expert/editExpertEducation",data)
       return await response?.data;
     } catch (error) {
@@ -567,6 +576,7 @@ const expertSlice = createSlice({
 
       state.expertData = expert;
       state.admin_approved_expert = adminApproved;
+      state.loading =false
     })
     .addCase(basicFormSubmit.pending, (state, action) => {
         state.loading = true,
@@ -576,6 +586,14 @@ const expertSlice = createSlice({
       state.loading = false,
       state.error = action.payload
     })
+    .addCase(professionalFormSubmit.pending,(state,action)=>{
+      state.loading = true,
+      state.error = null
+    })
+    .addCase(professionalFormSubmit.rejected,(state,action)=>{
+      state.loading = false
+      state.error = action.payload.error
+    })
       .addCase(professionalFormSubmit.fulfilled, (state, action) => {
         const { expert } = action.payload;
 
@@ -583,7 +601,16 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
+      })
+      .addCase(ExperienceFormSubmit.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(ExperienceFormSubmit.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(ExperienceFormSubmit.fulfilled, (state, action) => {
         const { expert } = action.payload;
@@ -592,7 +619,16 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
+      })
+      .addCase(PaymentFormSubmit.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(PaymentFormSubmit.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(PaymentFormSubmit.fulfilled, (state, action) => {
         const { expert } = action.payload;
@@ -601,7 +637,17 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
+      })
+
+      .addCase(SingleEducationForm.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(SingleEducationForm.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(SingleEducationForm.fulfilled, (state, action) => {
         const { expert } = action.payload;
@@ -610,7 +656,16 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
+      })
+      .addCase(CertificateForm.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(CertificateForm.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(CertificateForm.fulfilled, (state, action) => {
         const { expert } = action.payload;
@@ -619,7 +674,16 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
+      })
+      .addCase(PortfolioForm.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(PortfolioForm.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(PortfolioForm.fulfilled, (state, action) => {
         const { expert } = action.payload;
@@ -628,10 +692,20 @@ const expertSlice = createSlice({
         localStorage.setItem("expertData", JSON.stringify(expert));
 
         // Update Redux state
+        state.loading = false
         state.expertData = expert;
       })
 
+      .addCase(createService.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(createService.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
+      })
       .addCase(createService.fulfilled,(state,action) =>{
+        state.loading = false
         const {expert} = action.payload;
         localStorage.setItem("expertData",JSON.stringify(expert))
         state.expertData = expert;
@@ -673,8 +747,18 @@ const expertSlice = createSlice({
         state.loading = false;
         state.error = action.payload || "Error fetching expert by ID";
       })
+
+      .addCase(getServices.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(getServices.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
+      })
       .addCase(getServices.fulfilled,(state,action)=>{
         state.services = action.payload;
+        state.loading = false
       })
       .addCase(getServicebyid.pending, (state) => {
         state.loading = true;
@@ -694,23 +778,43 @@ const expertSlice = createSlice({
         const { expert } = action.payload;
         localStorage.setItem("expertData", JSON.stringify(expert));
         state.expertData = expert;
-
+        state.loading = false
+      })
+      .addCase(deleteServicebyId.pending,(state,action)=>{
+        state.loading = true
+        state.error = null
       })
       .addCase(deleteServicebyId.rejected, (state, action) => {
         state.error = action.payload;
+        state.loading = false
       })
       .addCase(toggleService.fulfilled,(state,action)=>{
         const {expert} = action.payload
         state.expertData  = expert
+        state.loading = false
+      })
+      .addCase(toggleService.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+        
+      })
+      .addCase(toggleService.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload.error
       })
       .addCase(updateServicebyId.fulfilled, (state, action) => {
         const { expert } = action.payload;
         localStorage.setItem("expertData", JSON.stringify(expert));
         state.expertData = expert;
-
+        state.loading = false
+      })
+      .addCase(updateServicebyId.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
       })
       .addCase(updateServicebyId.rejected, (state, action) => {
         state.error = action.payload;
+        state.loading = false
       })
       .addCase(getmeasexpert.pending,(state,action)=>{
         state.loading = true,
@@ -723,6 +827,24 @@ const expertSlice = createSlice({
       .addCase(getmeasexpert.rejected,(state,action)=>{
         state.loading = false,
         state.error = action.payload.error
+      })
+      .addCase(EditEducationForm.fulfilled,(state,action)=>{
+        const { expert } = action.payload;
+
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(EditEducationForm.pending,(state,action)=>{
+        state.loading = true
+        state.error = null
+      })
+      .addCase(EditEducationForm.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload?.error
       })
   }
 });
