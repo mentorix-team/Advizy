@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { logout } from "@/Redux/Slices/authSlice";
-import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from 'lucide-react';
+import { logout } from '@/Redux/Slices/authSlice';
+import AuthPopup from '@/components/Auth/AuthPopup.auth';
 
-function App() {
+const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -35,6 +36,15 @@ function App() {
     setIsExpertMode(expertMode);
   }, []);
 
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode");
+    if (expertMode === "true") {
+      setIsExpertMode(true);
+    } else {
+      setIsExpertMode(false);
+    }
+  }, []);
+
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
   };
@@ -59,13 +69,17 @@ function App() {
     }
   
     setIsExpertMode(newMode);
-    setIsMenuOpen(false); // Close mobile menu after switching
   
     if (newMode) {
+      console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
+      console.log("Navigating to User Dashboard");
       navigate("/dashboard/user/meetings");
     }
+    
+    // Close mobile menu after switching modes
+    setIsMenuOpen(false);
   };
 
   const UserDropdown = () => (
@@ -384,6 +398,6 @@ function App() {
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>
   );
-}
+};
 
-export default App;
+export default Navbar;
