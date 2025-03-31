@@ -1,12 +1,12 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
 
-const Navbar = ({ onSearch }) => {
+function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -22,28 +22,17 @@ const Navbar = ({ onSearch }) => {
     return location.pathname === path;
   };
 
-  // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     setIsExpertMode(true);
     if (expertData) {
-      setHasExpertData(true); // Update hasExpertData state
+      setHasExpertData(true);
     }
   }, []);
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
     setIsExpertMode(expertMode);
-  }, []);
-  
-
-  useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode");
-    if (expertMode === "true") {
-      setIsExpertMode(true);
-    } else {
-      setIsExpertMode(false);
-    }
   }, []);
 
   const handleOpenAuthPopup = () => {
@@ -61,7 +50,7 @@ const Navbar = ({ onSearch }) => {
   };
 
   const handleToggleExpertMode = () => {
-    const newMode = !isExpertMode; // Toggle the mode
+    const newMode = !isExpertMode;
   
     if (newMode) {
       localStorage.setItem("expertMode", "true");
@@ -70,17 +59,14 @@ const Navbar = ({ onSearch }) => {
     }
   
     setIsExpertMode(newMode);
+    setIsMenuOpen(false); // Close mobile menu after switching
   
-    // Redirect based on the mode
     if (newMode) {
-      console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
-      console.log("Navigating to User Dashboard");
       navigate("/dashboard/user/meetings");
     }
   };
-  
 
   const UserDropdown = () => (
     <div className="relative">
@@ -154,7 +140,6 @@ const Navbar = ({ onSearch }) => {
                 </button>
               </>
             )}
-
           </motion.div>
         )}
       </AnimatePresence>
@@ -171,7 +156,6 @@ const Navbar = ({ onSearch }) => {
             </a>
           </div>
 
-          {/* Search Bar */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
             <motion.div
               className="relative"
@@ -203,7 +187,6 @@ const Navbar = ({ onSearch }) => {
             </motion.div>
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -235,7 +218,6 @@ const Navbar = ({ onSearch }) => {
             </button>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
@@ -336,21 +318,49 @@ const Navbar = ({ onSearch }) => {
                   Share Your Expertise
                 </a>
               )}
-              <div className="px-2">
+              <div className="px-4">
                 {isLoggedIn ? (
                   <div className="space-y-2">
-                    <a
-                      href={
-                        isExpertMode ? "/dashboard/expert/" : "/dashboard/user/"
-                      }
-                      className="flex items-center gap-2 w-full text-sm text-gray-700 hover:text-primary transition-colors duration-200"
-                    >
-                      <User className="w-4 h-4" />
-                      {isExpertMode ? "Expert Dashboard" : "Dashboard"}
-                    </a>
+                    {isExpertMode ? (
+                      <>
+                        <a
+                          href="/dashboard/expert"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          Expert Dashboard
+                        </a>
+                        <button
+                          onClick={handleToggleExpertMode}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full"
+                        >
+                          <User className="w-4 h-4" />
+                          Switch to User Mode
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <a
+                          href="/dashboard/user/meetings"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          User Dashboard
+                        </a>
+                        {hasExpertData && (
+                          <button
+                            onClick={handleToggleExpertMode}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full"
+                          >
+                            <UserCheck className="w-4 h-4" />
+                            Switch to Expert Mode
+                          </button>
+                        )}
+                      </>
+                    )}
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 w-full text-sm text-red-600 hover:text-red-700 transition-colors duration-200"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full"
                     >
                       <LogOut className="w-4 h-4" />
                       Logout
@@ -374,5 +384,6 @@ const Navbar = ({ onSearch }) => {
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>
   );
-};
-export default Navbar;
+}
+
+export default App;
