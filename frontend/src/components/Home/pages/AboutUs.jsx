@@ -109,7 +109,7 @@ const VisionCard = ({ icon, title, description }) => {
 
   return (
     <motion.div
-      className="relative bg-white rounded-lg p-6 sm:p-8 shadow-sm border-2 border-transparent "
+      className="relative bg-white rounded-lg p-6 sm:p-8 shadow-sm border-2 border-transparent"
       whileHover={{ 
         scale: 1.05, 
         y: -10,
@@ -160,19 +160,21 @@ const AboutPage = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const navigate = useNavigate();
 
-  const handleExpertOnboarding = () =>{
+  const handleExpertOnboarding = () => {
     navigate('/expert-onboarding');
   }
-  const handleExplorePage = () =>{
+  const handleExplorePage = () => {
     navigate('/explore');
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      <div className="relative w-full">
+        <Navbar
           onSearch={() => setIsModalOpen(true)}
           isExpertMode={isExpertMode}
         />
+      </div>
       
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16">
@@ -181,8 +183,9 @@ const AboutPage = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
+            className="w-full"
           >
-            <br></br>
+            <br />
             <motion.h1 
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#169544] mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 20 }}
@@ -192,7 +195,7 @@ const AboutPage = () => {
               Empowering Experts.<br className="hidden sm:block" />
               Connecting People.
             </motion.h1>
-            <br></br>
+            <br />
             
             <motion.p 
               className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed"
@@ -202,18 +205,7 @@ const AboutPage = () => {
             >
               "We're revolutionizing the way expertise is shared and accessed. Join us in creating a world where quality guidance is just a click away."
             </motion.p>
-            <br></br>
-
-            {/* <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-expert"
-            >
-              Discover Mentorix
-            </motion.button> */}
+            <br />
           </motion.div>
 
           <motion.div
@@ -258,7 +250,7 @@ const AboutPage = () => {
         </div>
       </div>
 
-        {/* Mission Section */}
+      {/* Mission Section */}
       <div className="py-12 sm:py-16 md:py-24 bg-[#F9FDF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -364,8 +356,11 @@ const AboutPage = () => {
                 </li>
               </ul>
               <button 
-              onClick={() => navigate('/become-expert')}
-              className="w-full btn-expert">Show Your Expertise</button>
+                onClick={() => navigate('/become-expert')}
+                className="w-full btn-expert"
+              >
+                Show Your Expertise
+              </button>
             </motion.div>
 
             {/* For Users Card */}
@@ -401,14 +396,15 @@ const AboutPage = () => {
                 </li>
               </ul>
               <button 
-              onClick={() => navigate('/explore')}
-              className="w-full btn-expert">Search Experts</button>
+                onClick={() => navigate('/explore')}
+                className="w-full btn-expert"
+              >
+                Search Experts
+              </button>
             </motion.div>
           </div>
         </div>
       </div>
-
-    
 
       {/* Core Values Section */}
       <div className="py-12 sm:py-16 md:py-24 bg-white">
@@ -487,7 +483,7 @@ const AboutPage = () => {
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <motion.button
-              onClick={handleExplorePage}
+                onClick={handleExplorePage}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -515,9 +511,9 @@ const AboutPage = () => {
           </motion.div>
         </div>
       </div>
+
       <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
     </div>
   );
 };

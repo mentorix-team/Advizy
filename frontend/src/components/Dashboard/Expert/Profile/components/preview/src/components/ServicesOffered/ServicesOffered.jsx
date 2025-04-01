@@ -5,8 +5,8 @@ import ServiceCard from './ServiceCard';
 const ServicesOffered = ({ services = [] }) => {
   return (
     <div className="bg-white p-6">
-      <div className="border border-[#E5E7EB] rounded-2xl p-6 mb-6">
-        <h2 className="text-[#101828] text-xl font-medium mb-1">
+      <div className=" rounded-2xl p-6 mb-6">
+        <h2 className="text-[#101828] text-2xl font-medium mb-1">
           Services Offered <span className="text-gray-500 font-normal">(Select service)</span>
         </h2>
         <div className="text-sm">

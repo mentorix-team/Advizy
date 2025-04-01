@@ -183,7 +183,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   return (
     <div className="py-6">
       {/* Info Banner */}
-      <div className="bg-[#F0FFF2] p-6 rounded-lg mb-8">
+      {/* <div className="bg-[#F0FFF2] p-6 rounded-lg mb-8">
         <h3 className="text-[#16A348] text-lg font-semibold mb-2">
           Why Basic Info Matters
         </h3>
@@ -192,7 +192,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           complete and professional profile increases your chances of making a
           great first impression and attracting more clients.
         </p>
-      </div>
+      </div> */}
 
       {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

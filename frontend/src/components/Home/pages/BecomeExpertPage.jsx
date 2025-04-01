@@ -270,7 +270,7 @@ const BecomeExpertPage = () => {
     if (!expertData) {
       navigate("/expert-onboarding");
     } else {
-      alert("You're already an expert! Switching to expert mode.");
+      alert("You're already an expert! Switch to expert mode.");
     }
   };
   

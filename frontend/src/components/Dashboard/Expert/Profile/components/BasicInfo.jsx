@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import { FaPlus } from "react-icons/fa";
+import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
@@ -17,6 +17,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isMobileVerified, setIsMobileVerified] = useState(false);
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
@@ -81,42 +83,34 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       });
     }
   };
-  
+
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
     setContactInfo(
       type === "email" ? formData.email : formData.countryCode + formData.mobile
     );
     setShowOtpPopup(true);
-    if (type == "email") {
+    if (type === "email") {
       const response = await dispatch(generateOtpforValidating(formData.email));
     }
-    if (type == "mobile") {
-      const response = await dispatch(
-        generateOtpforValidating(formData.mobile)
-      );
+    if (type === "mobile") {
+      const response = await dispatch(generateOtpforValidating(formData.mobile));
     }
   };
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
+    if (verificationType === "email") {
+      setIsEmailVerified(true);
+    } else if (verificationType === "mobile") {
+      setIsMobileVerified(true);
+    }
   };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
       
-      <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
-        <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
-          Why Basic Info Matters
-        </h3>
-        <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
-          Your basic information is the first thing potential clients see. A
-          complete and professional profile increases your chances of making a
-          great first impression and attracting more clients.
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* First Name */}
         <div>
@@ -316,7 +310,27 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 dropdownClass="phone-input-dropdown"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => handleVerifyClick("mobile")}
+              disabled={isMobileVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isMobileVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
+            >
+              {isMobileVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
+            </button>
           </div>
+          
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
@@ -340,6 +354,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
+            <button
+              type="button"
+              onClick={() => handleVerifyClick("email")}
+              disabled={isEmailVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isEmailVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
+            >
+              {isEmailVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
+            </button>
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
