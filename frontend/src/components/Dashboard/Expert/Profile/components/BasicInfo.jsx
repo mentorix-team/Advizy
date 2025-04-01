@@ -81,6 +81,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       });
     }
   };
+
+
+
+
+
+
+
+
   
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
@@ -316,7 +324,16 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 dropdownClass="phone-input-dropdown"
               />
             </div>
+            <button
+              type="button"
+              onClick={() => handleVerifyClick("mobile")}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            >
+              Verify
+            </button>
+        
           </div>
+          
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
@@ -340,6 +357,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
+             <button
+              type="button"
+              onClick={() => handleVerifyClick("email")}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            >
+              Verify
+            </button>
+
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
