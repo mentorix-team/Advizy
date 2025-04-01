@@ -254,7 +254,9 @@ const [formData, setFormData] = useState({
   }
 
   if (currentIndex < tabs.length - 1) {
-    setActiveTab(tabs[currentIndex + 1]);
+    const nextTab = tabs[currentIndex + 1];
+    setActiveTab(nextTab);
+    localStorage.setItem('activeTab', nextTab); // Store in localStorage
   }
 };
 
@@ -272,9 +274,11 @@ const [formData, setFormData] = useState({
   const handlePrevious = () => {
     const currentIndex = tabs.indexOf(activeTab);
     if (currentIndex > 0) {
-      setActiveTab(tabs[currentIndex - 1]);
+      const prevTab = tabs[currentIndex - 1];
+      setActiveTab(prevTab);
+      localStorage.setItem('activeTab', prevTab); // Store in localStorage
     }
-  };
+  }
 
   const handleSaveAll = () => {
     const updatedFormData = {

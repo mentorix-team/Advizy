@@ -3,16 +3,18 @@ import EducationList from './EducationList';
 import EducationForm from './EducationForm';
 import { toast } from 'react-hot-toast';
 import { deleteEducation, EditEducationForm, SingleEducationForm } from '@/Redux/Slices/expert.Slice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Spinner from '@/components/LoadingSkeleton/Spinner';
 
 export default function EducationTab({ formData, onUpdate }) {
   console.log('This is formdata',formData)
   // const [educations, setEducations] = useState(formData);
-
+  const {loading} = useSelector((state)=> state.expert)
   const [educations,setEducations] = useState(()=>{
     const savedEducation = localStorage.getItem('educations');
     return savedEducation ? JSON.parse(savedEducation) : formData
   })
+
   console.log("Educations being passed to EducationList:", educations);
   const [showForm, setShowForm] = useState(formData.length === 0);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -42,12 +44,16 @@ export default function EducationTab({ formData, onUpdate }) {
       // Dispatch the action to add education
       const response = await dispatch(SingleEducationForm(educationData)).unwrap();
       
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
       // If successful, update local state
       const newEducation = {
-        degree: formData.get("degree"),
-        institution: formData.get("institution"),
-        passingYear: formData.get("passingYear"),
-        certificate: formData.get("certificate") || null,
+        degree: formData.degree,
+        institution: formData.institution,
+        passingYear: formData.passingYear,
+        certificate: formData.certificate || null,
       };
 
       const updatedEducations = [...educations, newEducation];
@@ -110,6 +116,10 @@ export default function EducationTab({ formData, onUpdate }) {
   
     try {
       const response = await dispatch(EditEducationForm(dataToUpdate)).unwrap();
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
       console.log('Response from server:', response);
   
       const updatedEducations = [...educations];
@@ -145,6 +155,10 @@ export default function EducationTab({ formData, onUpdate }) {
       toast.error('Failed to delete education. Please try again.');
     }
   };
+
+  if(loading){
+    <Spinner/>
+  }
 
   return (
     <div className="py-6">
