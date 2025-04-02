@@ -4,10 +4,7 @@ import { format } from 'date-fns';
 const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState('date');
-  const [displayDate, setDisplayDate] = useState(() => {
-    // Ensure we always have a valid Date object for display
-    return selectedDate instanceof Date ? selectedDate : new Date();
-  });
+  const [displayDate, setDisplayDate] = useState(selectedDate || new Date());
   const [yearRangeStart, setYearRangeStart] = useState(() => {
     const currentYear = new Date().getFullYear();
     return Math.floor(currentYear / 12) * 12;
@@ -43,6 +40,8 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     }
     setDisplayDate(newDate);
   };
+
+
 
   const navigateYearRange = (direction) => {
     setYearRangeStart(prevStart => {
@@ -85,17 +84,14 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    // Create a new Date object to avoid modifying the original
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
 
     // Always disable future dates
-    if (checkDate > today) return true;
+    if (date > today) return true;
     
     switch (type) {
       case 'dob':
-        return checkDate > today;
+        return date > today;
       default:
         return false;
     }
@@ -129,10 +125,10 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     for (let day = 1; day <= daysInMonth; day++) {
       const currentDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day);
       const isDisabled = isDateDisabled(currentDate);
-      const isSelected = selectedDate instanceof Date && 
-        selectedDate.getDate() === day && 
-        selectedDate.getMonth() === displayDate.getMonth() &&
-        selectedDate.getFullYear() === displayDate.getFullYear();
+      const isSelected = 
+        selectedDate?.getDate() === day && 
+        selectedDate?.getMonth() === displayDate.getMonth() &&
+        selectedDate?.getFullYear() === displayDate.getFullYear();
 
       days.push(
         <td key={day} className="text-center p-1">
@@ -177,7 +173,7 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
         }`}
       >
         <span className={`flex-1 ${disabled ? 'text-gray-500' : ''}`}>
-          {selectedDate instanceof Date ? format(selectedDate, 'MMM dd, yyyy') : 'Select date'}
+          {selectedDate ? format(selectedDate, 'MMM dd, yyyy') : 'Select date'}
         </span>
         <svg 
           className={`w-5 h-5 ${disabled ? 'text-gray-400' : 'text-gray-600'}`}
