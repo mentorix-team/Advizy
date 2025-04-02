@@ -16,28 +16,32 @@ const BookingConfirmation = () => {
 
     // Countdown timer
     const countdownInterval = setInterval(() => {
-      setCountdown((prevCount) => {
-        if (prevCount <= 1) {
-          clearInterval(countdownInterval);
-          navigate('/dashboard/user/meetings');
-          return 0;
-        }
-        return prevCount - 1;
-      });
+      setCountdown((prev) => prev - 1);
     }, 1000);
+
+    // Add redirect timer
+    const redirectTimer = setTimeout(() => {
+      navigate('/dashboard/user/meetings');
+    }, 7000); // 7 seconds
 
     // Cleanup timers on component unmount
     return () => {
+      clearTimeout(redirectTimer);
       clearInterval(countdownInterval);
     };
   }, [navigate]);
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50">
+    <div className="flex flex-col justify-center items-center min-h-screen">
       {/* Confetti Explosion */}
       {showConfetti && (
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center z-50">
-          {/* Confetti component would go here */}
+          <ConfettiExplosion
+            force={0.6}
+            duration={3000}
+            particleCount={150}
+            width={500}
+          />
         </div>
       )}
 
@@ -95,13 +99,13 @@ const BookingConfirmation = () => {
         </p>
 
         {/* Redirect Message */}
-        <p className="text-sm text-gray-600 mt-4 text-center font-medium">
+        <p className="text-sm text-gray-600 mt-4 text-center">
           Redirecting you to dashboard in {countdown} seconds...
         </p>
       </div>
 
       {/* Manage Booking Section */}
-      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-4 w-96 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors">
+      <div className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-4 p-4 w-96 flex justify-between items-center">
         <span className="font-medium text-gray-800">Manage booking</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"

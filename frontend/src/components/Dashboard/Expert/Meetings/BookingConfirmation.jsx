@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import ConfettiExplosion from "react-confetti-explosion";
+import { useNavigate } from "react-router-dom";
 import CategoryNav from "@/components/Home/components/CategoryNav";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
@@ -12,6 +13,8 @@ const BookingConfirmation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
+  const [countdown, setCountdown] = useState(7);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
@@ -19,7 +22,24 @@ const BookingConfirmation = () => {
       setShowConfetti(true);
       sessionStorage.setItem("firstVisit", "true");
     }
-  }, []);
+
+    // Countdown timer
+    const countdownInterval = setInterval(() => {
+      setCountdown((prevCount) => {
+        if (prevCount <= 1) {
+          clearInterval(countdownInterval);
+          navigate('/dashboard/user/meetings');
+          return 0;
+        }
+        return prevCount - 1;
+      });
+    }, 1000);
+
+    // Cleanup timer on component unmount
+    return () => {
+      clearInterval(countdownInterval);
+    };
+  }, [navigate]);
 
   const handleToggle = () => {
     setIsExpertMode(!isExpertMode);
@@ -47,6 +67,15 @@ const BookingConfirmation = () => {
       <main className="flex-grow pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center">
+            {/* Countdown Message - Positioned at the top */}
+            <div className="w-full max-w-lg mb-6">
+              <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 text-center">
+                <p className="text-lg font-medium text-gray-700">
+                  Redirecting you to dashboard in {countdown} seconds...
+                </p>
+              </div>
+            </div>
+
             {/* Confetti Explosion */}
             {showConfetti && (
               <div className="fixed inset-0 flex justify-center items-center pointer-events-none z-50">
