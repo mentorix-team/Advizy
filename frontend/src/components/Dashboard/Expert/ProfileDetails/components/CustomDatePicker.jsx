@@ -40,6 +40,8 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     }
     setDisplayDate(newDate);
   };
+  
+  console.log('selectedDate:', selectedDate, 'displayDate:', displayDate);
 
   const navigateYearRange = (direction) => {
     setYearRangeStart(prevStart => {
