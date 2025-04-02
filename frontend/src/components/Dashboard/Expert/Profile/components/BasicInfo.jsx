@@ -23,25 +23,35 @@ const BasicInfo = ({
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState({
+    countryCode: formData.countryCode || "",
+    number: formData.mobile || ""
+  });
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
   };
 
-  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
-    if (isValid) {
-      onUpdate({
-        ...formData,
-        countryCode,
-        mobile: phoneNumber,
-      });
-    }
+  const handlePhoneChange = ({ countryCode, phoneNumber }) => {
+    setPhoneNumber({
+      countryCode,
+      number: phoneNumber
+    });
   };
 
   const handleVerifyClick = async (type) => {
+    if (type === "mobile") {
+      // Update the form data with current phone number only when verifying
+      onUpdate({
+        ...formData,
+        countryCode: phoneNumber.countryCode,
+        mobile: phoneNumber.number
+      });
+    }
+
     setVerificationType(type);
     setContactInfo(
-      type === "email" ? formData.email : formData.countryCode + formData.mobile
+      type === "email" ? formData.email : phoneNumber.countryCode + phoneNumber.number
     );
     setShowOtpPopup(true);
     
@@ -49,7 +59,7 @@ const BasicInfo = ({
       if (type === "email") {
         await dispatch(generateOtpforValidating(formData.email));
       } else if (type === "mobile") {
-        await dispatch(generateOtpforValidating(formData.mobile));
+        await dispatch(generateOtpforValidating(phoneNumber.number));
       }
     } catch (error) {
       console.error("Error generating OTP:", error);
@@ -302,7 +312,7 @@ const BasicInfo = ({
             <div className="flex-1">
               <PhoneNumberValidation
                 country={"in"}
-                value={formData.countryCode + formData.mobile}
+                value={phoneNumber.countryCode + phoneNumber.number}
                 onChange={handlePhoneChange}
                 inputProps={{
                   required: true,
