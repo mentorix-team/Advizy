@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Star, User } from 'lucide-react';
+import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
 
 const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -136,7 +137,7 @@ const ExpertCard = ({ expert }) => {
               {averageRating}
             </span>
             <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree']">
-              ({expert.reviews?.length || 0})
+              ({expert.reviews?.length || 0} reviews)
             </span>
           </div>
 
@@ -148,7 +149,7 @@ const ExpertCard = ({ expert }) => {
               <CheckCircle className="w-5 h-5 text-blue-500" />
             </div>
             <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
-              {expert.credentials?.domain || "Expert"}
+              {expert.credentials?.professionalTitle || "Expert"}
             </p>
           </div>
 
