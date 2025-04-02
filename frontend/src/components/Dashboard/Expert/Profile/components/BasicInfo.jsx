@@ -89,6 +89,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
+  const validatePhoneNumber = (phone) => {
+    if (!phone) return false;
+    // Remove all non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
+    // Check if the number is between 10 and 15 digits
+    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
+  };
+
   const handlePhoneChange = (value, country) => {
     // Remove all non-digit characters from the phone number
     const fullNumber = value.replace(/\D/g, '');
@@ -101,14 +109,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       countryCode: `+${countryCode}`,
       mobile: phoneNumber
     });
-  };
-
-  const validatePhoneNumber = (phone) => {
-    if (!phone) return false;
-    // Remove all non-digit characters
-    const cleanPhone = phone.replace(/\D/g, '');
-    // Check if the number is between 10 and 15 digits
-    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
   };
 
   const handleVerifyClick = async (type) => {
