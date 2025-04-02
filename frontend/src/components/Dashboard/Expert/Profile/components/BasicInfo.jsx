@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PhoneInput from "react-phone-input-2";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
@@ -19,6 +19,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const [verificationType, setVerificationType] = useState("");
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
+  const [isEmailDisabled, setIsEmailDisabled] = useState(false);
+  const [isMobileDisabled, setIsMobileDisabled] = useState(false);
 
   const languageOptions = [
     { value: "english", label: "English" },
@@ -31,44 +33,30 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "tamil", label: "Tamil" },
     { value: "urdu", label: "Urdu" },
     { value: "kannada", label: "Kannada" },
-    // ... rest of the language options
   ];
 
-  // Load verification status from localStorage on component mount
   useEffect(() => {
-    const loadVerificationStatus = () => {
+    // Check if email exists and set verification status
+    if (formData.email) {
       const storedEmailVerification = localStorage.getItem('emailVerification');
       if (storedEmailVerification) {
         const { email, verified } = JSON.parse(storedEmailVerification);
         if (email === formData.email) {
           setIsEmailVerified(verified);
+          setIsEmailDisabled(verified);
         }
       }
+    }
 
+    // Check if mobile exists and set verification status
+    if (formData.mobile) {
       const storedMobileVerification = localStorage.getItem('mobileVerification');
       if (storedMobileVerification) {
         const { mobile, verified } = JSON.parse(storedMobileVerification);
         if (mobile === formData.mobile) {
           setIsMobileVerified(verified);
+          setIsMobileDisabled(verified);
         }
-      }
-    };
-
-    loadVerificationStatus();
-  }, [formData.email, formData.mobile]);
-
-  useEffect(() => {
-    if (formData.email) {
-      const storedEmailVerification = localStorage.getItem('emailVerification');
-      if (!storedEmailVerification || JSON.parse(storedEmailVerification).email !== formData.email) {
-        setIsEmailVerified(false);
-      }
-    }
-
-    if (formData.mobile) {
-      const storedMobileVerification = localStorage.getItem('mobileVerification');
-      if (!storedMobileVerification || JSON.parse(storedMobileVerification).mobile !== formData.mobile) {
-        setIsMobileVerified(false);
       }
     }
   }, [formData.email, formData.mobile]);
@@ -76,8 +64,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const handleChange = (field, value) => {
     if (field === 'email') {
       setIsEmailVerified(false);
+      setIsEmailDisabled(false);
     } else if (field === 'mobile') {
       setIsMobileVerified(false);
+      setIsMobileDisabled(false);
     }
     onUpdate({ ...formData, [field]: value });
   };
@@ -85,6 +75,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
     if (isValid) {
       setIsMobileVerified(false);
+      setIsMobileDisabled(false);
       onUpdate({
         ...formData,
         countryCode,
@@ -112,12 +103,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     setShowOtpPopup(false);
     if (verificationType === "email") {
       setIsEmailVerified(true);
+      setIsEmailDisabled(true);
       localStorage.setItem('emailVerification', JSON.stringify({
         email: formData.email,
         verified: true
       }));
     } else if (verificationType === "mobile") {
       setIsMobileVerified(true);
+      setIsMobileDisabled(true);
       localStorage.setItem('mobileVerification', JSON.stringify({
         mobile: formData.mobile,
         verified: true
@@ -238,7 +231,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <option value="uk">British</option>
             <option value="ca">Canadian</option>
             <option value="au">Australian</option>
-            {/* Add more nationalities as needed */}
           </select>
           {errors.nationality && touched.nationality && (
             <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
@@ -279,6 +271,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 inputProps={{
                   required: true,
                   className: "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary pl-12",
+                  disabled: isMobileDisabled
                 }}
                 containerClass="phone-input"
                 buttonClass="phone-input-button"
@@ -286,25 +279,20 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               />
             </div>
             {formData.mobile && (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("mobile")}
-                disabled={isMobileVerified}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                  isMobileVerified
-                    ? "bg-green-100 text-green-700 cursor-default"
-                    : "bg-primary text-white hover:bg-green-600"
-                }`}
-              >
-                {isMobileVerified ? (
-                  <>
-                    Verified
-                    <Check className="w-4 h-4" />
-                  </>
-                ) : (
-                  "Verify"
-                )}
-              </button>
+              isMobileVerified ? (
+                <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-lg">
+                  <Check className="w-4 h-4 mr-1 text-primary" />
+                  Verified
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleVerifyClick("mobile")}
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Verify
+                </button>
+              )
             )}
           </div>
           {errors.mobile && touched.mobile && (
@@ -324,30 +312,26 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
               placeholder="john@example.com"
+              disabled={isEmailDisabled}
               className={`flex-1 p-2.5 border rounded-lg focus:ring-1 focus:ring-primary ${
                 errors.email && touched.email ? "border-red-500" : "border-gray-300"
               }`}
             />
             {formData.email && (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("email")}
-                disabled={isEmailVerified}
-                className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                  isEmailVerified
-                    ? "bg-green-100 text-green-700 cursor-default"
-                    : "bg-primary text-white hover:bg-green-600"
-                }`}
-              >
-                {isEmailVerified ? (
-                  <>
-                    Verified
-                    <Check className="w-4 h-4" />
-                  </>
-                ) : (
-                  "Verify"
-                )}
-              </button>
+              isEmailVerified ? (
+                <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-lg">
+                  <Check className="w-4 h-4 mr-1 text-primary" />
+                  Verified
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleVerifyClick("email")}
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Verify
+                </button>
+              )
             )}
           </div>
           {errors.email && touched.email && (
