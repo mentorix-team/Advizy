@@ -35,6 +35,7 @@ function App({ formData, profileImage, coverImage }) {
         professionalTitle={expert?.credentials.professionalTitle|| ''}
         profileImage={expert?.profileImage?.secure_url||'' }
         coverImage={expert?.coverImage?.secure_url||''}
+        reviews={expert?.reviews}
       />
       {/* Add margin-top to account for the overlapping profile section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-[120px]">
@@ -42,7 +43,7 @@ function App({ formData, profileImage, coverImage }) {
           <div className="md:col-span-2">
           <ProfileInfo 
             bio={expert.bio || ''} 
-            experienceYears = {expert.experienceYears || ''}
+            experienceYears = {expert?.credentials.experienceYears || ''}
             languages={
               Array.isArray(expert?.languages)
                 ? expert.languages.map(lang => lang.label)  // If already an array, map it directly
