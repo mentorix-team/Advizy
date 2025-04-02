@@ -1,59 +1,64 @@
-import React, { useState, useEffect } from "react";
-import PhoneInput from "react-phone-input-2";
+import React, { useState } from "react";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
 import { useDispatch } from "react-redux";
-import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
-import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
 
-const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
+const BasicInfo = ({ 
+  formData, 
+  onUpdate, 
+  errors, 
+  touched, 
+  onBlur,
+  isEmailVerified,
+  isMobileVerified,
+  onVerificationSuccess 
+}) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
-  const [isEmailVerified, setIsEmailVerified] = useState(() => {
-    // Initialize from localStorage
-    const savedEmailVerification = localStorage.getItem(`emailVerified_${formData.email}`);
-    return savedEmailVerification === "true";
-  });
-  const [isMobileVerified, setIsMobileVerified] = useState(() => {
-    // Initialize from localStorage
-    const savedMobileVerification = localStorage.getItem(`mobileVerified_${formData.mobile}`);
-    return savedMobileVerification === "true";
-  });
-
-  // Update localStorage when verification status changes
-  useEffect(() => {
-    if (formData.email) {
-      localStorage.setItem(`emailVerified_${formData.email}`, isEmailVerified.toString());
-    }
-  }, [isEmailVerified, formData.email]);
-
-  useEffect(() => {
-    if (formData.mobile) {
-      localStorage.setItem(`mobileVerified_${formData.mobile}`, isMobileVerified.toString());
-    }
-  }, [isMobileVerified, formData.mobile]);
-
-  // Clear verification status when email/mobile changes
-  useEffect(() => {
-    setIsEmailVerified(false);
-    localStorage.removeItem(`emailVerified_${formData.email}`);
-  }, [formData.email]);
-
-  useEffect(() => {
-    setIsMobileVerified(false);
-    localStorage.removeItem(`mobileVerified_${formData.mobile}`);
-  }, [formData.mobile]);
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
+  };
+
+  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
+    if (isValid) {
+      onUpdate({
+        ...formData,
+        countryCode,
+        mobile: phoneNumber,
+      });
+    }
+  };
+
+  const handleVerifyClick = async (type) => {
+    setVerificationType(type);
+    setContactInfo(
+      type === "email" ? formData.email : formData.countryCode + formData.mobile
+    );
+    setShowOtpPopup(true);
+    
+    try {
+      if (type === "email") {
+        await dispatch(generateOtpforValidating(formData.email));
+      } else if (type === "mobile") {
+        await dispatch(generateOtpforValidating(formData.mobile));
+      }
+    } catch (error) {
+      console.error("Error generating OTP:", error);
+    }
+  };
+
+  const handleOtpVerificationSuccess = () => {
+    setShowOtpPopup(false);
+    onVerificationSuccess(verificationType);
   };
 
   const languageOptions = [
@@ -105,39 +110,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "bhojpuri", label: "Bhojpuri" },
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
-
-  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
-    if (isValid) {
-      onUpdate({
-        ...formData,
-        countryCode,
-        mobile: phoneNumber,
-      });
-    }
-  };
-
-  const handleVerifyClick = async (type) => {
-    setVerificationType(type);
-    setContactInfo(
-      type === "email" ? formData.email : formData.countryCode + formData.mobile
-    );
-    setShowOtpPopup(true);
-    if (type === "email") {
-      const response = await dispatch(generateOtpforValidating(formData.email));
-    }
-    if (type === "mobile") {
-      const response = await dispatch(generateOtpforValidating(formData.mobile));
-    }
-  };
-
-  const handleOtpVerificationSuccess = () => {
-    setShowOtpPopup(false);
-    if (verificationType === "email") {
-      setIsEmailVerified(true);
-    } else if (verificationType === "mobile") {
-      setIsMobileVerified(true);
-    }
-  };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
@@ -362,7 +334,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               )}
             </button>
           </div>
-          
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
@@ -412,7 +383,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <div>
+      {/* Languages Known */}
+      <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -424,11 +396,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 p-2.5 border ${
+          className={`${
             errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          }`}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
