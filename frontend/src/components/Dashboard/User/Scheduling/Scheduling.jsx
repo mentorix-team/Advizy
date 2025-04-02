@@ -79,9 +79,9 @@ function Scheduling() {
   }
 
   const expert = {
-    image: selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url || 'https://via.placeholder.com/100',
+    image: selectedExpert.profileImage?.secure_url || 'https://via.placeholder.com/100',
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: selectedExpert.credentials?.domain || 'No Title Provided',
+    title:selectedExpert.credentials?.professionalTitle || 'No Title Provided',
     sessionDuration,
     price: sessionPrice,
     description: selectedService.detailedDescription,
