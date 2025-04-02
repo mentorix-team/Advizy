@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PhoneInput from "react-phone-input-2";
-import { Check, BadgeCheck } from "lucide-react";
+import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
+import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
 import { useDispatch } from "react-redux";
-import { generateOtp } from "@/Redux/Slices/authSlice";
+import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
+import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
-import { Toaster, toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
@@ -18,24 +20,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
 
-  // Check initial values and set verification status
-  useEffect(() => {
-    if (formData.email) {
-      setIsEmailVerified(true);
-    }
-    if (formData.mobile) {
-      setIsMobileVerified(true);
-    }
-  }, []);
-
   const handleChange = (field, value) => {
-    // Reset verification status when field is cleared
-    if (field === 'email' && !value) {
-      setIsEmailVerified(false);
-    }
-    if (field === 'mobile' && !value) {
-      setIsMobileVerified(false);
-    }
     onUpdate({ ...formData, [field]: value });
   };
 
@@ -89,68 +74,37 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
-  const validatePhoneNumber = (phone) => {
-    if (!phone) return false;
-    // Remove all non-digit characters
-    const cleanPhone = phone.replace(/\D/g, '');
-    // Check if the number is between 10 and 15 digits
-    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
-  };
-
-  const handlePhoneChange = (value, country) => {
-    // Remove all non-digit characters from the phone number
-    const fullNumber = value.replace(/\D/g, '');
-    const countryCode = country.dialCode;
-    // Remove country code from the beginning of the number
-    const phoneNumber = fullNumber.substring(countryCode.length);
-    
-    onUpdate({
-      ...formData,
-      countryCode: `+${countryCode}`,
-      mobile: phoneNumber
-    });
+  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
+    if (isValid) {
+      onUpdate({
+        ...formData,
+        countryCode,
+        mobile: phoneNumber,
+      });
+    }
   };
 
   const handleVerifyClick = async (type) => {
-    try {
-      if (type === "email") {
-        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-          toast.error("Please enter a valid email address");
-          return;
-        }
-        setVerificationType("email");
-        setContactInfo(formData.email);
-        await dispatch(generateOtp({ email: formData.email }));
-      } else {
-        if (!validatePhoneNumber(formData.mobile)) {
-          toast.error("Please enter a valid mobile number (10-15 digits)");
-          return;
-        }
-        setVerificationType("mobile");
-        const fullNumber = `${formData.countryCode}${formData.mobile}`;
-        setContactInfo(fullNumber);
-        await dispatch(generateOtpforValidating({ 
-          mobile: formData.mobile,
-          countryCode: formData.countryCode 
-        }));
-      }
-      setShowOtpPopup(true);
-      toast.success("OTP sent successfully!");
-    } catch (error) {
-      console.error("Error generating OTP:", error);
-      toast.error("Failed to send OTP. Please try again.");
+    setVerificationType(type);
+    setContactInfo(
+      type === "email" ? formData.email : formData.countryCode + formData.mobile
+    );
+    setShowOtpPopup(true);
+    if (type === "email") {
+      const response = await dispatch(generateOtpforValidating(formData.email));
+    }
+    if (type === "mobile") {
+      const response = await dispatch(generateOtpforValidating(formData.mobile));
     }
   };
 
   const handleOtpVerificationSuccess = () => {
+    setShowOtpPopup(false);
     if (verificationType === "email") {
       setIsEmailVerified(true);
-      toast.success("Email verified successfully!");
-    } else {
+    } else if (verificationType === "mobile") {
       setIsMobileVerified(true);
-      toast.success("Mobile number verified successfully!");
     }
-    setShowOtpPopup(false);
   };
 
   return (
@@ -340,38 +294,43 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Mobile Number <span className="text-red-500">*</span>
           </label>
-          <div className="flex gap-2 relative">
+          <div className="flex gap-2">
             <div className="flex-1">
-              <PhoneInput
+              <PhoneNumberValidation
                 country={"in"}
                 value={formData.countryCode + formData.mobile}
                 onChange={handlePhoneChange}
-                disabled={isMobileVerified}
                 inputProps={{
                   required: true,
-                  className: `w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary pl-12 ${
-                    isMobileVerified ? 'bg-gray-50' : ''
-                  }`,
+                  className:
+                    "w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary pl-12",
                 }}
                 containerClass="phone-input"
                 buttonClass="phone-input-button"
                 dropdownClass="phone-input-dropdown"
               />
-              {isMobileVerified && (
-                 <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-                 
-              )}
             </div>
-            {!isMobileVerified && formData.mobile && (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("mobile")}
-                className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-green-600 flex items-center gap-2"
-              >
-                Verify
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => handleVerifyClick("mobile")}
+              disabled={isMobileVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isMobileVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
+            >
+              {isMobileVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
+            </button>
           </div>
+          
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
@@ -382,34 +341,38 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email Address <span className="text-red-500">*</span>
           </label>
-          <div className="flex gap-2 relative">
+          <div className="flex gap-2">
             <input
               type="email"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
-              disabled={isEmailVerified}
               placeholder="john@example.com"
               className={`flex-1 p-2.5 border ${
                 errors.email && touched.email
                   ? "border-red-500"
                   : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary ${
-                isEmailVerified ? 'bg-gray-50' : ''
-              }`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-            {isEmailVerified && (
-              <BadgeCheck className="absolute right-3 top-2.5 text-green-500 w-5 h-5" />
-            )}
-            {!isEmailVerified && formData.email && (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("email")}
-                className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-green-600 flex items-center gap-2"
-              >
-                Verify
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => handleVerifyClick("email")}
+              disabled={isEmailVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isEmailVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
+            >
+              {isEmailVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
+            </button>
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -417,7 +380,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -429,11 +392,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 ${
+          className={`flex-1 p-2.5 border ${
             errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          }`}
+          } rounded-lg focus:ring-1 focus:ring-primary`}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
@@ -445,7 +408,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onClose={() => setShowOtpPopup(false)}
           onSwitchView={handleOtpVerificationSuccess}
           contactInfo={contactInfo}
-          verificationType={verificationType}
         />
       )}
     </div>
