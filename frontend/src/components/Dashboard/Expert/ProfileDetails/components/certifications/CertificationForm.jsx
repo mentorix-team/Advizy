@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
-import ImageUploadModal from '../ImageUploadModal';
 import { FaEye, FaTrash } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { CertificateForm } from '@/Redux/Slices/expert.Slice';
@@ -10,11 +9,11 @@ import DocumentUploadModal from '../services/DocumentUploadModal';
 export default function CertificationForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    _id:initialData?._id||'',
-    title: initialData?.title||'',
-    issue_organization: initialData?.issue_organization||'',
-    year: initialData?.year||null,
-    certificates: initialData?.certificates||[]
+    _id: initialData?._id || '',
+    title: initialData?.title || '',
+    issue_organization: initialData?.issue_organization || '',
+    year: initialData?.year ? new Date(initialData.year) : null,
+    certificates: initialData?.certificates || []
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -22,52 +21,22 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     if (initialData) {
       setFormData({
         ...initialData,
-        issueDate: initialData.issueDate ? new Date(initialData.issueDate) : null
+        year: initialData.year ? new Date(initialData.year) : null,
+        certificates: initialData.certificates || []
       });
     }
   }, [initialData]);
 
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     console.log('Selected file:', file);
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       certificate: file,
-  //     }));
-  //     setUploadedFileName(file.name);
-  //   }
-  // };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const formDataToSend ={
+    const formDataToSend = {
       _id: formData._id,
       title: formData.title,
       issue_organization: formData.issue_organization,
-      year: formData.year,
+      year: formData.year instanceof Date ? formData.year.toISOString() : null,
       certificates: formData.certificates
-    }
-
-    // const formDataInstance = new FormData();
-    // formDataInstance.append('name', formData.name);
-    // formDataInstance.append('issuingOrganization', formData.issuingOrganization);
-    // formDataInstance.append('issueDate', formData.issueDate);
-
-    // if (formData.certificates) {
-    //   formDataInstance.append('certificates', formData.certificates);
-    // }
-
-    // dispatch(CertificateForm(formDataInstance));
-
-    // // Optionally clear the form after submitting
-    // setFormData({
-    //   name: '',
-    //   issuingOrganization: '',
-    //   issueDate: '',
-    //   certificates: null,
-    // });
+    };
 
     onSubmit(formDataToSend);
   };
@@ -221,16 +190,9 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
       <DocumentUploadModal
         isOpen={showUploadModal}
-        onClose={()=>setShowUploadModal(false)}
-        onUpload={handleFileUpload}
-      /> 
-      {/* <ImageUploadModal
-        isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        type="certificate"
         onUpload={handleFileUpload}
-        existingFiles={formData.certificates}
-      /> */}
+      />
     </div>
   );
 }
