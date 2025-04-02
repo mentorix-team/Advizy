@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
@@ -37,18 +37,14 @@ const BasicInfo = ({
       countryCode,
       number: phoneNumber
     });
+    onUpdate({
+      ...formData,
+      countryCode,
+      mobile: phoneNumber
+    });
   };
 
   const handleVerifyClick = async (type) => {
-    if (type === "mobile") {
-      // Update the form data with current phone number only when verifying
-      onUpdate({
-        ...formData,
-        countryCode: phoneNumber.countryCode,
-        mobile: phoneNumber.number
-      });
-    }
-
     setVerificationType(type);
     setContactInfo(
       type === "email" ? formData.email : phoneNumber.countryCode + phoneNumber.number
