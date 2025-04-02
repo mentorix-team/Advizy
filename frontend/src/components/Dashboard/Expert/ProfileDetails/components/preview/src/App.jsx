@@ -42,6 +42,7 @@ function App({ formData, profileImage, coverImage }) {
           <div className="md:col-span-2">
           <ProfileInfo 
             bio={expert.bio || ''} 
+            experienceYears = {expert.experienceYears || ''}
             languages={
               Array.isArray(expert?.languages)
                 ? expert.languages.map(lang => lang.label)  // If already an array, map it directly
