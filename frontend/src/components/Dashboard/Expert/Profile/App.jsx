@@ -21,6 +21,8 @@ function App() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loadingState, setLoadingState] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isMobileVerified, setIsMobileVerified] = useState(false);
 
   let expert = null;
 
@@ -54,6 +56,37 @@ function App() {
       languages: [],
     },
   });
+
+  // Load verification status from localStorage on component mount
+  useEffect(() => {
+    const email = formData.basic.email;
+    const mobile = formData.basic.mobile;
+    
+    if (email) {
+      const savedEmailVerification = localStorage.getItem(`emailVerified_${email}`);
+      setIsEmailVerified(savedEmailVerification === "true");
+    }
+    
+    if (mobile) {
+      const savedMobileVerification = localStorage.getItem(`mobileVerified_${mobile}`);
+      setIsMobileVerified(savedMobileVerification === "true");
+    }
+  }, []);
+
+  // Update localStorage when verification status changes
+  useEffect(() => {
+    const email = formData.basic.email;
+    if (email) {
+      localStorage.setItem(`emailVerified_${email}`, isEmailVerified.toString());
+    }
+  }, [isEmailVerified, formData.basic.email]);
+
+  useEffect(() => {
+    const mobile = formData.basic.mobile;
+    if (mobile) {
+      localStorage.setItem(`mobileVerified_${mobile}`, isMobileVerified.toString());
+    }
+  }, [isMobileVerified, formData.basic.mobile]);
 
   const validateBasicInfo = () => {
     const newErrors = {};
@@ -107,6 +140,8 @@ function App() {
       newErrors.mobile = "Mobile number is required";
     } else if (basic.mobile.length < 10) {
       newErrors.mobile = "Please enter a valid mobile number";
+    } else if (!isMobileVerified) {
+      newErrors.mobile = "Please verify your mobile number";
     }
 
     // Email validation
@@ -114,9 +149,11 @@ function App() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Please enter a valid email address";
+    } else if (!isEmailVerified) {
+      newErrors.email = "Please verify your email address";
     }
 
-    // Languages validation (optional but recommended)
+    // Languages validation
     if (basic.languages.length === 0) {
       newErrors.languages = "Please select at least one language";
     }
@@ -155,6 +192,12 @@ function App() {
     });
     setTouched(allTouched);
 
+    // Check if both email and mobile are verified
+    if (!isEmailVerified || !isMobileVerified) {
+      toast.error("Please verify both email and mobile number before submitting");
+      return;
+    }
+
     // If there are validation errors, show a toast and return
     if (Object.keys(validationErrors).length > 0) {
       toast.error("Please fill in all required fields correctly");
@@ -186,6 +229,14 @@ function App() {
       toast.error(error.message || "An error occurred while submitting the form");
     } finally {
       setLoadingState(false);
+    }
+  };
+
+  const handleVerificationSuccess = (type) => {
+    if (type === 'email') {
+      setIsEmailVerified(true);
+    } else if (type === 'mobile') {
+      setIsMobileVerified(true);
     }
   };
 
@@ -221,6 +272,9 @@ function App() {
               errors={errors}
               touched={touched}
               onBlur={(field) => setTouched({ ...touched, [field]: true })}
+              isEmailVerified={isEmailVerified}
+              isMobileVerified={isMobileVerified}
+              onVerificationSuccess={handleVerificationSuccess}
             />
           </div>
         </div>
@@ -228,9 +282,9 @@ function App() {
         <div className="flex justify-end text-end mt-6">
           <button
             onClick={handleNext}
-            disabled={loadingState}
+            disabled={loadingState || !isEmailVerified || !isMobileVerified}
             className={`px-4 sm:px-6 py-2 text-white rounded-lg transition ${
-              loadingState
+              loadingState || !isEmailVerified || !isMobileVerified
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-primary hover:bg-green-600"
             }`}

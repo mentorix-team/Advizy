@@ -1,25 +1,74 @@
 import React, { useState } from "react";
-import PhoneInput from "react-phone-input-2";
-import { FaPlus } from "react-icons/fa";
+import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
 import { useDispatch } from "react-redux";
-import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
-import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
 
-const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
+const BasicInfo = ({ 
+  formData, 
+  onUpdate, 
+  errors, 
+  touched, 
+  onBlur,
+  isEmailVerified,
+  isMobileVerified,
+  onVerificationSuccess 
+}) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState({
+    countryCode: formData.countryCode || "",
+    number: formData.mobile || ""
+  });
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
+  };
+
+  const handlePhoneChange = ({ countryCode, phoneNumber }) => {
+    setPhoneNumber({
+      countryCode,
+      number: phoneNumber
+    });
+  };
+
+  const handleVerifyClick = async (type) => {
+    if (type === "mobile") {
+      // Update the form data with current phone number only when verifying
+      onUpdate({
+        ...formData,
+        countryCode: phoneNumber.countryCode,
+        mobile: phoneNumber.number
+      });
+    }
+
+    setVerificationType(type);
+    setContactInfo(
+      type === "email" ? formData.email : phoneNumber.countryCode + phoneNumber.number
+    );
+    setShowOtpPopup(true);
+    
+    try {
+      if (type === "email") {
+        await dispatch(generateOtpforValidating(formData.email));
+      } else if (type === "mobile") {
+        await dispatch(generateOtpforValidating(phoneNumber.number));
+      }
+    } catch (error) {
+      console.error("Error generating OTP:", error);
+    }
+  };
+
+  const handleOtpVerificationSuccess = () => {
+    setShowOtpPopup(false);
+    onVerificationSuccess(verificationType);
   };
 
   const languageOptions = [
@@ -72,59 +121,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
-  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
-    if (isValid) {
-      onUpdate({
-        ...formData,
-        countryCode,
-        mobile: phoneNumber,
-      });
-    }
-  };
-
-
-
-
-
-
-
-
-  
-  const handleVerifyClick = async (type) => {
-    setVerificationType(type);
-    setContactInfo(
-      type === "email" ? formData.email : formData.countryCode + formData.mobile
-    );
-    setShowOtpPopup(true);
-    if (type == "email") {
-      const response = await dispatch(generateOtpforValidating(formData.email));
-    }
-    if (type == "mobile") {
-      const response = await dispatch(
-        generateOtpforValidating(formData.mobile)
-      );
-    }
-  };
-
-  const handleOtpVerificationSuccess = () => {
-    setShowOtpPopup(false);
-  };
-
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
       
-      {/* <div className="bg-[#F0FFF2] p-4 sm:p-6 md:p-8 rounded-lg mb-6 sm:mb-8 lg:mb-10 flex flex-col items-start text-center sm:text-left">
-        <h3 className="text-[#16A348] text-lg sm:text-xl md:text-2xl font-semibold mb-2">
-          Why Basic Info Matters
-        </h3>
-        <p className="text-[#16A348] text-sm sm:text-base md:text-lg leading-relaxed">
-          Your basic information is the first thing potential clients see. A
-          complete and professional profile increases your chances of making a
-          great first impression and attracting more clients.
-        </p>
-      </div> */}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* First Name */}
         <div>
@@ -312,7 +312,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <div className="flex-1">
               <PhoneNumberValidation
                 country={"in"}
-                value={formData.countryCode + formData.mobile}
+                value={phoneNumber.countryCode + phoneNumber.number}
                 onChange={handlePhoneChange}
                 inputProps={{
                   required: true,
@@ -327,13 +327,23 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <button
               type="button"
               onClick={() => handleVerifyClick("mobile")}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+              disabled={isMobileVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isMobileVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
             >
-              Verify
+              {isMobileVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
             </button>
-        
           </div>
-          
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
           )}
@@ -357,14 +367,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-             <button
+            <button
               type="button"
               onClick={() => handleVerifyClick("email")}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
+              disabled={isEmailVerified}
+              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                isEmailVerified
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-primary text-white hover:bg-green-600"
+              }`}
             >
-              Verify
+              {isEmailVerified ? (
+                <>
+                  Verified
+                  <Check className="w-4 h-4" />
+                </>
+              ) : (
+                "Verify"
+              )}
             </button>
-
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -372,7 +393,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <div>
+      {/* Languages Known */}
+      <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -384,11 +406,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 p-2.5 border ${
+          className={`${
             errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          }`}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>

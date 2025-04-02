@@ -271,7 +271,7 @@ const expertImages = async(req,res,next) =>{
   }
 }
 
-const expertCredentialsDetails = async (req, res, next) => {
+const expertCredentialsDetails = async (req, res,  next) => {
   const { domain, niche, professionalTitle, skills, experienceYears } = req.body;
 
   console.log("This is the req.body response:", req.body);

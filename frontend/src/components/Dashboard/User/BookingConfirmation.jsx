@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { CalendarIcon } from "@/icons/Icons";
-import ConfettiExplosion from "react-confetti-explosion";
+import { CalendarIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const BookingConfirmation = () => {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [countdown, setCountdown] = useState(7);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
@@ -11,7 +13,23 @@ const BookingConfirmation = () => {
       setShowConfetti(true);
       sessionStorage.setItem("firstVisit", "true");
     }
-  }, []);
+
+    // Countdown timer
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    // Add redirect timer
+    const redirectTimer = setTimeout(() => {
+      navigate('/dashboard/user/meetings');
+    }, 7000); // 7 seconds
+
+    // Cleanup timers on component unmount
+    return () => {
+      clearTimeout(redirectTimer);
+      clearInterval(countdownInterval);
+    };
+  }, [navigate]);
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen">
@@ -78,6 +96,11 @@ const BookingConfirmation = () => {
         {/* Meeting Details */}
         <p className="text-gray-500 text-sm mt-4 text-center">
           Meeting details are sent to your Email and Mobile number
+        </p>
+
+        {/* Redirect Message */}
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          Redirecting you to dashboard in {countdown} seconds...
         </p>
       </div>
 
