@@ -10,46 +10,42 @@ import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
 import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 
-const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
+const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur, onSubmit }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
   const [isEmailVerified, setIsEmailVerified] = useState(() => {
-    // Initialize from localStorage
-    const savedEmailVerification = localStorage.getItem(`emailVerified_${formData.email}`);
-    return savedEmailVerification === "true";
+    return localStorage.getItem("emailVerified") === "true";
   });
   const [isMobileVerified, setIsMobileVerified] = useState(() => {
-    // Initialize from localStorage
-    const savedMobileVerification = localStorage.getItem(`mobileVerified_${formData.mobile}`);
-    return savedMobileVerification === "true";
+    return localStorage.getItem("mobileVerified") === "true";
   });
 
-  // Update localStorage when verification status changes
   useEffect(() => {
-    if (formData.email) {
-      localStorage.setItem(`emailVerified_${formData.email}`, isEmailVerified.toString());
-    }
-  }, [isEmailVerified, formData.email]);
+    localStorage.setItem("emailVerified", isEmailVerified.toString());
+  }, [isEmailVerified]);
 
   useEffect(() => {
-    if (formData.mobile) {
-      localStorage.setItem(`mobileVerified_${formData.mobile}`, isMobileVerified.toString());
-    }
-  }, [isMobileVerified, formData.mobile]);
+    localStorage.setItem("mobileVerified", isMobileVerified.toString());
+  }, [isMobileVerified]);
 
-  // Clear verification status when email/mobile changes
   useEffect(() => {
-    setIsEmailVerified(false);
-    localStorage.removeItem(`emailVerified_${formData.email}`);
+    if (formData.email !== localStorage.getItem("verifiedEmail")) {
+      setIsEmailVerified(false);
+      localStorage.removeItem("emailVerified");
+      localStorage.removeItem("verifiedEmail");
+    }
   }, [formData.email]);
 
   useEffect(() => {
-    setIsMobileVerified(false);
-    localStorage.removeItem(`mobileVerified_${formData.mobile}`);
+    if (formData.mobile !== localStorage.getItem("verifiedMobile")) {
+      setIsMobileVerified(false);
+      localStorage.removeItem("mobileVerified");
+      localStorage.removeItem("verifiedMobile");
+    }
   }, [formData.mobile]);
 
   const handleChange = (field, value) => {
@@ -116,6 +112,17 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!isEmailVerified || !isMobileVerified) {
+      toast.error("Please verify both email and mobile number before submitting");
+      return;
+    }
+
+    onSubmit();
+  };
+
   const handleVerifyClick = async (type) => {
     setVerificationType(type);
     setContactInfo(
@@ -134,13 +141,15 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     setShowOtpPopup(false);
     if (verificationType === "email") {
       setIsEmailVerified(true);
+      localStorage.setItem("verifiedEmail", formData.email);
     } else if (verificationType === "mobile") {
       setIsMobileVerified(true);
+      localStorage.setItem("verifiedMobile", formData.mobile);
     }
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 lg:p-10">
+    <form onSubmit={handleSubmit} className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -412,7 +421,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <div>
+      <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -424,14 +433,33 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 p-2.5 border ${
+          className={`flex-1 ${
             errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          }`}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
+        )}
+      </div>
+
+      <div className="mt-8">
+        <button
+          type="submit"
+          className={`w-full px-4 py-2 rounded-lg text-white font-medium
+            ${(!isEmailVerified || !isMobileVerified)
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-dark'
+            }`}
+          disabled={!isEmailVerified || !isMobileVerified}
+        >
+          Submit
+        </button>
+        {(!isEmailVerified || !isMobileVerified) && (
+          <p className="text-red-500 text-sm mt-2 text-center">
+            Please verify both email and mobile number before submitting
+          </p>
         )}
       </div>
 
@@ -442,7 +470,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           contactInfo={contactInfo}
         />
       )}
-    </div>
+    </form>
   );
 };
 
