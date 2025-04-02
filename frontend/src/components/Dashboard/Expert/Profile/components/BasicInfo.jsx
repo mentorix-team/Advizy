@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
-import { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
@@ -89,41 +89,58 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
-  const handlePhoneChange = (value) => {
-    // Extract country code (first few digits until space)
-    const countryCode = value.substring(0, value.indexOf(' ') !== -1 ? value.indexOf(' ') : value.length);
-    // Extract phone number (everything after space)
-    const phoneNumber = value.indexOf(' ') !== -1 ? value.substring(value.indexOf(' ') + 1) : '';
+  const handlePhoneChange = (value, country) => {
+    const countryCode = country.dialCode;
+    const phoneNumber = value.slice(countryCode.length);
     
     onUpdate({
       ...formData,
       countryCode: `+${countryCode}`,
-      mobile: phoneNumber
+      mobile: phoneNumber.trim()
     });
   };
 
+  const validatePhoneNumber = (phone) => {
+    // Basic phone number validation - at least 10 digits
+    return phone && phone.replace(/\D/g, '').length >= 10;
+  };
+
   const handleVerifyClick = async (type) => {
-    setVerificationType(type);
-    const contact = type === "email" ? formData.email : formData.mobile;
-    setContactInfo(contact);
-    
     try {
       if (type === "email") {
-        await dispatch(generateOtp({ email: contact }));
+        if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          toast.error("Please enter a valid email address");
+          return;
+        }
+        setVerificationType("email");
+        setContactInfo(formData.email);
+        await dispatch(generateOtp({ email: formData.email }));
       } else {
-        await dispatch(generateOtpforValidating({ mobile: contact }));
+        if (!validatePhoneNumber(formData.mobile)) {
+          toast.error("Please enter a valid mobile number");
+          return;
+        }
+        setVerificationType("mobile");
+        setContactInfo(formData.mobile);
+        await dispatch(generateOtpforValidating({ 
+          mobile: formData.mobile,
+          countryCode: formData.countryCode 
+        }));
       }
       setShowOtpPopup(true);
     } catch (error) {
       console.error("Error generating OTP:", error);
+      toast.error("Failed to send OTP. Please try again.");
     }
   };
 
   const handleOtpVerificationSuccess = () => {
     if (verificationType === "email") {
       setIsEmailVerified(true);
+      toast.success("Email verified successfully!");
     } else {
       setIsMobileVerified(true);
+      toast.success("Mobile number verified successfully!");
     }
     setShowOtpPopup(false);
   };
@@ -332,11 +349,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 buttonClass="phone-input-button"
                 dropdownClass="phone-input-dropdown"
               />
-              {formData.mobile && (
+              {isMobileVerified && (
                 <BadgeCheck className="absolute right-3 top-2.5 text-green-500 w-5 h-5" />
               )}
             </div>
-            {!formData.mobile && (
+            {!isMobileVerified && formData.mobile && (
               <button
                 type="button"
                 onClick={() => handleVerifyClick("mobile")}
@@ -372,10 +389,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 isEmailVerified ? 'bg-gray-50' : ''
               }`}
             />
-            {formData.email && (
+            {isEmailVerified && (
               <BadgeCheck className="absolute right-3 top-2.5 text-green-500 w-5 h-5" />
             )}
-            {!formData.email && (
+            {!isEmailVerified && formData.email && (
               <button
                 type="button"
                 onClick={() => handleVerifyClick("email")}
@@ -391,7 +408,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <div>
+      <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -403,11 +420,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 p-2.5 border ${
+          className={`flex-1 ${
             errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          }`}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
@@ -419,6 +436,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onClose={() => setShowOtpPopup(false)}
           onSwitchView={handleOtpVerificationSuccess}
           contactInfo={contactInfo}
+          verificationType={verificationType}
         />
       )}
     </div>
