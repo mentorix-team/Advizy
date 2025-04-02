@@ -358,7 +358,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 dropdownClass="phone-input-dropdown"
               />
               {isMobileVerified && (
-                <BadgeCheck className="absolute right-3 top-2.5 text-green-500 w-5 h-5" />
+                 <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
+                 
               )}
             </div>
             {!isMobileVerified && formData.mobile && (
