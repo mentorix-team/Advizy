@@ -13,9 +13,16 @@ export default function UpcomingSessions() {
   }
   const { meetings } = useSelector((state) => state.meeting);
   console.log("This is meetings:", meetings);
+  const paidMeetings = meetings
+  ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
+  ?.map(({ amount, daySpecific }) => ({
+    amount: Number(amount), // Convert to number
+    date: daySpecific?.date || "Unknown Date",
+    status: "Paid",
+  }));
 
   // Extract upcoming sessions
-  const upcomingSessions = meetings
+  const upcomingSessions = paidMeetings
     ?.map((meeting) => ({
       id: meeting._id,
       client: meeting.userName || "Unknown Client",

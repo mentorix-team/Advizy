@@ -127,9 +127,13 @@ export const deleteExpertExperience = createAsyncThunk(
               headers: { 'Content-Type': 'multipart/form-data' },
             }
           : {}
-      );    } catch (error) {
-      console.error("Error submitting experience form:", error);
+      );
+      return await response.data
 
+      }
+
+      catch (error) {
+      console.error("Error submitting experience form:", error);
       toast.error(error.response?.data?.message || "Something went wrong");
 
       return rejectWithValue(
@@ -816,6 +820,7 @@ const expertSlice = createSlice({
         state.error = action.payload;
         state.loading = false
       })
+
       .addCase(getmeasexpert.pending,(state,action)=>{
         state.loading = true,
         state.error = null
@@ -828,6 +833,7 @@ const expertSlice = createSlice({
         state.loading = false,
         state.error = action.payload.error
       })
+
       .addCase(EditEducationForm.fulfilled,(state,action)=>{
         const { expert } = action.payload;
 
@@ -846,6 +852,102 @@ const expertSlice = createSlice({
         state.loading = false
         state.error = action.payload?.error
       })
+      
+      .addCase(deleteEducation.fulfilled,(state,action)=>{
+        const { expert } = action.payload;
+
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(deleteEducation.pending,(state,action)=>{
+        state.loading = true
+        state.error = null
+      })
+      .addCase(deleteEducation.rejected,(state,action)=>{
+        state.loading = false
+        state.error = action.payload?.error
+      })
+
+      .addCase(EditCertificate.fulfilled,(state,action)=>{
+        const { expert } = action.payload;
+
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(EditCertificate.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(EditCertificate.rejected,(state,action)=>{
+        state.loading = false,
+        state.error = action.payload.error
+      })
+
+      .addCase(deleteCerti.fulfilled,(state,action)=>{
+        const { expert } = action.payload;
+
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(deleteCerti.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(deleteCerti.rejected,(state,action)=>{
+        state.loading = false,
+        state.error = action.payload.error
+      })
+
+      .addCase(editExperience.fulfilled,(state,action)=>{
+        const { expert } = action.payload;
+
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(editExperience.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(editExperience.rejected,(state,action)=>{
+        state.loading = false,
+        state.error = action.payload.error
+      })
+      
+      .addCase(deleteExpertExperience.fulfilled,(state,action)=>{
+        console.log('action,',action.payload)
+        const { expert } = action.payload;
+        // Save to localStorage
+        localStorage.setItem("expertData", JSON.stringify(expert));
+
+        // Update Redux state
+        state.loading = false
+        state.expertData = expert;
+      })
+      .addCase(deleteExpertExperience.pending,(state,action)=>{
+        state.loading = true,
+        state.error = null
+      })
+      .addCase(deleteExpertExperience.rejected,(state,action)=>{
+        state.loading = false,
+        state.error = action.payload.error
+      })
+
   }
 });
 

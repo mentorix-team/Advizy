@@ -22,7 +22,7 @@ const ProfileInfo = ({ bio, experienceYears,languages }) => {
         <InfoItem 
           icon="⏱️"
           label="Experience"
-          value={experienceYears}
+          value={`${experienceYears} years`}
         />
         <InfoItem 
           icon="🌐"

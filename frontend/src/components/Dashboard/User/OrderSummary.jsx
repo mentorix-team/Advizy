@@ -19,7 +19,7 @@ const OrderSummary = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
-
+  const [delayedPrice, setDelayedPrice] = useState(null);
   const { selectedMeeting, loading, error } = useSelector((state) => state.meeting);
   const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
   const { loading: paymentLoading, error: paymentError } = useSelector((state) => state.payment);
@@ -68,6 +68,19 @@ const OrderSummary = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedService?.price) {
+      setDelayedPrice(selectedService.price);
+    } else {
+      const timeout = setTimeout(() => {
+        setDelayedPrice(selectedService?.price || Price);
+      }, 3000); // Wait for 3 seconds
+  
+      return () => clearTimeout(timeout); // Cleanup the timeout
+    }
+  }, [selectedService?.price]);
+  
+
   if (loading || expertLoading) {
     return <Spinner />;
   }
@@ -95,16 +108,17 @@ const OrderSummary = () => {
   };
 
   const expert = {
-    image: selectedExpert.credentials?.portfolio?.[0]?.photo?.secure_url || 'https://via.placeholder.com/100',
+    image: selectedExpert.profileImage?.secure_url || 'https://via.placeholder.com/100',
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: selectedExpert.credentials?.domain || 'No Title Provided',
+    title: selectedExpert.credentials?.professionalTitle || 'No Title Provided',
     sessionDuration: selectedService.duration,
     price: selectedService.price,
     description: selectedService.detailedDescription,
     includes: selectedService.features,
   };
 
-  const { selectedDate, startTime, endTime, Price } = location.state || {};
+  const { selectedDate, startTime, endTime } = location.state || {};
+  const Price = location.state?.Price; // Ensure it exists before accessing
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
 
   const formatSelectedDate = (date) => {
@@ -222,7 +236,11 @@ const OrderSummary = () => {
     }
   };
 
-  const priceforsession = selectedService?.price || Price;
+  const priceforsession = delayedPrice;
+
+  if(loading && paymentLoading && expertLoading){
+    return <Spinner/>
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
