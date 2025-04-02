@@ -10,7 +10,7 @@ const InfoItem = ({ icon, label, value }) => (
   </div>
 );
 
-const ProfileInfo = ({ bio, languages }) => {
+const ProfileInfo = ({ bio, experienceYears,languages }) => {
   return (
     <div className="bg-white rounded-lg p-6">
       <h2 className="text-black font-figtree text-xl font-semibold leading-[150%] mb-4">About Me</h2>
@@ -19,6 +19,11 @@ const ProfileInfo = ({ bio, languages }) => {
       </p>
       
       <div className="grid grid-cols-2 gap-4">
+        <InfoItem 
+          icon="⏱️"
+          label="Experience"
+          value={experienceYears}
+        />
         <InfoItem 
           icon="🌐"
           label="Languages"
