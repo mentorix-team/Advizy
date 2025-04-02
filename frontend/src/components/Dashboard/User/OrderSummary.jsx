@@ -26,6 +26,12 @@ const OrderSummary = () => {
   console.log("this is selected meeting",selectedMeeting)
   const [message, setMessage] = useState("");
 
+  const { durationforstate,selectedDate,includes,serviceDescription,title,selectedTime } = location.state || {};
+  console.log('slec',selectedTime)
+  const Price = location.state?.Price; // Ensure it exists before accessing
+  const parsedDate = selectedDate ? new Date(selectedDate) : null;
+  console.log('this is also price',Price)
+
   useEffect(() => {
     dispatch(getMeet());
   }, [dispatch]);
@@ -110,16 +116,12 @@ const OrderSummary = () => {
   const expert = {
     image: selectedExpert.profileImage?.secure_url || 'https://via.placeholder.com/100',
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: selectedExpert.credentials?.professionalTitle || 'No Title Provided',
-    sessionDuration: selectedService.duration,
-    price: selectedService.price,
-    description: selectedService.detailedDescription,
-    includes: selectedService.features,
+    title: selectedExpert.credentials?.professionalTitle ||title|| 'No Title Provided',
+    sessionDuration: selectedService.duration || durationforstate,
+    price: selectedService.price || Price,
+    description: selectedService.detailedDescription || serviceDescription,
+    includes: selectedService.features || includes,
   };
-
-  const { selectedDate, startTime, endTime } = location.state || {};
-  const Price = location.state?.Price; // Ensure it exists before accessing
-  const parsedDate = selectedDate ? new Date(selectedDate) : null;
 
   const formatSelectedDate = (date) => {
     if (!date) return { monthDate: "No Date", day: "No Day" };

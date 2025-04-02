@@ -305,7 +305,7 @@ function Home() {
             {bookingsData?.length > 0 && (
               <UpcomingSessions sessions={bookingsData} />
             )}
-            <AvailabilityCalendar meetings={meetings} />
+          <AvailabilityCalendar meetings={paidMeetings} />
             {/* <PerformanceChart /> */}
           </div>
           <div className="space-y-4">

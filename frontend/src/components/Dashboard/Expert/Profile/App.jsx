@@ -71,7 +71,7 @@ function App() {
       const savedMobileVerification = localStorage.getItem(`mobileVerified_${mobile}`);
       setIsMobileVerified(savedMobileVerification === "true");
     }
-  }, [formData.basic.email, formData.basic.mobile]);
+  }, []);
 
   // Update localStorage when verification status changes
   useEffect(() => {
@@ -235,10 +235,8 @@ function App() {
   const handleVerificationSuccess = (type) => {
     if (type === 'email') {
       setIsEmailVerified(true);
-      localStorage.setItem(`emailVerified_${formData.basic.email}`, 'true');
     } else if (type === 'mobile') {
       setIsMobileVerified(true);
-      localStorage.setItem(`mobileVerified_${formData.basic.mobile}`, 'true');
     }
   };
 
