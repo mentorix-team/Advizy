@@ -9,7 +9,14 @@ const ProfileHeader = ({
   professionalTitle,
   profileImage,
   coverImage,
+  reviews,
 }) => {
+  const averageRating = reviews?.length
+    ? (
+        reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+      ).toFixed(1)
+    : "0.0";
+
   return (
     <div className="relative">
       {/* Cover Image */}
@@ -52,7 +59,7 @@ const ProfileHeader = ({
                 {professionalTitle}
               </p>
               <p className="flex items-center mt-2 text-gray-600">
-                <MapPin className='w-4 h-4'/>
+                <MapPin className="w-4 h-4 text-gray-600" />
                 {city}, {nationality}
               </p>
 
@@ -60,12 +67,14 @@ const ProfileHeader = ({
               <div className="flex flex-col md:flex-row md:items-center mt-3">
                 <div className="flex items-center gap-2">
                   <span className="text-yellow-400 text-lg">★</span>
-                  <span className="text-lg font-medium">4.9</span>
-                  <span className="text-gray-500 text-sm">(120 reviews)</span>
+                  <span className="text-lg font-medium">{averageRating}</span>
+                  <span className="text-gray-500 text-sm">
+                    ({reviews?.length || 0} reviews)
+                  </span>
                 </div>
-                <div className="bg-green-50 text-primary px-3 py-1 rounded-full text-sm text-center mt-2 md:mt-0">
+                {/* <div className="bg-green-50 text-primary px-3 py-1 rounded-full text-sm text-center mt-2 md:mt-0">
                   Top Rated
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
