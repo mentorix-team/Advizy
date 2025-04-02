@@ -19,11 +19,30 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
-        ...initialData,
-        year: initialData.year ? new Date(initialData.year) : null,
-        certificates: initialData.certificates || []
-      });
+      try {
+        const parsedDate = initialData.year ? new Date(initialData.year) : null;
+        if (parsedDate && isNaN(parsedDate.getTime())) {
+          console.error('Invalid date format received:', initialData.year);
+          setFormData({
+            ...initialData,
+            year: null,
+            certificates: initialData.certificates || []
+          });
+        } else {
+          setFormData({
+            ...initialData,
+            year: parsedDate,
+            certificates: initialData.certificates || []
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        setFormData({
+          ...initialData,
+          year: null,
+          certificates: initialData.certificates || []
+        });
+      }
     }
   }, [initialData]);
 
@@ -59,6 +78,21 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
   const viewFile = (file) => {
     window.open(URL.createObjectURL(file), '_blank');
+  };
+
+  const handleDateChange = (date) => {
+    try {
+      const validDate = date ? new Date(date) : null;
+      if (validDate && !isNaN(validDate.getTime())) {
+        setFormData(prev => ({ ...prev, year: validDate }));
+      } else {
+        console.error('Invalid date selected:', date);
+        setFormData(prev => ({ ...prev, year: null }));
+      }
+    } catch (error) {
+      console.error('Error handling date change:', error);
+      setFormData(prev => ({ ...prev, year: null }));
+    }
   };
 
   return (
@@ -105,7 +139,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
           </label>
           <CustomDatePicker
             selectedDate={formData.year}
-            onChange={(date) => setFormData({ ...formData, year: date })}
+            onChange={handleDateChange}
             type="certification"
           />
         </div>
