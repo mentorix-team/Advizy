@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PhoneInput from "react-phone-input-2";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
@@ -17,8 +17,40 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState("");
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isMobileVerified, setIsMobileVerified] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(() => {
+    // Initialize from localStorage
+    const savedEmailVerification = localStorage.getItem(`emailVerified_${formData.email}`);
+    return savedEmailVerification === "true";
+  });
+  const [isMobileVerified, setIsMobileVerified] = useState(() => {
+    // Initialize from localStorage
+    const savedMobileVerification = localStorage.getItem(`mobileVerified_${formData.mobile}`);
+    return savedMobileVerification === "true";
+  });
+
+  // Update localStorage when verification status changes
+  useEffect(() => {
+    if (formData.email) {
+      localStorage.setItem(`emailVerified_${formData.email}`, isEmailVerified.toString());
+    }
+  }, [isEmailVerified, formData.email]);
+
+  useEffect(() => {
+    if (formData.mobile) {
+      localStorage.setItem(`mobileVerified_${formData.mobile}`, isMobileVerified.toString());
+    }
+  }, [isMobileVerified, formData.mobile]);
+
+  // Clear verification status when email/mobile changes
+  useEffect(() => {
+    setIsEmailVerified(false);
+    localStorage.removeItem(`emailVerified_${formData.email}`);
+  }, [formData.email]);
+
+  useEffect(() => {
+    setIsMobileVerified(false);
+    localStorage.removeItem(`mobileVerified_${formData.mobile}`);
+  }, [formData.mobile]);
 
   const handleChange = (field, value) => {
     onUpdate({ ...formData, [field]: value });
