@@ -41,6 +41,57 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     onUpdate({ ...formData, [field]: value });
   };
 
+  const languageOptions = [
+    { value: "english", label: "English" },
+    { value: "hindi", label: "Hindi" },
+    { value: "marathi", label: "Marathi" },
+    { value: "punjabi", label: "Punjabi" },
+    { value: "telugu", label: "Telugu" },
+    { value: "gujarati", label: "Gujarati" },
+    { value: "bengali", label: "Bengali" },
+    { value: "tamil", label: "Tamil" },
+    { value: "urdu", label: "Urdu" },
+    { value: "kannada", label: "Kannada" },
+    { value: "odia", label: "Odia" },
+    { value: "malayalam", label: "Malayalam" },
+    { value: "assamese", label: "Assamese" },
+    { value: "maithili", label: "Maithili" },
+    { value: "santali", label: "Santali" },
+    { value: "kashmiri", label: "Kashmiri" },
+    { value: "nepali", label: "Nepali" },
+    { value: "gondi", label: "Gondi" },
+    { value: "sindhi", label: "Sindhi" },
+    { value: "konkani", label: "Konkani" },
+    { value: "dogri", label: "Dogri" },
+    { value: "mandarin", label: "Mandarin Chinese" },
+    { value: "spanish", label: "Spanish" },
+    { value: "french", label: "French" },
+    { value: "arabic", label: "Arabic" },
+    { value: "portuguese", label: "Portuguese" },
+    { value: "russian", label: "Russian" },
+    { value: "indonesian", label: "Indonesian" },
+    { value: "japanese", label: "Japanese" },
+    { value: "german", label: "German" },
+    { value: "nigerian_pidgin", label: "Nigerian Pidgin" },
+    { value: "turkish", label: "Turkish" },
+    { value: "hausa", label: "Hausa" },
+    { value: "vietnamese", label: "Vietnamese" },
+    { value: "yue", label: "Yue Chinese (Cantonese)" },
+    { value: "swahili", label: "Swahili" },
+    { value: "tagalog", label: "Tagalog" },
+    { value: "punjabi_western", label: "Western Punjabi" },
+    { value: "korean", label: "Korean" },
+    { value: "persian", label: "Iranian Persian" },
+    { value: "javanese", label: "Javanese" },
+    { value: "italian", label: "Italian" },
+    { value: "thai", label: "Thai" },
+    { value: "amharic", label: "Amharic" },
+    { value: "levantine_arabic", label: "Levantine Arabic" },
+    { value: "bhojpuri", label: "Bhojpuri" },
+    { value: "min_nan", label: "Min Nan Chinese" },
+  ];
+
+
   const handlePhoneChange = (value, country) => {
     const countryCode = country.dialCode;
     const mobile = value.slice(country.dialCode.length);
