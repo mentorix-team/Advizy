@@ -148,7 +148,7 @@ const ExpertCard = ({ expert }) => {
               <CheckCircle className="w-5 h-5 text-blue-500" />
             </div>
             <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
-              {expert.credentials?.domain || "Expert"}
+              {expert.credentials?.professionalTitle || "Expert"}
             </p>
           </div>
 
