@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createMeet } from '@/Redux/Slices/meetingSlice';
 
-function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
+function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName ,title,includes,serviceDescription}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
@@ -110,9 +110,13 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       if (result) {
         navigate(`/expert/order-summary/`, {
           state: {
+            durationforstate:sessionDuration,
             selectedDate: formattedDate,
             selectedTime: time,
             Price: sessionPrice,
+            title:title,
+            serviceDescription:serviceDescription,
+            includes:includes
           },
         });
       }
