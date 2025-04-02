@@ -4,10 +4,8 @@ import { Check, BadgeCheck } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
-import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
 import { useDispatch } from "react-redux";
-import VerifyAccount from "../../../../Auth/VerifyAccount.auth";
-import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
+import { generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
@@ -91,14 +89,16 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
-
-  const handlePhoneChange = (value, country) => {
-    const countryCode = country.dialCode;
-    const mobile = value.slice(country.dialCode.length);
+  const handlePhoneChange = (value) => {
+    // Extract country code (first few digits until space)
+    const countryCode = value.substring(0, value.indexOf(' ') !== -1 ? value.indexOf(' ') : value.length);
+    // Extract phone number (everything after space)
+    const phoneNumber = value.indexOf(' ') !== -1 ? value.substring(value.indexOf(' ') + 1) : '';
+    
     onUpdate({
       ...formData,
       countryCode: `+${countryCode}`,
-      mobile: mobile
+      mobile: phoneNumber
     });
   };
 
@@ -317,7 +317,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           </label>
           <div className="flex gap-2 relative">
             <div className="flex-1">
-              <PhoneNumberValidation
+              <PhoneInput
                 country={"in"}
                 value={formData.countryCode + formData.mobile}
                 onChange={handlePhoneChange}
