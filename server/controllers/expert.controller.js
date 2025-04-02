@@ -313,11 +313,11 @@ const expertcertifiicate = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body);  // Debugging log
 
-    const { name, issuingOrganization, issueDate } = req.body; // Extracting fields from the body
+    const { title, issue_organization, year } = req.body; // Extracting fields from the body
     const expert_id = req.expert.id; // Assuming expert ID is in the request
 
     // Validate required fields
-    if (!name || !issuingOrganization || !issueDate) {
+    if (!title || !issue_organization || !year) {
       return next(new AppError("All fields (name, issuingOrganization, issueDate) are required", 400));
     }
 
@@ -334,9 +334,9 @@ const expertcertifiicate = async (req, res, next) => {
 
     // Prepare certificate entry
     const certificateEntry = {
-      title: name,
-      issue_organization: issuingOrganization,
-      year: issueDate,
+      title: title,
+      issue_organization: issue_organization,
+      year: year,
       certificate: {
         public_id: null,
         secure_url: null,
@@ -382,14 +382,14 @@ const editExpertCertificate = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log
 
-    const { name, issuingOrganization, issueDate, _id } = req.body; // Extract fields from the body
+    const { title, issue_organization, year, _id } = req.body; // Extract fields from the body
     const expert_id = req.expert.id; // Assuming expert ID is in the request
 
     // Validate required fields
     if (
-      !name ||
-      !issuingOrganization ||
-      !issueDate 
+      !title ||
+      !issue_organization ||
+      !year
     ) {
       return next(
         new AppError(
@@ -422,9 +422,9 @@ const editExpertCertificate = async (req, res, next) => {
       expert.credentials.certifications_courses[certificateIndex];
 
     // Update the fields
-    certificateEntry.title = name;
-    certificateEntry.issue_organization = issuingOrganization;
-    certificateEntry.year = issueDate;
+    certificateEntry.title = title;
+    certificateEntry.issue_organization = issue_organization;
+    certificateEntry.year = year;
 
     // Handle file upload (update certificate file if provided)
     if (req.file) {
