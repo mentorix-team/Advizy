@@ -53,7 +53,10 @@ export default function ExperienceTab({ formData, onUpdate }) {
       };
   
       const response = await dispatch(ExperienceFormSubmit(experienceData)).unwrap();
-  
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
       const newExperience = {
         ...response, // Use the response from the API which includes the _id
         companyName: formData.companyName,
@@ -119,6 +122,10 @@ export default function ExperienceTab({ formData, onUpdate }) {
   
     try {
       const response = await dispatch(editExperience(dataToUpdate)).unwrap();
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
       console.log('Response from server:', response);
   
       const updatedExperiences = [...experiences];

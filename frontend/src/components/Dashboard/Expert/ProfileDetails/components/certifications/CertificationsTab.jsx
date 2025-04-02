@@ -5,24 +5,29 @@ import { toast, Toaster } from "react-hot-toast";
 import { CertificateForm, deleteCerti, EditCertificate } from "@/Redux/Slices/expert.Slice";
 import { useDispatch } from "react-redux";
 
-const STORAGE_KEY = 'user_certifications';
-
 export default function CertificationsTab({ formData = [], onUpdate }) {
   const [certificateToEdit,setCertificateToEdit] = useState(null)
-
-  console.log('Thiis is formData',formData)
+  console.log('this is formdata',formData)
   const [certifications, setCertifications] = useState(() => {
-    // Initialize from localStorage or props
-    const storedData = localStorage.getItem(STORAGE_KEY);
-    if (storedData) {
-      try {
-        return JSON.parse(storedData);
-      } catch (e) {
-        console.error('Error parsing stored certifications:', e);
-      }
+    const storedData = localStorage.getItem('certifications');
+  
+    if (!storedData) {
+      console.log("LocalStorage is empty, using formData:", formData);
+      return Array.isArray(formData) ? formData : [formData]; // Ensure formData is an array
     }
-    return formData;
+  
+    try {
+      const parsedCertification = JSON.parse(storedData);
+      console.log("Parsed data from localStorage:", parsedCertification);
+      return Array.isArray(parsedCertification) ? parsedCertification : formData;
+    } catch (error) {
+      console.error("Error parsing certifications from localStorage:", error);
+      return formData; // Fallback to formData if JSON parsing fails
+    }
   });
+  
+  
+  
   console.log('THis is certificats',certifications)
   const dispatch = useDispatch()
   const [showForm, setShowForm] = useState(false);
@@ -31,7 +36,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
   // Sync with localStorage whenever certifications change
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(certifications));
+      localStorage.setItem('certifications', JSON.stringify(certifications));
     } catch (e) {
       console.error('Error storing certifications:', e);
     }
@@ -39,29 +44,36 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
 
   // Update local state when props change and no local storage exists
   useEffect(() => {
-    if (Array.isArray(formData) && !localStorage.getItem(STORAGE_KEY)) {
+    if (Array.isArray(formData)) {
       setCertifications(formData);
       setShowForm(formData.length === 0);
+      localStorage.setItem('certifications', JSON.stringify(formData)); // Sync localStorage with latest formData
     }
-  }, [formData]);
+  }, [formData]); // Runs whenever formData updates
+  
 
   const handleAddCertification = async (formData) => {
 
     try {
       const certificateData = {
-        name: formData.name,
-        issuingOrganization: formData.issuingOrganization,
-        issueDate: formData.issueDate,
+        title: formData.title,
+        issue_organization: formData.issue_organization,
+        year: formData.year,
         certificates: formData.certificates
       }
 
       const response = await dispatch(CertificateForm(certificateData))
 
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
       const newCertificate = {
-        name: formData.get('name'),
-        issuingOrganization: formData.get('issuingOrganization'),
-        issueDate: formData.get('issueDate'),
-        certificates: formData.get('certificates')
+        title: formData.title,
+        issue_organization: formData.issue_organization,
+        year: formData.year,
+        certificates: formData.certificates
       }
       const updatedCertifications = [...certifications, newCertificate];
       setCertifications(updatedCertifications);
@@ -87,9 +99,9 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     }
   
     console.log("Editing education at index:", index);
-    console.log("Selected education:", selectedEducation);
+    console.log("Selected education:", selectedCerti);
 
-    setEducationToEdit(selectedEducation); // Ensure state is updated properly
+    setCertificateToEdit(selectedCerti); // Ensure state is updated properly
     setEditingIndex(index);
     setShowForm(true);
   };
@@ -120,6 +132,10 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
   
     try {
       const response = await dispatch(EditCertificate(dataToUpdate)).unwrap();
+      toast.success('Education added successfully!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
       console.log('Response from server:', response);
   
       const updatedCertification = [...certifications];

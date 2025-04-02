@@ -11,9 +11,9 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     _id:initialData?._id||'',
-    name: initialData?.name||'',
-    issuingOrganization: initialData?.issuingOrganization||'',
-    issueDate: initialData?.issueDate||null,
+    title: initialData?.title||'',
+    issue_organization: initialData?.issue_organization||'',
+    year: initialData?.year||null,
     certificates: initialData?.certificates||[]
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -44,9 +44,9 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
     const formDataToSend ={
       _id: formData._id,
-      name: formData.name,
-      issuingOrganization: formData.issuingOrganization,
-      issueDate: formData.issueDate,
+      title: formData.title,
+      issue_organization: formData.issue_organization,
+      year: formData.year,
       certificates: formData.certificates
     }
 
@@ -108,8 +108,8 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
           </label>
           <input
             type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
             placeholder="AWS Certified Solutions Architect"
             required
@@ -122,8 +122,8 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
           </label>
           <input
             type="text"
-            value={formData.issuingOrganization}
-            onChange={(e) => setFormData({ ...formData, issuingOrganization: e.target.value })}
+            value={formData.issue_organization}
+            onChange={(e) => setFormData({ ...formData, issue_organization: e.target.value })}
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
             placeholder="Amazon Web Services (AWS)"
             required
@@ -135,8 +135,8 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
             Issue Date
           </label>
           <CustomDatePicker
-            selectedDate={formData.issueDate}
-            onChange={(date) => setFormData({ ...formData, issueDate: date })}
+            selectedDate={formData.year}
+            onChange={(date) => setFormData({ ...formData, year: date })}
             type="certification"
           />
         </div>
