@@ -90,19 +90,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   ];
 
   const handlePhoneChange = (value, country) => {
+    // Remove all non-digit characters from the phone number
+    const fullNumber = value.replace(/\D/g, '');
     const countryCode = country.dialCode;
-    const phoneNumber = value.slice(countryCode.length);
+    // Remove country code from the beginning of the number
+    const phoneNumber = fullNumber.substring(countryCode.length);
     
     onUpdate({
       ...formData,
       countryCode: `+${countryCode}`,
-      mobile: phoneNumber.trim()
+      mobile: phoneNumber
     });
   };
 
   const validatePhoneNumber = (phone) => {
-    // Basic phone number validation - at least 10 digits
-    return phone && phone.replace(/\D/g, '').length >= 10;
+    if (!phone) return false;
+    // Remove all non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
+    // Check if the number is between 10 and 15 digits
+    return cleanPhone.length >= 10 && cleanPhone.length <= 15;
   };
 
   const handleVerifyClick = async (type) => {
@@ -117,17 +123,19 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         await dispatch(generateOtp({ email: formData.email }));
       } else {
         if (!validatePhoneNumber(formData.mobile)) {
-          toast.error("Please enter a valid mobile number");
+          toast.error("Please enter a valid mobile number (10-15 digits)");
           return;
         }
         setVerificationType("mobile");
-        setContactInfo(formData.mobile);
+        const fullNumber = `${formData.countryCode}${formData.mobile}`;
+        setContactInfo(fullNumber);
         await dispatch(generateOtpforValidating({ 
           mobile: formData.mobile,
           countryCode: formData.countryCode 
         }));
       }
       setShowOtpPopup(true);
+      toast.success("OTP sent successfully!");
     } catch (error) {
       console.error("Error generating OTP:", error);
       toast.error("Failed to send OTP. Please try again.");
