@@ -19,30 +19,11 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
   useEffect(() => {
     if (initialData) {
-      try {
-        const parsedDate = initialData.year ? new Date(initialData.year) : null;
-        if (parsedDate && isNaN(parsedDate.getTime())) {
-          console.error('Invalid date format received:', initialData.year);
-          setFormData({
-            ...initialData,
-            year: null,
-            certificates: initialData.certificates || []
-          });
-        } else {
-          setFormData({
-            ...initialData,
-            year: parsedDate,
-            certificates: initialData.certificates || []
-          });
-        }
-      } catch (error) {
-        console.error('Error parsing date:', error);
-        setFormData({
-          ...initialData,
-          year: null,
-          certificates: initialData.certificates || []
-        });
-      }
+      setFormData({
+        ...initialData,
+        year: initialData.year ? new Date(initialData.year) : null,
+        certificates: initialData.certificates || []
+      });
     }
   }, [initialData]);
 
@@ -53,7 +34,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
       _id: formData._id,
       title: formData.title,
       issue_organization: formData.issue_organization,
-      year: formData.year instanceof Date ? formData.year.toISOString() : null,
+      year: formData.year instanceof Date ? formData.year.toISOString().split("T")[0] : null,
       certificates: formData.certificates
     };
 
@@ -80,19 +61,11 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     window.open(URL.createObjectURL(file), '_blank');
   };
 
-  const handleDateChange = (date) => {
-    try {
-      const validDate = date ? new Date(date) : null;
-      if (validDate && !isNaN(validDate.getTime())) {
-        setFormData(prev => ({ ...prev, year: validDate }));
-      } else {
-        console.error('Invalid date selected:', date);
-        setFormData(prev => ({ ...prev, year: null }));
-      }
-    } catch (error) {
-      console.error('Error handling date change:', error);
-      setFormData(prev => ({ ...prev, year: null }));
-    }
+  const handleChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
@@ -138,8 +111,10 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
             Issue Date
           </label>
           <CustomDatePicker
-            selectedDate={formData.year}
-            onChange={handleDateChange}
+            selectedDate={formData.year ? new Date(formData.year) : null}
+            onChange={(date) => {
+              handleChange("year", date.toISOString().split("T")[0]);
+            }}
             type="certification"
           />
         </div>
