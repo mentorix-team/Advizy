@@ -47,6 +47,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
+import { BookUser } from "lucide-react";
 
 // InfoItem component to display individual information
 const InfoItem = ({ icon, label, value }) => (
@@ -67,7 +68,8 @@ const ProfileInfo = ({
 }) => {
   return (
     <div className="bg-white rounded-lg p-6">
-      <h2 className="text-black font-figtree text-xl font-semibold leading-[150%] mb-4">
+      <h2 className="flex items-center gap-1 text-black font-figtree text-xl font-semibold leading-[150%] mb-4">
+      <BookUser className="w-4 h-4 text-primary" />
         About Me
       </h2>
       <p className="text-black font-figtree text-base font-normal leading-[150%] mb-3">

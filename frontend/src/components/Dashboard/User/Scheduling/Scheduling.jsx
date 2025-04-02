@@ -120,17 +120,20 @@ function Scheduling() {
                     />
                   </div>
                   <div>
-                    <TimeSlots
-                      sessionDuration={sessionDuration}
-                      sessionPrice={sessionPrice}
-                      selectedDate={selectedDate}
-                      selectedAvailability={selectedAvailability}
-                      expertName={selectedExpert.firstName + " " + selectedExpert.lastName}
-                      userName={userData.firstName + " " + userData.lastName}
-                      serviceName={selectedService.title}
-                      expertId={selectedExpert._id}
-                      serviceId={selectedService.serviceId}
-                    />
+                  <TimeSlots 
+                    sessionDuration={sessionDuration}
+                    sessionPrice={sessionPrice}
+                    selectedDate={selectedDate} 
+                    selectedAvailability={selectedAvailability}
+                    expertName = {selectedExpert.firstName+" "+selectedExpert.lastName}
+                    userName= {userData.firstName + " "+userData.lastName}
+                    serviceName = {selectedService.title}
+                    expertId={selectedExpert._id} 
+                    serviceId={selectedService.serviceId} 
+                    serviceDescription = {selectedService.detailedDescription}
+                    includes = {selectedService.features}
+                    title = {selectedService.title}
+                  />
                   </div>
                 </div>
               </div>

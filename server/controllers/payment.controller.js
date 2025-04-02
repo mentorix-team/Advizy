@@ -53,7 +53,7 @@ const verifyPayment = (req, res, next) => {
 
     // Generate the expected signature
     const generated_signature = crypto
-      .createHmac('sha256', 'fG4W6CZKg62JgO74HnB66XFL') // Replace with your Razorpay secret key
+      .createHmac('sha256', 'XEiBgIvf5BNyD6bgy9Bs8YAB') // Replace with your Razorpay secret key
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 

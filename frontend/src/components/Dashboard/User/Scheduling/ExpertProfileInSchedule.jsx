@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 
 function ExpertProfileInSchedule({ expert }) {
+  console.log('expertttt',expert)
   const [showMore, setShowMore] = useState(false);
 
   return (
