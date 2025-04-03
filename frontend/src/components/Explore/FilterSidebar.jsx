@@ -45,6 +45,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
       selectedDurations: [],
       sorting: "",
     });
+    
   };
 
   const handleApplyFilters = () => {
