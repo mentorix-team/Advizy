@@ -127,7 +127,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             Reset
           </button>
         </div>
-        <h2 className="text-xl font-semibold">Filters</h2>
       </div>
       
       <div className="flex justify-between items-center mb-6">

@@ -1,3 +1,4 @@
+import { fetchUserProfile } from "@/Redux/Slices/authSlice";
 import { useState, useEffect } from "react";
 // import { getFavorites } from "./userService";
 import { useDispatch, useSelector } from "react-redux";
