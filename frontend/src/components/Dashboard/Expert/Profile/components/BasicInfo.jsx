@@ -17,7 +17,9 @@ const BasicInfo = ({
   onBlur,
   isEmailVerified,
   isMobileVerified,
-  onVerificationSuccess 
+  onVerificationSuccess,
+  setIsEmailVerified,
+  setIsMobileVerified 
 }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
@@ -29,10 +31,30 @@ const BasicInfo = ({
   });
 
   const handleChange = (field, value) => {
+    if (field === "email") {
+      const savedEmailVerification = localStorage.getItem(`emailVerified_${value}`);
+      
+      if (savedEmailVerification === "true") {
+        setIsEmailVerified(true);  // Restore verification if the email matches the previously verified one
+      } else {
+        setIsEmailVerified(false); // Otherwise, reset verification
+      }
+    }
+  
     onUpdate({ ...formData, [field]: value });
   };
-
+  
+  
   const handlePhoneChange = ({ countryCode, phoneNumber }) => {
+    const newMobile = `${countryCode}${phoneNumber}`;
+
+    const savedMobileVerification = localStorage.getItem(`mobileVerified_${newMobile}`);
+    
+    if (savedMobileVerification === "true") {
+      setIsMobileVerified(true);  // Restore verification if the mobile matches the previously verified one
+    } else {
+      setIsMobileVerified(false); // Otherwise, reset verification
+    }
     setPhoneNumber({
       countryCode,
       number: phoneNumber
