@@ -40,4 +40,7 @@ router.post('/favourites', isLoggedIn, addFavouriteExpert);
 router.get('/favprofile', isLoggedIn, getUserProfile);
 // router.delete('/favourites/:expertId', isLoggedIn, removeFavouriteExpert)
 
+router.get("/profile", isLoggedIn, getUserProfile);
+
+
 export default router

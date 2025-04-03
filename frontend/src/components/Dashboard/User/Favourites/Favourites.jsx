@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 const Favorites = ({ userToken }) => {
   const dispatch = useDispatch();
   const [favorites, setFavorites] = useState([]);
-  const { data: userData } = useSelector((state) => state.auth);
+  const { data: userData, loading, error } = useSelector((state) => state.auth);
   //   let userData;
   //   try {
   //     userData = typeof data === "string" ? JSON.parse(data) : data;
@@ -24,6 +24,10 @@ const Favorites = ({ userToken }) => {
       setFavorites(userData.favourites); // Ensure favorites are updated in state
     }
   }, [userData]);
+
+  if (loading) return <p>Loading favorites...</p>;
+  if (error) return <p>Error fetching favorites: {error}</p>;
+  if (!userData?.favourites || userData.favourites.length === 0) return <p>No favorites yet.</p>;
 
   return (
     <div>
