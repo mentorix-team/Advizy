@@ -11,15 +11,21 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { Landmark, ActivitySquare as SquareActivity, Palette, Cpu, GraduationCap, Handshake } from "lucide-react";
+import {
+  Landmark,
+  SquareActivity,
+  Palette,
+  Cpu,
+  GraduationCap,
+  Handshake,
+} from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+// import Spinner from "@/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
-import { Routes, Route } from "react-router-dom";
-
-
+import { useNavigate } from "react-router-dom";
 
 // Sample categories remain unchanged
 const categories = [
@@ -41,7 +47,7 @@ const categories = [
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
         <GraduationCap className="text-primary w-5 h-5" />
       </div>
     ),
@@ -81,9 +87,12 @@ function HomePage() {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const { experts } = useSelector((state) => state.expert);
   const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
+  console.log(experts);
+  // Local state for filtered experts
   const [fitnessExperts, setFitnessExperts] = useState([]);
   const [careerExperts, setCareerExperts] = useState([]);
 
+  // Check expert mode from localStorage
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     if (expertData) {
@@ -96,14 +105,12 @@ function HomePage() {
   };
 
   const handleCategorySelect = (category) => {
-    navigate(`/explore?category=${category.toLowerCase()}`);
-    setIsModalOpen(false);
+    console.log('category selected: ', category)
+    navigate(`/explore?category=${category.value}`);
+    setIsModalOpen(false); // Close the modal
   };
 
-  const handleCategoryClick = (category) => {
-    navigate(`/explore?category=${category.title.toLowerCase()}`);
-  };
-
+  // Show category navigation on scroll
   useEffect(() => {
     const handleScroll = () => {
       const categoryGrid = document.getElementById("category-grid");
@@ -117,11 +124,14 @@ function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // useEffect to fetch Top Fitness Experts
   useEffect(() => {
     const queryParams = {
       domain: "health_and_fitness",
+      // Add other filters if needed, for example: sorting, price range, etc.
     };
 
+    // Clean up query parameters: remove keys with empty strings or empty arrays
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
@@ -131,10 +141,11 @@ function HomePage() {
       })
     );
 
+    // Dispatch getAllExperts action
     dispatch(getAllExperts(cleanedQueryParams))
       .unwrap()
       .then((data) => {
-        setFitnessExperts(data.experts);
+        setFitnessExperts(data.experts); // Adjust based on your API response shape
       })
       .catch((error) => {
         console.error("Error fetching fitness experts:", error);
@@ -143,13 +154,14 @@ function HomePage() {
 
   useEffect(() => {
     if (!loading && isLoggedIn) {
-      navigate("/");
+      navigate("/"); // Redirect after login completes
     }
   }, [loading, isLoggedIn, navigate]);
-
+  // useEffect to fetch Career Mentors
   useEffect(() => {
     const queryParams = {
       domain: "career_and_education",
+      // Add additional filters as needed
     };
 
     const cleanedQueryParams = Object.fromEntries(
@@ -175,7 +187,7 @@ function HomePage() {
     return <Spinner />;
   }
 
-  const HomeContent = () => (
+  return (
     <div>
       <div className="mx-5 sm:mx-0">
         <Navbar
@@ -187,6 +199,7 @@ function HomePage() {
           {showCategoryNav && <CategoryNav categories={categories} />}
         </AnimatePresence>
 
+        {/* Grid Background with gradient fade */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}
@@ -219,6 +232,7 @@ function HomePage() {
           }}
         />
 
+        {/* Hero Section */}
         <div id="hero-section" className="relative pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div
@@ -270,8 +284,6 @@ function HomePage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      onClick={() => handleCategoryClick(category)}
-                      className="cursor-pointer"
                     >
                       <CategoryCard {...category} />
                     </motion.div>
@@ -282,9 +294,11 @@ function HomePage() {
           </div>
         </div>
 
+        {/* Rest of the sections */}
         <div className="relative w-full">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12">
+              {/* Top Fitness Experts Section */}
               <ExpertSection
                 title="Top Fitness Experts"
                 subtitle="Specialized guidance in fitness"
@@ -292,6 +306,7 @@ function HomePage() {
                 link="/explore"
               />
 
+              {/* Career Mentors Section */}
               <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">
                 <ExpertSection
                   title="Career Mentors"
@@ -317,13 +332,6 @@ function HomePage() {
         onCategorySelect={handleCategorySelect}
       />
     </div>
-  );
-
-  return (
-    <Routes>
-      <Route path="/" element={<HomeContent />} />
-      <Route path="/explore" element={<ExplorePage />} />
-    </Routes>
   );
 }
 
