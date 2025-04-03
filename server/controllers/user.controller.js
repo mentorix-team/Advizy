@@ -8,7 +8,10 @@ import UserGoogle from "../config/model/user.google.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendOtpMessage } from "../utils/sendnotification.js";
-import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
+import {
+  ExpertBasics,
+  ExpertCredentials,
+} from "../config/model/expert/expertfinal.model.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -1262,6 +1265,75 @@ const refresh_token = async (req, res, next) => {
   }
 };
 
+const addFavouriteExpert = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const {expertId} = req.body;
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const expert = await ExpertBasics.findById(expertId);
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    user.favourites = user.favourites.includes(expertId) 
+    ? user.favourites.filter((id) => id.toString() !== expertId) 
+    : [...user.favourites, expertId];
+
+    await user.save();
+
+
+    res.status(200).json({
+      message: "Expert added to favorites",
+      user
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+// const removeFavouriteExpert = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id);
+//     const expertId = req.params.expertId;
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     user.favourites = user.favourites.filter(
+//       (id) => id.toString() !== expertId
+//     );
+//     await user.save();
+
+//     res
+//       .status(200)
+//       .json({
+//         message: "Expert removed from favourites",
+//         favourites: user.favourites,
+//       });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server Error", error });
+//   }
+// };
+
+// const getFavourites = async (req, res) => {
+//   try {
+//     const user = await User.findById(req.user.id).populate("favourites");
+
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     res.status(200).json(user.favourites);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server Error", error });
+//   }
+// };
+
 export {
   refresh_token,
   register_with_email,
@@ -1290,4 +1362,7 @@ export {
   regenerate_otp,
   updateUser,
   validateToken,
+  // getFavourites,
+  // removeFavouriteExpert,
+  addFavouriteExpert,
 };

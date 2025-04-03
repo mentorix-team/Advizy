@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon } from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const UserDashboardLayout = () => {
@@ -284,6 +284,21 @@ const UserDashboardLayout = () => {
               >
                 <MessageSquareText className="w-5 h-5" />
                 <span className="ms-3">Chats</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/user/favourites"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <Heart className="w-5 h-5" />
+                <span className="ms-3">Favorites</span>
               </NavLink>
             </li>
           </ul>

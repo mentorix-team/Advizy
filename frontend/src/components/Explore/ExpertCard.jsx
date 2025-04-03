@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
+// import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
+import { addFavourites } from "@/Redux/Slices/authSlice";
 
 const ExpertCard = ({
   redirect_url,
@@ -17,12 +19,25 @@ const ExpertCard = ({
   duration,
   expertise,
 }) => {
-  const [liked, setLiked] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
+  const {data,loading,error} = useSelector((state)=>state.auth)
+  let userData;
+  try {
+    userData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error("Error parsing user data:", error);
+    userData = null; 
+  }
+  useEffect(() => {
+    if (userData?.favourites) {
+      // Check if expert ID exists in the user's favorites
+      setIsFavorite(userData.favourites.includes(id));
+    }
+  }, [userData, id]);
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
@@ -41,10 +56,13 @@ const ExpertCard = ({
   );
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
-  const toggleLike = () => {
-    setLiked(!liked);
-    setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 500);
+  const handleFavoriteClick = async () => {
+    try {
+      const response = await dispatch(addFavourites({expertId:id}))
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Error updating favorite", error);
+    }
   };
 
   return (
@@ -110,15 +128,17 @@ const ExpertCard = ({
                 </div>
 
                 <button
-                  onClick={toggleLike}
-                  className={`absolute right-0 top-0 ${isAnimating ? "animate-ping" : ""}`}
+                  onClick={handleFavoriteClick}
+                  className={`absolute right-0 top-0 ${
+                    isAnimating ? "animate-ping" : ""
+                  }`}
                 >
                   <Heart
                     className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
                       isAnimating ? "scale-125" : ""
                     }`}
-                    fill={liked ? "#EF4444" : "none"}
-                    stroke={liked ? "#EF4444" : "currentColor"}
+                    fill={isFavorite ? "#EF4444" : "none"}
+                    stroke={isFavorite ? "#EF4444" : "currentColor"}
                   />
                 </button>
               </div>

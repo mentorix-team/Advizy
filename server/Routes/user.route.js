@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { forgot, forgot_with_otp_email, forgot_with_otp_mobile, generateOtp, generate_otp_for_Signup, generate_otp_for_Signup_mobile, generate_otp_with_email, generate_otp_with_mobile, googleAuth, googleCallback, handleGoogleCallback, login, login_with_mobile, login_with_otp, logout, myprofile, refresh_token, regenerate_otp, register_with_email, register_with_mobile, reset, reset_password, setPassword, updateUser, validateToken, validate_otp_email, validate_otp_mobile } from "../controllers/user.controller.js";
+import { forgot, forgot_with_otp_email, forgot_with_otp_mobile, generateOtp, generate_otp_for_Signup, generate_otp_for_Signup_mobile, generate_otp_with_email, generate_otp_with_mobile, googleAuth, googleCallback, handleGoogleCallback, login, login_with_mobile, login_with_otp, logout, myprofile, refresh_token, regenerate_otp, register_with_email, register_with_mobile, reset, reset_password, setPassword, updateUser, validateToken, validate_otp_email, validate_otp_mobile, addFavouriteExpert } from "../controllers/user.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { isLoggedIn } from "../middlewares/auth.middleare.js";
 
@@ -34,5 +34,9 @@ router.get('/validate_token',validateToken)
 
 router.post("/refresh-token", refresh_token);
 
+
+// router.get('/favourites', isLoggedIn, getFavourites);
+router.post('/favourites', isLoggedIn, addFavouriteExpert);
+// router.delete('/favourites/:expertId', isLoggedIn, removeFavouriteExpert)
 
 export default router
