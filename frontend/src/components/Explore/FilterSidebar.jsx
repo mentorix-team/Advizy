@@ -26,14 +26,18 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
     );
   };
 
-  // const resetFilters = () => {
-  //   setSelectedNiches([]);
-  //   setPriceRange([200, 100000]);
-  //   setSelectedLanguages([]);
-  //   setSelectedRatings([]);
-  //   setSelectedDurations([]);
-  //   setSorting("");
-  // };
+  const resetFilters = () => {
+    setSelectedDomain(null);
+    setFilters({
+      selectedDomain: null,
+      selectedNiches: [],
+      priceRange: [200, 100000],
+      selectedLanguages: [],
+      selectedRatings: [],
+      selectedDurations: [],
+    });
+    setSorting(""); // Reset sorting to initial state
+  };
 
   const handleApplyFilters = () => {
     const filters = {
@@ -45,7 +49,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
       selectedDurations,
       sorting,
     };
-    resetFilters
+    
     onApplyFilters(filters);
   };
 
