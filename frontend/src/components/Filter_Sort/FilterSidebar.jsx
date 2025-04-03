@@ -64,26 +64,26 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
 
   return (
     <div className="max-w-80 w-80 border shadow-md relative">
-      {/* Sticky header with Apply and Reset buttons */}
-      <div className="sticky top-0 bg-white z-10 p-4 border-b">
-        <div className="flex gap-2">
-          <button
-            onClick={handleApplyFilters}
-            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition text-sm font-medium"
-          >
-            Apply Filters
-          </button>
+      {/* Sticky header with buttons */}
+      <div className="sticky top-0 bg-white z-10 px-4 pt-4 pb-2">
+        <button
+          onClick={handleApplyFilters}
+          className="w-full bg-green-600 text-white py-3 rounded-md hover:bg-green-700 transition text-base font-medium mb-4"
+        >
+          Apply Filters
+        </button>
+      </div>
+
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Filters</h2>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-50 transition text-sm font-medium whitespace-nowrap"
+            className="text-sm text-gray-600 hover:text-gray-800"
           >
             Reset
           </button>
         </div>
-      </div>
-
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Filters</h2>
         
         <div className="mb-4">
           <label className="font-medium">Domain</label>
