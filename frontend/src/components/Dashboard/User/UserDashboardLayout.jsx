@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
-import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon } from "lucide-react";
+import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const UserDashboardLayout = () => {
@@ -22,12 +22,10 @@ const UserDashboardLayout = () => {
     return location.pathname === path;
   };
 
-  // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  // Check for expertData in localStorage on component mount
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     const expertMode = localStorage.getItem("expertMode");
@@ -58,20 +56,18 @@ const UserDashboardLayout = () => {
     const newMode = !isExpertMode;
     setIsExpertMode(newMode);
 
-    // Update localStorage to reflect the new mode
     if (newMode) {
       localStorage.setItem("expertMode", "true");
     } else {
       localStorage.removeItem("expertMode");
     }
 
-    // Redirect based on the mode
     if (newMode) {
       console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
       console.log("Navigating to Landing Page");
-      navigate("/"); // Navigate to the landing page
+      navigate("/");
     }
   };
 
@@ -129,76 +125,80 @@ const UserDashboardLayout = () => {
     <div className="overflow-x-hidden">
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
-        <div className="max-w-7xl px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
+            {/* Logo */}
+            <div className="flex-shrink-0">
               <a href="/" className="flex items-center font-bold text-gray-900">
                 <img src="/logo104.99&44.svg" alt="Advizy Logo" />
               </a>
             </div>
 
-            <div className="hidden lg:flex items-center gap-6">
-              <a
-                href="/about-us"
-                className={`transition-colors duration-200 text-base font-medium ${
-                  isLinkActive("/about-us")
-                    ? "text-primary underline underline-offset-4"
-                    : "text-gray-600 hover:text-primary"
-                }`}
-              >
-                About Us
-              </a>
-              {!isExpertMode && (
+            {/* Right Side Navigation and Controls */}
+            <div className="flex items-center gap-8">
+              <div className="hidden lg:flex items-center gap-6">
                 <a
-                  href="/become-expert"
+                  href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
-                    isLinkActive("/become-expert")
+                    isLinkActive("/about-us")
                       ? "text-primary underline underline-offset-4"
                       : "text-gray-600 hover:text-primary"
                   }`}
                 >
-                  Share Your Expertise
+                  About Us
                 </a>
-              )}
-              {isLoggedIn ? (
-                <UserDropdown />
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-primary text-white text-sm px-8 py-2 rounded-md"
-                  onClick={handleOpenAuthPopup}
-                >
-                  Login
-                </motion.button>
-              )}
-            </div>
-
-            {/* Mobile menu buttons */}
-            <div className="lg:hidden flex items-center gap-4">
-              {isLoggedIn ? (
-                <UserDropdown />
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-primary text-white text-sm px-6 py-2 rounded-md"
-                  onClick={handleOpenAuthPopup}
-                >
-                  Login
-                </motion.button>
-              )}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-primary transition-colors"
-                aria-label="Toggle menu"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <PanelRightCloseIcon className="h-8 w-8 text-gray-700" />
+                {!isExpertMode && (
+                  <a
+                    href="/become-expert"
+                    className={`transition-colors duration-200 text-base font-medium ${
+                      isLinkActive("/become-expert")
+                        ? "text-primary underline underline-offset-4"
+                        : "text-gray-600 hover:text-primary"
+                    }`}
+                  >
+                    Share Your Expertise
+                  </a>
                 )}
-              </button>
+                {isLoggedIn ? (
+                  <UserDropdown />
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-primary text-white text-sm px-8 py-2 rounded-md"
+                    onClick={handleOpenAuthPopup}
+                  >
+                    Login
+                  </motion.button>
+                )}
+              </div>
+
+              {/* Mobile menu buttons */}
+              <div className="lg:hidden flex items-center gap-4">
+                {isLoggedIn ? (
+                  <UserDropdown />
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-primary text-white text-sm px-6 py-2 rounded-md"
+                    onClick={handleOpenAuthPopup}
+                  >
+                    Login
+                  </motion.button>
+                )}
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="p-2 text-gray-600 hover:text-primary transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <PanelRightCloseIcon className="h-8 w-8 text-gray-700" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -284,6 +284,21 @@ const UserDashboardLayout = () => {
               >
                 <MessageSquareText className="w-5 h-5" />
                 <span className="ms-3">Chats</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/user/favourites"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <Heart className="w-5 h-5" />
+                <span className="ms-3">Favorites</span>
               </NavLink>
             </li>
           </ul>

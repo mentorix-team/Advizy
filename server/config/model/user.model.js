@@ -25,7 +25,7 @@ const userSchema = new Schema(
     number: {
       type: Number,
       sparse: true,
-      unique: true, // Ensure mobile number is unique
+      unique: true, // Ensure mobile number is unique 
     },
     password: {
       type: String,
@@ -68,6 +68,12 @@ const userSchema = new Schema(
     otpexpiry: {
       type: Date,
     },
+    favourites: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'ExpertBasics'
+      },
+    ],
   },
   {
     timestamps: true,
