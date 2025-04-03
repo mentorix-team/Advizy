@@ -5,7 +5,7 @@ import '../../index.css'
 
 const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const [selectedNiches, setSelectedNiches] = useState([]);
-  const [priceRange, setPriceRange] = useState([200, 100000]); // Initial state within valid range
+  const [priceRange, setPriceRange] = useState([200, 100000]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedRatings, setSelectedRatings] = useState([]);
   const [selectedDurations, setSelectedDurations] = useState([]);
@@ -27,6 +27,15 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
     console.log(selectedRatings);
   };
 
+  const resetFilters = () => {
+    setSelectedNiches([]);
+    setPriceRange([200, 100000]);
+    setSelectedLanguages([]);
+    setSelectedRatings([]);
+    setSelectedDurations([]);
+    setSorting("");
+  };
+
   const handleApplyFilters = () => {
     const filters = {
       selectedDomain,
@@ -41,11 +50,10 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   };
 
   const handlePriceChange = (index, value) => {
-    const numericValue = Math.max(200, Math.min(Number(value), 100000)); // Clamp values to min and max
+    const numericValue = Math.max(200, Math.min(Number(value), 100000));
     const newRange = [...priceRange];
     newRange[index] = numericValue;
 
-    // Ensure left value is not greater than the right and vice versa
     if (index === 0 && numericValue > priceRange[1]) {
       newRange[1] = numericValue;
     } else if (index === 1 && numericValue < priceRange[0]) {
@@ -56,8 +64,26 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   };
 
   return (
-    <div className="max-w-80 w-80 p-4 border shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Filters</h2>
+    <div className="max-w-80 w-80 p-4 border shadow-md relative">
+      {/* Fixed header with Apply and Reset buttons */}
+      <div className="sticky top-0 bg-white z-10 pb-4 border-b mb-4">
+        <h2 className="text-xl font-semibold mb-4">Filters</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={handleApplyFilters}
+            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition text-sm font-medium"
+          >
+            Apply Filters
+          </button>
+          <button
+            onClick={resetFilters}
+            className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium whitespace-nowrap"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
       <div className="mb-4">
         <label className="font-medium">Domain</label>
         <div className="p-1">
@@ -89,7 +115,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
       <div className="mb-4 max-w-80 w-80">
         <label className="font-medium">Price Range</label>
         <div className="w-52 mt-4 flex flex-col gap-4 p-2">
-          {/* Inputs for min and max prices */}
           <div className="flex justify-between items-center gap-1 text-sm">
             <span>Rs.</span>
             <input
@@ -112,7 +137,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             />
           </div>
 
-          {/* Slider */}
           <Range
             step={1}
             min={200}
