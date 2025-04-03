@@ -66,6 +66,7 @@ const categories = [
         <Handshake className="text-primary w-5 h-5" />
       </div>
     ),
+    
     title: "Business",
   },
   {

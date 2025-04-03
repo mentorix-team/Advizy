@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const CategoryNav = ({ categories }) => {
+  const navigate = useNavigate();
   return (
     <motion.div 
+    
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -13,6 +16,7 @@ const CategoryNav = ({ categories }) => {
           {categories.map((category) => (
             <motion.button
               key={category.title}
+              onClick={() => navigate('/explore')}
               initial={{ scale: 1 }}
               whileHover={{ 
                 scale: 1.1,

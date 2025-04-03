@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const CategoryCard = ({ icon, title }) => {
+  const navigate = useNavigate();
   return (
     <motion.div
+    onClick={() => navigate('/explore')}
       initial={{ scale: 1 }}
       whileHover={{ 
         scale: 1.1,
