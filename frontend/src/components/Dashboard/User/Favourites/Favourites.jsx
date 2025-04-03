@@ -27,7 +27,10 @@ const Favorites = ({ userToken }) => {
       ) : (
         <ul>
           {favorites.map((expert) => (
-            <li key={expert._id}></li>
+            <li key={expert._id}>
+              <p>{expert.name}</p>
+              <p>{expert.title}</p>
+            </li>
           ))}
         </ul>
       )}

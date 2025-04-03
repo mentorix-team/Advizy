@@ -1268,7 +1268,7 @@ const refresh_token = async (req, res, next) => {
 const addFavouriteExpert = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    const {expertId} = req.body;
+    const { expertId } = req.body;
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -1279,21 +1279,45 @@ const addFavouriteExpert = async (req, res) => {
       return res.status(404).json({ message: "Expert not found" });
     }
 
-    user.favourites = user.favourites.includes(expertId) 
-    ? user.favourites.filter((id) => id.toString() !== expertId) 
-    : [...user.favourites, expertId];
+    if (user.favourites.includes(expertId)) {
+      user.favourites = user.favourites.filter(
+        (id) => id.toString() !== expertId
+      );
+    } else {
+      user.favourites.push(expertId);
+    }
 
     await user.save();
 
+    // Populate favourites before sending response
+    const updatedUser = await User.findById(req.user.id).populate("favourites");
 
     res.status(200).json({
       message: "Expert added to favorites",
-      user
+      user,
     });
   } catch (error) {
+    console.log("Error updating favorites:", error);
     res.status(500).json({ message: "Server Error", error });
   }
 };
+
+const getUserProfile = async (req, res) => {
+  try {
+    // Find user and populate the favourites array with expert details
+    const user = await User.findById(req.user.id).populate("favourites");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 // const removeFavouriteExpert = async (req, res) => {
 //   try {
@@ -1362,7 +1386,8 @@ export {
   regenerate_otp,
   updateUser,
   validateToken,
+  addFavouriteExpert,
+  getUserProfile
   // getFavourites,
   // removeFavouriteExpert,
-  addFavouriteExpert,
 };

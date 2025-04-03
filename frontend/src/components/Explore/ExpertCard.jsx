@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 // import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
-import { addFavourites } from "@/Redux/Slices/authSlice";
+import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
 
 const ExpertCard = ({
   redirect_url,
@@ -24,13 +24,13 @@ const ExpertCard = ({
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {data,loading,error} = useSelector((state)=>state.auth)
+  const { data, loading, error } = useSelector((state) => state.auth);
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    userData = null; 
+    userData = null;
   }
   useEffect(() => {
     if (userData?.favourites) {
@@ -58,8 +58,8 @@ const ExpertCard = ({
 
   const handleFavoriteClick = async () => {
     try {
-      const response = await dispatch(addFavourites({expertId:id}))
-      setIsFavorite(!isFavorite);
+      await dispatch(addFavourites({ expertId: id }));
+      await dispatch(fetchUserProfile());
     } catch (error) {
       console.error("Error updating favorite", error);
     }
