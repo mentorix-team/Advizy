@@ -269,7 +269,7 @@ const ExpertDashboardLayout = () => {
             {/* Right section */}
             <div className="flex items-center lg:pr-10">
               <div className="hidden lg:flex items-center gap-8 mr-8">
-                <a
+                {/* <a
                   href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
                     isLinkActive("/about-us")
@@ -278,7 +278,7 @@ const ExpertDashboardLayout = () => {
                   }`}
                 >
                   About Us
-                </a>
+                </a> */}
 
                 {!isExpertMode && (
                   <a
