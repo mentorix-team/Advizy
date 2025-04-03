@@ -24,7 +24,14 @@ export const validateToken = createAsyncThunk(
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Please log in Again .";
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(errorMessage);
     }
   }
@@ -42,7 +49,14 @@ export const validateOtpEmail = createAsyncThunk(
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Failed to validate OTP.";
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(errorMessage);
     }
   }
@@ -59,7 +73,14 @@ export const generateOtpEmail = createAsyncThunk(
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Failed to generate OTP.";
-      toast.error(errorMessage); // Show toast notification if the OTP generation fails
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }); // Show toast notification if the OTP generation fails
       return rejectWithValue(errorMessage);
     }
   }
@@ -73,7 +94,14 @@ export const updateUser = createAsyncThunk(
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Failed to generate OTP.";
-      toast.error(errorMessage); // Show toast notification if the OTP generation fails
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }); // Show toast notification if the OTP generation fails
       return rejectWithValue(errorMessage);
     }
   }
@@ -87,7 +115,14 @@ export const regenerateOtpEmail = createAsyncThunk(
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Failed to generate OTP.";
-      toast.error(errorMessage); // Show toast notification if the OTP generation fails
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }); // Show toast notification if the OTP generation fails
       return rejectWithValue(errorMessage);
     }
   }
@@ -98,7 +133,14 @@ export const createAccount = createAsyncThunk("auth/signup", async (data) => {
     const res = axiosInstance.post("user/register_with_email", data);
     return (await res).data;
   } catch (error) {
-    toast.error(error?.response?.data?.message);
+    toast.error(error?.response?.data?.message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   }
 });
 
@@ -109,7 +151,14 @@ export const createAccountwithmobile = createAsyncThunk(
       const res = axiosInstance.post("user/register_with_mobile", data);
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   }
 );
@@ -121,7 +170,14 @@ export const getUser = createAsyncThunk("auth/user", async () => {
     console.log("result data is", res.data);
     return (await res).data;
   } catch (error) {
-    toast.error(error?.response?.data?.message);
+    toast.error(error?.response?.data?.message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   }
 });
 
@@ -132,7 +188,14 @@ export const loginaccount = createAsyncThunk(
       const res = axiosInstance.post("user/login", data);
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to Login");
+      toast.error(error?.response?.data?.message || "Failed to Login", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -144,7 +207,14 @@ export const logout = createAsyncThunk(
       const res = axiosInstance.get("user/logout");
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to Logout");
+      toast.error(error?.response?.data?.message || "Failed to Logout", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -167,7 +237,14 @@ export const forgotPassword = createAsyncThunk(
 
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -181,7 +258,14 @@ export const forgotOTP = createAsyncThunk(
       }); // Wrap otp in object
       return (await res).data; // Ensure the response is returned properly
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -194,7 +278,14 @@ export const resetPassword = createAsyncThunk(
       const res = await axiosInstance.post(`/user/reset_pass`, { password });
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -206,7 +297,14 @@ export const generateOtp = createAsyncThunk(
       const res = await axiosInstance.post("user/generate_otp", data);
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -219,7 +317,14 @@ export const loginWithOtp = createAsyncThunk(
       const res = await axiosInstance.post("user/login_with_otp", data);
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -231,7 +336,14 @@ export const forgotOtpWithEmail = createAsyncThunk(
       const res = await axiosInstance.post("user/forgot_with_otp", data);
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -247,7 +359,14 @@ export const generateOtpWithEmail = createAsyncThunk(
       );
       return (await res).data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -262,7 +381,14 @@ export const signupUsingMobile = createAsyncThunk(
       );
       return await response.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -277,7 +403,14 @@ export const validateOtpMobile = createAsyncThunk(
       );
       return await response.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -304,7 +437,14 @@ export const googleLogin = createAsyncThunk(
 
       return { user, expert };
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong",  {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -317,7 +457,14 @@ export const refreshToken = createAsyncThunk(
       const response = await axiosInstance.post("user/refresh-token", data);
       return await response.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong",  {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }
@@ -330,7 +477,14 @@ export const addFavourites = createAsyncThunk(
       const response = await axiosInstance.post("user/favourites", data);
       return await response.data.user;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || "Something went wrong",  {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(error?.response?.data);
     }
   }

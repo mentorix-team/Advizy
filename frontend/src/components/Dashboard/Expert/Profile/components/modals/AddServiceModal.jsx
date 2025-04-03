@@ -20,7 +20,14 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
     );
 
     if (isDuplicate) {
-      toast.error('This time duration already exists');
+      toast.error('This time duration already exists',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 

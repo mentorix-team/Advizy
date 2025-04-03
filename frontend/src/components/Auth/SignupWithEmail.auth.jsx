@@ -148,13 +148,34 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
       const otpResponse = await dispatch(generateOtpEmail(signupData)).unwrap();
 
       if (otpResponse?.success) {
-        toast.success("OTP sent to your email. Please verify.");
+        toast.success("OTP sent to your email. Please verify.",{
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         onSwitchView("VerifyAccount");
       } else {
-        toast.error(otpResponse?.message || "Failed to generate OTP.");
+        toast.error(otpResponse?.message || "Failed to generate OTP.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
-      toast.error("Error generating OTP.");
+      toast.error("Error generating OTP.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setIsLoading(false); // Reset loading state
     }

@@ -230,13 +230,27 @@ function App() {
 
     // Check if both email and mobile are verified
     if (!isEmailVerified || !isMobileVerified) {
-      toast.error("Please verify both email and mobile number before submitting");
+      toast.error("Please verify both email and mobile number before submitting",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
     // If there are validation errors, show a toast and return
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fill in all required fields correctly");
+      toast.error("Please fill in all required fields correctly",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -255,14 +269,35 @@ function App() {
       const response = await dispatch(basicFormSubmit(basicData)).unwrap();
       
       if (response.success) {
-        toast.success("Basic information submitted successfully!");
+        toast.success("Basic information submitted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
         navigate("/dashboard/expert");
       } else {
-        toast.error(response.message || "Failed to submit basic information");
+        toast.error(response.message || "Failed to submit basic information", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       }
     } catch (error) {
       console.error("Error submitting basic form:", error);
-      toast.error(error.message || "An error occurred while submitting the form");
+      toast.error(error.message || "An error occurred while submitting the form", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setLoadingState(false);
     }

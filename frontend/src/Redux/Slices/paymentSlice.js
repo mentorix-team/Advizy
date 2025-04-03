@@ -15,13 +15,21 @@ export const createpaymentOrder = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     console.log("createpaymentOrder called with data:", data);
     try {
-      const response = await axiosInstance.post('payment/create-order', data);
+      const response = await axiosInstance.post("payment/create-order", data);
       console.log("createpaymentOrder response:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error in createpaymentOrder:", error.response);
-      const errorMessage = error?.response?.data?.message || "Failed to create payment.";
-      toast.error(errorMessage);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to create payment.";
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(errorMessage);
     }
   }
@@ -32,19 +40,31 @@ export const verifypaymentOrder = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     console.log("verifypaymentOrder called with data:", data);
 
-    if (!data.razorpay_payment_id || !data.razorpay_order_id || !data.razorpay_signature) {
-      console.error('Missing required data for payment verification');
+    if (
+      !data.razorpay_payment_id ||
+      !data.razorpay_order_id ||
+      !data.razorpay_signature
+    ) {
+      console.error("Missing required data for payment verification");
       return rejectWithValue("Missing required data for payment verification.");
     }
 
     try {
-      const response = await axiosInstance.post('payment/verify-payment', data);
+      const response = await axiosInstance.post("payment/verify-payment", data);
       console.log("verifypaymentOrder response:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error in verifypaymentOrder:", error.response);
-      const errorMessage = error?.response?.data?.message || "Failed to verify payment.";
-      toast.error(errorMessage);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to verify payment.";
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(errorMessage);
     }
   }
@@ -52,18 +72,29 @@ export const verifypaymentOrder = createAsyncThunk(
 
 export const initiatePayout = createAsyncThunk(
   "expert/initiatepayot",
-  async(data,{rejectWithValue})=>{
+  async (data, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('payment/initiate-payout',data);
+      const response = await axiosInstance.post(
+        "payment/initiate-payout",
+        data
+      );
       return response.data;
     } catch (error) {
       console.error("Error in verifypaymentOrder:", error.response);
-      const errorMessage = error?.response?.data?.message || "Failed to initiate payout.";
-      toast.error(errorMessage);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to initiate payout.";
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return rejectWithValue(errorMessage);
     }
   }
-)
+);
 
 // Payment slice with logs in reducers
 const paymentSlice = createSlice({
@@ -79,13 +110,19 @@ const paymentSlice = createSlice({
         state.error = null;
       })
       .addCase(createpaymentOrder.fulfilled, (state, action) => {
-        console.log("createpaymentOrder.fulfilled triggered with payload:", action.payload);
+        console.log(
+          "createpaymentOrder.fulfilled triggered with payload:",
+          action.payload
+        );
         state.loading = false;
         state.paymentDetails = action.payload; // Store the payment details in the state
         state.error = null;
       })
       .addCase(createpaymentOrder.rejected, (state, action) => {
-        console.log("createpaymentOrder.rejected triggered with error:", action.payload);
+        console.log(
+          "createpaymentOrder.rejected triggered with error:",
+          action.payload
+        );
         state.loading = false;
         state.error = action.payload;
         state.paymentDetails = null;
@@ -99,18 +136,24 @@ const paymentSlice = createSlice({
         state.error = null;
       })
       .addCase(verifypaymentOrder.fulfilled, (state, action) => {
-        console.log("verifypaymentOrder.fulfilled triggered with payload:", action.payload);
+        console.log(
+          "verifypaymentOrder.fulfilled triggered with payload:",
+          action.payload
+        );
         state.loading = false;
         state.paymentVerified = true; // Mark the payment as verified
         state.error = null;
       })
       .addCase(verifypaymentOrder.rejected, (state, action) => {
-        console.log("verifypaymentOrder.rejected triggered with error:", action.payload);
+        console.log(
+          "verifypaymentOrder.rejected triggered with error:",
+          action.payload
+        );
         state.loading = false;
         state.error = action.payload;
         state.paymentVerified = false;
       });
-  }
+  },
 });
 
 export default paymentSlice.reducer;

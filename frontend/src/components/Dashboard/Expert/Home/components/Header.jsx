@@ -95,23 +95,51 @@ export default function Header({ pendingActions }) {
         });
       } else {
         console.error("Failed to retrieve authToken.");
-        toast.error("Failed to join the meeting");
+        toast.error("Failed to join the meeting", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
       console.error("Error joining call:", error);
-      toast.error("Error joining the meeting");
+      toast.error("Error joining the meeting", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
   const handleAvailMoney = async (notification) => {
     if (!notification.amount) {
-      toast.error("Invalid notification data");
+      toast.error("Invalid notification data", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
     const paymentDetails = expertData.credentials.PaymentDetails?.[0];
     if (!paymentDetails) {
-      toast.error("No payment details found");
+      toast.error("No payment details found", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -129,10 +157,24 @@ export default function Header({ pendingActions }) {
     try {
       const response = await dispatch(initiatePayout(data)).unwrap();
       console.log("Payout initiated successfully:", response);
-      toast.success("Payout initiated successfully!");
+      toast.success("Payout initiated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error("Failed to initiate payout:", error);
-      toast.error(error || "Something went wrong while initiating payout.");
+      toast.error(error || "Something went wrong while initiating payout.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -144,8 +186,6 @@ export default function Header({ pendingActions }) {
 
   return (
     <header className="max-w-[1089px] w-full flex flex-col sm:flex-row border justify-between items-start sm:items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
-      <Toaster position="top-right" />
-
       {/* Welcome Text and Mobile Notification Section */}
       <div className="w-full flex justify-between items-start sm:items-center mb-4 sm:mb-0">
         <div>

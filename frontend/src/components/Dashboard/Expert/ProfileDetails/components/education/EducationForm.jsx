@@ -87,14 +87,28 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a PDF, JPEG, or PNG file');
+        toast.error('Please upload a PDF, JPEG, or PNG file',{
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         return;
       }
   
       // Validate file size (e.g., 5MB max)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        toast.error('File size must be less than 5MB');
+        toast.error('File size must be less than 5MB', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         return;
       }
   
@@ -103,7 +117,14 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
         certificate: file // Store single file
       }));
       setShowUploadModal(false);
-      toast.success('File uploaded successfully');
+      toast.success('File uploaded successfully',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

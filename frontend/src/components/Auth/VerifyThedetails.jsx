@@ -21,7 +21,14 @@ const VerifyThedetails = ({ onClose, onSwitchView, contactInfo }) => {
     console.log("Submitted OTP:", otp);
   
     if (otp.length !== 6) {
-      toast.error("Please enter a 6-digit OTP.");
+      toast.error("Please enter a 6-digit OTP.",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
   
@@ -32,10 +39,24 @@ const VerifyThedetails = ({ onClose, onSwitchView, contactInfo }) => {
     setIsSubmitting(false); // Re-enable the button after processing
   
     if (response?.payload?.success) {
-      toast.success("OTP validated successfully!");
+      toast.success("OTP validated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       onSwitchView("NextStep");
     } else {
-      toast.error(response?.payload?.message || "Invalid or expired OTP.");
+      toast.error(response?.payload?.message || "Invalid or expired OTP.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
   
@@ -48,9 +69,23 @@ const VerifyThedetails = ({ onClose, onSwitchView, contactInfo }) => {
     setIsResending(false); // Re-enable the button after processing
 
     if (response?.payload?.success) {
-      toast.success("OTP resent successfully!");
+      toast.success("OTP resent successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } else {
-      toast.error(response?.payload?.message || "Failed to resend OTP.");
+      toast.error(response?.payload?.message || "Failed to resend OTP.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

@@ -463,7 +463,14 @@ export default function UpcomingMeetingDetails() {
     const timeDifference = meetingDateTimeIST - nowIST;
 
     if (timeDifference < noticePeriodMs) {
-      toast.error("Reschedule not allowed: Notice period has already passed.");
+      toast.error("Reschedule not allowed: Notice period has already passed.",  {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 

@@ -19,7 +19,14 @@ export default function ExperienceTab({ formData, onUpdate }) {
     setExperiences(updatedExperiences);
     onUpdate(updatedExperiences);
     setShowForm(false);
-    toast.success('Experience added successfully!');
+    toast.success('Experience added successfully!',{
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const handleEditExperience = (index) => {
@@ -34,14 +41,28 @@ export default function ExperienceTab({ formData, onUpdate }) {
     onUpdate(updatedExperiences);
     setShowForm(false);
     setEditingIndex(null);
-    toast.success('Experience updated successfully!');
+    toast.success('Experience updated successfully!',{
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const handleDeleteExperience = (index) => {
     const updatedExperiences = experiences.filter((_, i) => i !== index);
     setExperiences(updatedExperiences);
     onUpdate(updatedExperiences);
-    toast.success('Experience deleted successfully!');
+    toast.success('Experience deleted successfully!', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   return (

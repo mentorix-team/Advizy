@@ -27,7 +27,14 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
   async function handleGenerateOtp(event) {
     event.preventDefault();
     if (!validNumber) {
-      toast.error("Please enter a valid mobile number");
+      toast.error("Please enter a valid mobile number", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 

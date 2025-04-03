@@ -34,7 +34,14 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
       timeSlots: [formData.timeSlot]
     }
     onSave(updatedService)
-    toast.success('Service updated successfully')
+    toast.success('Service updated successfully',  {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
     onClose()
   }
 
