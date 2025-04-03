@@ -27,7 +27,13 @@ const Favorites = ({ userToken }) => {
 
   if (loading) return <p>Loading favorites...</p>;
   if (error) return <p>Error fetching favorites: {error}</p>;
-  if (!userData?.favourites || userData.favourites.length === 0) return <p>No favorites yet.</p>;
+
+  // Log the favourites data before checking if it's empty
+  console.log("Favourites Data:", userData?.favourites);
+  if (!userData?.favourites || userData.favourites.length === 0)
+    return <p>No favorites yet.</p>;
+
+  console.log(userData?.favourites);
 
   return (
     <div>
