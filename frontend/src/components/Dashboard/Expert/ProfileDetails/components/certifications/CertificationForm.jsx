@@ -61,10 +61,10 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     window.open(URL.createObjectURL(file), '_blank');
   };
 
-  const handleChange = (field, value) => {
+  const handleDateChange = (date) => {
     setFormData(prev => ({
       ...prev,
-      [field]: value
+      year: date // Store the full Date object
     }));
   };
 
@@ -111,10 +111,8 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
             Issue Date
           </label>
           <CustomDatePicker
-            selectedDate={formData.year ? new Date(formData.year) : null}
-            onChange={(date) => {
-              handleChange("year", date.toISOString().split("T")[0]);
-            }}
+            selectedDate={formData.year}
+            onChange={handleDateChange}
             type="certification"
           />
         </div>
