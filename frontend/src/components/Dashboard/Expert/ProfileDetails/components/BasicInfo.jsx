@@ -377,32 +377,49 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
         {/* Mobile Number */}
         <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Mobile Number
           </label>
           <div className="flex gap-2">
-            <input
-              type="tel"
-              className="flex-1 p-2.5 border border-gray-300 rounded-lg"
-              placeholder="Enter mobile number"
-            />
-            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+              <div className="flex-1">
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.mobile}
+                  onChange={handlePhoneChange}
+                  className={`w-full px-3 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                  placeholder="Enter 10-digit phone number"
+                  maxLength="10"
+                />
+              </div>
+              <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
               Verified
             </div>
-        </div>
+          </div>
+          {errors.mobile && touched.mobile && (
+            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
+          )}
         </div>
 
         {/* Email Address */}
         <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Email Address
           </label>
           <div className="flex gap-2">
             <input
               type="email"
-              className="flex-1 p-2.5 border border-gray-300 rounded-lg"
-              placeholder="Enter email address"
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              onBlur={() => onBlur("email")}
+              placeholder="john@example.com"
+              className={`flex-1 p-2.5 border ${
+                errors.email && touched.email
+                  ? "border-red-500"
+                  : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
             />
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
