@@ -6,7 +6,7 @@ import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
 import toast from "react-hot-toast";
 
 const ExpertCard = ({ expert }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();

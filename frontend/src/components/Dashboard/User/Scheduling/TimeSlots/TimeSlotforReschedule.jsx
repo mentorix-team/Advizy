@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createMeet, updateMeet } from '@/Redux/Slices/meetingSlice';
+import { CalendarX } from 'lucide-react';
 
 function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
   const navigate = useNavigate();
