@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CategoryCard from "../components/CategoryCard";
 import CategoryNav from "../components/CategoryNav";
