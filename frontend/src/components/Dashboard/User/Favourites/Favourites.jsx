@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getFavorites } from "./userService";
+// import { getFavorites } from "./userService";
 import { useSelector } from "react-redux";
 
 const Favorites = ({ userToken }) => {

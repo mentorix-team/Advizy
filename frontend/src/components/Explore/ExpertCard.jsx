@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
-import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
+// import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
 import { addFavourites } from "@/Redux/Slices/authSlice";
 
 const ExpertCard = ({
