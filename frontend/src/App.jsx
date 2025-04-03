@@ -91,10 +91,13 @@ const App = () => {
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
-    if (expertMode && !location.pathname.startsWith("/dashboard/expert")) {
+    
+    // Allow access to /meeting route
+    if (expertMode && !location.pathname.startsWith("/dashboard/expert") && location.pathname !== "/meeting") {
       navigate("/dashboard/expert/");
     }
   }, [location, navigate]);
+  
 
   return (
     <Suspense fallback={<Spinner />}>

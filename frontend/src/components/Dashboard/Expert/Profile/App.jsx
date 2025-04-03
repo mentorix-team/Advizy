@@ -64,15 +64,37 @@ function App() {
     
     if (email) {
       const savedEmailVerification = localStorage.getItem(`emailVerified_${email}`);
-      setIsEmailVerified(savedEmailVerification === "true");
+      setIsEmailVerified(true);
     }
     
     if (mobile) {
       const savedMobileVerification = localStorage.getItem(`mobileVerified_${mobile}`);
-      setIsMobileVerified(savedMobileVerification === "true");
+      setIsMobileVerified(true);
     }
   }, []);
-
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("latestVerifiedEmail");
+    const savedMobile = localStorage.getItem("latestVerifiedMobile");
+  
+    const savedEmailVerification = savedEmail
+      ? localStorage.getItem(`emailVerified_${savedEmail}`)
+      : null;
+    const savedMobileVerification = savedMobile
+      ? localStorage.getItem(`mobileVerified_${savedMobile}`)
+      : null;
+  
+    setIsEmailVerified(savedEmailVerification === "true");
+    setIsMobileVerified(savedMobileVerification === "true");
+  
+    setFormData((prevData) => ({
+      basic: {
+        ...prevData.basic,
+        email: savedEmail || prevData.basic.email, // Use verified email if exists
+        mobile: savedMobile || prevData.basic.mobile, // Use verified mobile if exists
+      },
+    }));
+  }, []);
+  
   // Update localStorage when verification status changes
   useEffect(() => {
     const email = formData.basic.email;
@@ -87,6 +109,20 @@ function App() {
       localStorage.setItem(`mobileVerified_${mobile}`, isMobileVerified.toString());
     }
   }, [isMobileVerified, formData.basic.mobile]);
+  useEffect(() => {
+    if (isEmailVerified) {
+      localStorage.setItem("latestVerifiedEmail", formData.basic.email);
+      localStorage.setItem(`emailVerified_${formData.basic.email}`, "true");
+    }
+  }, [isEmailVerified, formData.basic.email]);
+  
+  useEffect(() => {
+    if (isMobileVerified) {
+      localStorage.setItem("latestVerifiedMobile", formData.basic.mobile);
+      localStorage.setItem(`mobileVerified_${formData.basic.mobile}`, "true");
+    }
+  }, [isMobileVerified, formData.basic.mobile]);
+  
 
   const validateBasicInfo = () => {
     const newErrors = {};
@@ -275,6 +311,8 @@ function App() {
               isEmailVerified={isEmailVerified}
               isMobileVerified={isMobileVerified}
               onVerificationSuccess={handleVerificationSuccess}
+              setIsEmailVerified={setIsEmailVerified}  // Pass the setter function
+              setIsMobileVerified={setIsMobileVerified}
             />
           </div>
         </div>
