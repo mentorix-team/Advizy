@@ -284,7 +284,7 @@ function HomePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <CategoryCard {...category} onClick={navigate('/explore')} />
+                      <CategoryCard {...category}  />
                     </motion.div>
                   ))}
                 </div>
