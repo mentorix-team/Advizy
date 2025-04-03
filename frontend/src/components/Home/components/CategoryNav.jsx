@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 
 const CategoryNav = ({ categories }) => {
+  const navigate = useNavigate();
   return (
     <motion.div 
     
