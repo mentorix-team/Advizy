@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import CategoryCard from "../components/CategoryCard";
 import CategoryNav from "../components/CategoryNav";
@@ -46,7 +47,7 @@ const categories = [
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" onClick={navigate('/explore')}>
         <GraduationCap className="text-primary w-5 h-5" />
       </div>
     ),
