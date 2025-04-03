@@ -267,6 +267,19 @@ export const refreshToken = createAsyncThunk(
     }
 )
 
+export const addFavourites = createAsyncThunk(
+    'user/addfavourites',
+    async(data,{rejectWithValue})=>{
+        try {
+            const response = await axiosInstance.post('user/favourites',data)
+            return await response.data
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Something went wrong");
+            return rejectWithValue(error?.response?.data);    
+        }
+    }
+)
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -422,6 +435,11 @@ const authSlice = createSlice({
         builder.addCase(refreshToken.rejected,(state,action)=>{
             state.loading = false
             state.error = action.payload.error
+        })
+
+        builder.addCase(addFavourites.fulfilled,(state,action)=>{
+            state.data = action.payload.user
+            
         })
     }
 });
