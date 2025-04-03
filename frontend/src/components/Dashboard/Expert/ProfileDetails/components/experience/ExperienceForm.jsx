@@ -10,14 +10,13 @@ import DocumentUploadModal from '../services/DocumentUploadModal';
 export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    _id:initialData?._id||'',
-    companyName: initialData?.companyName||'',
-    jobTitle: initialData?.jobTitle||'',
-    startDate:initialData?.startDate|| null,
-    endDate: initialData?.endDate||null,
-
-    currentlyWork: initialData?.currentlyWork||false,
-    documents: initialData?.documents||[]
+    _id: initialData?._id || '',
+    companyName: initialData?.companyName || '',
+    jobTitle: initialData?.jobTitle || '',
+    startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
+    endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
+    currentlyWork: initialData?.currentlyWork || false,
+    documents: initialData?.documents || []
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
 
@@ -36,6 +35,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
     if (initialData) {
       setFormData({
         ...initialData,
+        // Ensure we create new Date objects from the initial data
         startDate: initialData.startDate ? new Date(initialData.startDate) : null,
         endDate: initialData.endDate ? new Date(initialData.endDate) : null
       });
@@ -58,7 +58,15 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
     console.log('submitting FormData', formDataToSend);
     onSubmit(formDataToSend);
   };  
-  
+
+  const handleDateChange = (field, date) => {
+    // Ensure we're working with valid Date objects
+    const validDate = date ? new Date(date) : null;
+    setFormData(prev => ({
+      ...prev,
+      [field]: validDate
+    }));
+  };
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -134,7 +142,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
             </label>
             <CustomDatePicker
               selectedDate={formData.startDate}
-              onChange={(date) => setFormData({ ...formData, startDate: date })}
+              onChange={(date) => handleDateChange('startDate', date)}
               type="experience"
             />
           </div>
@@ -145,7 +153,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
             </label>
             <CustomDatePicker
               selectedDate={formData.endDate}
-              onChange={(date) => setFormData({ ...formData, endDate: date })}
+              onChange={(date) => handleDateChange('endDate', date)}
               type="experience"
               disabled={formData.currentlyWork}
               className={formData.currentlyWork ? 'opacity-50 cursor-not-allowed' : ''}
@@ -246,16 +254,9 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
       <DocumentUploadModal
         isOpen={showUploadModal}
-        onClose={()=>setShowUploadModal(false)}
+        onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
       /> 
-      {/* <ImageUploadModal
-        isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
-        type="document"
-        onUpload={handleFileUpload}
-        existingFiles={formData.documents}
-      /> */}
     </div>
   );
 }
@@ -265,3 +266,4 @@ ExperienceForm.propTypes = {
   onCancel: PropTypes.func.isRequired,
   initialData: PropTypes.object
 };
+
