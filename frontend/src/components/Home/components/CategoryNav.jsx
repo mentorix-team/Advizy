@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 const CategoryNav = ({ categories }) => {
   return (
     <motion.div 
+    onClick={() => navigate('/explore')}
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
