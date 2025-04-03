@@ -3,6 +3,7 @@ import { Range } from "react-range";
 import { nicheOptions, languageOptions } from "../../utils/Options";
 import '../../index.css'
 
+
 const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const [selectedNiches, setSelectedNiches] = useState([]);
   const [priceRange, setPriceRange] = useState([200, 100000]);
@@ -27,17 +28,15 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   };
 
   const resetFilters = () => {
-    setSelectedDomain(null);
-    setFilters({
-      selectedDomain: null,
-      selectedNiches: [],
-      priceRange: [200, 100000],
-      selectedLanguages: [],
-      selectedRatings: [],
-      selectedDurations: [],
-    });
-    setSorting(""); // Reset sorting to initial state
+    setSelectedNiches([]);
+    setPriceRange([200, 100000]);
+    setSelectedLanguages([]);
+    setSelectedRatings([]);
+    setSelectedDurations([]);
+    setSorting("");
   };
+
+  
 
   const handleApplyFilters = () => {
     const filters = {
