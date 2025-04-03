@@ -276,7 +276,7 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-16 w-full max-w-7xl mx-auto"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 " onClick={navigate('/explore')}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 " >
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}
