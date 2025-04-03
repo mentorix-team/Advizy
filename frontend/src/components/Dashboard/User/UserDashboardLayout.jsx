@@ -134,9 +134,9 @@ const UserDashboardLayout = () => {
               </a>
             </div>
 
-            {/* Center Navigation */}
-            <div className="hidden lg:flex items-center justify-center flex-1 px-8">
-              <div className="flex items-center gap-8">
+            {/* Right Side Navigation and Controls */}
+            <div className="flex items-center gap-8">
+              <div className="hidden lg:flex items-center gap-6">
                 <a
                   href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
@@ -159,12 +159,6 @@ const UserDashboardLayout = () => {
                     Share Your Expertise
                   </a>
                 )}
-              </div>
-            </div>
-
-            {/* Right Side Controls */}
-            <div className="flex items-center gap-6">
-              <div className="hidden lg:flex items-center gap-4">
                 {isLoggedIn ? (
                   <UserDropdown />
                 ) : (
