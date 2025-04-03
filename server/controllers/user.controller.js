@@ -1267,7 +1267,7 @@ const refresh_token = async (req, res, next) => {
 
 const addFavouriteExpert = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).populate("favourites");
     const { expertId } = req.body;
 
     if (!user) {
@@ -1279,13 +1279,12 @@ const addFavouriteExpert = async (req, res) => {
       return res.status(404).json({ message: "Expert not found" });
     }
 
-    if (user.favourites.includes(expertId)) {
-      user.favourites = user.favourites.filter(
-        (id) => id.toString() !== expertId
-      );
-    } else {
-      user.favourites.push(expertId);
-    }
+    // Toggle favorite (add/remove)
+    user.favourites = user.favourites.some(
+      (exp) => exp._id.toString() === expertId
+    )
+      ? user.favourites.filter((exp) => exp._id.toString() !== expertId)
+      : [...user.favourites, expertId];
 
     await user.save();
 
@@ -1317,7 +1316,6 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 // const removeFavouriteExpert = async (req, res) => {
 //   try {
@@ -1387,7 +1385,7 @@ export {
   updateUser,
   validateToken,
   addFavouriteExpert,
-  getUserProfile
+  getUserProfile,
   // getFavourites,
   // removeFavouriteExpert,
 };

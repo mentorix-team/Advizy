@@ -5,6 +5,7 @@ import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 // import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
 import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
+import toast from "react-hot-toast";
 
 const ExpertCard = ({
   redirect_url,
@@ -24,7 +25,7 @@ const ExpertCard = ({
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { data, loading, error } = useSelector((state) => state.auth);
+  const { data } = useSelector((state) => state.auth);
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
@@ -35,7 +36,7 @@ const ExpertCard = ({
   useEffect(() => {
     if (userData?.favourites) {
       // Check if expert ID exists in the user's favorites
-      setIsFavorite(userData.favourites.includes(id));
+      setIsFavorite(userData.favourites.some((expert) => expert._id === id));
     }
   }, [userData, id]);
   useEffect(() => {
@@ -59,9 +60,27 @@ const ExpertCard = ({
   const handleFavoriteClick = async () => {
     try {
       await dispatch(addFavourites({ expertId: id }));
-      await dispatch(fetchUserProfile());
+      await dispatch(fetchUserProfile()); // Fetch updated user data
+
+      setIsFavorite((prev) => !prev);
+
+      // 🎉 Show toast notification (top-right corner)
+      toast.success(
+        isFavorite ? "Removed from favorites!" : "Added to favorites!",
+        {
+          position: "top-right",
+          autoClose: 3000, // Closes after 3 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } catch (error) {
       console.error("Error updating favorite", error);
+      toast.error("Something went wrong!", {
+        position: "top-right",
+      });
     }
   };
 
