@@ -200,7 +200,8 @@ const Navbar = ({ onSearch }) => {
             </motion.div>
           </div>
 
-          <div className="flex lg:hidden">
+          {/* Mobile menu button - Only visible on mobile */}
+          <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
@@ -231,6 +232,7 @@ const Navbar = ({ onSearch }) => {
             </button>
           </div>
 
+          {/* Desktop navigation - Only visible on desktop */}
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
@@ -271,6 +273,7 @@ const Navbar = ({ onSearch }) => {
           </div>
         </div>
 
+        {/* Mobile menu - Only visible on mobile */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div

@@ -393,20 +393,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   maxLength="10"
                 />
               </div>
-            {verificationStatus.mobile ? (
               <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-                <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-                Verified
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("mobile")}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
-              >
-                Verify
-              </button>
-            )}
+              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
+              Verified
+            </div>
           </div>
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
@@ -431,20 +421,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-            {verificationStatus.email ? (
-              <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-                <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-                Verified
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleVerifyClick("email")}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
-              >
-                Verify
-              </button>
-            )}
+            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
+              Verified
+            </div>
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>
