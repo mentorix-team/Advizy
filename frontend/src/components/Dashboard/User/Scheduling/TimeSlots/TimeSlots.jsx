@@ -126,7 +126,13 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   };
 
   if (timeSlots.length === 0) {
-    return <p>No available slots for the selected date.</p>;
+    return <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
+    <div className="relative mb-4">
+    <CalendarX  className="w-12 h-12 text-[#16A348]" />
+    </div>
+    <h3 className="text-lg font-medium text-gray-900 mb-1 text-center">No available slots</h3>
+    <p className="text-gray-500 text-center">There are no available appointment slots for this Date!.</p>
+  </div>;
   }
 
   return (
