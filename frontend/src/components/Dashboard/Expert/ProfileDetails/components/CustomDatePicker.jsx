@@ -21,7 +21,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     }
   };
 
-  const navigateYear = (direction) => {
+  const navigateYear = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
     const newDate = new Date(displayDate);
     if (direction === 'prev') {
       newDate.setFullYear(newDate.getFullYear() - 1);
@@ -31,7 +33,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     setDisplayDate(newDate);
   };
 
-  const navigateMonth = (direction) => {
+  const navigateMonth = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
     const newDate = new Date(displayDate);
     if (direction === 'prev') {
       newDate.setMonth(newDate.getMonth() - 1);
@@ -41,9 +45,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     setDisplayDate(newDate);
   };
 
-
-
-  const navigateYearRange = (direction) => {
+  const navigateYearRange = (e, direction) => {
+    e.preventDefault();
+    e.stopPropagation();
     setYearRangeStart(prevStart => {
       if (direction === 'prev') {
         return prevStart - 12;
@@ -65,14 +69,18 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     return ranges;
   };
 
-  const handleYearClick = (year) => {
+  const handleYearClick = (e, year) => {
+    e.preventDefault();
+    e.stopPropagation();
     const newDate = new Date(displayDate);
     newDate.setFullYear(year);
     setDisplayDate(newDate);
     setView('month');
   };
 
-  const handleMonthClick = (monthIndex) => {
+  const handleMonthClick = (e, monthIndex) => {
+    e.preventDefault();
+    e.stopPropagation();
     const newDate = new Date(displayDate);
     newDate.setMonth(monthIndex);
     setDisplayDate(newDate);
@@ -97,7 +105,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
     }
   };
 
-  const handleDateClick = (day) => {
+  const handleDateClick = (e, day) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (disabled) return;
     
     const newDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day);
@@ -133,7 +143,8 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
       days.push(
         <td key={day} className="text-center p-1">
           <button
-            onClick={() => handleDateClick(day)}
+            type="button"
+            onClick={(e) => handleDateClick(e, day)}
             disabled={isDisabled}
             className={`w-8 h-8 rounded-full ${
               isSelected 
@@ -197,13 +208,23 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
                   <button 
-                    onClick={() => setView('month')} 
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setView('month');
+                    }} 
                     className="text-lg font-medium text-gray-700 border-2 rounded-lg hover:text-primary px-2 py-1 hover:border-green-500"
                   >
                     {months[displayDate.getMonth()]}
                   </button>
                   <button 
-                    onClick={() => setView('year')} 
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setView('year');
+                    }} 
                     className="text-lg font-medium text-gray-700 hover:text-primary border-2 rounded-lg hover:text-primary px-2 py-1 hover:border-green-500"
                   >
                     {displayDate.getFullYear()}
@@ -211,13 +232,15 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
                 </div>
                 <div className="flex gap-4">
                   <button 
-                    onClick={() => navigateMonth('prev')} 
+                    type="button"
+                    onClick={(e) => navigateMonth(e, 'prev')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ‹
                   </button>
                   <button 
-                    onClick={() => navigateMonth('next')} 
+                    type="button"
+                    onClick={(e) => navigateMonth(e, 'next')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ›
@@ -243,20 +266,27 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
             <div className="p-4">
               <div className="flex justify-between items-center mb-4">
                 <button 
-                  onClick={() => setView('year')} 
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setView('year');
+                  }} 
                   className="text-lg font-medium text-gray-700 hover:text-primary"
                 >
                   {displayDate.getFullYear()}
                 </button>
                 <div className="flex gap-4">
                   <button 
-                    onClick={() => navigateYear('prev')} 
+                    type="button"
+                    onClick={(e) => navigateYear(e, 'prev')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ‹
                   </button>
                   <button 
-                    onClick={() => navigateYear('next')} 
+                    type="button"
+                    onClick={(e) => navigateYear(e, 'next')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ›
@@ -266,8 +296,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
               <div className="grid grid-cols-3 gap-2">
                 {months.map((month, index) => (
                   <button
+                    type="button"
                     key={month}
-                    onClick={() => handleMonthClick(index)}
+                    onClick={(e) => handleMonthClick(e, index)}
                     className={`p-2 rounded-lg hover:bg-gray-100 ${
                       displayDate.getMonth() === index ? 'bg-primary text-white hover:bg-primary' : ''
                     }`}
@@ -287,14 +318,14 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
                 <div className="flex gap-4">
                   <button 
                     type="button"
-                    onClick={() => navigateYearRange('prev')} 
+                    onClick={(e) => navigateYearRange(e, 'prev')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ‹
                   </button>
                   <button 
                     type="button"
-                    onClick={() => navigateYearRange('next')} 
+                    onClick={(e) => navigateYearRange(e, 'next')} 
                     className="text-2xl text-gray-600 hover:text-gray-800 w-8 h-8 flex items-center justify-center"
                   >
                     ›
@@ -304,8 +335,9 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
               <div className="grid grid-cols-3 gap-2">
                 {generateYearRanges().map(({ year, isSelected }) => (
                   <button
+                    type="button"
                     key={year}
-                    onClick={() => handleYearClick(year)}
+                    onClick={(e) => handleYearClick(e, year)}
                     className={`p-2 rounded-lg hover:bg-gray-100 ${
                       isSelected ? 'bg-primary text-white hover:bg-primary' : ''
                     }`}

@@ -61,13 +61,11 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     window.open(URL.createObjectURL(file), '_blank');
   };
 
-  const handleDateChange = (date) => {
-    if (date) {
-      setFormData(prev => ({
-        ...prev,
-        year: new Date(date)
-      }));
-    }
+  const handleChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
@@ -113,10 +111,11 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
             Issue Date
           </label>
           <CustomDatePicker
-            selectedDate={formData.year}
-            onChange={handleDateChange}
+            selectedDate={formData.year ? new Date(formData.year) : null}
+            onChange={(date) => {
+              handleChange("year", date.toISOString().split("T")[0]);
+            }}
             type="certification"
-            preventToast={true}
           />
         </div>
 
