@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -28,8 +29,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  // Get the redirect path from location state, current path, or default to home
-  const from = location.state?.from?.pathname || location.pathname || "/";
+  // Get the redirect path from location state or default to home
+  const from = location.state?.from?.pathname || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -98,11 +99,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      // Close the modal first if needed
-      if (onClose) {
-        onClose();
-      }
-      // Then navigate to the previous page
       navigate(from, { replace: true });
     }
 
@@ -113,27 +109,16 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   }
 
   const handleGoogleSignup = (event) => {
-    event.preventDefault();
-    // Store the current path before redirecting
-    const currentPath = window.location.pathname;
-    localStorage.setItem("redirectAfterLogin", currentPath === "/" ? "/explore" : currentPath);
-    
-    // Store any additional state that might have been passed
-    if (location.state?.from?.pathname) {
-      localStorage.setItem("redirectAfterLoginState", location.state.from.pathname);
-    }
-    
+    event.preventDefault(); // Prevent the form from submitting
+    sessionStorage.setItem("redirectAfterLogin", from);
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
-  // Check for redirect path when component mounts and after successful OAuth
+  // Check for redirect path after component mounts (for Google auth callback)
   useEffect(() => {
-    const redirectPath = localStorage.getItem("redirectAfterLoginState") || 
-                        localStorage.getItem("redirectAfterLogin");
-    
+    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
     if (redirectPath) {
-      localStorage.removeItem("redirectAfterLogin");
-      localStorage.removeItem("redirectAfterLoginState");
+      sessionStorage.removeItem("redirectAfterLogin");
       navigate(redirectPath, { replace: true });
     }
   }, [navigate]);
@@ -256,10 +241,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
         </form>
 
         <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
-          By joining, you agree to the Advizy Terms of Service and to occasionally
-          receive emails from us. Please read our Privacy Policy to learn how we
-          use your personal data.
-        </p>
+  By joining, you agree to the Advizy Terms of Service and to
+  occasionally receive emails from us. Please read our Privacy Policy to
+  learn how we use your personal data.
+</p>
       </div>
     </div>
   );
