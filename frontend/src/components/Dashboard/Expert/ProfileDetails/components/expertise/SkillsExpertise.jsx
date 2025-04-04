@@ -10,7 +10,7 @@ export default function SkillsExpertise({ formData, setFormData }) {
     if (newSkill && !formData.skills.includes(newSkill)) {
       setFormData({
         ...formData,
-        skills: [...formData.skills, newSkill],
+        skills: [...formData.skills, newSkill]
       });
       setNewSkill('');
     }
@@ -19,7 +19,7 @@ export default function SkillsExpertise({ formData, setFormData }) {
   const removeSkill = (skillToRemove) => {
     setFormData({
       ...formData,
-      skills: formData.skills.filter((skill) => skill !== skillToRemove),
+      skills: formData.skills.filter(skill => skill !== skillToRemove)
     });
   };
 
@@ -30,26 +30,13 @@ export default function SkillsExpertise({ formData, setFormData }) {
         <h2 className="text-lg font-semibold">Skills & Expertise</h2>
       </div>
 
-      <div className="flex gap-2 mb-4 border p-2 rounded-lg focus-within:ring-primary focus-within:border-primary">
-        {/* Placeholder Tags (shown only when input is empty) */}
-        {newSkill === '' && (
-          <>
-            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-              business strategy ✕
-            </span>
-            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm">
-              business talks ✕
-            </span>
-          </>
-        )}
-
-        {/* Input field */}
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
           value={newSkill}
           onChange={(e) => setNewSkill(e.target.value)}
-          placeholder={newSkill === '' ? '' : 'Add your skills'}
-          className="flex-1 outline-none bg-transparent"
+          placeholder="Add skills (e.g. JavaScript, React, UI Design)"
+          className="flex-1 p-2 border rounded-lg focus:ring-primary focus:border-primary"
         />
         <button
           onClick={addSkill}
@@ -75,7 +62,7 @@ export default function SkillsExpertise({ formData, setFormData }) {
 
 SkillsExpertise.propTypes = {
   formData: PropTypes.shape({
-    skills: PropTypes.arrayOf(PropTypes.string),
+    skills: PropTypes.arrayOf(PropTypes.string)
   }).isRequired,
-  setFormData: PropTypes.func.isRequired,
+  setFormData: PropTypes.func.isRequired
 };
