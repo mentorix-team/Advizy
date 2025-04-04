@@ -18,6 +18,8 @@ const actionTooltips = {
   "Add Your Services": "Set your own price and duration for sessions.",
   "Set your Availability": "Let clients know when they can book you.",
   "Update your Payment Details": "Get ready to receive hassle-free payments.",
+  "Edit your One-on-One Service": "Set your own price and duration for sessions.",
+  
 };
 
 const actionRoutes = {

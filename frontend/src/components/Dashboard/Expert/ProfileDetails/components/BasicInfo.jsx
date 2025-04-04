@@ -457,7 +457,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         )}
       </div>
 
-      {/* Bio Description */}
+      {/* Bio Description
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Bio Description
@@ -479,7 +479,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {errors.bio && touched.bio && (
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
-      </div>
+      </div> */}
 
       {/* Social Media Links */}
       <div className="mt-6 rounded-lg">
