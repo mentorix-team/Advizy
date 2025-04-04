@@ -16,7 +16,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="What's your main field? Select the one that defines your work best.">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              🔹 Domain of Expertise
+               Domain of Expertise
             </label>
           </Tooltip>
           <select
@@ -36,7 +36,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="Pick or add at least two skills that highlight your expertise. (The more relevant, the better!)">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              🔹 Niche & Skills
+              Niche & Skills
             </label>
           </Tooltip>
           <select
@@ -58,7 +58,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="This is how clients will see you. Keep it clear and professional. (e.g., Career Strategist | Startup Mentor)">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              🔹 Professional Title
+              professional Title
             </label>
           </Tooltip>
           <input
@@ -73,7 +73,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="Showcase your journey—how long have you been in this field?">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              🔹 Years of Experience
+              Years of Experience
             </label>
           </Tooltip>
           <input
@@ -91,7 +91,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
           <FaLightbulb className="mt-1 flex-shrink-0" />
           <p className="text-sm">
-            📌 Tip: A well-detailed profile gets you noticed faster. Take a moment to craft it right!
+            Tip: A well-detailed profile gets you noticed faster. Take a moment to craft it right!
           </p>
         </div>
       </div>

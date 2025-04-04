@@ -37,11 +37,11 @@ export default function SkillsExpertise({ formData, setFormData }) {
               type="text"
               value={newSkill}
               onChange={(e) => setNewSkill(e.target.value)}
-              placeholder="Add your skills"
+              placeholder="Add your skills. Eg:"
               className="w-full focus:outline-none peer"
             />
             <div className="absolute left-0 top-0 pointer-events-none text-gray-400 flex gap-2 peer-focus:hidden peer-[:not(:placeholder-shown)]:hidden">
-              <span className="opacity-0">Add your skills. Eg: </span>
+              <span className="opacity-0">Add your skills</span>
               <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">Business stratergy</span>
               <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">career counselor</span>
             </div>
