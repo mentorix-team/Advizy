@@ -31,13 +31,19 @@ export default function SkillsExpertise({ formData, setFormData }) {
       </div>
 
       <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={newSkill}
-          onChange={(e) => setNewSkill(e.target.value)}
-          placeholder="Add skills (e.g. JavaScript, React, UI Design)"
-          className="flex-1 p-2 border rounded-lg focus:ring-primary focus:border-primary"
-        />
+        <div className="flex-1 p-2 border rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary">
+          <div className="flex flex-wrap gap-2 mb-2">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-400">java</span>
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-400">career counselor</span>
+          </div>
+          <input
+            type="text"
+            value={newSkill}
+            onChange={(e) => setNewSkill(e.target.value)}
+            placeholder="Add your skills"
+            className="w-full focus:outline-none"
+          />
+        </div>
         <button
           onClick={addSkill}
           className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600"
