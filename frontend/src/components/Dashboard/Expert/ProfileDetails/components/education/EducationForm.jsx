@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ImageUploadModal from '../ImageUploadModal';
-import { FaEye, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
 import { SingleEducationForm } from '@/Redux/Slices/expert.Slice';
 import { useDispatch } from 'react-redux';
 import DocumentUploadModal from '../services/DocumentUploadModal';
