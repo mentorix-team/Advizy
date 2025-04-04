@@ -42,8 +42,8 @@ export default function SkillsExpertise({ formData, setFormData }) {
             />
             <div className="absolute left-0 top-0 pointer-events-none text-gray-400 flex gap-2 peer-focus:hidden peer-[:not(:placeholder-shown)]:hidden">
               <span className="opacity-0">Add your skills    </span>
-              <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">Business stratergy</span>
-              <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">career counselor</span>
+              <span className="inline-flex items-center px-5 py-0.5 rounded-full text-sm bg-gray-100">Business strategy</span>
+              <span className="inline-flex items-center px-5 py-0.5 rounded-full text-sm bg-gray-100">Career counselor</span>
             </div>
           </div>
         </div>
