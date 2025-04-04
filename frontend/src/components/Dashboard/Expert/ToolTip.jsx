@@ -13,7 +13,7 @@ function Tooltip({ text, children }) {
         {children}
       </div>
       {isVisible && (
-        <div className="absolute z-10 px-4 py-3 text-sm font-medium text-white bg-black rounded-lg shadow-lg tooltip dark:bg-gray-800 -top-16 left-1/2 transform -translate-x-1/2 min-w-[200px] max-w-xs">
+        <div className="absolute z-10 px-4 py-3 text-sm font-medium text-white bg-black rounded-lg shadow-lg tooltip dark:bg-gray-800 -top-24 left-1/2 transform -translate-x-1/2 min-w-[200px] max-w-xs">
           {text}
           <div className="tooltip-arrow absolute left-1/2 -bottom-1 w-2 h-2 bg-black transform rotate-45 -translate-x-1/2"></div>
         </div>
