@@ -457,8 +457,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         )}
       </div>
 
-      {/* Bio Description
-      <div className="mt-6">
+     {/* Bio Description */}
+     <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Bio Description
         </label>
@@ -466,7 +466,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
           onBlur={() => onBlur("bio")}
-          placeholder="Write a short description about yourself"
+          placeholder="Write a short description about yourself. For Example:
+                      I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
           className={`w-full p-2.5 border ${
             errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
@@ -479,7 +480,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         {errors.bio && touched.bio && (
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
-      </div> */}
+      </div>
 
       {/* Social Media Links */}
       <div className="mt-6 rounded-lg">
