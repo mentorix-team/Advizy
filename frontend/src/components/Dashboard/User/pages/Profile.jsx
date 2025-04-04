@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
-import {CircleCheckBig} from 'lucide-react'
+import { CircleCheckBig } from "lucide-react";
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -134,7 +134,7 @@ export default function Profile() {
     setVerificationType(type);
     setContactInfo(type === "email" ? formData.email : formData.phone);
     setShowOtpPopup(true);
-    
+
     try {
       if (type === "email") {
         await dispatch(generateOtpforValidating(formData.email));
@@ -143,26 +143,48 @@ export default function Profile() {
         await dispatch(generateOtpforValidating(formData.phone));
       }
     } catch (error) {
-      toast.error(`Failed to send verification code to your ${type}`);
+      toast.error(`Failed to send verification code to your ${type}`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
-    
+
     // Update verification status
     const newVerificationStatus = {
       ...verificationStatus,
-      [verificationType]: true
+      [verificationType]: true,
     };
-    
+
     // Update state
     setVerificationStatus(newVerificationStatus);
-    
+
     // Save to localStorage immediately
-    localStorage.setItem('verificationStatus', JSON.stringify(newVerificationStatus));
-    
-    toast.success(`${verificationType === 'email' ? 'Email' : 'Phone'} verified successfully!`);
+    localStorage.setItem(
+      "verificationStatus",
+      JSON.stringify(newVerificationStatus)
+    );
+
+    toast.success(
+      `${
+        verificationType === "email" ? "Email" : "Phone"
+      } verified successfully!`,
+      {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }
+    );
   };
 
   const handleInterestChange = (e) => {
@@ -184,9 +206,23 @@ export default function Profile() {
         "verificationStatus",
         JSON.stringify(verificationStatus)
       );
-      toast.success("Changes saved successfully");
+      toast.success("Changes saved successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } else {
-      toast.error("Please fix the errors before saving");
+      toast.error("Please fix the errors before saving", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

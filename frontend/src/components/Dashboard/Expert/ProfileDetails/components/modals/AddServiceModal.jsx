@@ -1,39 +1,45 @@
-import React, { useState } from 'react';
-import Modal from '../Modal';
-import TimeSlotInput from './TimeSlotInput';
-import FeatureInput from './FeatureInput';
-import { toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import Modal from "../Modal";
+import TimeSlotInput from "./TimeSlotInput";
+import FeatureInput from "./FeatureInput";
+import { toast } from "react-hot-toast";
 
 export default function AddServiceModal({ isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
-    serviceName: '',
-    shortDescription: '',
-    detailedDescription: '',
+    serviceName: "",
+    shortDescription: "",
+    detailedDescription: "",
     timeSlots: [],
-    features: []
+    features: [],
   });
 
   const handleAddTimeSlot = (newSlot) => {
     // Check for duplicate time slots
     const isDuplicate = formData.timeSlots.some(
-      slot => slot.duration === newSlot.duration
+      (slot) => slot.duration === newSlot.duration
     );
 
     if (isDuplicate) {
-      toast.error('This time duration already exists');
+      toast.error("This time duration already exists", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
-
     setFormData({
       ...formData,
-      timeSlots: [...formData.timeSlots, newSlot]
+      timeSlots: [...formData.timeSlots, newSlot],
     });
   };
 
   const handleRemoveTimeSlot = (index) => {
     setFormData({
       ...formData,
-      timeSlots: formData.timeSlots.filter((_, i) => i !== index)
+      timeSlots: formData.timeSlots.filter((_, i) => i !== index),
     });
   };
 
@@ -44,11 +50,7 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Edit Service Details"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Service Details">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -57,7 +59,9 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
           <input
             type="text"
             value={formData.serviceName}
-            onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, serviceName: e.target.value })
+            }
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
             placeholder="1-on-1 Call"
             required
@@ -71,7 +75,9 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
           <input
             type="text"
             value={formData.shortDescription}
-            onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, shortDescription: e.target.value })
+            }
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
             placeholder="Personal consultation session tailored to your specific needs"
             required
@@ -84,7 +90,9 @@ export default function AddServiceModal({ isOpen, onClose, onSave }) {
           </label>
           <textarea
             value={formData.detailedDescription}
-            onChange={(e) => setFormData({ ...formData, detailedDescription: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, detailedDescription: e.target.value })
+            }
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary h-32"
             placeholder="Provide a detailed description of your service..."
           />

@@ -48,7 +48,13 @@ function ForgotPassword({ onClose, onSwitchView }) {
   async function handleSubmit(event) {
     event.preventDefault();
     if (inputType === "email" && !email) {
-      toast.error("Email is required.");
+      toast.error("Email is required.", {
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -56,7 +62,14 @@ function ForgotPassword({ onClose, onSwitchView }) {
       inputType === "mobile" &&
       (!phoneData.countryCode || !phoneData.phoneNumber)
     ) {
-      toast.error("Phone number is required.");
+      toast.error("Phone number is required.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 

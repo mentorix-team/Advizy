@@ -44,7 +44,14 @@ export default function ExpertiseTab({ formData, onUpdate }) {
     onUpdate(updatedData);
     
     if (validateForm()) {
-      toast.success('Expertise updated successfully!');
+      toast.success('Expertise updated successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

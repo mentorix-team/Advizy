@@ -110,11 +110,25 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
         navigate("/meeting", { state: { authToken } });
       } else {
         console.error("Failed to retrieve authToken.");
-        toast.error("Failed to join the meeting");
+        toast.error("Failed to join the meeting",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       }
     } catch (error) {
       console.error("Error joining call:", error);
-      toast.error("Error joining the meeting");
+      toast.error("Error joining the meeting",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
   const handleOpenReschedulePopup = () => {

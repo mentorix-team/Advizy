@@ -33,7 +33,14 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
   async function handleGenerateOtp(event) {
     event.preventDefault();
     if (!validNumber) {
-      toast.error("Please enter a valid mobile number");
+      toast.error("Please enter a valid mobile number", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -43,7 +50,14 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
       setTimer(60); // Reset timer
       setResendVisible(false);
     } else {
-      toast.error("Failed to send OTP. Please try again.");
+      toast.error("Failed to send OTP. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   }
 
@@ -69,20 +83,31 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
     const otpToken = mobileData.otp; // Assuming OTP is saved in mobileData
 
     if (!otpToken || !mobileData.number) {
-      toast.error("OTP and mobile number are required");
+      toast.error("OTP and mobile number are required", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
-    
-
-  
     const response = await dispatch(
       loginWithOtp({ otpToken, number: mobileData.number })
     );
     if (response?.payload?.success) {
       navigate("/");
     } else {
-      toast.error("Invalid OTP. Please try again.");
+      toast.error("Invalid OTP. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   }
 
@@ -176,9 +201,11 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
 
           {/* Alternative Login Options */}
           <div className="flex flex-col gap-4">
-            <button 
-            type="button"
-            className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors" onClick={handleGoogleSignup}> 
+            <button
+              type="button"
+              className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
+              onClick={handleGoogleSignup}
+            >
               <img
                 src="https://img.icons8.com/color/24/000000/google-logo.png"
                 alt="Google Logo"
@@ -204,11 +231,11 @@ const LoginWithOTP = ({ onClose, onSwitchView }) => {
         </form>
 
         {/* Policy Text */}
-       <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
-  By joining, you agree to the Advizy Terms of Service and to
-  occasionally receive emails from us. Please read our Privacy Policy to
-  learn how we use your personal data.
-</p>
+        <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
+          By joining, you agree to the Advizy Terms of Service and to
+          occasionally receive emails from us. Please read our Privacy Policy to
+          learn how we use your personal data.
+        </p>
       </div>
     </div>
   );

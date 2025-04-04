@@ -29,9 +29,24 @@ function ResetPassword({ onClose, onSwitchView }) {
 
     const response = await dispatch(resetPassword({ password }));
     if (response && response.payload && response.payload.success) {
-      toast.success("Password changed successfully");
+      toast.success("Password changed successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      onSwitchView('LoginWithEmail');
     } else {
-      toast.error(response?.payload?.message || "Failed to reset password");
+      toast.error(response?.payload?.message || "Failed to reset password"), {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      };
     }
   }
 

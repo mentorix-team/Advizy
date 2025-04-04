@@ -64,7 +64,14 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
 
       const response = await dispatch(CertificateForm(certificateData))
 
-      toast.success('Education added successfully!');
+      toast.success('Education added successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setTimeout(() => {
         window.location.reload();
       }, 500);
@@ -79,11 +86,25 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       setCertifications(updatedCertifications);
       onUpdate(updatedCertifications);
       setShowForm(false);
-      toast.success("Certification added successfully!");
+      toast.success("Certification added successfully!",{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
 
     } catch (error) {
       console.error('Error adding education:', error);
-      toast.error('Failed to add education. Please try again.');
+      toast.error('Failed to add education. Please try again.',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
 
     
@@ -116,7 +137,14 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       if (certificateToEdit._id) {
         setCertificateToEdit(updatedCertification);
       } else {
-        toast.error("Error updating certificate. Please try again.");
+        toast.error("Error updating certificate. Please try again.",{
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         return;
       }
     }
@@ -132,7 +160,14 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
   
     try {
       const response = await dispatch(EditCertificate(dataToUpdate)).unwrap();
-      toast.success('Education added successfully!');
+      toast.success('Education added successfully!',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       setTimeout(() => {
         window.location.reload();
       }, 500);
@@ -145,10 +180,24 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       onUpdate(updatedCertification);
       setShowForm(false);
       setEditingIndex(null);
-      toast.success('Certificate updated successfully!');
+      toast.success('Certificate updated successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error('Error updating certificate:', error);
-      toast.error('Failed to update certificate. Please try again.');
+      toast.error('Failed to update certificate. Please try again.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -172,10 +221,24 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       }
   
       // Show success toast notification
-      toast.success('Certification deleted successfully!');
+      toast.success('Certification deleted successfully!',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (error) {
       console.error('Error deleting certification:', error);
-      toast.error('Failed to delete certification. Please try again.');
+      toast.error('Failed to delete certification. Please try again.',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
   
