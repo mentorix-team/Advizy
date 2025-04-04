@@ -97,7 +97,7 @@ const CertificationList = ({ certifications = [], onEdit, onDelete, onAddClick }
           </div>
         ))
       ) : (
-        <p className="text-gray-500 text-center">No certifications added yet</p>
+        <p className="text-gray-500 text-center">Add Your Certification</p>
       )}
     </div>
   );
