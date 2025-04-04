@@ -58,7 +58,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="This is how clients will see you. Keep it clear and professional. (e.g., Career Strategist | Startup Mentor)">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              professional Title
+              Professional Title
             </label>
           </Tooltip>
           <input
@@ -73,7 +73,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="Showcase your journey—how long have you been in this field?">
             <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
-              Years of Experience
+              Years of Work Experience
             </label>
           </Tooltip>
           <input
