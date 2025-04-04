@@ -32,17 +32,20 @@ export default function SkillsExpertise({ formData, setFormData }) {
 
       <div className="flex gap-2 mb-4">
         <div className="flex-1 p-2 border rounded-lg focus-within:ring-2 focus-within:ring-primary focus-within:border-primary">
-          <div className="flex flex-wrap gap-2 mb-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-400">java</span>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-400">career counselor</span>
+          <div className="relative">
+            <input
+              type="text"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              placeholder="Add your skills"
+              className="w-full focus:outline-none peer"
+            />
+            <div className="absolute left-0 top-0 pointer-events-none text-gray-400 flex gap-2 peer-focus:hidden peer-[:not(:placeholder-shown)]:hidden">
+              <span className="opacity-0">Add your skills</span>
+              <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">java</span>
+              <span className="inline-flex items-center px-3 py-0.5 rounded-full text-sm bg-gray-100">career counselor</span>
+            </div>
           </div>
-          <input
-            type="text"
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            placeholder="Add your skills"
-            className="w-full focus:outline-none"
-          />
         </div>
         <button
           onClick={addSkill}
