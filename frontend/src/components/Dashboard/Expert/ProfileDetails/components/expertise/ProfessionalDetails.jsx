@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FaBriefcase } from 'react-icons/fa';
 import { domainOptions, nicheOptions } from '../../../../../../utils/Options';
+import Tooltip from '../../../ToolTip';
 
 export default function ProfessionalDetails({ formData, setFormData }) {
   return (
@@ -13,12 +14,14 @@ export default function ProfessionalDetails({ formData, setFormData }) {
 
       <div className="space-y-4">
         <div className="text-left">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Domain of Expertise
-          </label>
+          <Tooltip text="What's your main field? Select the one that defines your work best.">
+            <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
+              🔹 Domain of Expertise
+            </label>
+          </Tooltip>
           <select
             value={formData.domain}
-            onChange={(e) => setFormData({ ...formData, domain: e.target.value, niche: '' })} // Reset niche when domain changes
+            onChange={(e) => setFormData({ ...formData, domain: e.target.value, niche: '' })}
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
           >
             <option value="">Select domain</option>
@@ -31,14 +34,16 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         </div>
 
         <div className="text-left">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Niche
-          </label>
+          <Tooltip text="Pick or add at least two skills that highlight your expertise. (The more relevant, the better!)">
+            <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
+              🔹 Niche & Skills
+            </label>
+          </Tooltip>
           <select
             value={formData.niche}
             onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
-            disabled={!formData.domain} // Disable if no domain selected
+            disabled={!formData.domain}
           >
             <option value="">Select your specific niche</option>
             {formData.domain &&
@@ -51,9 +56,11 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         </div>
 
         <div className="text-left">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Professional Title
-          </label>
+          <Tooltip text="This is how clients will see you. Keep it clear and professional. (e.g., Career Strategist | Startup Mentor)">
+            <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
+              🔹 Professional Title
+            </label>
+          </Tooltip>
           <input
             type="text"
             value={formData.professionalTitle}
@@ -63,11 +70,12 @@ export default function ProfessionalDetails({ formData, setFormData }) {
           />
         </div>
 
-        {/* New Field: Years of Experience */}
         <div className="text-left">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Years of Experience
-          </label>
+          <Tooltip text="Showcase your journey—how long have you been in this field?">
+            <label className="block text-sm font-medium text-gray-700 mb-1 cursor-help">
+              🔹 Years of Experience
+            </label>
+          </Tooltip>
           <input
             type="number"
             value={formData.experienceYears}
@@ -80,7 +88,12 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
           />
         </div>
-
+        <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+          <FaLightbulb className="mt-1 flex-shrink-0" />
+          <p className="text-sm">
+            📌 Tip: A well-detailed profile gets you noticed faster. Take a moment to craft it right!
+          </p>
+        </div>
       </div>
     </div>
   );
