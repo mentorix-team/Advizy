@@ -64,7 +64,7 @@ const EducationList = ({ education = [], onEdit, onDelete, onAddClick }) => {
           </div>
         ))
       ) : (
-        <p className="text-gray-500 text-center">No education records added yet</p>
+        <p className="text-gray-500 text-center">Add Your Educational Details</p>
       )}
     </div>
   );
