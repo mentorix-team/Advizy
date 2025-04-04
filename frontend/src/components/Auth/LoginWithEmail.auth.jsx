@@ -28,8 +28,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  // Get the redirect path from location state or default to home
-  const from = location.state?.from?.pathname || "/";
+  // Get the redirect path from location state, current path, or default to home
+  const from = location.state?.from?.pathname || location.pathname || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -98,6 +98,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
+      // Close the modal first if needed
+      if (onClose) {
+        onClose();
+      }
+      // Then navigate to the previous page
       navigate(from, { replace: true });
     }
 
@@ -108,7 +113,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   }
 
   const handleGoogleSignup = (event) => {
-    event.preventDefault(); // Prevent the form from submitting
+    event.preventDefault();
+    // Store the current path for Google auth redirect
     sessionStorage.setItem("redirectAfterLogin", from);
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
@@ -240,10 +246,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
         </form>
 
         <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
-  By joining, you agree to the Advizy Terms of Service and to
-  occasionally receive emails from us. Please read our Privacy Policy to
-  learn how we use your personal data.
-</p>
+          By joining, you agree to the Advizy Terms of Service and to occasionally
+          receive emails from us. Please read our Privacy Policy to learn how we
+          use your personal data.
+        </p>
       </div>
     </div>
   );
