@@ -193,7 +193,8 @@ export default function Header({ pendingActions }) {
             Welcome, {expertData.firstName}
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
-            Let's make today productive!
+          You're just a few steps away from getting verified and connecting with clients.
+          Let's complete your profile to unlock opportunities!
           </p>
         </div>
         {/* Notification Bell - Visible only on mobile */}
