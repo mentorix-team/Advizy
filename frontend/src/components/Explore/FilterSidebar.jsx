@@ -110,7 +110,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   }, []);
 
   return (
-    <div className="w-full h-full p-6 border-r overflow-y-auto overflow-x-hidden">
+    <div className="max-w-80 w-80 border shadow-md relative">
 {/* Sticky header with buttons */}
 <div className="sticky top-0 bg-white z-10 p-4 border-b">
         <div className="flex gap-2 mb-4">
@@ -127,7 +127,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             Reset
           </button>
         </div>
-        <h2 className="text-xl font-semibold">Filters</h2>
+       
       </div>
       
       <div className="flex justify-between items-center mb-6">
