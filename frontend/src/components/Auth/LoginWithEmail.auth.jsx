@@ -114,19 +114,26 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    // Store both the current pathname and any state-provided path
-    const redirectPath = location.state?.from?.pathname || location.pathname;
-    if (redirectPath && redirectPath !== '/') {
-      localStorage.setItem("redirectAfterLogin", redirectPath);
+    // Store the current path before redirecting
+    const currentPath = window.location.pathname;
+    localStorage.setItem("redirectAfterLogin", currentPath === "/" ? "/explore" : currentPath);
+    
+    // Store any additional state that might have been passed
+    if (location.state?.from?.pathname) {
+      localStorage.setItem("redirectAfterLoginState", location.state.from.pathname);
     }
+    
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
   // Check for redirect path when component mounts and after successful OAuth
   useEffect(() => {
-    const redirectPath = localStorage.getItem("redirectAfterLogin");
+    const redirectPath = localStorage.getItem("redirectAfterLoginState") || 
+                        localStorage.getItem("redirectAfterLogin");
+    
     if (redirectPath) {
       localStorage.removeItem("redirectAfterLogin");
+      localStorage.removeItem("redirectAfterLoginState");
       navigate(redirectPath, { replace: true });
     }
   }, [navigate]);
