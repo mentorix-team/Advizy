@@ -138,7 +138,7 @@ useEffect(() => {
   if (isLoggedIn) { // Your auth check logic
     navigate(decodeURIComponent(returnUrl), { replace: true });
   }
-}, [userIsAuthenticated, returnUrl, navigate]);
+}, [isLoggedIn, returnUrl, navigate]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
