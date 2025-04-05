@@ -217,11 +217,10 @@ export default function EducationTab({ formData, onUpdate }) {
     <div className="py-6">
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">
-          Highlight Your Educational Background
+        Boost Your Credibility with Your Education
         </h3>
         <p className="text-green-700">
-          Your education credentials add credibility to your profile and can
-          attract clients looking for specific qualifications.
+        Adding your education helps build trust and can set you apart. We recommend adding it for verification and better visibility.
         </p>
       </div>
 

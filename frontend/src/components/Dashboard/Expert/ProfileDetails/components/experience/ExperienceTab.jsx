@@ -228,8 +228,7 @@ export default function ExperienceTab({ formData, onUpdate }) {
           Showcase Your Professional Journey
         </h3>
         <p className="text-green-700">
-          Your work experience demonstrates your expertise and can help you
-          stand out to potential clients.
+        Your professional journey tells your story. Adding your experience helps people understand your expertise and trust your skills.
         </p>
       </div>
 

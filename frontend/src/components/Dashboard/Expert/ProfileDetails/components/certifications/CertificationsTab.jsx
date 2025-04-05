@@ -253,11 +253,10 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">
-          Showcase Your Certifications
+        Boost Your Credibility with Certifications
         </h3>
         <p className="text-green-700">
-          Your certifications demonstrate your expertise and commitment to
-          professional development.
+        Certifications showcase your expertise, commitment, and skills, helping you stand out to potential clients.
         </p>
       </div>
 

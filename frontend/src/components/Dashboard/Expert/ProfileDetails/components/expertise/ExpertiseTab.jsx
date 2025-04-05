@@ -65,7 +65,7 @@ export default function ExpertiseTab({ formData, onUpdate }) {
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">Showcase Your Expertise</h3>
         <p className="text-green-700">
-          Highlighting your expertise helps potential clients understand your strengths and increases your chances of getting hired for projects that match your skills.
+        Your profile is your first impression. Make it count!
         </p>
       </div>
 
