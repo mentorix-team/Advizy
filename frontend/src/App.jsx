@@ -9,7 +9,6 @@ import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
 import AuthPopup from "./components/Auth/AuthPopup.auth";
 import Error404 from "./Protected/Error404";
 import HomePage from "./components/Home/pages/HomePage";
-import ComingSoon from "./ComingSoon";
 import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import AboutUs from "./components/Home/pages/AboutUs";

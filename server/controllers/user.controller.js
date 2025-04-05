@@ -38,7 +38,7 @@ const handleGoogleCallback = async (req, res, next) => {
     return next(new AppError("Authentication failed: User not found", 504));
   }
 
-  console.log("req.user:", req.user);
+  console.log("req.user:", req.user); 
 
   const { googleId, email, name } = req.user;
 
