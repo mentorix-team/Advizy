@@ -31,6 +31,8 @@ const googleCallback = passport.authenticate("google", {
 });
 
 const handleGoogleCallback = async (req, res, next) => {
+  const state = req.query.state || '/';
+
   if (!req.user) {
     console.error("Error: req.user is undefined");
     return next(new AppError("Authentication failed: User not found", 504));
@@ -143,7 +145,7 @@ const handleGoogleCallback = async (req, res, next) => {
     // Redirect to frontend with tokens
     const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
       JSON.stringify(user)
-    )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
+    )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}returnUrl=${encodeURIComponent(state)}`;
 
     return res.redirect(frontendURL);
     // return res.status(200).json({
