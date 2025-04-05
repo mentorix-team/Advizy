@@ -1208,7 +1208,7 @@ const refresh_token = async (req, res, next) => {
     const { refreshToken, expertRefreshToken } = req.cookies;
 
     if (!refreshToken) {
-      return next(new AppError("unauthorised", 403));
+      return next(new AppError("Please login!", 403));
     }
 
     // Verify User Refresh Token

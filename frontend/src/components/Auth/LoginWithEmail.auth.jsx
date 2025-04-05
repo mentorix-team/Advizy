@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -99,7 +98,9 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      navigate(from, { replace: true });
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/";
+      sessionStorage.removeItem("redirectAfterLogin");
+      navigate(redirectPath, { replace: true });
     }
 
     setlogindata({
@@ -110,18 +111,18 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   const handleGoogleSignup = (event) => {
     event.preventDefault(); // Prevent the form from submitting
-    sessionStorage.setItem("redirectAfterLogin", from);
+    const currentPath = window.location.pathname;
+    sessionStorage.setItem("redirectAfterLogin", currentPath);
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
-  // Check for redirect path after component mounts (for Google auth callback)
   useEffect(() => {
-    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-    if (redirectPath) {
+    dispatch(googleLoginThunk()).then(() => {
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/";
       sessionStorage.removeItem("redirectAfterLogin");
       navigate(redirectPath, { replace: true });
-    }
-  }, [navigate]);
+    });
+  }, []);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
@@ -241,10 +242,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
         </form>
 
         <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
-  By joining, you agree to the Advizy Terms of Service and to
-  occasionally receive emails from us. Please read our Privacy Policy to
-  learn how we use your personal data.
-</p>
+          By joining, you agree to the Advizy Terms of Service and to
+          occasionally receive emails from us. Please read our Privacy Policy to
+          learn how we use your personal data.
+        </p>
       </div>
     </div>
   );

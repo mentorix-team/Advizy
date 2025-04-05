@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ requireExpert = false, showAuth }) => {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -9,7 +9,7 @@ const ProtectedRoute = ({ requireExpert = false, showAuth }) => {
   useEffect(() => {
     if (!isLoggedIn) {
       // Store the last attempted URL before forcing login
-      localStorage.setItem("redirectAfterLogin", location.pathname);
+      sessionStorage.setItem("redirectAfterLogin", location.pathname);
       showAuth();
     }
   }, [isLoggedIn, showAuth, location.pathname]);
