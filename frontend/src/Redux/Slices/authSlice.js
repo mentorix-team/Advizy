@@ -437,7 +437,7 @@ export const googleLogin = createAsyncThunk(
 
       return { user, expert };
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong",  {
+      toast.error(error?.response?.data?.message || "Something went wrong", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -457,7 +457,7 @@ export const refreshToken = createAsyncThunk(
       const response = await axiosInstance.post("user/refresh-token", data);
       return await response.data;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong",  {
+      toast.error(error?.response?.data?.message || "Something went wrong", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -477,7 +477,7 @@ export const addFavourites = createAsyncThunk(
       const response = await axiosInstance.post("user/favourites", data);
       return await response.data.user;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong",  {
+      toast.error(error?.response?.data?.message || "Something went wrong", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,

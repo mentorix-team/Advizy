@@ -116,13 +116,14 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
+  // Check for redirect path after component mounts (for Google auth callback)
   useEffect(() => {
-    dispatch(googleLoginThunk()).then(() => {
-      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/";
+    const redirectPath = sessionStorage.getItem("redirectAfterLogin");
+    if (redirectPath) {
       sessionStorage.removeItem("redirectAfterLogin");
       navigate(redirectPath, { replace: true });
-    });
-  }, []);
+    }
+  }, [navigate]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
