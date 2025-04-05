@@ -62,24 +62,55 @@ const App = () => {
   const handleAuthPopupOpen = () => setShowAuthPopup(true);
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
+  // useEffect(() => {
+  //   const excludedPaths = [
+  //     "/",
+  //     "/auth-error",
+  //     "/about-us",
+  //     "/contact",
+  //     "/cookie-policy",
+  //     "/privacy-policy",
+  //     "/refund-policy",
+  //     "/terms-of-service",
+  //     "/explore",
+  //     "/meeting",
+  //     "/expert/:redirect_url",
+  //     "/expert/scheduling/:serviceId",
+  //     "/become-expert",
+  //   ];
+
+  //   if (!excludedPaths.includes(location.pathname)) {
+  //     dispatch(validateToken()).then((response) => {
+  //       if (!response?.payload?.valid) {
+  //         localStorage.clear();
+  //         setShowAuthPopup(true);
+  //       }
+  //     });
+  //   }
+  // }, [dispatch, location.pathname]);
+
   useEffect(() => {
-    const excludedPaths = [
-      "/",
-      "/auth-error",
-      "/about-us",
-      "/contact",
-      "/cookie-policy",
-      "/privacy-policy",
-      "/refund-policy",
-      "/terms-of-service",
-      "/explore",
-      "/meeting",
-      "/expert/:redirect_url",
-      "/expert/scheduling/:serviceId",
-      "/become-expert",
+    const excludedPathPatterns = [
+      /^\/$/,
+      /^\/auth-error$/,
+      /^\/about-us$/,
+      /^\/contact$/,
+      /^\/cookie-policy$/,
+      /^\/privacy-policy$/,
+      /^\/refund-policy$/,
+      /^\/terms-of-service$/,
+      /^\/explore/,
+      /^\/meeting$/,
+      /^\/expert\/[^/]+$/, // ← ✅ this makes /expert/:redirect_url public
+      /^\/expert\/scheduling\/[^/]+$/,
+      /^\/become-expert$/,
     ];
 
-    if (!excludedPaths.includes(location.pathname)) {
+    const isExcluded = excludedPathPatterns.some((pattern) =>
+      pattern.test(location.pathname)
+    );
+
+    if (!isExcluded) {
       dispatch(validateToken()).then((response) => {
         if (!response?.payload?.valid) {
           localStorage.clear();
@@ -91,13 +122,16 @@ const App = () => {
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
-    
+
     // Allow access to /meeting route
-    if (expertMode && !location.pathname.startsWith("/dashboard/expert") && location.pathname !== "/meeting") {
+    if (
+      expertMode &&
+      !location.pathname.startsWith("/dashboard/expert") &&
+      location.pathname !== "/meeting"
+    ) {
       navigate("/dashboard/expert/");
     }
   }, [location, navigate]);
-  
 
   return (
     <Suspense fallback={<Spinner />}>
