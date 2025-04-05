@@ -32,7 +32,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const returnUrl = URLSearchParams(location.search);
+  const returnUrl = new URLSearchParams(location.search);
   const searchParams = new URLSearchParams(location.search);
   const returnedUrl = searchParams.get("returnUrl") || "/";
 
