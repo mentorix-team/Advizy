@@ -95,7 +95,7 @@ const ExperienceList = ({ experiences = [], onEdit, onDelete, onAddClick }) => {
           </div>
         ))
       ) : (
-        <p className="text-gray-500 text-center">No experience records added yet</p>
+        <p className="text-gray-500 text-center">Add Your Work Experience</p>
       )}
     </div>
   );

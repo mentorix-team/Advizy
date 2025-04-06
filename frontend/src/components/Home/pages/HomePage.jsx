@@ -46,7 +46,7 @@ const categories = [
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
         <GraduationCap className="text-primary w-5 h-5" />
       </div>
     ),
@@ -66,6 +66,7 @@ const categories = [
         <Handshake className="text-primary w-5 h-5" />
       </div>
     ),
+    
     title: "Business",
   },
   {
@@ -276,7 +277,7 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-16 w-full max-w-7xl mx-auto"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 " >
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}
@@ -284,7 +285,7 @@ function HomePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <CategoryCard {...category} />
+                      <CategoryCard {...category}  />
                     </motion.div>
                   ))}
                 </div>

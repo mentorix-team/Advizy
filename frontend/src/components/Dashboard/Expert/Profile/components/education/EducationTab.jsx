@@ -41,14 +41,28 @@ export default function EducationTab({ formData, onUpdate }) {
     onUpdate(updatedEducations);
     setShowForm(false);
     setEditingIndex(null);
-    toast.success('Education updated successfully!');
+    toast.success('Education updated successfully!',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
   };
 
   const handleDeleteEducation = (index) => {
     const updatedEducations = educations.filter((_, i) => i !== index);
     setEducations(updatedEducations);
     onUpdate(updatedEducations);
-    toast.success('Education deleted successfully!');
+    toast.success('Education deleted successfully!',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
   };
 
   return (

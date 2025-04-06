@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
 import ImageUploadModal from '../ImageUploadModal';
-import { FaEye, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash,FaLightbulb} from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { ExperienceFormSubmit } from '@/Redux/Slices/expert.Slice';
 import DocumentUploadModal from '../services/DocumentUploadModal';
@@ -233,6 +233,12 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
+          <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+                              <FaLightbulb className="mt-1 flex-shrink-0" />
+                              <p className="text-sm">
+                              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+                              </p>
+                            </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">

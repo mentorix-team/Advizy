@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ImageUploadModal from '../ImageUploadModal';
-import { FaEye, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
 import { SingleEducationForm } from '@/Redux/Slices/expert.Slice';
 import { useDispatch } from 'react-redux';
 import DocumentUploadModal from '../services/DocumentUploadModal';
@@ -87,14 +87,28 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a PDF, JPEG, or PNG file');
+        toast.error('Please upload a PDF, JPEG, or PNG file',{
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         return;
       }
   
       // Validate file size (e.g., 5MB max)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        toast.error('File size must be less than 5MB');
+        toast.error('File size must be less than 5MB', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         return;
       }
   
@@ -103,7 +117,14 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
         certificate: file // Store single file
       }));
       setShowUploadModal(false);
-      toast.success('File uploaded successfully');
+      toast.success('File uploaded successfully',{
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -178,7 +199,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Certificates (Optional)
+          Certificates (Optional) - for verification purpose only
           </label>
           
           {/* File List */}
@@ -236,6 +257,12 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
+          <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+                    <FaLightbulb className="mt-1 flex-shrink-0" />
+                    <p className="text-sm">
+                    Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+                    </p>
+                  </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">

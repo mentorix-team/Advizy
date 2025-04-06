@@ -463,7 +463,14 @@ export default function UpcomingMeetingDetails() {
     const timeDifference = meetingDateTimeIST - nowIST;
 
     if (timeDifference < noticePeriodMs) {
-      toast.error("Reschedule not allowed: Notice period has already passed.");
+      toast.error("Reschedule not allowed: Notice period has already passed.",  {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -548,7 +555,7 @@ export default function UpcomingMeetingDetails() {
         <div className="flex-1">
           <div className="flex items-center mb-6">
             <button
-              onClick={() => navigate("/meetings")}
+              onClick={() => navigate("/dashboard/user/meetings")}
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <AiOutlineArrowLeft className="w-5 h-5 mr-2" />

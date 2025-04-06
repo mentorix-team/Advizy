@@ -31,12 +31,14 @@ const googleCallback = passport.authenticate("google", {
 });
 
 const handleGoogleCallback = async (req, res, next) => {
+  const state = req.query.state || '/';
+
   if (!req.user) {
     console.error("Error: req.user is undefined");
     return next(new AppError("Authentication failed: User not found", 504));
   }
 
-  console.log("req.user:", req.user);
+  console.log("req.user:", req.user); 
 
   const { googleId, email, name } = req.user;
 
@@ -143,7 +145,7 @@ const handleGoogleCallback = async (req, res, next) => {
     // Redirect to frontend with tokens
     const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
       JSON.stringify(user)
-    )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
+    )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}&returnUrl=${encodeURIComponent(state)}`;
 
     return res.redirect(frontendURL);
     // return res.status(200).json({
@@ -1208,7 +1210,7 @@ const refresh_token = async (req, res, next) => {
     const { refreshToken, expertRefreshToken } = req.cookies;
 
     if (!refreshToken) {
-      return next(new AppError("unauthorised", 403));
+      return next(new AppError("Please login!", 403));
     }
 
     // Verify User Refresh Token
@@ -1267,8 +1269,8 @@ const refresh_token = async (req, res, next) => {
 
 const addFavouriteExpert = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    const {expertId} = req.body;
+    const user = await User.findById(req.user.id).populate("favourites");
+    const { expertId } = req.body;
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -1279,19 +1281,41 @@ const addFavouriteExpert = async (req, res) => {
       return res.status(404).json({ message: "Expert not found" });
     }
 
-    user.favourites = user.favourites.includes(expertId) 
-    ? user.favourites.filter((id) => id.toString() !== expertId) 
-    : [...user.favourites, expertId];
+    // Toggle favorite (add/remove)
+    user.favourites = user.favourites.some(
+      (exp) => exp._id.toString() === expertId
+    )
+      ? user.favourites.filter((exp) => exp._id.toString() !== expertId)
+      : [...user.favourites, expertId];
 
     await user.save();
 
+    // Populate favourites before sending response
+    const updatedUser = await User.findById(req.user.id).populate("favourites");
 
     res.status(200).json({
       message: "Expert added to favorites",
-      user
+      user,
     });
   } catch (error) {
+    console.log("Error updating favorites:", error);
     res.status(500).json({ message: "Server Error", error });
+  }
+};
+
+const getUserProfile = async (req, res) => {
+  try {
+    // Find user and populate the favourites array with expert details
+    const user = await User.findById(req.user.id).populate("favourites");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -1362,7 +1386,8 @@ export {
   regenerate_otp,
   updateUser,
   validateToken,
+  addFavouriteExpert,
+  getUserProfile,
   // getFavourites,
   // removeFavouriteExpert,
-  addFavouriteExpert,
 };

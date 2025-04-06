@@ -65,7 +65,14 @@ const BankAccountPopup = () => {
         const response = await dispatch(PaymentFormSubmit(formData)).unwrap();
         if (response.success) {
           console.log("Form Submitted:", formData);
-          toast.success("Bank details saved successfully!");
+          toast.success("Bank details saved successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
           setIsSubmitted(true); // Mark submission as successful
           setIsOpen(false); // Close the popup
         } else {
@@ -73,7 +80,14 @@ const BankAccountPopup = () => {
         }
       } catch (error) {
         console.error("Error submitting form:", error);
-        toast.error(error.message || "Something went wrong.");
+        toast.error(error.message || "Something went wrong.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       }
     }
   };

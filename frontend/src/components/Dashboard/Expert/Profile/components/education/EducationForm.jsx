@@ -161,7 +161,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Certificates (Optional)
+          Certificates (Optional) - for verification purpose only
           </label>
           
           {/* File List */}
@@ -219,6 +219,12 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
+          <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+                    <FaLightbulb className="mt-1 flex-shrink-0" />
+                    <p className="text-sm">
+                    Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+                    </p>
+                  </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">

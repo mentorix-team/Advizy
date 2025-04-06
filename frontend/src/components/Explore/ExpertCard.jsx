@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { User, Star, Heart, BadgeCheck } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 // import { addFavorite, removeFavorite } from "../Dashboard/User/Favourites/userService";
-import { addFavourites } from "@/Redux/Slices/authSlice";
+import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
+import toast from "react-hot-toast";
 
 const ExpertCard = ({
   redirect_url,
@@ -24,18 +25,18 @@ const ExpertCard = ({
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {data,loading,error} = useSelector((state)=>state.auth)
+  const { data } = useSelector((state) => state.auth);
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    userData = null; 
+    userData = null;
   }
   useEffect(() => {
     if (userData?.favourites) {
       // Check if expert ID exists in the user's favorites
-      setIsFavorite(userData.favourites.includes(id));
+      setIsFavorite(userData.favourites.some((expert) => expert._id === id));
     }
   }, [userData, id]);
   useEffect(() => {
@@ -58,10 +59,28 @@ const ExpertCard = ({
 
   const handleFavoriteClick = async () => {
     try {
-      const response = await dispatch(addFavourites({expertId:id}))
-      setIsFavorite(!isFavorite);
+      await dispatch(addFavourites({ expertId: id }));
+      await dispatch(fetchUserProfile()); // Fetch updated user data
+
+      setIsFavorite((prev) => !prev);
+
+      // 🎉 Show toast notification (top-right corner)
+      toast.success(
+        isFavorite ? "Removed from favorites!" : "Added to favorites!",
+        {
+          position: "top-right",
+          autoClose: 3000, // Closes after 3 seconds
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } catch (error) {
       console.error("Error updating favorite", error);
+      toast.error("Something went wrong!", {
+        position: "top-right",
+      });
     }
   };
 
@@ -111,7 +130,7 @@ const ExpertCard = ({
                     <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">
                       <span className="text-[#1d1d1d]">Experience: </span>
                       <span className="font-medium text-[#1d1d1d]">
-                        {experience} in industry
+                        {experience} years in industry
                       </span>
                     </p>
                     <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">

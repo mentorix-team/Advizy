@@ -20,7 +20,14 @@ export default function CertificationsTab({ formData, onUpdate }) {
     setCertifications(updatedCertifications);
     onUpdate(updatedCertifications);
     setShowForm(false);
-    toast.success('Certification added successfully!');
+    toast.success('Certification added successfully!',{
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const handleEditCertification = (index) => {
@@ -35,14 +42,28 @@ export default function CertificationsTab({ formData, onUpdate }) {
     onUpdate(updatedCertifications);
     setShowForm(false);
     setEditingIndex(null);
-    toast.success('Certification updated successfully!');
+    toast.success('Certification updated successfully!',{
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   const handleDeleteCertification = (index) => {
     const updatedCertifications = certifications.filter((_, i) => i !== index);
     setCertifications(updatedCertifications);
     onUpdate(updatedCertifications);
-    toast.success('Certification deleted successfully!');
+    toast.success('Certification deleted successfully!',{
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   };
 
   return (

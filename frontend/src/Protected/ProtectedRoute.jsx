@@ -1,26 +1,24 @@
 import React, { useEffect } from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const ProtectedRoute = ({ requireExpert = false, showAuth }) => {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const expertData = localStorage.getItem("expertData");
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoggedIn) {
-      // Store the last attempted URL before forcing login
-      localStorage.setItem("redirectAfterLogin", location.pathname);
+      // Store the current path as a URL parameter
+      const returnUrl = encodeURIComponent(location.pathname + location.search);
+      navigate(`/auth?returnUrl=${returnUrl}`, { state: { from: location } });
       showAuth();
     }
-  }, [isLoggedIn, showAuth, location.pathname]);
+  }, [isLoggedIn, showAuth, location, navigate]);
 
   if (!isLoggedIn) {
     return null;
   }
-
-  // if (requireExpert && !expertData) {
-  //   return <Navigate to="/not-authorized" replace />;
-  // }
 
   return <Outlet />;
 };

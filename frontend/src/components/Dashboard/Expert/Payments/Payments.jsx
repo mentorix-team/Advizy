@@ -76,9 +76,23 @@ export default function Payments() {
   const handleCopyId = async (id) => {
     try {
       await navigator.clipboard.writeText(id);
-      toast.success('ID copied to clipboard');
+      toast.success('ID copied to clipboard', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (err) {
-      toast.error('Failed to copy ID');
+      toast.error('Failed to copy ID', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

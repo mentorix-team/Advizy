@@ -112,7 +112,7 @@ export default function PastMeetingDetails() {
 
   const handleBackToMeetings = () => {
     // Navigate to meetings page with past tab active
-    navigate('/meetings?tab=past');
+    navigate('/dashboard/user/meetings');
   };
 
   if (!meeting) return null;

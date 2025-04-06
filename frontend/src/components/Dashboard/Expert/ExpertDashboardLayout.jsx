@@ -269,7 +269,7 @@ const ExpertDashboardLayout = () => {
             {/* Right section */}
             <div className="flex items-center lg:pr-10">
               <div className="hidden lg:flex items-center gap-8 mr-8">
-                <a
+                {/* <a
                   href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${
                     isLinkActive("/about-us")
@@ -278,7 +278,7 @@ const ExpertDashboardLayout = () => {
                   }`}
                 >
                   About Us
-                </a>
+                </a> */}
 
                 {!isExpertMode && (
                   <a
@@ -365,9 +365,10 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Home</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink
-                to="/dashboard/expert/availability"
+                to="/dashboard/expert/profile-detail"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
                     isActive
@@ -376,10 +377,11 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <CalendarDays className="w-5 h-5" />
-                <span className="ms-3">Availability</span>
+                <UserPen className="w-5 h-5" />
+                <span className="ms-3">Profile</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink
                 to="/dashboard/expert/service-pricing"
@@ -395,9 +397,10 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Pricing & Services</span>
               </NavLink>
             </li>
+
             <li>
               <NavLink
-                to="/dashboard/expert/profile-detail"
+                to="/dashboard/expert/availability"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
                     isActive
@@ -406,10 +409,13 @@ const ExpertDashboardLayout = () => {
                   }`
                 }
               >
-                <UserPen className="w-5 h-5" />
-                <span className="ms-3">Profile Detail</span>
+                <CalendarDays className="w-5 h-5" />
+                <span className="ms-3">Availability</span>
               </NavLink>
             </li>
+            
+            <hr className="border-gray-300 dark:border-gray-600 my-2" />
+           
             <li>
               <NavLink
                 to="/dashboard/expert/meetings"
@@ -437,7 +443,22 @@ const ExpertDashboardLayout = () => {
                 }
               >
                 <Users className="w-5 h-5" />
-                <span className="ms-3">Clients</span>
+                <span className="ms-3">Client-session</span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/expert/payments"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <BadgeIndianRupee className="w-5 h-5" />
+                <span className="ms-3">Payments</span>
               </NavLink>
             </li>
             <li>
@@ -470,21 +491,7 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Reviews</span>
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="/dashboard/expert/payments"
-                className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
-                  }`
-                }
-              >
-                <BadgeIndianRupee className="w-5 h-5" />
-                <span className="ms-3">Payments</span>
-              </NavLink>
-            </li>
+           
           </ul>
         </div>
       </aside>

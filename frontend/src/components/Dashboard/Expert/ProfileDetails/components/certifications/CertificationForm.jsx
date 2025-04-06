@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
-import { FaEye, FaTrash } from 'react-icons/fa';
+import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { CertificateForm } from '@/Redux/Slices/expert.Slice';
 import DocumentUploadModal from '../services/DocumentUploadModal';
@@ -119,7 +119,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Certificates (Optional)
+          Certificate (Optional) – Upload for faster verification and added credibility
           </label>
           
           {formData.certificates?.length > 0 && (
@@ -176,6 +176,12 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
+           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+                                        <FaLightbulb className="mt-1 flex-shrink-0" />
+                                        <p className="text-sm">
+                                        Note: Uploading your certificate is optional, but it helps us verify your profile faster. Your documents are 100% safe and NOT shared or displayed on your profile or anywhere.
+                                        </p>
+                                      </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
