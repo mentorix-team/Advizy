@@ -66,20 +66,24 @@ export default function Header({ pendingActions }) {
     try {
       console.log("This is expert video call id", notification.videoCallId);
       const meetingId = notification.videoCallId;
-      const startTime = notification.daySpecific.slot.startTime;
-      const endTime = notification.daySpecific.slot.endTime;
+      const startTime = notification.daySpecific.slot.startTime
+      const endTime = notification.daySpecific.slot.endTime
+      const id = notification._id
+      const user_id = notification.userId
+      const expert_id = notification.expertId
+      const userName = notification.userName
+      const expertName = notification.expertName
+      const serviceName = notification.serviceName
       const joinCallData = {
         meeting_id: notification.videoCallId,
         custom_participant_id: notification.expertId,
-        name: expertData.firstName + " " + expertData.lastName,
+        name: expertData.firstName + ' ' + expertData.lastName,
         preset_name: "group_call_host",
       };
 
       console.log("Preset Name being sent:", joinCallData.preset_name);
 
-      const response = await dispatch(
-        addvideoparticipant(joinCallData)
-      ).unwrap();
+      const response = await dispatch(addvideoparticipant(joinCallData)).unwrap();
       console.log("This is response", response);
 
       if (response?.data?.data?.token) {
@@ -87,12 +91,12 @@ export default function Header({ pendingActions }) {
         console.log("Auth Token received:", authToken);
         console.log("meetinng id received:", meetingId);
 
+        // Set both states to enable polling
         setJoinedMeetingId(notification.videoCallId);
         setIsInMeeting(true);
 
-        navigate("/meeting", {
-          state: { authToken, meetingId, startTime, endTime },
-        });
+        // Navigate to meeting page with authToken
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime,id,serviceName,expertName,userName,expert_id,user_id} });
       } else {
         console.error("Failed to retrieve authToken.");
         toast.error("Failed to join the meeting");
@@ -102,6 +106,7 @@ export default function Header({ pendingActions }) {
       toast.error("Error joining the meeting");
     }
   };
+
 
   const handleAvailMoney = async (notification) => {
     if (!notification.amount) {

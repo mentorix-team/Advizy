@@ -219,7 +219,22 @@ const OrderSummary = () => {
             await dispatch(createVideoCall(videoCallData));
           }
   
-          navigate("/payment-success");
+          navigate("/payment-success", {
+            state: {
+              image: selectedExpert.profileImage?.secure_url || 'https://via.placeholder.com/100',
+              name: selectedExpert.firstName + " " + selectedExpert.lastName,
+              title: selectedExpert.credentials?.professionalTitle || title || 'No Title Provided',
+              sessionDuration: selectedService.duration || durationforstate,
+              price: selectedService.price || Price,
+              date: parsedDate.toLocaleDateString("en-IN", {
+                weekday: "long",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              }),
+              time: selectedTime,
+            }
+          });
         },
         prefill: {
           name: "Customer Name",

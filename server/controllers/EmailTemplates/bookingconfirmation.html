@@ -120,17 +120,17 @@
                                 <tr>
                                     <td class="mobile-stack" style="vertical-align: top; padding-right: 40px; width: 120px;">
                                         <div class="date-card">
-                                            <div class="month">Jan</div>
-                                            <div class="day-num">3</div>
-                                            <div class="day-name">Fri</div>
+                                            <div class="month">{MONTH}</div>
+                                            <div class="day-num">{DATE}</div>
+                                            <div class="day-name">{DAY}</div>
                                         </div>
                                     </td>
                                     <td class="mobile-stack">
-                                        <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a202c;">Topic : Service Name Call : xworking - soumya achary</h1>
+                                        <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a202c;">Topic : {SERVICENAME} : {EXPERTNAME}</h1>
                                         <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                             <tr>
                                                 <td style="padding: 8px 0; color: #718096; width: 80px;">When</td>
-                                                <td style="padding: 8px 0; color: #2d3748;">Fri 3 Jan 2025 12am – 12:15am (IST)</td>
+                                                <td style="padding: 8px 0; color: #2d3748;">{MEETINGDATE} {STARTTIME} – {ENDTIME} (IST)</td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 8px 0; color: #718096;">Where</td>
@@ -155,12 +155,12 @@
                                         <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">Your booking has been confirmed ✅</h2>
                                         
                                         <div class="timeline-event">
-                                            <strong style="color: #2d3748;">12am – 12:15am (IST)</strong>
-                                            <div style="margin-top: 8px;">Topic : Service Name Call</div>
+                                            <strong style="color: #2d3748;">{STARTTIME} – {ENDTIME} (IST)</strong>
+                                            <div style="margin-top: 8px;">Topic : {SERVICENAME}</div>
                                         </div>
                                         <div class="timeline-event">
                                             <div style="color: #718096;">Meeting With</div>
-                                            <strong style="color: #2d3748;">Expert Name - User Name</strong>
+                                            <strong style="color: #2d3748;">{EXPERTNAME} - {USERNAME}</strong>
                                         </div>
                                         <div style="margin-top: 24px; text-align: center;">
                                             <a href="#" class="button">Join call</a>

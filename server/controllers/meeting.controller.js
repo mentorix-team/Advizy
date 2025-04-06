@@ -128,8 +128,9 @@ const payedForMeeting = async (req, res, next) => {
     // Find meeting
     const meeting = await Meeting.findById(id);
     if (!meeting) return next(new AppError("Meeting not found", 404));
-
+    const user = await User.findById(meeting.userId);
     const { expertId, daySpecific } = meeting;
+    const expertt = await ExpertBasics.findById(expertId)
     const { date, slot } = daySpecific;
 
     // Find expert availability
@@ -214,6 +215,28 @@ const payedForMeeting = async (req, res, next) => {
     });
 
     await notification.save();
+
+    const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
+    let emailTemplate = fs.readFileSync(templatePath, "utf8");
+
+    const fullDate = moment(meeting.daySpecific.date); // e.g., '2025-04-06'
+
+    const month = fullDate.format("MMMM");  // April
+    const datee = fullDate.format("DD");     // 06
+    const day = fullDate.format("dddd"); 
+
+    emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+    emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+    emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName); // if you want to use username too
+    emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+    emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+    emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+
+    emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
+    emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
+    emailTemplate = emailTemplate.replace(/{DAY}/g, day);
+    await sendEmail(expertt.email, "Meeting Booked", emailTemplate, true);
+    await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
 
     // Send response
     res.status(200).json({
