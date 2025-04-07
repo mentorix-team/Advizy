@@ -47,7 +47,7 @@ app.use('/api/v1/expert', expertRoutes);
 app.use('/api/v1/calendar', calendarRoutes);
 app.use('/api/v1/meeting', meetingRoutes);
 app.use('/api/v1/payment', razorpayRoutes);
-app.use('/api/v1/admin', adminRoutes);
+// app.use('/api/v1/admin', adminRoutes);
 
 app.use('*', (req, res) => {
     res.status(404).send('404 invalid response');
