@@ -17,9 +17,11 @@ const ExpertCard = ({ expert }) => {
     }
   }, [expert]);
 
+  console.log('expert data', expert)
+
   const handleFavoriteClick = async () => {
     try {
-      await dispatch(addFavourites({ expertId: id }));
+      await dispatch(addFavourites({ expertId: expert._id }));
       await dispatch(fetchUserProfile()); // Fetch updated user data
 
       setIsFavorite((prev) => !prev);
