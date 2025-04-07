@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: [process.env.frontendurl, "https://admin.advizy.in"], // Allow frontend
+    origin: [process.env.frontendurl, "https://www.admin.advizy.in"], // Allow frontend
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
