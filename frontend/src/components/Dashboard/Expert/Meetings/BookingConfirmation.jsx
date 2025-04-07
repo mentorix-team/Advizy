@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import ConfettiExplosion from "react-confetti-explosion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import CategoryNav from "@/components/Home/components/CategoryNav";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
@@ -15,7 +15,11 @@ const BookingConfirmation = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [countdown, setCountdown] = useState(7);
   const navigate = useNavigate();
-
+  const location = useLocation()
+  const {image,name,title,sessionDuration,price,date,time} = location.state 
+  console.log('This is parsed date',date)
+  console.log('selected time',time)
+  console.log('gdsdsf',sessionDuration)
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
     if (!isFirstVisit) {
@@ -95,7 +99,7 @@ const BookingConfirmation = () => {
                   <div className="bg-red-600 text-white rounded-full w-12 h-12 flex justify-center items-center font-bold text-lg">
                     er
                   </div>
-                  <span className="ml-3 font-medium text-gray-700 text-lg">Expert Name</span>
+                  <span className="ml-3 font-medium text-gray-700 text-lg">{name}</span>
                 </div>
               </div>
 
@@ -122,15 +126,15 @@ const BookingConfirmation = () => {
                 <h1 className="text-2xl font-semibold text-gray-800 mt-6">
                   Booking confirmed
                 </h1>
-                <p className="text-gray-600 text-lg mt-2">for Service or 1:1 call</p>
+                <p className="text-gray-600 text-lg mt-2">{title}</p>
               </div>
 
               {/* Booking Date and Time */}
               <div className="flex items-center border border-gray-200 rounded-lg p-6 mt-8 bg-gray-50">
                 <Calendar className="w-8 h-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="font-medium text-gray-800 text-lg">Wednesday, 15 January</p>
-                  <p className="text-gray-500 mt-1">1:15 – 1:30PM</p>
+                  <p className="font-medium text-gray-800 text-lg">{date}</p>
+                  <p className="text-gray-500 mt-1">{time?.startTime}–{time?.endTime}</p>
                 </div>
               </div>
 

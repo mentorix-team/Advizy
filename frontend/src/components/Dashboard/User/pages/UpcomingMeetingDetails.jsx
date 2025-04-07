@@ -480,27 +480,45 @@ export default function UpcomingMeetingDetails() {
     });
   };
 
-  const handleJoin = async () => {
+  const handleJoin = async() =>{
+    
     try {
+      console.log(selectedMeeting);
+      console.log("This is user videocall id ",selectedMeeting.videoCallId);
+      const meetingId = selectedMeeting.videoCallId
+      const startTime = selectedMeeting.daySpecific.slot.startTime
+      const endTime = selectedMeeting.daySpecific.slot.endTime
+      const id = selectedMeeting._id
+      const user_id = selectedMeeting.userId
+      const expert_id = selectedMeeting.expertId
+      const userName = selectedMeeting.userName
+      const expertName = selectedMeeting.expertName
+      const serviceName = selectedMeeting.serviceName
       const joinCallData = {
         meeting_id: selectedMeeting.videoCallId,
         custom_participant_id: selectedMeeting.userId,
         name: `${data.firstName} ${data.lastName}`,
         preset_name: "group_call_participant",
       };
-
+  
+      console.log("Preset Name being sent:", joinCallData.preset_name);
+  
       const response = await dispatch(addvideoparticipant(joinCallData));
-
+      console.log("this is response",response.payload)
       if (response?.payload?.data?.data?.token) {
         const authToken = response.payload.data.data.token;
-        navigate("/meeting", { state: { authToken } });
+  
+        console.log("Auth Token received:", authToken);
+  
+        // Navigate to meeting page with authToken
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime,id,serviceName,expertName,userName,expert_id,user_id} });
       } else {
         console.error("Failed to retrieve authToken.");
       }
     } catch (error) {
       console.error("Error joining call:", error);
     }
-  };
+  }
 
   const handleShowPopup = () => {
     setShowPopup(true);
@@ -537,7 +555,7 @@ export default function UpcomingMeetingDetails() {
         <div className="flex-1">
           <div className="flex items-center mb-6">
             <button
-              onClick={() => navigate("/meetings")}
+              onClick={() => navigate("/dashboard/user/meetings")}
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <AiOutlineArrowLeft className="w-5 h-5 mr-2" />

@@ -130,7 +130,7 @@ const ExpertCard = ({
                     <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">
                       <span className="text-[#1d1d1d]">Experience: </span>
                       <span className="font-medium text-[#1d1d1d]">
-                        {experience} in industry
+                        {experience} years in industry
                       </span>
                     </p>
                     <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">

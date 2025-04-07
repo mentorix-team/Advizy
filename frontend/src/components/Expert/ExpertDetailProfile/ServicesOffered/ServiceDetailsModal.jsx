@@ -8,12 +8,6 @@ const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
   const navigate = useNavigate()
   const dispatch= useDispatch()
   console.log("Tihis is service open",service)
-  const durations = [
-    { time: "15", price: "30" },
-    { time: "30", price: "60" },
-    { time: "60", price: "120" },
-    { time: "90", price: "150" },
-  ];
   const handleBook = async () => {
     
       console.log('Dispatching getServicebyid...');
@@ -64,20 +58,37 @@ const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
           <h3 className="text-base sm:text-lg font-medium mb-2">Description:</h3>
           <p className="text-gray-600 text-sm sm:text-base">{service?.shortDescription || "No description available."}</p>
         </div>
+          {/* Duration & Price Section */}
+          {service?.one_on_one?.length > 0 ? (
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Select Duration:</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+                {service.one_on_one
+                  .filter(opt => opt.enabled)
+                  .map((option, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 border rounded-xl text-center bg-gray-50 hover:bg-gray-100 transition"
+                    >
+                      <div className="text-sm font-medium">{option.duration} min</div>
+                      <div className="text-xs text-gray-600">₹{option.price}</div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Duration:</h3>
+                <div className="text-sm sm:text-base font-medium">{service.duration} min</div>
+              </div>
+              <div className="mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-medium mb-2">Price:</h3>
+                <p className="text-gray-900 text-sm sm:text-base font-medium">₹{service?.price || "N/A"}</p>
+              </div>
+            </>
+          )}
 
-        {/* Duration Selection */}
-        <div className="mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Select Duration:</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-            {service.duration} min
-          </div>
-        </div>
-
-        {/* Price Display */}
-        <div className="mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-medium mb-2">Price:</h3>
-          <p className="text-gray-900 text-sm sm:text-base font-medium">₹{service?.price || "N/A"}</p>
-        </div>
 
         {/* Book Button */}
         <button className="w-full bg-[#16A348] text-white py-2.5 sm:py-3 rounded-lg hover:bg-[#128A3E] font-medium text-sm sm:text-base transition-colors" onClick={handleBook}>

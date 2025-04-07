@@ -88,8 +88,8 @@ function Meetings() {
     try {
       console.log("This is expert video call id", meeting.videoCallId);
       const meetingId = meeting.videoCallId;
-      const startTime = meeting.daySpecific.slot.startTime;
-      const endTime = meeting.daySpecific.slot.endTime;
+      const startTime = meeting.daySpecific.slot.startTime
+      const endTime = meeting.daySpecific.slot.endTime
       const joinCallData = {
         meeting_id: meeting.videoCallId,
         custom_participant_id: meeting.expertId,
@@ -114,9 +114,7 @@ function Meetings() {
         setIsInMeeting(true);
 
         // Navigate to meeting page with authToken
-        navigate("/meeting", {
-          state: { authToken, meetingId, startTime, endTime },
-        });
+        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime} });
       } else {
         console.error("Failed to retrieve authToken.");
         toast.error("Failed to join the meeting", {
