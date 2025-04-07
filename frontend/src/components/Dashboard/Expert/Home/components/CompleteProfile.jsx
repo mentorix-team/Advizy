@@ -7,6 +7,10 @@ import { ArrowUpRight } from 'lucide-react';
 export default function CompleteProfile({ 
   completion = 0,
 }) {
+  // If profile is complete, don't render anything
+  if (completion === 100) {
+    return null;
+  }
 
   const navigate = useNavigate();
 
@@ -37,7 +41,6 @@ export default function CompleteProfile({
       <p className="text-sm text-gray-600 mb-6">
         Complete your profile to increase visibility and attract more clients.
       </p>
-
 
       <button 
         onClick={onCompleteProfile}
