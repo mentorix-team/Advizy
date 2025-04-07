@@ -142,8 +142,26 @@ const ExpertCard = ({ expert }) => {
                 <span className="font-['Figtree',Helvetica] text-[14px] sm:text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
+                {expert.credentials?.skills?.slice(0, 2).map((skill, index) => (
+        <span
+          key={`${skill}-${index}`}
+          className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+        >
+          {skill}
+        </span>
+      ))}
+    
+
               </div>
               <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
+              {expert.credentials?.skills?.slice(2).map((skill, index) => (
+        <span
+          key={`${skill}-${index}`}
+          className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+        >
+          {skill}
+        </span>
+      ))}
               </div>
             </div>
           </div>
