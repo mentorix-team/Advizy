@@ -191,32 +191,38 @@ export default function Header({ pendingActions }) {
 
   return (
     <header className="max-w-[1089px] w-full flex flex-col sm:flex-row border justify-between items-start sm:items-center mb-8 bg-white p-6 rounded-lg shadow-sm">
-      {/* Welcome Text and Mobile Notification Section */}
-      <div className="w-full flex justify-between items-start sm:items-center mb-4 sm:mb-0">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold">
-            Welcome, {expertData.firstName}
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
-          You're just a few steps away from getting verified and connecting with clients.<br></br>
-          Let's complete your profile to unlock opportunities!
-          </p>
-        </div>
-        {/* Notification Bell - Visible only on mobile */}
-        <div className="sm:hidden">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 hover:bg-gray-100 rounded-full"
-          >
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-        </div>
+    {/* Welcome Text and Mobile Notification Section */}
+    <div className="w-full flex justify-between items-start sm:items-center mb-4 sm:mb-0">
+      <div>
+        <h1 className="text-xl sm:text-2xl font-bold">
+          Welcome, {expertData.firstName}
+        </h1>
+        <p className="text-gray-600 text-sm sm:text-base">
+          {pendingActions.length > 0 ? (
+            <>
+              Let's complete your profile to unlock opportunities!<br />
+              You're just a few steps away from getting verified and connecting with clients.
+            </>
+          ) : (
+            "Let's make today productive!"
+          )}
+        </p>
       </div>
+      {/* Notification Bell - Visible only on mobile */}
+      <div className="sm:hidden">
+        <button
+          onClick={() => setShowNotifications(!showNotifications)}
+          className="relative p-2 hover:bg-gray-100 rounded-full"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
+        </button>
+      </div>
+    </div>
 
       {/* Actions Section */}
       <div className="flex gap-4 items-center">
