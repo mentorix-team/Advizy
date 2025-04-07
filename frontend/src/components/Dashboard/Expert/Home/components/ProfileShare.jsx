@@ -98,10 +98,10 @@ const ProfileShare = ({ expert }) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="bg-white hover:bg-gray-50 px-4 py-2 rounded-full flex items-center gap-2 border border-gray-200 shadow-sm transition-all duration-200 ease-in-out"
+        className="inline-flex items-center whitespace-nowrap bg-white hover:bg-gray-50 px-4 py-2 rounded-full gap-2 border border-gray-200 shadow-sm transition-all duration-200 ease-in-out"
       >
-        <span className="text-gray-900 font-medium">Share Your Profile</span>
-        <Share2 size={18} className="text-gray-600" />
+        Share Your Profile
+        <Share2 size={16} className="text-gray-600 flex-shrink-0" />
       </button>
 
       <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
