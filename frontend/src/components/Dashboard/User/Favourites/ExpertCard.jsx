@@ -17,14 +17,17 @@ const ExpertCard = ({ expert }) => {
     }
   }, [expert]);
 
+  console.log('expert data', expert)
+
+  
   // Get the first enabled slot from mentoring services
   const firstEnabledSlot = expert.mentoringService?.one_on_one?.find(
     slot => slot.enabled
   );
 
   // Get starting price and duration from the first enabled slot
-  const startingPrice = firstEnabledSlot?.price || 0;
-  const duration = firstEnabledSlot?.duration || "N/A";
+  const startingPrice = expert.firstEnabledSlot?.price || 0;
+  const duration = expert.firstEnabledSlot?.duration || "N/A";
 
   // Find the first available day and time slot
   const firstAvailableDay = expert.availability?.daySpecific?.find(
@@ -49,9 +52,7 @@ const ExpertCard = ({ expert }) => {
     }
   };
 
-  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime 
-    ? formatTime(firstAvailableDay.slots[0].startTime)
-    : "";
+  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
   // Calculate rating
   const rating = expert.reviews?.length > 0
@@ -152,7 +153,7 @@ const ExpertCard = ({ expert }) => {
                         </span>
                       </p>
                       <div className="flex items-center gap-1">
-                        <Clock className="w-4 h-4 text-[#0049b3]" />
+                      <span className="text-[#000000e6]"> for </span>
                         <span className="font-medium text-[#0049b3]">
                           {duration} min
                         </span>
