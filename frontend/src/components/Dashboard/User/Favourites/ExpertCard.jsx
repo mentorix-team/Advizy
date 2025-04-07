@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { User, Star, Heart, BadgeCheck, Clock } from "lucide-react";
 import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
+import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import toast from "react-hot-toast";
 
 const ExpertCard = ({ expert }) => {
@@ -10,6 +11,7 @@ const ExpertCard = ({ expert }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [availability, setAvailability] = useState(null);
 
   useEffect(() => {
     if (expert?.isFavorite) {
@@ -17,40 +19,32 @@ const ExpertCard = ({ expert }) => {
     }
   }, [expert]);
 
-  console.log('expert data', expert)
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap();
+        setAvailability(response.availability);
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    };
 
-  
-  // Get the first enabled slot from mentoring services
-  const firstEnabledSlot = expert.mentoringService?.one_on_one?.find(
-    slot => slot.enabled
+    fetchAvailability();
+  }, [dispatch, expert._id]);
+
+  // Get the first enabled slot from one-on-one services
+  const firstEnabledSlot = expert.credentials?.services?.[0]?.one_on_one?.find(
+    slot => slot.enabled === true
   );
 
   // Get starting price and duration from the first enabled slot
-  const startingPrice = expert.firstEnabledSlot?.price || 0;
-  const duration = expert.firstEnabledSlot?.duration || "N/A";
+  const startingPrice = firstEnabledSlot?.price || 0;
+  const duration = firstEnabledSlot?.duration || "N/A";
 
   // Find the first available day and time slot
-  const firstAvailableDay = expert.availability?.daySpecific?.find(
+  const firstAvailableDay = availability?.daySpecific?.find(
     day => day.slots && day.slots.length > 0
   );
-
-  // Format the time for display
-  const formatTime = (time) => {
-    if (!time) return "";
-    try {
-      const [hours, minutes] = time.split(":");
-      const date = new Date();
-      date.setHours(parseInt(hours, 10));
-      date.setMinutes(parseInt(minutes, 10));
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit', 
-        hour12: true 
-      });
-    } catch (error) {
-      return time;
-    }
-  };
 
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
@@ -153,7 +147,7 @@ const ExpertCard = ({ expert }) => {
                         </span>
                       </p>
                       <div className="flex items-center gap-1">
-                      <span className="text-[#000000e6]"> for </span>
+                        <span className="text-[#000000e6]"> for </span>
                         <span className="font-medium text-[#0049b3]">
                           {duration} min
                         </span>
