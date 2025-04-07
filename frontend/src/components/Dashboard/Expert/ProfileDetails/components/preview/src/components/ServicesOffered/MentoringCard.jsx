@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Edit } from 'lucide-react';
 import { ServiceFeatures } from '@/components/Dashboard/Expert/ServiceAndPricing/ServiceFeatures';
-import ConfirmDialog from "./ConfirmDialog";
+
+import ConfirmDialog from '@/components/Dashboard/Expert/ServiceAndPricing/ConfirmDialog';
 
 const DurationOption = ({ duration, price, enabled, onClick }) => (
   <button
