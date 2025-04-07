@@ -1,6 +1,5 @@
 import { fetchUserProfile } from "@/Redux/Slices/authSlice";
 import { useState, useEffect } from "react";
-// import { getFavorites } from "./userService";
 import { useDispatch, useSelector } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
@@ -10,13 +9,6 @@ const Favorites = ({ userToken }) => {
   const dispatch = useDispatch();
   const [favorites, setFavorites] = useState([]);
   const { data: userData, loading, error } = useSelector((state) => state.auth);
-  //   let userData;
-  //   try {
-  //     userData = typeof data === "string" ? JSON.parse(data) : data;
-  //   } catch (error) {
-  //     console.error("Error parsing user data:", error);
-  //     userData = null;
-  //   }
 
   useEffect(() => {
     dispatch(fetchUserProfile()); // Fetch fresh user profile on component mount
@@ -33,31 +25,48 @@ const Favorites = ({ userToken }) => {
 
   if (!userData?.favourites || userData.favourites.length === 0)
     return (
-      <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div className="relative mb-4">
-          <Heart className="w-12 h-12 text-[#16A348]" />
+      <div className="bg-transparent flex flex-row justify-center w-full">
+        <div className="w-full max-w-[1440px]">
+          <main className="relative min-h-[400px] bg-gray-50 px-8 py-12">
+            <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-8 rounded-[9.48px] border border-[#1d1f1d33] bg-[#fcfcfc] shadow-sm">
+              <div className="relative mb-6">
+                <div className="flex items-center justify-center w-16 h-16 bg-[#e6f0eb] rounded-full">
+                  <Heart className="w-8 h-8 text-green-700" />
+                </div>
+              </div>
+              <h3 className="text-[20.5px] font-semibold text-[#1d1d1d] mb-2 text-center">
+                No Favourite Experts
+              </h3>
+              <p className="opacity-80 font-normal text-[#1d1f1d] text-[14.9px] text-center">
+                Add your Favourite expert to see them here
+              </p>
+            </div>
+          </main>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1 text-center">
-          No Favourite Experts
-        </h3>
-        <p className="text-gray-500 text-center">
-          Add your Favourite expert
-        </p>
       </div>
     );
 
   return (
-    <div>
-      <h2>My Favorite Experts</h2>
-      {favorites.length === 0 ? (
-        <p>No favorites yet.</p>
-      ) : (
-        <ul>
-          {favorites.map((expert) => (
-            <ExpertCard key={expert._id} expert={expert} />
-          ))}
-        </ul>
-      )}
+    <div className="bg-transparent flex flex-row justify-center w-full">
+      <div className="w-full max-w-[1440px]">
+        <main className="relative min-h-[1005px] bg-gray-50 px-8 py-12">
+          <h1 className="text-2xl md:text-[28px] font-semibold text-green-700 mb-8 ml-8">
+            My Favourite Experts
+          </h1>
+
+          <div className="flex flex-col max-w-[1046px] mx-auto gap-[22px]">
+            <p className="text-gray-700 text-[15px] leading-[22.5px]">
+              Showing {favorites.length} favourite {favorites.length === 1 ? 'mentor' : 'mentors'}
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-11 gap-y-11">
+              {favorites.map((expert) => (
+                <ExpertCard key={expert._id} expert={expert} />
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 };
