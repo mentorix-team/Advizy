@@ -5,7 +5,6 @@ import expertRoutes from './Routes/expert.route.js';
 import calendarRoutes from './Routes/calendar.route.js';
 import meetingRoutes from './Routes/meeting.route.js';
 import razorpayRoutes from './Routes/payment.route.js';
-import adminRoutes from './Routes/admin.route.js'
 import errorMiddleware from "./middlewares/error.middleware.js";
 import morgan from "morgan";
 import cors from 'cors';
