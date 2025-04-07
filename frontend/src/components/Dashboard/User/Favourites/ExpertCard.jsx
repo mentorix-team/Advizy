@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { User, Star, Heart, BadgeCheck } from "lucide-react";
+import { User, Star, Heart, BadgeCheck, Clock } from "lucide-react";
 import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
+import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import toast from "react-hot-toast";
 
 const ExpertCard = ({ expert }) => {
@@ -10,28 +11,68 @@ const ExpertCard = ({ expert }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [availability, setAvailability] = useState(null);
 
   useEffect(() => {
     if (expert?.isFavorite) {
-      setIsFavorite(true); // If user has already favorited the expert
+      setIsFavorite(true);
     }
   }, [expert]);
 
-  console.log('expert data', expert)
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap();
+        setAvailability(response.availability);
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    };
+
+    fetchAvailability();
+  }, [dispatch, expert._id]);
+
+  // Get the first enabled slot from one-on-one services
+  const firstEnabledSlot = expert.credentials?.services?.[0]?.one_on_one?.find(
+    slot => slot.enabled === true
+  );
+
+  // Get starting price and duration from the first enabled slot
+  const startingPrice = firstEnabledSlot?.price || 0;
+  const duration = firstEnabledSlot?.duration || "N/A";
+
+  // Find the first available day and time slot
+  const firstAvailableDay = availability?.daySpecific?.find(
+    day => day.slots && day.slots.length > 0
+  );
+
+  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
+
+  // Calculate rating
+  const rating = expert.reviews?.length > 0
+    ? Math.round(
+        expert.reviews.reduce(
+          (acc, review) => acc + review.rating,
+          0
+        ) / expert.reviews.length
+      )
+    : 0;
+
+  // Get total sessions/ratings
+  const totalSessions = expert.sessions?.length || 0;
 
   const handleFavoriteClick = async () => {
     try {
       await dispatch(addFavourites({ expertId: expert._id }));
-      await dispatch(fetchUserProfile()); // Fetch updated user data
+      await dispatch(fetchUserProfile());
 
       setIsFavorite((prev) => !prev);
 
-      // 🎉 Show toast notification (top-right corner)
       toast.success(
         isFavorite ? "Removed from favorites!" : "Added to favorites!",
         {
           position: "top-right",
-          autoClose: 3000, // Closes after 3 seconds
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -80,21 +121,13 @@ const ExpertCard = ({ expert }) => {
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-yellow-400 fill-yellow-400" />
                       <span className="font-['Figtree',Helvetica] font-medium text-[13px] sm:text-[14.5px] text-[#1d1f1d] leading-[1.4] sm:leading-[21.7px]">
-                        {/* {expert.reviews?.length > 0
-                          ? Math.round(
-                              expert.reviews.reduce(
-                                (acc, review) => acc + review.rating,
-                                0
-                              ) / expert.reviews.length
-                            )
-                          : 0} */}
-                        /5
+                        {rating}/5
                       </span>
                     </div>
                     <div className="flex items-center">
                       <span className="flex gap-1 sm:gap-2 items-center bg-[#c4f3d34c] text-[#1d1f1d] rounded-[24.16px] px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[10.6px] leading-[1.4] sm:leading-[15.9px] font-medium">
                         <User className="w-3 h-3 sm:w-[12.57px] sm:h-[12.57px]" />
-                        {expert.sessions?.length || 0} Sessions done
+                        {totalSessions} Sessions done
                       </span>
                     </div>
                   </div>
@@ -106,16 +139,20 @@ const ExpertCard = ({ expert }) => {
                         {expert.credentials?.experienceYears} in industry
                       </span>
                     </p>
-                    <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">
-                      <span className="text-[#000000e6]">Starts at </span>
-                      <span className="font-medium text-[#0049b3]">
-                        Rs. 
-                      </span>
-                      <span className="text-[#000000e6]"> for </span>
-                      <span className="font-medium text-[#0049b3]">
-                        min
-                      </span>
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">
+                        <span className="text-[#000000e6]">Starts at </span>
+                        <span className="font-medium text-[#0049b3]">
+                          Rs. {startingPrice}
+                        </span>
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[#000000e6]"> for </span>
+                        <span className="font-medium text-[#0049b3]">
+                          {duration} min
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -144,8 +181,24 @@ const ExpertCard = ({ expert }) => {
                 <span className="font-['Figtree',Helvetica] text-[14px] sm:text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
+                {expert.credentials?.skills?.slice(0, 2).map((skill, index) => (
+                  <span
+                    key={`${skill}-${index}`}
+                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
               <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
+                {expert.credentials?.skills?.slice(2).map((skill, index) => (
+                  <span
+                    key={`${skill}-${index}`}
+                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -159,9 +212,9 @@ const ExpertCard = ({ expert }) => {
                 Next Available Slot:
               </span>
               <span className="font-['Figtree',Helvetica] text-[13px] sm:text-[14.5px] text-[#1f409b] leading-[1.4] sm:leading-[21.7px]">
-                {/* {firstAvailableDay
+                {firstAvailableDay && firstAvailableTime
                   ? `${firstAvailableDay.day}, ${firstAvailableTime}`
-                  : "No slots available"} */}
+                  : "No slots available"}
               </span>
             </div>
             <div className="flex items-center gap-2">
