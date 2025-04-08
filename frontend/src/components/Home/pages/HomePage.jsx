@@ -11,7 +11,7 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { Landmark, ActivitySquare as SquareActivity, Palette, Cpu, GraduationCap, Handshake } from "lucide-react";
+import { IoBookOutline, ActivitySquare as LuBriefcase, Palette, IoBookOutline, LuRocket, FaLaptop } from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
