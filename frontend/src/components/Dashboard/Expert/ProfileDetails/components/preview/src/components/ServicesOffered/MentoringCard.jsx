@@ -24,15 +24,20 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
 
   useEffect(() => {
     if (setSteps) {
-      setSteps(prevSteps => [
+      setSteps([
         {
           target: '.edit-button',
           content: 'Your default service is ready—just set your hourly rate and choose the session durations you want to offer. Clearly explain what people can expect from your session to attract the right audience',
           disableBeacon: true,
-          placement: 'left-start',
+          placement: 'left',
           floaterProps: {
             disableAnimation: true
           }
+        },
+        {
+          target: '.add-service-button',
+          content: 'Need a different service with a custom price and duration? Click Add a New Service to offer more options.',
+          disableBeacon: true
         }
       ]);
     }
