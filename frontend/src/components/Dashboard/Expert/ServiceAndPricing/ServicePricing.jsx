@@ -15,13 +15,7 @@ function ServicePricing() {
   const [isEditDefaultModalOpen, setIsEditDefaultModalOpen] = useState(false);
   const [isEditNonDefaultModalOpen, setIsEditNonDefaultModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
-  const [steps, setSteps] = useState([
-    {
-      target: '.add-service-button',
-      content: 'Need a different service with a custom price and duration? Click Add a New Service to offer more options.',
-      disableBeacon: true
-    }
-  ]);
+  const [steps, setSteps] = useState([]);
 
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || [];
@@ -66,6 +60,10 @@ function ServicePricing() {
           options: {
             primaryColor: '#16A348',
             zIndex: 1000,
+            arrowColor: '#fff',
+            backgroundColor: '#fff',
+            textColor: '#333',
+            overlayColor: 'rgba(0, 0, 0, 0.5)'
           }
         }}
       />
