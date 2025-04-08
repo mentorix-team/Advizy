@@ -14,7 +14,10 @@ function Availability() {
   const dispatch = useDispatch();
   const { availability, loading, error } = useSelector((state) => state.availability);
   const [activeTab, setActiveTab] = useState('schedule');
-  const [runTour, setRunTour] = useState(true);
+  const [runTour, setRunTour] = useState(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenAvailabilityTour');
+    return !hasSeenTour;
+  });
 
   const steps = [
     {
@@ -91,6 +94,7 @@ function Availability() {
           const { status } = data;
           if (status === 'finished' || status === 'skipped') {
             setRunTour(false);
+            localStorage.setItem('hasSeenAvailabilityTour', 'true');
           }
         }}
       />

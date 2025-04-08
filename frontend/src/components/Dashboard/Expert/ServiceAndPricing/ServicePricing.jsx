@@ -26,10 +26,14 @@ function ServicePricing() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const timer = setTimeout(() => {
-      setRunTour(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    const hasSeenTour = localStorage.getItem('hasSeenServiceTour');
+    
+    if (!hasSeenTour) {
+      const timer = setTimeout(() => {
+        setRunTour(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   useEffect(() => {
@@ -64,6 +68,11 @@ function ServicePricing() {
       if (status === STATUS.SKIPPED) {
         setStepIndex(prevIndex => prevIndex + 1);
       }
+    }
+
+    // Mark tour as completed when finished or skipped
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+      localStorage.setItem('hasSeenServiceTour', 'true');
     }
   };
 
