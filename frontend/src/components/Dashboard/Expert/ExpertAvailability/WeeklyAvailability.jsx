@@ -123,7 +123,7 @@ function WeeklyAvailability() {
     try {
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth(); // Month is zero-indexed (0 = January)
+      const currentMonth = currentDate.getMonth();
   
       const getDatesForDay = (day) => {
         const daysOfWeek = [
@@ -149,28 +149,28 @@ function WeeklyAvailability() {
           date.setDate(date.getDate() + 1)
         ) {
           if (date.getDay() === dayIndex) {
-            dates.push(new Date(date)); // Push a copy of the date
+            dates.push(new Date(date));
           }
         }
         return dates;
       };
   
       const data = days
-        .filter((day) => day.enabled) // Include only enabled days
+        .filter((day) => day.enabled)
         .map((day) => {
-          const dates = getDatesForDay(day.name); // Get all dates for this day in the current month
+          const dates = getDatesForDay(day.name);
   
           return {
             day: day.name,
             slots: day.slots.map((slot) => ({
               startTime: slot.start,
               endTime: slot.end,
-              dates: dates.map((date) => date.toISOString()), // Convert dates to ISO strings
+              dates: dates.map((date) => date.toISOString()),
             })),
           };
         });
   
-      dispatch(addAvailability({ data })); // Dispatch the action
+      dispatch(addAvailability({ data }));
       console.log("Dispatched data with dates:", data);
     } catch (error) {
       console.error("Error saving changes:", error);
@@ -178,7 +178,6 @@ function WeeklyAvailability() {
       setIsSaving(false);
     }
   };
-  
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
@@ -189,6 +188,7 @@ function WeeklyAvailability() {
           </h2>
         </div>
         <button
+          id="save-changes-button"
           onClick={handleSaveChanges}
           disabled={isSaving}
           className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto
@@ -217,7 +217,6 @@ function WeeklyAvailability() {
       </div>
     </div>
   );
-  
 }
 
 export default WeeklyAvailability;
