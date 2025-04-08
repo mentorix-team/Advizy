@@ -56,12 +56,14 @@ function ServicePricing() {
   const handleJoyrideCallback = (data) => {
     const { action, index, status, type } = data;
 
-    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+    if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
       setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1));
     }
 
-    if (action === ACTIONS.SKIP && status === STATUS.SKIPPED) {
-      setStepIndex(index + 1);
+    if ([ACTIONS.SKIP, ACTIONS.CLOSE].includes(action)) {
+      if (status === STATUS.SKIPPED) {
+        setStepIndex(prevIndex => prevIndex + 1);
+      }
     }
   };
 
@@ -80,6 +82,7 @@ function ServicePricing() {
           callback={handleJoyrideCallback}
           disableCloseOnEsc={true}
           disableOverlayClose={true}
+          spotlightClicks={false}
           locale={{
             last: 'Done',
             skip: 'Skip'
