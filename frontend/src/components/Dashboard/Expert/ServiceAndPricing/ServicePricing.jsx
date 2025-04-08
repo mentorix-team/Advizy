@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
-import Joyride from 'react-joyride';
+import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import ServiceCard from './ServiceCard';
 import AddServiceModal from './modals/AddServiceModal';
 import EditDefaultServiceModal from './modals/EditDefaultServiceModal';
@@ -16,6 +16,8 @@ function ServicePricing() {
   const [isEditNonDefaultModalOpen, setIsEditNonDefaultModalOpen] = useState(false);
   const [editingService, setEditingService] = useState(null);
   const [steps, setSteps] = useState([]);
+  const [runTour, setRunTour] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
 
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || [];
@@ -24,6 +26,10 @@ function ServicePricing() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const timer = setTimeout(() => {
+      setRunTour(true);
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -47,26 +53,58 @@ function ServicePricing() {
     setEditingService(null);
   };
 
+  const handleJoyrideCallback = (data) => {
+    const { action, index, status, type } = data;
+
+    if (type === EVENTS.STEP_AFTER || type === EVENTS.TARGET_NOT_FOUND) {
+      setStepIndex(index + (action === ACTIONS.PREV ? -1 : 1));
+    }
+
+    if (action === ACTIONS.SKIP && status === STATUS.SKIPPED) {
+      // Instead of stopping the tour, move to the next step
+      setStepIndex(index + 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] p-4 sm:p-6 md:p-8">
-      <Joyride
-        steps={steps}
-        continuous={true}
-        showSkipButton={true}
-        showProgress={true}
-        scrollToFirstStep={true}
-        disableScrolling={false}
-        styles={{
-          options: {
-            primaryColor: '#16A348',
-            zIndex: 1000,
-            arrowColor: '#fff',
-            backgroundColor: '#fff',
-            textColor: '#333',
-            overlayColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        }}
-      />
+      {runTour && (
+        <Joyride
+          steps={steps}
+          continuous={true}
+          showSkipButton={true}
+          showProgress={true}
+          scrollToFirstStep={false}
+          disableScrolling={true}
+          disableScrollParentFix={true}
+          stepIndex={stepIndex}
+          callback={handleJoyrideCallback}
+          disableCloseOnEsc={true}
+          disableOverlayClose={true}
+          styles={{
+            options: {
+              primaryColor: '#16A348',
+              zIndex: 1000,
+              arrowColor: '#fff',
+              backgroundColor: '#fff',
+              textColor: '#333',
+              overlayColor: 'rgba(0, 0, 0, 0.5)'
+            },
+            tooltip: {
+              padding: '20px'
+            },
+            tooltipContainer: {
+              textAlign: 'center'
+            },
+            buttonNext: {
+              backgroundColor: '#16A348'
+            },
+            buttonBack: {
+              marginRight: 10
+            }
+          }}
+        />
+      )}
       <Toaster position="top-right" />
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
