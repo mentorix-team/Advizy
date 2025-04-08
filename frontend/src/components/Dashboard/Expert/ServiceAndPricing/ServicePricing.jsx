@@ -29,6 +29,10 @@ function ServicePricing() {
   const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     console.log('Expert Data:', expertData);
     console.log('Services:', services);
   }, [expertData, services]);
@@ -55,9 +59,13 @@ function ServicePricing() {
         steps={steps}
         continuous={true}
         showSkipButton={true}
+        showProgress={true}
+        scrollToFirstStep={true}
+        disableScrolling={false}
         styles={{
           options: {
-            primaryColor: '#16A348'
+            primaryColor: '#16A348',
+            zIndex: 1000,
           }
         }}
       />

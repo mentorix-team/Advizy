@@ -28,9 +28,9 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
         {
           target: '.edit-button',
           content: 'Your default service is ready—just set your hourly rate and choose the session durations you want to offer. Clearly explain what people can expect from your session to attract the right audience',
-          disableBeacon: true
-        },
-        ...prevSteps
+          disableBeacon: true,
+          placement: 'right'
+        }
       ]);
     }
   }, [setSteps]);
