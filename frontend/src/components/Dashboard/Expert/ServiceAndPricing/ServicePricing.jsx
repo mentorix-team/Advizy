@@ -152,7 +152,7 @@ function ServicePricing() {
               />
             ))
           ) : (
-            <p className="text-gray-600">No services available. Add a new service to get started!</p>
+            <p className="text-gray-600"></p>
           )}
         </div>
       </div>

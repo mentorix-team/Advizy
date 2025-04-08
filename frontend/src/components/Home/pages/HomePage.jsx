@@ -5,24 +5,17 @@ import CategoryCard from "../components/CategoryCard";
 import CategoryNav from "../components/CategoryNav";
 import SearchModal from "../components/SearchModal";
 import ExpertSection from "../components/ExpertSection";
+import WhyAdvizySection from "../components/WhyAdvizySection";
 import HowItWorksAlternate from "../components/HowItWorksAlternate";
 import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import {
-  Landmark,
-  SquareActivity,
-  Palette,
-  Cpu,
-  GraduationCap,
-  Handshake,
-} from "lucide-react";
+import { Landmark, ActivitySquare as SquareActivity, Palette, Cpu, GraduationCap, Handshake } from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
-// import Spinner from "@/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import { useNavigate } from "react-router-dom";
 
@@ -66,7 +59,6 @@ const categories = [
         <Handshake className="text-primary w-5 h-5" />
       </div>
     ),
-    
     title: "Business",
   },
   {
@@ -87,12 +79,9 @@ function HomePage() {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const { experts } = useSelector((state) => state.expert);
   const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
-  console.log(experts);
-  // Local state for filtered experts
   const [fitnessExperts, setFitnessExperts] = useState([]);
   const [careerExperts, setCareerExperts] = useState([]);
 
-  // Check expert mode from localStorage
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     if (expertData) {
@@ -107,10 +96,9 @@ function HomePage() {
   const handleCategorySelect = (category) => {
     console.log('category selected: ', category)
     navigate(`/explore?category=${category.value}`);
-    setIsModalOpen(false); // Close the modal
+    setIsModalOpen(false);
   };
 
-  // Show category navigation on scroll
   useEffect(() => {
     const handleScroll = () => {
       const categoryGrid = document.getElementById("category-grid");
@@ -124,14 +112,11 @@ function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // useEffect to fetch Top Fitness Experts
   useEffect(() => {
     const queryParams = {
       domain: "health_and_fitness",
-      // Add other filters if needed, for example: sorting, price range, etc.
     };
 
-    // Clean up query parameters: remove keys with empty strings or empty arrays
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
@@ -141,11 +126,10 @@ function HomePage() {
       })
     );
 
-    // Dispatch getAllExperts action
     dispatch(getAllExperts(cleanedQueryParams))
       .unwrap()
       .then((data) => {
-        setFitnessExperts(data.experts); // Adjust based on your API response shape
+        setFitnessExperts(data.experts);
       })
       .catch((error) => {
         console.error("Error fetching fitness experts:", error);
@@ -154,14 +138,13 @@ function HomePage() {
 
   useEffect(() => {
     if (!loading && isLoggedIn) {
-      navigate("/"); // Redirect after login completes
+      navigate("/");
     }
   }, [loading, isLoggedIn, navigate]);
-  // useEffect to fetch Career Mentors
+
   useEffect(() => {
     const queryParams = {
       domain: "career_and_education",
-      // Add additional filters as needed
     };
 
     const cleanedQueryParams = Object.fromEntries(
@@ -277,7 +260,7 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-16 w-full max-w-7xl mx-auto"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 " >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}
@@ -285,7 +268,7 @@ function HomePage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <CategoryCard {...category}  />
+                      <CategoryCard {...category} />
                     </motion.div>
                   ))}
                 </div>
@@ -315,6 +298,9 @@ function HomePage() {
                   link="/explore"
                 />
               </div>
+
+              {/* Why Adviszy Section */}
+              <WhyAdvizySection />
             </div>
 
             <HowItWorksAlternate />
