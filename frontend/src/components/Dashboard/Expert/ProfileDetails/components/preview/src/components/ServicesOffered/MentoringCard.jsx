@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Edit } from 'lucide-react';
 import { ServiceFeatures } from '@/components/Dashboard/Expert/ServiceAndPricing/ServiceFeatures';
-
 import ConfirmDialog from '@/components/Dashboard/Expert/ServiceAndPricing/ConfirmDialog';
 
 const DurationOption = ({ duration, price, enabled, onClick }) => (
@@ -17,11 +16,24 @@ const DurationOption = ({ duration, price, enabled, onClick }) => (
   </button>
 );
 
-const MentoringCard = ({ service, onEdit, onToggle }) => {
+const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [isEnabled, setIsEnabled] = useState(true);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    if (setSteps) {
+      setSteps(prevSteps => [
+        {
+          target: '.edit-button',
+          content: 'Your default service is ready—just set your hourly rate and choose the session durations you want to offer. Clearly explain what people can expect from your session to attract the right audience',
+          disableBeacon: true
+        },
+        ...prevSteps
+      ]);
+    }
+  }, [setSteps]);
 
   const handleToggleConfirm = () => {
     if (isEnabled) {
@@ -80,7 +92,7 @@ const MentoringCard = ({ service, onEdit, onToggle }) => {
           </div>
           <button
             onClick={() => onEdit(service)}
-            className={`rounded-full p-1 transition-colors ${
+            className={`edit-button rounded-full p-1 transition-colors ${
               isEnabled ? 'hover:bg-gray-100' : 'cursor-not-allowed'
             }`}
             disabled={!isEnabled}
@@ -114,6 +126,5 @@ const MentoringCard = ({ service, onEdit, onToggle }) => {
     </div>
   );
 };
-
 
 export default MentoringCard;
