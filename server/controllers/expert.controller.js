@@ -1531,7 +1531,21 @@ const getAllExperts = async (req, res, next) => {
     }
 };
 
-
+const getAllExpertswithoutfilter = async(req, res, next) => {
+  try {
+    const expert = await ExpertBasics.find()
+    if(!expert){
+      return next(new AppError('No experts found', 404))
+    }
+    res.status(200).json({
+      success:true,
+      message:'Experts fetched successfully',
+      expert
+    })
+  } catch (error) {
+    return next(new AppError( error,500))
+  }
+}
   
 const getExpertById = async (req, res, next) => {
   const { id } = req.params;
@@ -1854,5 +1868,7 @@ export {
   pushExpertsToAlgolia,
   
   generateOtpForVerifying,
-  validatethnumberormobile
+  validatethnumberormobile,
+
+  getAllExpertswithoutfilter
 }

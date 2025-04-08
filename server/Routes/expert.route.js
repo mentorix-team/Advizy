@@ -19,6 +19,7 @@ import manageService, {
   extpertPortfolioDetails,
   generateOtpForVerifying,
   getAllExperts,
+  getAllExpertswithoutfilter,
   getExpert,
   getExpertById,
   getExpertByRedirectURL,
@@ -155,5 +156,5 @@ router.post("/service/:serviceId", getService);
 router.get("/sync-algolia", pushExpertsToAlgolia);
 router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
-
+router.get("/getAllthefkexperts",getAllExpertswithoutfilter)
 export default router;
