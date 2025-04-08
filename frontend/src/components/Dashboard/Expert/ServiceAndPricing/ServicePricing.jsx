@@ -61,7 +61,6 @@ function ServicePricing() {
     }
 
     if (action === ACTIONS.SKIP && status === STATUS.SKIPPED) {
-      // Instead of stopping the tour, move to the next step
       setStepIndex(index + 1);
     }
   };
@@ -81,6 +80,10 @@ function ServicePricing() {
           callback={handleJoyrideCallback}
           disableCloseOnEsc={true}
           disableOverlayClose={true}
+          locale={{
+            last: 'Done',
+            skip: 'Skip'
+          }}
           styles={{
             options: {
               primaryColor: '#16A348',
