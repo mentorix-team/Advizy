@@ -20,7 +20,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: [process.env.frontendurl, "https://www.admin.advizy.in","http://localhost:5173","http://localhost:8001", 'https://advizy-adminpanel.onrender.com'], // Allow frontend
+    origin: [
+      process.env.frontendurl,
+      "https://www.admin.advizy.in",
+      "http://localhost:5173/",
+      "http://localhost:8001",
+      "http://advizy-adminpanel.onrender.com",
+      "*"
+    ], // Allow frontend
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

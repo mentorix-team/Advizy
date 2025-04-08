@@ -143,7 +143,7 @@ router.post(
 );
 
 router.post("/updateExpertDetails", isLoggedIn, isExpert, updateProfileStatus);
-router.get("/getexperts", verifyInternalToken, getAllExperts);
+router.get("/getexperts", getAllExperts);
 router.get("/getServices", isExpert, getExpertServices);
 router.get("/getexpert/:id", getExpertById);
 router.get("/getexpert/by-url/:redirect_url", getExpertByRedirectURL);
