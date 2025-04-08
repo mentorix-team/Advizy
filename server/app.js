@@ -23,7 +23,7 @@ app.use(
     origin: [
       process.env.frontendurl,
       "https://www.admin.advizy.in",
-      "http://localhost:5173/",
+      "http://localhost:5173",
       "http://localhost:8001",
       "http://advizy-adminpanel.onrender.com",
       "*"
