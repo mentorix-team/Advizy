@@ -21,10 +21,12 @@ function Availability() {
       target: '#save-changes-button',
       content: "Once you've set your weekly availability, don't forget to click 'Save Changes' so others can see your next available slot.",
       disableBeacon: true,
+      placement: 'top',
     },
     {
       target: '#settings-tab',
       content: "Set important preferences like your booking period, reschedule policy, and time zone to ensure smooth scheduling and timely communication.",
+      placement: 'bottom',
     },
   ];
 
@@ -47,10 +49,28 @@ function Availability() {
         run={runTour}
         continuous
         showSkipButton
+        scrollToFirstStep
+        disableOverlayClose
+        disableCloseOnEsc
+        showProgress
         styles={{
           options: {
             primaryColor: '#10B981',
-          }
+            zIndex: 1000,
+          },
+          tooltip: {
+            fontSize: '14px',
+          },
+          buttonNext: {
+            backgroundColor: '#10B981',
+          },
+          buttonBack: {
+            marginRight: 10,
+          },
+        }}
+        locale={{
+          last: 'Done',
+          skip: 'Skip tour'
         }}
         callback={(data) => {
           const { status } = data;
