@@ -24,42 +24,42 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Landmark className="text-primary w-5 h-5" />
+        <LuBriefcase  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Finance",
+    title: "Carrer growth",
   },
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <SquareActivity className="text-primary w-5 h-5" />
+        <LuRocket  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Health",
+    title: "Startup",
   },
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
-        <GraduationCap className="text-primary w-5 h-5" />
+        <FaLaptop  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Career",
+    title: "Freelancing",
   },
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Cpu className="text-primary w-5 h-5" />
+        <IoBookOutline  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Technology",
+    title: "Upskilling",
   },
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Handshake className="text-primary w-5 h-5" />
+        <IoSearch  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Business",
+    title: "Job Hunting",
   },
   {
     icon: (
