@@ -28,6 +28,7 @@ import manageService, {
   getExpertByRedirectURL,
   getExpertServices,
   getService,
+  handleSuspendExpert,
   pushExpertsToAlgolia,
   singleexperteducation,
   updateProfileStatus,
@@ -161,5 +162,5 @@ router.get("/sync-algolia", pushExpertsToAlgolia);
 router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
 router.get("/getAllthefkexperts",getAllExpertswithoutfilter)
-
+router.post('handlesuspend',handleSuspendExpert)
 export default router;
