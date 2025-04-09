@@ -375,7 +375,7 @@ const BecomeExpertPage = () => {
       </div>
 
        {/* Vision Section */}
-       <div className="py-12 sm:py-16 bg-[#F9FDF9]">
+      <div className="py-12 sm:py-16 bg-[#F9FDF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
             <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
@@ -384,12 +384,12 @@ const BecomeExpertPage = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Our Vision for Mentorship
             </h2>
-            <p className="text-gray-600 mt-4">
+            <p className="text-gray-600 mt-4 mb-8">
               At Advizy, we believe mentorship is more than just advice—it's a movement to democratize knowledge and create equal opportunities for growth.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="text-center">
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
                 <UserPlus className="w-6 h-6" />
               </div>
@@ -398,7 +398,7 @@ const BecomeExpertPage = () => {
                 We're building a platform where knowledge sharing is valued as a social good. Our mentors join not just to earn, but to make a meaningful impact on others' lives.
               </p>
             </div>
-            <div className="text-center">
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
                 <Users className="w-6 h-6" />
               </div>
@@ -407,7 +407,7 @@ const BecomeExpertPage = () => {
                 We're creating a supportive community where mentors collaborate, share insights, and grow together while helping others achieve their goals.
               </p>
             </div>
-            <div className="text-center">
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
                 <Sparkles className="w-6 h-6" />
               </div>
@@ -424,7 +424,7 @@ const BecomeExpertPage = () => {
       <div className="py-12 sm:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+            <div className="h-[400px] md:h-[500px] bg-gray-100 rounded-lg overflow-hidden">
               <img 
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80"
                 alt="Mentorship meeting"
@@ -445,6 +445,7 @@ const BecomeExpertPage = () => {
           </div>
         </div>
       </div>
+    
 
       {/* Why Choose Advizy */}
       <div className="py-12 sm:py-16 bg-[#F9FDF9]">
