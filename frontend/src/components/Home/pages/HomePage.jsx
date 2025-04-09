@@ -11,7 +11,7 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search } from "lucide-react";
+import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search, Award, User,Clock3} from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
@@ -64,10 +64,26 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Palette className="text-primary w-5 h-5" />
+        <Award  className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Arts",
+    title: "Education",
+  },
+  {
+    icon: (
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <User   className="text-primary w-5 h-5" />
+      </div>
+    ),
+    title: "Personal Branding",
+  },
+  {
+    icon: (
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <Clock3    className="text-primary w-5 h-5" />
+      </div>
+    ),
+    title: "Work Life Balance",
   },
 ];
 
@@ -260,7 +276,7 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-16 w-full max-w-7xl mx-auto"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}

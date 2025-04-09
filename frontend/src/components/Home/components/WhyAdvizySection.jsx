@@ -21,7 +21,7 @@ const WhyAdvizySection = () => {
   ];
 
   return (
-    <div className="py-16 mb-24 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6">
+    <div className="py-24 mb-30 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-12">
