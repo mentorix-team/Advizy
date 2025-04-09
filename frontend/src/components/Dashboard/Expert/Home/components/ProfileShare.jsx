@@ -17,13 +17,11 @@ const Dialog = ({ isOpen, onClose, children }) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
 
-      {/* Dialog */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative transform overflow-hidden rounded-lg bg-gradient-to-b from-[#D5FEE3] to-[#FAFAFA] p-6 text-left shadow-xl transition-all w-full max-w-lg">
           <button
@@ -44,7 +42,6 @@ const ProfileShare = ({ expert }) => {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const redirect_url = expert?.redirect_url;
-  console.log("this sexpert ", expert);
   const profileUrl = `https://advizy.in/expert/${redirect_url}`;
 
   const handleCopy = async () => {
@@ -101,10 +98,10 @@ const ProfileShare = ({ expert }) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="border border-gray-300 text-white px-1 py-2 rounded-lg flex items-center justify-center space-x-2 mx-auto transition-colors w-fit"
+        className="inline-flex items-center whitespace-nowrap bg-white hover:bg-gray-50 px-4 py-2 rounded-full gap-2 border border-gray-200 shadow-sm transition-all duration-200 ease-in-out"
       >
-        <span className="text-black">Share Your Profile</span>
-        <Share2 size={20} className="text-gray-800" />
+        Share Your Profile
+        <Share2 size={16} className="text-gray-600 flex-shrink-0" />
       </button>
 
       <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -123,9 +120,6 @@ const ProfileShare = ({ expert }) => {
                   "#9370DB",
                 ];
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                const left = `${Math.random() * 100}%`;
-                const animationDelay = `${Math.random() * 1}s`;
-                const size = 8 + Math.random() * 8;
 
                 return (
                   <div
@@ -151,7 +145,6 @@ const ProfileShare = ({ expert }) => {
           </div>
 
           <div className="text-center space-y-4">
-            {}
             <h2 className="text-2xl font-bold text-gray-800">
               Profile Complete!
             </h2>
