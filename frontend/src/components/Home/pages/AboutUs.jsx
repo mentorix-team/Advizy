@@ -203,7 +203,8 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              "We're revolutionizing the way expertise is shared and accessed. Join us in creating a world where quality guidance is just a click away."
+              "We live that one conversation with right mentor can change everthing."<br />
+              Our mission is to democratize access to quality guidance for everyone
             </motion.p>
             <br />
           </motion.div>

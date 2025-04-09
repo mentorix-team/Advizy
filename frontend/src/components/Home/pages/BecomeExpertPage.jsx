@@ -356,9 +356,9 @@ const BecomeExpertPage = () => {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0 mb-8 sm:mb-10">
-            Join Advizy as a mentor
+            Join Advizy as a mentor and be a part of movement that makes
             <br className="block sm:hidden" />
-            and be a part of mentors that makes
+            
             <br className="block" />
             quality guidance accessible to all.
           </p>
@@ -793,7 +793,7 @@ const BecomeExpertPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6"
             >
-              Join your Commmunity of Changemakers
+              Join your Commmunity of Change Makers
             </motion.h2>
 
             <motion.p
