@@ -25,7 +25,7 @@ const WhyAdvizySection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-12">
-            Why Adviszy?
+            Why Advizy?
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
