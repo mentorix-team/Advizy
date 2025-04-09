@@ -378,6 +378,26 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
+const adminapproved = async(req,res,next) => {
+  try {
+    
+    const {id} = req.body;
+    const expert = ExpertBasics.findById(id)
+    if(!expert){
+      return next(new AppError('expert not found',500))
+    }
+    expert.admin_approved_expert = expert.admin_approved_expert ? false : true;
+  
+    res.status(200).json({
+      success:true,
+      message:'Expert admin approved toggled',
+      expert
+    })
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 501));
+  }
+}
 const editExpertCertificate = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log
@@ -1825,6 +1845,27 @@ const getExpert = async(req,res,next) =>{
   }
 }
 
+const handleSuspendExpert = async(req,res,next) =>{
+  try {
+    
+    const {id} = req.body
+    const expert = await ExpertBasics.findByIdAndDelete(id);
+  
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+  
+    res.status(200).json({
+      success:true,
+      message:'EXpert data deleted',
+      
+    })
+  } catch (error) {
+    return next(new AppError(error,503))
+  }
+
+}
+
 export {
   getExpert,
 
@@ -1869,6 +1910,8 @@ export {
   
   generateOtpForVerifying,
   validatethnumberormobile,
+  adminapproved,
 
-  getAllExpertswithoutfilter
+  getAllExpertswithoutfilter,
+  handleSuspendExpert
 }

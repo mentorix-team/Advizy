@@ -1,6 +1,9 @@
+
+
 import Router from "express";
 import { isExpert, isLoggedIn } from "../middlewares/auth.middleare.js";
 import manageService, {
+  adminapproved,
   createService,
   deleteExpertCertificate,
   deleteExpertEducation,
@@ -25,6 +28,7 @@ import manageService, {
   getExpertByRedirectURL,
   getExpertServices,
   getService,
+  handleSuspendExpert,
   pushExpertsToAlgolia,
   singleexperteducation,
   updateProfileStatus,
@@ -143,6 +147,7 @@ router.post(
   deleteExpertEducation
 );
 
+router.post('/adminapproved',adminapproved)
 router.post("/updateExpertDetails", isLoggedIn, isExpert, updateProfileStatus);
 router.get("/getexperts", getAllExperts);
 router.get("/getServices", isExpert, getExpertServices);
@@ -157,4 +162,5 @@ router.get("/sync-algolia", pushExpertsToAlgolia);
 router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
 router.get("/getAllthefkexperts",getAllExpertswithoutfilter)
+router.post('handlesuspend',handleSuspendExpert)
 export default router;
