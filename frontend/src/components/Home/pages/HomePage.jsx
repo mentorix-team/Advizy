@@ -11,7 +11,7 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { IoBookOutline, ActivitySquare as LuBriefcase, Palette, IoBookOutline, LuRocket, FaLaptop } from "lucide-react";
+import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search } from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
@@ -24,7 +24,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <LuBriefcase  className="text-primary w-5 h-5" />
+        <Briefcase   className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Carrer growth",
@@ -32,7 +32,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <LuRocket  className="text-primary w-5 h-5" />
+        <Rocket   className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Startup",
@@ -40,7 +40,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
-        <FaLaptop  className="text-primary w-5 h-5" />
+        <Laptop   className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Freelancing",
@@ -48,7 +48,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <IoBookOutline  className="text-primary w-5 h-5" />
+        <BookOpen   className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Upskilling",
@@ -56,7 +56,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <IoSearch  className="text-primary w-5 h-5" />
+        <Search   className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Job Hunting",
