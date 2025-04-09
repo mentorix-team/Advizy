@@ -271,24 +271,24 @@ function HomePage() {
               </motion.div>
 
               <motion.div
-                id="category-grid"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-16 w-full max-w-7xl mx-auto"
-              >
-               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-w-[1200px] mx-auto">
-                  {categories.map((category, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <CategoryCard {...category} />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+                    id="category-grid"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-16 w-full max-w-5xl mx-auto px-4"
+                  >
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                      {categories.map((category, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <CategoryCard {...category} />
+                        </motion.div>
+                      ))}
+                    </div>
+      </motion.div>
             </motion.div>
           </div>
         </div>
