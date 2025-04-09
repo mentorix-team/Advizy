@@ -7,6 +7,7 @@ import PricingSection from "../components/PricingSection";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import SearchModal from "../components/SearchModal";
+import { UserPlus, Users, Sparkles, LightbulbIcon } from 'lucide-react';
 const features = [
   {
     icon: (
