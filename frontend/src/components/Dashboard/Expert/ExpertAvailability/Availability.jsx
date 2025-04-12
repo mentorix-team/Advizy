@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Joyride from 'react-joyride';
 import TabNavigation from "./TabNavigation";
 import WeeklyAvailability from "./WeeklyAvailability";
 import BlockUnavailableDates from "./BlockUnavailableDates";
@@ -12,8 +13,31 @@ import AvailabilitySkeleton from "@/components/LoadingSkeleton/AvailabilitySkele
 function Availability() {
   const dispatch = useDispatch();
   const { availability, loading, error } = useSelector((state) => state.availability);
-  console.log("THis is availability",availability)
   const [activeTab, setActiveTab] = useState('schedule');
+  const [runTour, setRunTour] = useState(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenAvailabilityTour');
+    return !hasSeenTour;
+  });
+
+  const steps = [
+    {
+      target: '#save-changes-button',
+      content: "Once you've set your weekly availability, don't forget to click 'Save Changes' so others can see your next available slot.",
+      disableBeacon: true,
+      placement: 'top',
+      floaterProps: {
+        disableAnimation: true
+      }
+    },
+    {
+      target: '#settings-tab',
+      content: "Set important preferences like your booking period, reschedule policy, and time zone to ensure smooth scheduling and timely communication.",
+      placement: 'bottom',
+      floaterProps: {
+        disableAnimation: true
+      }
+    },
+  ];
 
   useEffect(() => {
     dispatch(viewAvailability());
@@ -29,6 +53,51 @@ function Availability() {
 
   return (
     <BlockedDatesProvider>
+      <Joyride
+        steps={steps}
+        run={runTour}
+        continuous
+        showSkipButton
+        scrollToFirstStep
+        disableOverlayClose
+        disableCloseOnEsc
+        showProgress
+        scrollOffset={200}
+        styles={{
+          options: {
+            primaryColor: '#10B981',
+            zIndex: 1000,
+            arrowColor: '#fff',
+          },
+          tooltip: {
+            fontSize: '14px',
+            backgroundColor: '#fff',
+          },
+          buttonNext: {
+            backgroundColor: '#10B981',
+          },
+          buttonBack: {
+            marginRight: 10,
+          },
+          buttonSkip: {
+            color: '#666',
+          },
+          overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }
+        }}
+        locale={{
+          last: 'Done',
+          skip: 'Skip tour'
+        }}
+        callback={(data) => {
+          const { status } = data;
+          if (status === 'finished' || status === 'skipped') {
+            setRunTour(false);
+            localStorage.setItem('hasSeenAvailabilityTour', 'true');
+          }
+        }}
+      />
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-5xl mx-auto">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />

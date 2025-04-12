@@ -126,7 +126,7 @@ export function ServiceForm({ onClose, submitLabel = "Save" }) {
           }
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           rows="3"
-          placeholder="This is where you'll showcase a detailed explanation of the service offered. Include what the service entails, who it’s designed for, and the specific outcomes or benefits clients can expect. Highlight unique features, your approach or process, and why this service stands out from others in the market."
+          placeholder="This is where you'll showcase a detailed explanation of the service offered. Include what the service entails, who it’s designed for, and the specific outcomes or benefits clients can expect."
         />
       </div>
 

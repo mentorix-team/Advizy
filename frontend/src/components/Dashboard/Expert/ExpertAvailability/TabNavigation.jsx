@@ -14,6 +14,7 @@ function TabNavigation({ activeTab, onTabChange }) {
         Schedule
       </button>
       <button
+        id="settings-tab"
         onClick={() => onTabChange('settings')}
         className={`px-4 py-2 rounded-md text-sm font-medium ${
           activeTab === 'settings'

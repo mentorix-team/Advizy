@@ -14,9 +14,9 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
   const [notes, setNotes] = useState(meeting?.notes || "");
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-  const {daySpecificData} = meeting || {};
-  const {date, slot} = daySpecificData || {};
-  const {startTime, endTime} = slot || {};
+  const { daySpecificData } = meeting || {};
+  const { date, slot } = daySpecificData || {};
+  const { startTime, endTime } = slot || {};
 
   if (!meeting) return null;
 
@@ -50,14 +50,18 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
               <h3 className="text-sm text-gray-500 mb-1">Date</h3>
               <div className="flex items-center gap-2">
                 <ColorCalendarIcon className="w-5 h-5" />
-                <p className="text-gray-900">{new Date(date).toLocaleDateString("en-GB")}</p>
+                <p className="text-gray-900">
+                  {new Date(date).toLocaleDateString("en-GB")}
+                </p>
               </div>
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Time</h3>
               <div className="flex items-center gap-2">
                 <BsClock className="text-[169544]" />
-                <p className="text-gray-900">{startTime} - {endTime}</p>
+                <p className="text-gray-900">
+                  {startTime} - {endTime}
+                </p>
                 <span
                   className={`text-sm ${
                     meeting.sessionStatus === "Completed"
