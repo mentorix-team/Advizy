@@ -14,8 +14,8 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
   const [notes, setNotes] = useState(meeting?.notes || "");
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-  const { daySpecificData } = meeting || {};
-  const { date, slot } = daySpecificData || {};
+  const { daySpecific } = meeting || {};
+  const { date, slot } = daySpecific || {};
   const { startTime, endTime } = slot || {};
 
   if (!meeting) return null;
@@ -51,7 +51,9 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
               <div className="flex items-center gap-2">
                 <ColorCalendarIcon className="w-5 h-5" />
                 <p className="text-gray-900">
-                  {new Date(date).toLocaleDateString("en-GB")}
+                  {date
+                    ? new Date(date).toLocaleDateString("en-GB")
+                    : "no date"}
                 </p>
               </div>
             </div>
@@ -60,7 +62,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
               <div className="flex items-center gap-2">
                 <BsClock className="text-[169544]" />
                 <p className="text-gray-900">
-                  {startTime} - {endTime}
+                  {startTime && endTime ? `${startTime} - ${endTime}` : "-"}
                 </p>
                 <span
                   className={`text-sm ${
