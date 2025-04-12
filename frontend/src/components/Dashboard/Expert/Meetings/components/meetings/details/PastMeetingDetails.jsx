@@ -34,12 +34,12 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
         <div className="flex items-center gap-4 mb-6">
           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
             <span className="text-lg">
-              {Array.isArray(meeting.client) && meeting.client.length > 0
-                ? meeting.client[0]
+              {Array.isArray(meeting.userName) && meeting.userName.length > 0
+                ? meeting.userName[0]
                 : "N/A"}
             </span>
           </div>
-          <h1 className="text-xl font-semibold">{meeting.client}</h1>
+          <h1 className="text-xl font-semibold">{meeting.userName}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
