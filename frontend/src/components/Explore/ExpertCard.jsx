@@ -105,7 +105,8 @@ const ExpertCard = ({
                     <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] truncate">
                       {name}
                     </h2>
-                    <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0000FF] flex-shrink-0" />
+                    <img src="/svg-image-65.svg" alt="verified tick" />
+                    {/* <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0000FF] flex-shrink-0" /> */}
                   </div>
                   <p className="text-[14px] sm:text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[1.4] sm:leading-[23.2px] mb-2">
                     {title}

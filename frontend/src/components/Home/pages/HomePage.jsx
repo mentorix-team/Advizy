@@ -109,9 +109,14 @@ function HomePage() {
   const [careerExperts, setCareerExperts] = useState([]);
 
   useEffect(() => {
-    const expertData = localStorage.getItem("expertData");
-    if (expertData) {
-      setIsExpertMode(true);
+    const expertDataString = localStorage.getItem("expertData");
+    if (expertDataString) {
+      const expertData = JSON.parse(expertDataString);
+      if (expertData.admin_approved_expert === true) {
+        setIsExpertMode(true);
+      } else {
+        setIsExpertMode(false);
+      }
     }
   }, []);
 
