@@ -37,6 +37,12 @@ export default function SkillsExpertise({ formData, setFormData }) {
               type="text"
               value={newSkill}
               onChange={(e) => setNewSkill(e.target.value)}
+              onKeyDown={(e) => {
+                if(e.key === 'Enter'){
+                  a.preventDefault();
+                  addSkill();
+                }
+              }}
               placeholder="Add your skills."
               className="w-full focus:outline-none peer"
             />

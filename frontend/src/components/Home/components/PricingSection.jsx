@@ -10,7 +10,7 @@ const PricingSection = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Standard Commission Plan */}
         <div className="bg-white rounded-lg p-8 border border-[#E8F5E9] relative">
           <div className="absolute top-0 left-0 right-0 h-1 bg-[#169544] rounded-t-lg" />
@@ -48,7 +48,7 @@ const PricingSection = () => {
           </button>
         </div>
 
-        {/* Flexible Commission Plan */}
+        {/* Flexible Commission Plan
         <div className="bg-white rounded-lg p-8 border border-[#E8F5E9] relative">
           <div className="absolute top-0 left-0 right-0 h-1 bg-[#169544] rounded-t-lg" />
           <div className="mb-6">
@@ -82,7 +82,7 @@ const PricingSection = () => {
           >
             Contact for Custom Pricing
           </button>
-        </div>
+        </div> */}
       </div>
       <p className="text-center text-2xl sm:text-3xl font-bold text-[#169544] mt-12 sm:mt-16">
         Simple, affordable, and designed to help you grow.

@@ -15,7 +15,7 @@ const WhyAdvizySection = () => {
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-[#169544]" />,
-      title: "Learn From Those Who've Done It",
+      title: "Learn From Those Who Excel in it",
       description: "Whether it's career decisions, freelancing, or starting a business, connect with real people who've been in your shoes."
     }
   ];

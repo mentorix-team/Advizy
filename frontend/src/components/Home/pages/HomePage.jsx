@@ -245,21 +245,22 @@ function HomePage() {
                 className="text-center"
               >
                 <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6">
-                  Find Your Perfect{" "}
+                  One Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.5 }}
                     className="text-[#169544]"
                   >
-                    Expert
+                    Mentor
                   </motion.span>
+                  Can Change{" "} Everything
                 </motion.h1>
 
                 <motion.p className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto">
-                  Get personalized guidance from top professionals and
+                  Your Growth, success, clarity start here. Find the right
                   <br />
-                  Unlock your potential
+                  guidance for your journey.
                 </motion.p>
 
                 <motion.button
@@ -298,12 +299,12 @@ function HomePage() {
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12">
               {/* Top Fitness Experts Section */}
-              <ExpertSection
+              {/* <ExpertSection
                 title="Top Fitness Experts"
                 subtitle="Specialized guidance in fitness"
                 experts={fitnessExperts}
                 link="/explore"
-              />
+              /> */}
 
               {/* Career Mentors Section */}
               <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">
