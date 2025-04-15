@@ -123,7 +123,7 @@ const FAQSection = () => {
               Frequently Asked Questions
             </h2>
             <p className="text-lg sm:text-xl text-gray-600">
-              " Everything you need to know about Advizy "
+              Everything you need to know about Advizy
             </p>
           </motion.div>
 

@@ -400,7 +400,7 @@ const AboutPage = () => {
                 onClick={() => navigate('/explore')}
                 className="w-full btn-expert"
               >
-                Search Experts
+                Search mentors
               </button>
             </motion.div>
           </div>
@@ -428,7 +428,7 @@ const AboutPage = () => {
                 </svg>
               }
               title="Trust & Quality"
-              description="We rigorously vet our experts to ensure you receive top-tier guidance. Your growth and security are our priorities."
+              description="We rigorously vet our mentors to ensure you receive top-tier guidance. Your growth and security are our priorities."
             />
             <VisionCard
               icon={
@@ -446,7 +446,7 @@ const AboutPage = () => {
                 </svg>
               }
               title="Continuous Innovation"
-              description="We're constantly evolving our platform to provide cutting-edge tools for both experts and learners."
+              description="We're constantly evolving our platform to provide cutting-edge tools for both mentors and learners."
             />
           </div>
         </div>
@@ -479,7 +479,7 @@ const AboutPage = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8"
             >
-              Connect with world-class experts who can help you achieve your goals
+              Connect with world-class mentors who can help you achieve your goals
             </motion.p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -493,7 +493,7 @@ const AboutPage = () => {
                 whileTap={{ scale: 0.98 }}
                 className="btn-expert"
               >
-                Find an Expert
+                Find an Mentor
               </motion.button>
 
               <motion.button

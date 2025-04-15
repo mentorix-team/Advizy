@@ -812,7 +812,7 @@ const BecomeExpertPage = () => {
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6"
             >
               Join our Commmunity of
-              <br /> 
+              <br />
               Change Makers
             </motion.h2>
 

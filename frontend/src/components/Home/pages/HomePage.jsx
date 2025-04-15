@@ -11,7 +11,17 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search, Award, User,Clock3} from "lucide-react";
+import {
+  BookOpen,
+  Palette,
+  Rocket,
+  Laptop,
+  Briefcase,
+  Search,
+  Award,
+  User,
+  Clock3,
+} from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
@@ -24,7 +34,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Briefcase   className="text-primary w-5 h-5" />
+        <Briefcase className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Carrer growth",
@@ -32,15 +42,15 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Rocket   className="text-primary w-5 h-5" />
+        <Rocket className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Startup",
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
-        <Laptop   className="text-primary w-5 h-5" />
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <Laptop className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Freelancing",
@@ -48,7 +58,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <BookOpen   className="text-primary w-5 h-5" />
+        <BookOpen className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Upskilling",
@@ -56,7 +66,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Search   className="text-primary w-5 h-5" />
+        <Search className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Job Hunting",
@@ -64,7 +74,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Award  className="text-primary w-5 h-5" />
+        <Award className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Education",
@@ -72,7 +82,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <User   className="text-primary w-5 h-5" />
+        <User className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Personal Branding",
@@ -80,7 +90,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Clock3    className="text-primary w-5 h-5" />
+        <Clock3 className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Work Life Balance",
@@ -110,7 +120,7 @@ function HomePage() {
   };
 
   const handleCategorySelect = (category) => {
-    console.log('category selected: ', category)
+    console.log("category selected: ", category);
     navigate(`/explore?category=${category.value}`);
     setIsModalOpen(false);
   };
@@ -244,7 +254,7 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center"
               >
-                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6">
+                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6 sm:mt-4">
                   One Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
@@ -254,7 +264,9 @@ function HomePage() {
                   >
                     Mentor
                   </motion.span>
-                  Can Change{" "} Everything
+                  Can
+                  <br className="hidden sm:block" />
+                  Change Everything
                 </motion.h1>
 
                 <motion.p className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto">
@@ -267,29 +279,29 @@ function HomePage() {
                   onClick={() => setIsModalOpen(true)}
                   className="btn-expert"
                 >
-                  Find an Expert
+                  Find an Mentor
                 </motion.button>
               </motion.div>
 
               <motion.div
-                    id="category-grid"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-16 w-full max-w-5xl mx-auto px-4"
-                  >
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {categories.map((category, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <CategoryCard {...category} />
-                        </motion.div>
-                      ))}
-                    </div>
-      </motion.div>
+                id="category-grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-16 w-full max-w-5xl mx-auto px-4"
+              >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {categories.map((category, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <CategoryCard {...category} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
