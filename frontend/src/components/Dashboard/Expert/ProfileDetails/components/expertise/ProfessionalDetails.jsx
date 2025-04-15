@@ -91,20 +91,26 @@ export default function ProfessionalDetails({ formData, setFormData }) {
 
           {showNicheDropdown && formData.domain && (
             <div className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white border rounded-lg shadow-md p-2">
-              {nicheOptions[formData.domain]?.map((niche) => (
-                <label
-                  key={niche.value}
-                  className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-4 w-4 text-green-600 rounded"
-                    checked={formData.niche?.includes(niche.value)}
-                    onChange={() => handleNicheCheckboxChange(niche.value)}
-                  />
-                  <span className="text-sm">{niche.label}</span>
-                </label>
-              ))}
+              {!formData.domain ? (
+                <div className="text-sm text-gray-500 px-2 py-1 italic">
+                  Please Select domain first
+                </div>
+              ) : (
+                nicheOptions[formData.domain]?.map((niche) => (
+                  <label
+                    key={niche.value}
+                    className="flex items-center gap-2 p-1 hover:bg-gray-50 rounded cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-4 w-4 text-green-600 rounded"
+                      checked={formData.niche?.includes(niche.value)}
+                      onChange={() => handleNicheCheckboxChange(niche.value)}
+                    />
+                    <span className="text-sm">{niche.label}</span>
+                  </label>
+                ))
+              )}
             </div>
           )}
         </div>

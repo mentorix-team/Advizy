@@ -39,7 +39,7 @@ export default function SkillsExpertise({ formData, setFormData }) {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyDown={(e) => {
                 if(e.key === 'Enter'){
-                  a.preventDefault();
+                  e.preventDefault();
                   addSkill();
                 }
               }}
