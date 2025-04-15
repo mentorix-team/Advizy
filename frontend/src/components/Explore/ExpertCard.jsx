@@ -11,6 +11,7 @@ const ExpertCard = ({
   redirect_url,
   id,
   name,
+  verified,
   image,
   title,
   rating,
@@ -84,6 +85,8 @@ const ExpertCard = ({
     }
   };
 
+  console.log(verified)
+
   return (
     <div className="w-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
       <div className="flex flex-col h-full">
@@ -105,8 +108,10 @@ const ExpertCard = ({
                     <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] truncate">
                       {name}
                     </h2>
-                    <img src="/svg-image-65.svg" alt="verified tick" />
-                    {/* <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0000FF] flex-shrink-0" /> */}
+                    {verified === true && (
+                      <img src="/svg-image-65.svg" alt="verified tick" />
+                      // <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0000FF] flex-shrink-0" />
+                    )}
                   </div>
                   <p className="text-[14px] sm:text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[1.4] sm:leading-[23.2px] mb-2">
                     {title}
