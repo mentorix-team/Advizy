@@ -32,7 +32,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const returnUrl = new URLSearchParams(location.search);
+  // const returnUrl = new URLSearchParams(location.search);
   const searchParams = new URLSearchParams(location.search);
   const returnedUrl = searchParams.get("returnUrl") || "/";
 
@@ -119,10 +119,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   //   window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   // };
 
-  // Update Google login handler
+  // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
     // Pass the returnUrl through to Google auth
+    const returnUrl = window.location.pathname;
     window.open(
       `https://advizy.onrender.com/api/v1/user/auth/google?state=${encodeURIComponent(
         returnUrl
