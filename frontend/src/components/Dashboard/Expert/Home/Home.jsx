@@ -12,7 +12,10 @@ import RecommendedResources from "./components/RecommendedResources";
 import { BiUser, BiCalendar, BiRupee, BiStar } from "react-icons/bi";
 import { TwoPersonIcon } from "@/icons/Icons";
 import { useDispatch, useSelector } from "react-redux";
-import { getMeetingByExpertId, getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
+import {
+  getMeetingByExpertId,
+  getfeedbackbyexpertid,
+} from "@/Redux/Slices/meetingSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import { getmeasexpert } from "@/Redux/Slices/expert.Slice";
 // import Spinner from "@/components/LoadingSkeleton/Spinner";
@@ -20,15 +23,15 @@ import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 function Home() {
   const dispatch = useDispatch();
-  const { expertData,loading,error } = useSelector((state) => state.expert);
-  const { meetings,feedbackofexpert} = useSelector((state) => state.meeting);
+  const { expertData, loading, error } = useSelector((state) => state.expert);
+  const { meetings, feedbackofexpert } = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
   console.log("availabilty", selectedAvailability);
   const availability = selectedAvailability?.availability;
 
   useEffect(() => {
-    dispatch(getmeasexpert())
+    dispatch(getmeasexpert());
   }, [dispatch]);
   useEffect(() => {
     if (expertData?._id) {
@@ -55,7 +58,6 @@ function Home() {
   //   dispatch(getfeedbackbyexpertid(expertData._id))
   // },[dispatch])
 
-
   // Check if expert has set availability
   const hasAvailability = availability?.daySpecific?.some((day) =>
     day.slots?.some((slot) => slot.startTime)
@@ -66,7 +68,7 @@ function Home() {
   );
 
   const hasEditedOneOnOneService = oneOnOneService?.one_on_one?.some(
-      (session) => session.price > 0
+    (session) => session.price > 0
   );
   // Check if expert has added at least one service
   const hasServices = expertData?.credentials?.services?.length > 0;
@@ -104,19 +106,19 @@ function Home() {
       text: "Edit your One-on-One Service",
       completed: hasEditedOneOnOneService,
     },
-    {
-      id: 5,
-      icon: "payment", // Use an appropriate icon
-      text: "Update your Payment Details",
-      completed: hasPaymentDetails, // True if PaymentDetails is not empty
-    },
+    // {
+    //   id: 5,
+    //   icon: "payment", // Use an appropriate icon
+    //   text: "Update your Payment Details",
+    //   completed: hasPaymentDetails, // True if PaymentDetails is not empty
+    // },
   ];
 
   // Filter out actions that are already completed
   const pendingActions = actionsNeeded.filter((action) => !action.completed);
 
-  if(loading){
-    return <Spinner/>
+  if (loading) {
+    return <Spinner />;
   }
   // Rest of your code remains unchanged...
   const bookingsData = [
@@ -131,21 +133,6 @@ function Home() {
       time: "2:00 PM",
       duration: "45 min",
       client: "Jane Smith",
-    },
-  ];
-
-  const feedbackData = [
-    {
-      name: "Sarah Johnson",
-      rating: 5,
-      comment: "Excellent mentoring session! Very helpful and insightful.",
-      avatar: null,
-    },
-    {
-      name: "Mike Brown",
-      rating: 4,
-      comment: "Great advice on career development.",
-      avatar: null,
     },
   ];
 
@@ -174,15 +161,15 @@ function Home() {
   };
 
   const paidMeetings = meetings
-  ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
-  ?.map(({ amount, daySpecific }) => ({
-    amount: Number(amount), // Convert to number
-    date: daySpecific?.date || "Unknown Date",
-    status: "Paid",
-  }));
+    ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
+    ?.map(({ amount, daySpecific }) => ({
+      amount: Number(amount), // Convert to number
+      date: daySpecific?.date || "Unknown Date",
+      status: "Paid",
+    }));
 
-  const totalEarnings = paidMeetings?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
-
+  const totalEarnings =
+    paidMeetings?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
 
   // const earningsData = {
   //   totalEarnings: 45000,
@@ -269,7 +256,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-transparent">
       <div className="mx-auto p-4 lg:p-8">
-        <Header pendingActions={pendingActions}/>
+        <Header pendingActions={pendingActions} />
 
         {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatsCard
@@ -305,7 +292,7 @@ function Home() {
             {bookingsData?.length > 0 && (
               <UpcomingSessions sessions={bookingsData} />
             )}
-          <AvailabilityCalendar meetings={paidMeetings} />
+            <AvailabilityCalendar meetings={paidMeetings} />
             {/* <PerformanceChart /> */}
           </div>
           <div className="space-y-4">

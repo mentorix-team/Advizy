@@ -96,19 +96,19 @@ const PricingSection = () => {
       </div> */}
       <div className="flex justify-center">
         {/* Standard Commission Plan - Content-fit width instead of full width */}
-        <div className="max-w-md bg-white rounded-lg p-8 border border-[#E8F5E9] relative">
+        <div className="max-w-lg bg-white rounded-lg p-8 border border-[#E8F5E9] relative">
           <div className="absolute top-0 left-0 right-0 h-1 bg-[#169544] rounded-t-lg" />
           <div className="mb-6">
             <h3 className="text-xl font-semibold text-[#1D2939] mb-2">
               Standard Commission
             </h3>
-            <p className="text-gray-600 text-sm">Perfect for most experts</p>
+            {/* <p className="text-gray-600 text-sm">Perfect for most experts</p> */}
           </div>
           <ul className="space-y-4 mb-8">
             <li className="flex items-center gap-3">
               <CircleCheckBig className="text-green-800 w-4 h-4" />
               <span className="text-gray-600 text-sm">
-                10% commission on earnings
+                20% commission on earnings
               </span>
             </li>
             <li className="flex items-center gap-3">
