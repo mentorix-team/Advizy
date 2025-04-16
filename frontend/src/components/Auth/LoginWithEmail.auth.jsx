@@ -38,7 +38,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   // const returnUrl = new URLSearchParams(location.search);
   const searchParams = new URLSearchParams(location.search);
-  const returnedUrl = searchParams.get("returnUrl") || "/";
+  // const returnedUrl = searchParams.get("returnUrl") || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -126,11 +126,15 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
+
+    // get current path including search params
+    const currentPath = window.location.pathname + window.location.search;
+
+    // construct google auth url with redirect URL
     // Pass the returnUrl through to Google auth
-    // const returnUrl = window.location.pathname;
     window.open(
-      `https://advizy.onrender.com/api/v1/user/auth/google?state=${encodeURIComponent(
-        returnUrl
+      `https://advizy.onrender.com/api/v1/user/auth/google?returnUrl=${encodeURIComponent(
+        currentPath
       )}`,
       "_self"
     );

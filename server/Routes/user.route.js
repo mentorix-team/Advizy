@@ -32,6 +32,7 @@ import {
 } from "../controllers/user.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { isLoggedIn } from "../middlewares/auth.middleare.js";
+import passport from "passport";
 
 const router = Router();
 
@@ -65,6 +66,7 @@ router.post("/reset-password/:resetToken", reset);
 // router.get('/auth/google',googleAuth)
 router.get("/auth/google", (req, res, next) => {
   const returnUrl = req.query.returnUrl || "/";
+
   passport.authenticate("google", {
     scope: ["profile", "email"],
     state: returnUrl, // ✅ passing returnUrl through state
