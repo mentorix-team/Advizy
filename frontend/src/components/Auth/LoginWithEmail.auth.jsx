@@ -122,12 +122,12 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
 
   // After successful auth processing
-  useEffect(() => {
-    if (isLoggedIn) {
-      // Your auth check logic
-      navigate(decodeURIComponent(returnUrl), { replace: true });
-    }
-  }, [isLoggedIn, returnUrl, navigate]);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     // Your auth check logic
+  //     navigate(decodeURIComponent(returnUrl), { replace: true });
+  //   }
+  // }, [isLoggedIn, returnUrl, navigate]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
