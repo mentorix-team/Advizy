@@ -10,14 +10,21 @@ const GoogleRedirectHandler = () => {
 
   useEffect(() => {
     const token = searchParams.get("token");
-    const user = JSON.parse(decodeURIComponent(searchParams.get("user")));
-    const expert = searchParams.get("expert")
-      ? JSON.parse(decodeURIComponent(searchParams.get("expert")))
-      : null;
-    const returnUrl = decodeURIComponent(searchParams.get("returnUrl") || "/");
+    const userParam = searchParams.get("user");
+    const expertParam = searchParams.get("expert");
+    const returnParam = searchParams.get("returnUrl");
 
-    dispatch(googleLogin({ user, expert, token }));
-    navigate(returnUrl);
+    const user = userParam ? JSON.parse(decodeURIComponent(userParam)) : null;
+    const expert = expertParam ? JSON.parse(decodeURIComponent(expertParam)) : null;
+    const returnUrl = returnParam ? decodeURIComponent(returnParam) : "/";
+
+    if (token && user) {
+      dispatch(googleLogin({ user, expert, token }));
+      navigate(returnUrl);
+    } else {
+      // Optionally handle errors here (invalid/missing params)
+      navigate("/auth-error");
+    }
   }, [dispatch, navigate, searchParams]);
 
   return <p>Logging you in...</p>;
