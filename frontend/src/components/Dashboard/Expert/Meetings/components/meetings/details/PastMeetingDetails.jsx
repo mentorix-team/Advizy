@@ -9,6 +9,9 @@ import { FaStar } from "react-icons/fa";
 import { useState } from "react";
 import PriceBreakdownModal from "../../modals/PriceBreakdownModal";
 import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
+import { Download } from "lucide-react";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
@@ -19,6 +22,28 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const { startTime, endTime } = slot || {};
 
   if (!meeting) return null;
+
+  const handleDownloadInvoice = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Meeting Invoice", 14, 22);
+
+    doc.setFontSize(12);
+    doc.text(`Invoice ID: ${meeting._id || "N/A"}`, 14, 32);
+    doc.text(`Date: ${new Date(date).toLocaleDateString("en-GB")}`, 14, 40);
+    doc.text(`Client: ${meeting.userName || "N/A"}`, 14, 56);
+    doc.text(`Service taken: ${meeting.serviceName || "N/A"}`, 14, 56);
+    doc.text(`Time slot: ${startTime} - ${endTime}`, 14, 64);
+    doc.text(`Amount Paid: ₹${meeting.amount || "0"}`, 14, 72);
+
+    doc.setFontSize(10);
+    doc.text("Thank you for using Advizy!", 14, 85);
+
+    // Save the PDF
+    const filename = `invoice-${meeting._id || "meeting"}.pdf`;
+    doc.save(filename);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -43,7 +68,16 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
+          <div className="flex justify-between">
+            <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
+            <button
+              onClick={handleDownloadInvoice}
+              className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
+            >
+              <Download className="w-4 h-4" />
+              Download Invoice
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
