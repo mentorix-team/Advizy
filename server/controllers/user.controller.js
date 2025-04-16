@@ -30,325 +30,131 @@ const googleCallback = passport.authenticate("google", {
   failureRedirect: "/",
 });
 
-// const handleGoogleCallback = async (req, res, next) => {
-//   try {
-
-//   } catch (error) {
-
-//   }
-//   const returnUrl = req.query.state || '/';
-
-//   if (!req.user) {
-//     console.error("Error: req.user is undefined");
-//     return next(new AppError("Authentication failed: User not found", 504));
-//   }
-
-//   console.log("req.user:", req.user);
-
-//   const { googleId, email, name } = req.user;
-
-//   try {
-//     let user = await User.findOne({ googleId });
-
-//     if (user) {
-//       console.log("User found with googleId, logging in...");
-//     } else {
-//       console.log("User with googleId not found, checking by email...");
-
-//       const existingUserByEmail = await User.findOne({ email });
-
-//       if (existingUserByEmail) {
-//         console.log(
-//           "User found with the same email but without Google ID, redirecting to error page..."
-//         );
-
-//         const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
-//           "An account with this email already exists. Please log in using your original method."
-//         )}`;
-//         return res.redirect(errorURL);
-//       }
-
-//       console.log("User not found, creating new user...");
-
-//       const [firstName, ...lastNameParts] = name
-//         ? name.split(" ")
-//         : ["Google", "User"];
-//       const lastName = lastNameParts.join(" ");
-
-//       user = await User.create({
-//         googleId,
-//         email,
-//         name,
-//         firstName: firstName || "Google",
-//         lastName: lastName || "User",
-//         provider: "google",
-//       });
-//     }
-
-//     // Generate Access & Refresh Tokens
-//     const accessToken = jwt.sign(
-//       { id: user._id, email: user.email },
-//       "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-//       { expiresIn: "1h" }
-//     );
-
-//     const refreshToken = jwt.sign(
-//       { id: user._id, email: user.email },
-//       "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-//       { expiresIn: "7d" }
-//     );
-
-//     console.log("Access & Refresh Tokens generated");
-
-//     // Set Cookies
-//     res.cookie("token", accessToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "None",
-//       maxAge: 60 * 60 * 1000, // 1 hour
-//     });
-
-//     res.cookie("refreshToken", refreshToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "None",
-//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//     });
-
-//     // Check if the user is an expert
-//     const expert = await ExpertBasics.findOne({ user_id: user._id });
-
-//     let expertAccessToken = null;
-//     let expertRefreshToken = null;
-
-//     if (expert) {
-//       console.log("User is an expert, generating expert tokens...");
-
-//       expertAccessToken = expert.generateExpertToken({ expiresIn: "1d" });
-//       expertRefreshToken = jwt.sign(
-//         { id: expert._id, email: user.email },
-//         "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=",
-//         { expiresIn: "7d" }
-//       );
-
-//       // Set Expert Tokens in Cookies
-//       res.cookie("expertToken", expertAccessToken, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//         sameSite: "None",
-//         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//       });
-
-//       res.cookie("expertRefreshToken", expertRefreshToken, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//         sameSite: "None",
-//         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
-//       });
-//     }
-
-//     // Redirect to frontend with tokens
-//     const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
-//       JSON.stringify(user)
-//     )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}&returnUrl=${encodeURIComponent(returnUrl)}`;
-
-//     return res.redirect(frontendURL);
-//     // return res.status(200).json({
-//     //     success:true,
-//     //     message:'User Logged in ',
-//     //     user,
-//     //     expert:expert||null
-//     // })
-//   } catch (error) {
-//     console.error("Error during Google authentication:", error.message);
-//     return next(new AppError("Error during Google authentication", 500));
-//   }
-// };
-
 const handleGoogleCallback = async (req, res, next) => {
+  if (!req.user) {
+    console.error("Error: req.user is undefined");
+    return next(new AppError("Authentication failed: User not found", 504));
+  }
+
+  console.log("req.user:", req.user);
+
+  const { googleId, email, name } = req.user;
+
   try {
-    const returnUrl = req.query.state || "/";
+    let user = await User.findOne({ googleId });
 
-    if (!req.user) {
-      console.error("Error: req.user is undefined");
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/auth-error?message=${encodeURIComponent(
-          "Authentication failed. Please try again."
-        )}`
-      );
-    }
+    if (user) {
+      console.log("User found with googleId, logging in...");
+    } else {
+      console.log("User with googleId not found, checking by email...");
 
-    const { googleId, email, name } = req.user;
+      const existingUserByEmail = await User.findOne({ email });
 
-    if (!email) {
-      console.error("Error: Email not provided by Google");
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/auth-error?message=${encodeURIComponent(
-          "Email address is required for authentication."
-        )}`
-      );
-    }
+      if (existingUserByEmail) {
+        console.log(
+          "User found with the same email but without Google ID, redirecting to error page..."
+        );
 
-    try {
-      let user = await User.findOne({ googleId });
-
-      if (user) {
-        console.log("User found with googleId, logging in...");
-      } else {
-        console.log("User with googleId not found, checking by email...");
-
-        const existingUserByEmail = await User.findOne({ email });
-
-        if (existingUserByEmail) {
-          console.log(
-            "User found with the same email but without Google ID, redirecting to error page..."
-          );
-
-          return res.redirect(
-            `${
-              process.env.FRONTEND_URL
-            }/auth-error?message=${encodeURIComponent(
-              "An account with this email already exists. Please log in using your original method."
-            )}`
-          );
-        }
-
-        console.log("User not found, creating new user...");
-
-        const [firstName, ...lastNameParts] = name
-          ? name.split(" ")
-          : ["Google", "User"];
-        const lastName = lastNameParts.join(" ");
-
-        try {
-          user = await User.create({
-            googleId,
-            email,
-            name,
-            firstName: firstName || "Google",
-            lastName: lastName || "User",
-            provider: "google",
-          });
-        } catch (createError) {
-          console.error("Error creating user:", createError);
-          return res.redirect(
-            `${
-              process.env.FRONTEND_URL
-            }/auth-error?message=${encodeURIComponent(
-              "Failed to create user account. Please try again."
-            )}`
-          );
-        }
+        const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
+          "An account with this email already exists. Please log in using your original method."
+        )}`;
+        return res.redirect(errorURL);
       }
 
-      // Generate Access & Refresh Tokens
-      const accessToken = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET ||
-          "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-        { expiresIn: "1h" }
-      );
+      console.log("User not found, creating new user...");
 
-      const refreshToken = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET ||
-          "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
+      const [firstName, ...lastNameParts] = name
+        ? name.split(" ")
+        : ["Google", "User"];
+      const lastName = lastNameParts.join(" ");
+
+      user = await User.create({
+        googleId,
+        email,
+        name,
+        firstName: firstName || "Google",
+        lastName: lastName || "User",
+        provider: "google",
+      });
+    }
+
+    // Generate Access & Refresh Tokens
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
+      { expiresIn: "1h" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id, email: user.email },
+      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
+      { expiresIn: "7d" }
+    );
+
+    console.log("Access & Refresh Tokens generated");
+
+    // Set Cookies
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Check if the user is an expert
+    const expert = await ExpertBasics.findOne({ user_id: user._id });
+
+    let expertAccessToken = null;
+    let expertRefreshToken = null;
+
+    if (expert) {
+      console.log("User is an expert, generating expert tokens...");
+
+      expertAccessToken = expert.generateExpertToken({ expiresIn: "1d" });
+      expertRefreshToken = jwt.sign(
+        { id: expert._id, email: user.email },
+        "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=",
         { expiresIn: "7d" }
       );
 
-      // Set Cookies with error handling
-      try {
-        res.cookie("token", accessToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "None",
-          maxAge: 60 * 60 * 1000, // 1 hour
-        });
+      // Set Expert Tokens in Cookies
+      res.cookie("expertToken", expertAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
 
-        res.cookie("refreshToken", refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "None",
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-      } catch (cookieError) {
-        console.error("Error setting cookies:", cookieError);
-        return res.redirect(
-          `${process.env.FRONTEND_URL}/auth-error?message=${encodeURIComponent(
-            "Failed to set authentication cookies. Please try again."
-          )}`
-        );
-      }
-
-      // Check if the user is an expert with error handling
-      try {
-        const expert = await ExpertBasics.findOne({ user_id: user._id });
-
-        if (expert) {
-          console.log("User is an expert, generating expert tokens...");
-
-          const expertAccessToken = expert.generateExpertToken({
-            expiresIn: "1d",
-          });
-          const expertRefreshToken = jwt.sign(
-            { id: expert._id, email: user.email },
-            process.env.EXPERT_JWT_SECRET ||
-              "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=",
-            { expiresIn: "7d" }
-          );
-
-          // Set Expert Tokens in Cookies
-          res.cookie("expertToken", expertAccessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "None",
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-          });
-
-          res.cookie("expertRefreshToken", expertRefreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "None",
-            maxAge: 14 * 24 * 60 * 60 * 1000,
-          });
-        }
-
-        // Redirect to frontend with tokens
-        const frontendURL = `${
-          process.env.FRONTEND_URL
-        }/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
-          JSON.stringify(user)
-        )}&expert=${encodeURIComponent(
-          JSON.stringify(expert || null)
-        )}&returnUrl=${encodeURIComponent(returnUrl)}`;
-
-        return res.redirect(frontendURL);
-      } catch (expertError) {
-        console.error("Error handling expert authentication:", expertError);
-        // Continue with user authentication even if expert check fails
-        const frontendURL = `${
-          process.env.FRONTEND_URL
-        }/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
-          JSON.stringify(user)
-        )}&returnUrl=${encodeURIComponent(returnUrl)}`;
-
-        return res.redirect(frontendURL);
-      }
-    } catch (dbError) {
-      console.error("Database error:", dbError);
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/auth-error?message=${encodeURIComponent(
-          "Database error occurred. Please try again."
-        )}`
-      );
+      res.cookie("expertRefreshToken", expertRefreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+      });
     }
+
+    // Redirect to frontend with tokens
+    const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
+      JSON.stringify(user)
+    )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
+
+    return res.redirect(frontendURL);
+    // return res.status(200).json({
+    //     success:true,
+    //     message:'User Logged in ',
+    //     user,
+    //     expert:expert||null
+    // })
   } catch (error) {
-    console.error("Critical error during Google authentication:", error);
-    return res.redirect(
-      `${process.env.FRONTEND_URL}/auth-error?message=${encodeURIComponent(
-        "An unexpected error occurred. Please try again later."
-      )}`
-    );
+    console.error("Error during Google authentication:", error.message);
+    return next(new AppError("Error during Google authentication", 500));
   }
 };
 

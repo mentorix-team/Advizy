@@ -63,16 +63,7 @@ router.get("/logout", logout);
 router.get("/me", myprofile);
 router.post("/forgot/password", forgot);
 router.post("/reset-password/:resetToken", reset);
-// router.get('/auth/google',googleAuth)
-router.get("/auth/google", (req, res, next) => {
-  const returnUrl = req.query.returnUrl || "/";
-
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    state: returnUrl, // ✅ passing returnUrl through state
-  })(req, res, next);
-});
-
+router.get('/auth/google',googleAuth)
 router.get("/auth/google/callback", googleCallback, handleGoogleCallback);
 router.post("/setPassword", setPassword);
 

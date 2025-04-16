@@ -32,13 +32,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  // At the top of the component
-  const returnUrl =
-    new URLSearchParams(window.location.search).get("returnUrl") || "/";
-
-  // const returnUrl = new URLSearchParams(location.search);
   const searchParams = new URLSearchParams(location.search);
-  // const returnedUrl = searchParams.get("returnUrl") || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -107,7 +101,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      navigate(decodeURIComponent(returnUrl), { replace: true });
+      navigate(decodeURIComponent('/'), { replace: true });
     }
 
     setlogindata({
@@ -116,26 +110,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     });
   }
 
-  // const handleGoogleSignup = (event) => {
-  //   event.preventDefault(); // Prevent the form from submitting
-  //   const currentPath = window.location.pathname;
-  //   sessionStorage.setItem("redirectAfterLogin", currentPath);
-  //   window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
-  // };
-
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-
-    // get current path including search params
-    const currentPath = window.location.pathname + window.location.search;
-
-    // construct google auth url with redirect URL
-    // Pass the returnUrl through to Google auth
     window.open(
-      `https://advizy.onrender.com/api/v1/user/auth/google?returnUrl=${encodeURIComponent(
-        currentPath
-      )}`,
+      `https://advizy.onrender.com/api/v1/user/auth/google`,
       "_self"
     );
   };
