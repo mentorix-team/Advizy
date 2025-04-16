@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import DayRow from "./DayRow";
 import { validateTimeSlot, checkOverlap } from "@/utils/timeValidation";
@@ -14,16 +14,87 @@ const DAYS = [
   { id: 7, name: "Sunday", enabled: true },
 ];
 
-function WeeklyAvailability() {
+function WeeklyAvailability({availability}) {
+
+  console.log('this is availa at wee',availability)
   const dispatch = useDispatch();
-  const [days, setDays] = useState(
-    DAYS.map((day) => ({
-      ...day,
-      slots: [{ id: 1, start: "09:00 AM", end: "10:00 AM" }],
-      error: null,
-    }))
-  );
+  const [days, setDays] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Initialize days state based on availability
+  useEffect(() => {
+    if (availability && availability.length > 0 && availability[0].daySpecific) {
+      const daySpecific = availability[0].daySpecific;
+      
+      const initialDays = daySpecific.map((dayData) => {
+        // Day is enabled only if it has slots array with at least one slot
+        const isEnabled = Array.isArray(dayData.slots) && dayData.slots.length > 0;
+        
+        const slots = isEnabled 
+          ? dayData.slots.map(slot => ({
+              id: slot._id || Date.now() + Math.random(),
+              start: convertTo12HourFormat(slot.startTime),
+              end: convertTo12HourFormat(slot.endTime)
+            }))
+          : [{ id: Date.now(), start: "", end: "" }]; // Default empty slot for disabled days
+        
+        return {
+          id: getDayId(dayData.day),
+          name: dayData.day,
+          enabled: isEnabled,
+          slots,
+          error: null
+        };
+      });
+
+      setDays(initialDays);
+      setIsLoading(false);
+    }
+  }, [availability]);
+
+  // More robust time conversion function
+  const convertTo12HourFormat = (time24) => {
+    if (!time24 || typeof time24 !== 'string') return "";
+    
+    try {
+      // Remove any whitespace and convert to uppercase for consistent comparison
+      time24 = time24.trim().toUpperCase();
+      
+      // If already in 12-hour format with AM/PM, return as is
+      if (time24.includes('AM') || time24.includes('PM')) {
+        return time24;
+      }
+      
+      // Handle 24-hour format (HH:MM or H:MM)
+      const [hoursStr, minutesStr] = time24.split(':');
+      const hours = parseInt(hoursStr, 10);
+      const minutes = minutesStr || '00';
+      
+      if (isNaN(hours) || hours < 0 || hours > 23) return "";
+      
+      const period = hours >= 12 ? 'PM' : 'AM';
+      const hours12 = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+      
+      return `${hours12}:${minutes.padStart(2, '0')} ${period}`;
+    } catch (e) {
+      console.error(`Failed to convert time "${time24}":`, e);
+      return "";
+    }
+  };
+
+  const getDayId = (dayName) => {
+    const dayMap = {
+      'Monday': 1,
+      'Tuesday': 2,
+      'Wednesday': 3,
+      'Thursday': 4,
+      'Friday': 5,
+      'Saturday': 6,
+      'Sunday': 7
+    };
+    return dayMap[dayName] || 0;
+  };
 
   const handleToggle = (dayId) => {
     setDays(
@@ -123,7 +194,7 @@ function WeeklyAvailability() {
     try {
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
+      const currentMonth = currentDate.getMonth(); // Month is zero-indexed (0 = January)
   
       const getDatesForDay = (day) => {
         const daysOfWeek = [
@@ -149,28 +220,28 @@ function WeeklyAvailability() {
           date.setDate(date.getDate() + 1)
         ) {
           if (date.getDay() === dayIndex) {
-            dates.push(new Date(date));
+            dates.push(new Date(date)); // Push a copy of the date
           }
         }
         return dates;
       };
   
       const data = days
-        .filter((day) => day.enabled)
+        .filter((day) => day.enabled) // Include only enabled days
         .map((day) => {
-          const dates = getDatesForDay(day.name);
+          const dates = getDatesForDay(day.name); // Get all dates for this day in the current month
   
           return {
             day: day.name,
             slots: day.slots.map((slot) => ({
               startTime: slot.start,
               endTime: slot.end,
-              dates: dates.map((date) => date.toISOString()),
+              dates: dates.map((date) => date.toISOString()), // Convert dates to ISO strings
             })),
           };
         });
   
-      dispatch(addAvailability({ data }));
+      dispatch(addAvailability({ data })); // Dispatch the action
       console.log("Dispatched data with dates:", data);
     } catch (error) {
       console.error("Error saving changes:", error);
@@ -178,6 +249,12 @@ function WeeklyAvailability() {
       setIsSaving(false);
     }
   };
+  
+  useEffect(() => {
+    if (days.length > 0) {
+      console.log('Mapped days state:', days);
+    }
+  }, [days]);
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
