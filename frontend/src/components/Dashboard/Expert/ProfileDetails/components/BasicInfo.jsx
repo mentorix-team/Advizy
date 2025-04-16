@@ -197,6 +197,34 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
       {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Bio Description */}
+        <div className="mt-6">
+          <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Bio Description
+            </label>
+          </Tooltip>
+          <textarea
+            value={formData.bio}
+            onChange={(e) => handleChange("bio", e.target.value)}
+            onBlur={() => onBlur("bio")}
+            placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
+            rows={4}
+            className={`w-full p-2.5 border ${
+              errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Your bio is your chance to showcase your expertise and personality.
+            Make it count!
+          </p>
+          {errors.bio && touched.bio && (
+            <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
+          )}
+        </div>
+
+        <hr className="border-gray-300 dark:border-gray-600 my-2" />
+
         {/* First Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -382,19 +410,21 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             Mobile Number
           </label>
           <div className="flex gap-2">
-              <div className="flex-1">
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.mobile}
-                  onChange={handlePhoneChange}
-                  className={`w-full px-3 py-2 border ${errors.phone ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
-                  placeholder="Enter 10-digit phone number"
-                  maxLength="10"
-                />
-              </div>
-              <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+            <div className="flex-1">
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={formData.mobile}
+                onChange={handlePhoneChange}
+                className={`w-full px-3 py-2 border ${
+                  errors.phone ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                placeholder="Enter 10-digit phone number"
+                maxLength="10"
+              />
+            </div>
+            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
               Verified
             </div>
@@ -455,32 +485,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
-        )}
-      </div>
-
-     {/* Bio Description */}
-     <div className="mt-6">
-      <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Bio Description
-        </label>
-        </Tooltip> 
-        <textarea
-          value={formData.bio}
-          onChange={(e) => handleChange("bio", e.target.value)}
-          onBlur={() => onBlur("bio")}
-          placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
-          rows={4}
-          className={`w-full p-2.5 border ${
-            errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
-        />
-        <p className="text-sm text-gray-500 mt-1">
-          Your bio is your chance to showcase your expertise and personality.
-          Make it count!
-        </p>
-        {errors.bio && touched.bio && (
-          <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
       </div>
 

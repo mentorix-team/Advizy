@@ -246,7 +246,7 @@ const ExpertDashboardLayout = () => {
           <div className="flex justify-between items-center h-16">
             {/* Left section */}
             <div className="flex items-center gap-8">
-              <a href="/" className="flex items-center">
+              <a href="#" className="flex items-center">
                 <img
                   src="/logo104.99&44.svg"
                   alt="Advizy Logo"

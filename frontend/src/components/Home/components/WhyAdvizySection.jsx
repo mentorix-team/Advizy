@@ -6,7 +6,7 @@ const WhyAdvizySection = () => {
     {
       icon: <Zap className="w-6 h-6 text-[#169544]" />,
       title: "A Vision Beyond Mentorship",
-      description: "More than just finding an expert, we help you discover what's next for you. Our mission is to help everyone unlock their true potential."
+      description: "More than just finding an mentor, we help you discover what's next for you. Our mission is to help everyone unlock their true potential."
     },
     {
       icon: <Users className="w-6 h-6 text-[#169544]" />,
@@ -15,17 +15,17 @@ const WhyAdvizySection = () => {
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-[#169544]" />,
-      title: "Learn From Those Who've Done It",
+      title: "Learn From Those Who Excel in it",
       description: "Whether it's career decisions, freelancing, or starting a business, connect with real people who've been in your shoes."
     }
   ];
 
   return (
-    <div className="py-16 mb-24 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6">
+    <div className="py-24 mb-30 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-12">
-            Why Adviszy?
+            Why Advizy?
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">

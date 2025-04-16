@@ -163,7 +163,7 @@ const expertBasicDetails = async (req, res, next) => {
 
       const serviceData = {
         title: "One-on-One Mentoring",
-        shortDescription: "Personalized guidance for your career growth and technical challenges",
+        // shortDescription: "Personalized guidance for your career growth and technical challenges",
         one_on_one: [
           { duration: 15, price: 0 },
           { duration: 30, price: 0 },

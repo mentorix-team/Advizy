@@ -3,27 +3,32 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 const faqs = [
-  {
-    question: "How does Advizy work?",
-    answer:
-      "Advizy connects you with verified experts in your field of interest. Simply browse our expert profiles, schedule a session at your preferred time, and connect virtually for personalized guidance.",
-  },
-  {
-    question: "How much does it cost?",
-    answer:
-      "Our pricing varies based on the expert's experience and session duration. Sessions typically range from ₹100-₹5000 per hour. You can view each expert's specific rates on their profile.",
-  },
-  {
-    question: "Can I become a mentor?",
-    answer:
-      "Yes! If you have expertise in your field and want to help others grow, you can apply to become a mentor. We carefully review each application to maintain our high-quality standards.",
-  },
-  {
-    question: "What if I'm not satisfied with my session?",
-    answer:
-      "Your satisfaction is our priority. If you're not completely satisfied with your session, contact our support team within 24 hours of your session to discuss your concerns.",
-  },
-];
+    {
+      question: "How do I get started as an mentor on Advizy?",
+      answer:
+        "Getting started is simple: 1) Create your profile and verify your expertise, 2) Set up your availability and service offerings, 3) Complete our brief onboarding process, and 4) Start accepting client bookings. Our team will guide you through each step.",
+    },
+    {
+      question: "What types of mentors does Advizy accept?",
+      answer:
+        "We welcome mentors from various fields including business, technology, career development, education, and creative arts. The key requirements are proven expertise in your field, professional experience, and a passion for mentoring others.",
+    },
+    {
+      question: "How does payment work?",
+      answer:
+        "Payments are handled securely through our platform. You set your own rates, and we handle all payment processing. Earnings are automatically transferred to your account after session completion, with a small platform fee deducted for our services.",
+    },
+    {
+      question: "Do we need external tools for video consultations?",
+      answer:
+        "No, Advizy provides a built-in video consultation platform. You don't need any external tools - just a reliable internet connection and a device with a camera and microphone.",
+    },
+    {
+      question: "How does Advizy ensure client quality?",
+      answer:
+        "We maintain high standards through our client verification process, clear booking policies, and a robust review system. We also provide tools to help you manage your schedule and client relationships effectively.",
+    },
+  ];
 
 const FAQItem = ({ question, answer, isOpen, onClick }) => {
   return (
@@ -92,7 +97,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => {
   );
 };
 
-const FAQSection = () => {
+const ExpertFAQs = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const navigate = useNavigate();
 
@@ -164,4 +169,4 @@ const FAQSection = () => {
   );
 };
 
-export default FAQSection;
+export default ExpertFAQs;

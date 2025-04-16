@@ -150,6 +150,7 @@ const ExpertList = ({ filters, sorting }) => {
                   id={expert._id}
                   redirect_url={expert.redirect_url}
                   name={`${expert.firstName} ${expert.lastName}`}
+                  verified={expert.admin_approved_expert}
                   image={
                     expert?.profileImage?.secure_url ||
                     "https://via.placeholder.com/100"

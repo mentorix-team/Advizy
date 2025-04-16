@@ -11,7 +11,17 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search } from "lucide-react";
+import {
+  BookOpen,
+  Palette,
+  Rocket,
+  Laptop,
+  Briefcase,
+  Search,
+  Award,
+  User,
+  Clock3,
+} from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
@@ -24,7 +34,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Briefcase   className="text-primary w-5 h-5" />
+        <Briefcase className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Carrer growth",
@@ -32,15 +42,15 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Rocket   className="text-primary w-5 h-5" />
+        <Rocket className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Startup",
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
-        <Laptop   className="text-primary w-5 h-5" />
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <Laptop className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Freelancing",
@@ -48,7 +58,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <BookOpen   className="text-primary w-5 h-5" />
+        <BookOpen className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Upskilling",
@@ -56,7 +66,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Search   className="text-primary w-5 h-5" />
+        <Search className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Job Hunting",
@@ -64,10 +74,26 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Palette className="text-primary w-5 h-5" />
+        <Award className="text-primary w-5 h-5" />
       </div>
     ),
-    title: "Arts",
+    title: "Education",
+  },
+  {
+    icon: (
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <User className="text-primary w-5 h-5" />
+      </div>
+    ),
+    title: "Personal Branding",
+  },
+  {
+    icon: (
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <Clock3 className="text-primary w-5 h-5" />
+      </div>
+    ),
+    title: "Work Life Balance",
   },
 ];
 
@@ -83,9 +109,14 @@ function HomePage() {
   const [careerExperts, setCareerExperts] = useState([]);
 
   useEffect(() => {
-    const expertData = localStorage.getItem("expertData");
-    if (expertData) {
-      setIsExpertMode(true);
+    const expertDataString = localStorage.getItem("expertData");
+    if (expertDataString) {
+      const expertData = JSON.parse(expertDataString);
+      if (expertData.admin_approved_expert === true) {
+        setIsExpertMode(true);
+      } else {
+        setIsExpertMode(false);
+      }
     }
   }, []);
 
@@ -94,7 +125,7 @@ function HomePage() {
   };
 
   const handleCategorySelect = (category) => {
-    console.log('category selected: ', category)
+    console.log("category selected: ", category);
     navigate(`/explore?category=${category.value}`);
     setIsModalOpen(false);
   };
@@ -228,29 +259,32 @@ function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center"
               >
-                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6">
-                  Find Your Perfect{" "}
+                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6 sm:mt-4">
+                  One Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.5 }}
                     className="text-[#169544]"
                   >
-                    Expert
+                    Mentor
                   </motion.span>
+                  Can
+                  <br className="hidden sm:block" />
+                  Change Everything
                 </motion.h1>
 
                 <motion.p className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto">
-                  Get personalized guidance from top professionals and
+                  Your Growth, success, clarity start here. Find the right
                   <br />
-                  Unlock your potential
+                  guidance for your journey.
                 </motion.p>
 
                 <motion.button
                   onClick={() => setIsModalOpen(true)}
                   className="btn-expert"
                 >
-                  Find an Expert
+                  Find an Mentor
                 </motion.button>
               </motion.div>
 
@@ -258,9 +292,9 @@ function HomePage() {
                 id="category-grid"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-16 w-full max-w-7xl mx-auto"
+                className="mt-16 w-full max-w-5xl mx-auto px-4"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}
@@ -282,12 +316,12 @@ function HomePage() {
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12">
               {/* Top Fitness Experts Section */}
-              <ExpertSection
+              {/* <ExpertSection
                 title="Top Fitness Experts"
                 subtitle="Specialized guidance in fitness"
                 experts={fitnessExperts}
                 link="/explore"
-              />
+              /> */}
 
               {/* Career Mentors Section */}
               <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">

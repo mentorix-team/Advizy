@@ -1,4 +1,9 @@
-import { BsArrowLeft, BsChevronDown, BsChevronUp, BsClock } from "react-icons/bs";
+import {
+  BsArrowLeft,
+  BsChevronDown,
+  BsChevronUp,
+  BsClock,
+} from "react-icons/bs";
 import PropTypes from "prop-types";
 import { FaStar } from "react-icons/fa";
 import { useState } from "react";
@@ -9,7 +14,9 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
   const [notes, setNotes] = useState(meeting?.notes || "");
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-
+  const { daySpecific } = meeting || {};
+  const { date, slot } = daySpecific || {};
+  const { startTime, endTime } = slot || {};
 
   if (!meeting) return null;
 
@@ -26,9 +33,13 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
 
         <div className="flex items-center gap-4 mb-6">
           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-lg">{Array.isArray(meeting.client) && meeting.client.length > 0 ? meeting.client[0] : "N/A"}</span>
+            <span className="text-lg">
+              {Array.isArray(meeting.userName) && meeting.userName.length > 0
+                ? meeting.userName[0]
+                : "N/A"}
+            </span>
           </div>
-          <h1 className="text-xl font-semibold">{meeting.client}</h1>
+          <h1 className="text-xl font-semibold">{meeting.userName}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
@@ -39,14 +50,20 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
               <h3 className="text-sm text-gray-500 mb-1">Date</h3>
               <div className="flex items-center gap-2">
                 <ColorCalendarIcon className="w-5 h-5" />
-                <p className="text-gray-900">{meeting.date}</p>
+                <p className="text-gray-900">
+                  {date
+                    ? new Date(date).toLocaleDateString("en-GB")
+                    : "no date"}
+                </p>
               </div>
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Time</h3>
               <div className="flex items-center gap-2">
                 <BsClock className="text-[169544]" />
-                <p className="text-gray-900">{meeting.time}</p>
+                <p className="text-gray-900">
+                  {startTime && endTime ? `${startTime} - ${endTime}` : "-"}
+                </p>
                 <span
                   className={`text-sm ${
                     meeting.sessionStatus === "Completed"
@@ -60,7 +77,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Service</h3>
-              <p className="text-gray-900">{meeting.service}</p>
+              <p className="text-gray-900">{meeting.serviceName}</p>
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Amount</h3>

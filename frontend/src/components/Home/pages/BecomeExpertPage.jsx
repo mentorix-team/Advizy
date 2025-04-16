@@ -7,6 +7,8 @@ import PricingSection from "../components/PricingSection";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import SearchModal from "../components/SearchModal";
+import { UserPlus, Users, Sparkles, LightbulbIcon } from "lucide-react";
+import ExpertFAQs from "../components/ExpertFAQs";
 const features = [
   {
     icon: (
@@ -25,9 +27,9 @@ const features = [
         />
       </svg>
     ),
-    title: "Expand Your Reach",
+    title: "Help Others Grow",
     description:
-      "Connect with people worldwide. Grow your impact with ease. Advizy brings opportunities to you.",
+      "Your journey can inspire and shape someone's future. Share your knowledge and make a lasting impact  ",
   },
   {
     icon: (
@@ -67,9 +69,9 @@ const features = [
         />
       </svg>
     ),
-    title: "Streamlined Operations",
+    title: "Expand your Influence",
     description:
-      "We handle everything for you. Focus on sharing your knowledge. Help others without the hassle.",
+      "Reach individuals across the world who need your insights. build your personal brand globally.",
   },
 ];
 
@@ -126,7 +128,7 @@ const testimonials = [
   },
   {
     rating: 5,
-    text: "I love how Advizy values both experts and clients. It's a win-win for everyone.",
+    text: "I love how Advizy values both mentors and clients. It's a win-win for everyone.",
     name: "Sarah M.",
     title: "Relationship Advisor",
   },
@@ -265,15 +267,14 @@ const BecomeExpertPage = () => {
   const navigate = useNavigate();
 
   const handleExpertOnboarding = () => {
-    const expertData = localStorage.getItem('expertData');
-  
+    const expertData = localStorage.getItem("expertData");
+
     if (!expertData) {
       navigate("/expert-onboarding");
     } else {
       alert("You're already an expert! Switch to expert mode.");
     }
   };
-  
 
   // useEffect(() => {
   // setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
@@ -350,16 +351,18 @@ const BecomeExpertPage = () => {
           </span>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 sm:mb-8">
-            Turn Your Expertise <br className="hidden sm:block" />
-            Into Opportunity
+            Share Your Knowledge, <br className="hidden sm:block" />
+            Change Lives
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0 mb-8 sm:mb-10">
-            Share your knowledge, set your schedule,
+            Your experiences, insights, and skills can transform someone's
+            future.
             <br className="block sm:hidden" />
-            and earn on your terms.
             <br className="block" />
-            Make an impact with your expertise on a global scale.
+            Join Advizy as a mentor and be part of a movement that
+            <br className="block" />
+            makes quality guidance accessible to all.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
@@ -367,10 +370,98 @@ const BecomeExpertPage = () => {
               onClick={handleExpertOnboarding}
               className="btn-expert w-full sm:w-auto"
             >
-              Share your expertise
+              Start your journey
             </button>
           </div>
         </motion.div>
+      </div>
+
+      {/* Vision Section */}
+      <div className="py-12 sm:py-16 bg-[#F9FDF9]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8 sm:mb-12">
+            <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+              <LightbulbIcon className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+              Our Vision for Mentorship
+            </h2>
+            <p className="text-gray-600 mt-4 mb-8 text-sm sm:text-base">
+              At Advizy, we believe mentorship is more than just advice—it's a
+              movement to
+              <br />
+              democratize knowledge and create equal opportunities for growth.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+                <UserPlus className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg">A Social Cause</h3>
+              <p className="text-gray-600 mt-2">
+                We're building a platform where knowledge sharing is valued as a
+                social good. Our mentors join not just to earn, but to make a
+                meaningful impact on others' lives.
+              </p>
+            </div>
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg">Community-Driven</h3>
+              <p className="text-gray-600 mt-2">
+                We're creating a supportive community where mentors collaborate,
+                share insights, and grow together while helping others achieve
+                their goals.
+              </p>
+            </div>
+            <div className="text-center p-6 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-lg">Transformative Impact</h3>
+              <p className="text-gray-600 mt-2">
+                We measure success by the lives changed through our platform.
+                Every mentor has the opportunity to create ripple effects that
+                extend far beyond individual sessions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Expertise Section */}
+      <div className="py-12 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="h-[400px] md:h-[500px] bg-gray-100 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80"
+                alt="Mentorship meeting"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="text-center md:text-left">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                Why We Need Your Expertise
+              </h2>
+              <p className="text-gray-600 mt-4">
+                In a world where quality guidance is often inaccessible or
+                unaffordable, we're creating a platform that connects people
+                with the right mentors at the right time. Your knowledge and
+                experience can be the catalyst that helps someone overcome
+                obstacles, discover new opportunities, and achieve their full
+                potential.
+              </p>
+              <p className="text-gray-600 mt-4">
+                By joining Advizy as a mentor, you're not just sharing your
+                expertise—you're helping build a more equitable world where
+                everyone has access to the guidance they need to succeed.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Why Choose Advizy */}
@@ -384,7 +475,7 @@ const BecomeExpertPage = () => {
             className="text-center mb-8 sm:mb-12 md:mb-16"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              Why Experts Choose Us
+              Why Become A Mentor
             </h2>
           </motion.div>
 
@@ -700,7 +791,8 @@ const BecomeExpertPage = () => {
       </div>
 
       {/* FAQ Section */}
-      <ExpertFAQ />
+      {/* <ExpertFAQ /> */}
+      <ExpertFAQs />
 
       {/* Ready to Share Section */}
       <div className="py-16 sm:py-20 md:py-24 bg-[#F9FDF9]">
@@ -719,7 +811,9 @@ const BecomeExpertPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6"
             >
-              Ready to Share Your Expertise?
+              Join our Commmunity of
+              <br />
+              Change Makers
             </motion.h2>
 
             <motion.p
@@ -730,6 +824,7 @@ const BecomeExpertPage = () => {
               className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10"
             >
               Join Advizy today and become part of a global community of
+              <br />
               professionals making an impact!
             </motion.p>
 
@@ -743,7 +838,7 @@ const BecomeExpertPage = () => {
               whileTap={{ scale: 0.98 }}
               className="btn-expert inline-flex items-center gap-2"
             >
-              Stare your Expertise
+              Start your journey
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
@@ -763,7 +858,6 @@ const BecomeExpertPage = () => {
       </div>
       <Footer />
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
     </div>
   );
 };
