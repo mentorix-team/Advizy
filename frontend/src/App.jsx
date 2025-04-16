@@ -16,6 +16,7 @@ import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
 import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
+import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -144,7 +145,7 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        
+
         // routing setup for google auth redirection
         <Route
           path="/google-auth-success"
