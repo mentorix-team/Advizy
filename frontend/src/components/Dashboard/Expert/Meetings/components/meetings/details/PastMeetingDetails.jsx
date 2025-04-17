@@ -29,7 +29,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
 
   const handlePrintNavigate = () => {
     navigate(`/dashboard/expert/meetings/receipt/${meeting._id}`, {
-      state: { meeting },
+      state: {meeting},
     });
   };
 
