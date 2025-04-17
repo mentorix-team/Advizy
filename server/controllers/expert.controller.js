@@ -378,26 +378,54 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
-const adminapproved = async(req,res,next) => {
+const adminapproved = async (req, res, next) => {
   try {
-    
-    const {id} = req.body;
-    const expert = ExpertBasics.findById(id)
-    if(!expert){
-      return next(new AppError('expert not found',500))
+    const { id } = req.body;
+    const expert = await ExpertBasics.findById(id); // Don't forget the 'await'
+
+    if (!expert) {
+      return next(new AppError('Expert not found', 404));
     }
-    expert.admin_approved_expert = expert.admin_approved_expert ? false : true;
-  
-    res.status(200).json({
-      success:true,
-      message:'Expert admin approved toggled',
-      expert
-    })
+
+    // Toggle admin approval
+    expert.admin_approved_expert = !expert.admin_approved_expert;
+    await expert.save();
+
+    // Now fetch all experts who are admin approved
+    const approvedExperts = await ExpertBasics.find({ admin_approved_expert: true });
+
+    // Format records for Algolia
+    const records = approvedExperts.map(expert => ({
+      objectID: expert._id.toString(),
+      name: `${expert.firstName} ${expert.lastName}`,
+      bio: expert.bio || "",
+      profileImage: expert.profileImage?.secure_url || "",
+      domain: expert.credentials?.domain || "",
+      niche: expert.credentials?.niche || [],
+      services: expert.credentials?.services?.map(service => ({
+        title: service.title || "",
+        shortDescription: service.shortDescription || "",
+      })) || [],
+      country_living: expert.country_living || "",
+    }));
+
+    // Push to Algolia
+    await client.saveObjects({
+      indexName: 'experts_index',
+      objects: records,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Expert admin approved toggled & Algolia updated',
+      expert,
+    });
   } catch (error) {
     console.log("Error:", error);
     return next(new AppError(error.message, 501));
   }
-}
+};
+
 const editExpertCertificate = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log

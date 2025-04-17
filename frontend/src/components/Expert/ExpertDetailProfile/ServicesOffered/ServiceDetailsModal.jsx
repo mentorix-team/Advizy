@@ -91,9 +91,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
 
 
         {/* Book Button */}
-        <button className="w-full bg-[#16A348] text-white py-2.5 sm:py-3 rounded-lg hover:bg-[#128A3E] font-medium text-sm sm:text-base transition-colors" onClick={handleBook}>
-          Book Session
-        </button>
+        
       </div>
     </div>
   );

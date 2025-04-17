@@ -125,6 +125,9 @@ const MentoringCard = ({ mentoringService }) => {
           title: mentoringService.title,
           description: mentoringService.detailedDescription,
           features: mentoringService.features,
+          one_on_one :mentoringService.one_on_one,
+          serviceId:mentoringService.serviceId,
+          hourlyRate:mentoringService.hourlyRate
         }}
       />
     </>
