@@ -6,12 +6,12 @@ import {
 } from "react-icons/bs";
 import PropTypes from "prop-types";
 import { FaStar } from "react-icons/fa";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import PriceBreakdownModal from "../../modals/PriceBreakdownModal";
 import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
 import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
+import html2canvas from "html2canvas";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
@@ -21,28 +21,22 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const { date, slot } = daySpecific || {};
   const { startTime, endTime } = slot || {};
 
+  const invoiceRef = useRef(null);
+
   if (!meeting) return null;
 
-  const handleDownloadInvoice = () => {
-    const doc = new jsPDF();
+  const handleDownloadInvoice = async () => {
+    const element = invoiceRef.current;
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL("image/png");
 
-    doc.setFontSize(18);
-    doc.text("Meeting Invoice", 14, 22);
+    const pdf = new jsPDF();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-    doc.setFontSize(12);
-    doc.text(`Invoice ID: ${meeting._id || "N/A"}`, 14, 32);
-    doc.text(`Date: ${new Date(date).toLocaleDateString("en-GB")}`, 14, 40);
-    doc.text(`Client: ${meeting.userName || "N/A"}`, 14, 56);
-    doc.text(`Service taken: ${meeting.serviceName || "N/A"}`, 14, 56);
-    doc.text(`Time slot: ${startTime} - ${endTime}`, 14, 64);
-    doc.text(`Amount Paid: ₹${meeting.amount || "0"}`, 14, 72);
-
-    doc.setFontSize(10);
-    doc.text("Thank you for using Advizy!", 14, 85);
-
-    // Save the PDF
-    const filename = `invoice-${meeting._id || "meeting"}.pdf`;
-    doc.save(filename);
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`invoice-${meeting._id || "meeting"}.pdf`);
   };
 
   return (
@@ -72,11 +66,16 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
             <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
             <button
               onClick={handleDownloadInvoice}
-              className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
+              className="text-primary hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
             >
               <Download className="w-4 h-4" />
               Download Invoice
             </button>
+          </div>
+
+          {/* Invoice preview area (invisible but used for PDF generation) */}
+          <div ref={invoiceRef} className="hidden">
+            <MeetingInvoice meeting={meeting} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
@@ -101,7 +100,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
                 <span
                   className={`text-sm ${
                     meeting.sessionStatus === "Completed"
-                      ? "text-[#169544]"
+                      ? "text-[#169544] bg-green-100 w-fit p-1 rounded-full"
                       : "text-red-600"
                   }`}
                 >

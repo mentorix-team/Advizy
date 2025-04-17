@@ -260,17 +260,18 @@ function HomePage() {
                 className="text-center w-full"
               >
                 <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
-                  One Right
-                  <motion.span
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                    className="text-[#169544] tracking-wide"
-                  >
-                    {" Mentor "}
-                  </motion.span>
-                  Can
-                  <br className="hidden sm:block" />
+                  <span className="block sm:inline">
+                    One Right
+                    <motion.span
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.8, delay: 0.5 }}
+                      className="text-[#169544] tracking-wide"
+                    >
+                      {" Mentor "}
+                    </motion.span>
+                  </span>
+                  <span className="block sm:inline">Can</span>
                   <span className="block sm:inline">Change Everything</span>
                 </motion.h1>
 
