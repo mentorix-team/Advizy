@@ -12,7 +12,6 @@ import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
 import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-import MeetingInvoice from "../utils/MeetingInvoice";
 import { useNavigate } from "react-router-dom";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {

@@ -1,4 +1,11 @@
-const MeetingInvoice = ({ meeting }) => {
+const MeetingInvoice = () => {
+  const location = useLocation();
+  const meeting = location.state?.meeting;
+
+  if (!meeting) {
+    return <div>No meeting data found.</div>; // Optional error UI
+  }
+  
   const { daySpecific } = meeting || {};
   const { date, slot } = daySpecific || {};
   const { startTime, endTime } = slot || {};
