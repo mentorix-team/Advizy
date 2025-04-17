@@ -384,7 +384,7 @@ const adminapproved = async (req, res, next) => {
     const expert = await ExpertBasics.findById(id); // Don't forget the 'await'
 
     if (!expert) {
-      return next(new AppError('Expert not found', 404));
+      return next(new AppError('Expert not found', 403));
     }
 
     // Toggle admin approval
