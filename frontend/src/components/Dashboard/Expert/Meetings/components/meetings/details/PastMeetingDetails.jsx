@@ -12,6 +12,7 @@ import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
 import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import MeetingInvoice from "../utils/MeetingInvoice";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
