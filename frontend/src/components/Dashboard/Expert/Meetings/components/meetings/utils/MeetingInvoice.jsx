@@ -1,3 +1,5 @@
+import { useLocation } from "react-router-dom";
+
 const MeetingInvoice = () => {
   const location = useLocation();
   const meeting = location.state?.meeting;
@@ -5,7 +7,7 @@ const MeetingInvoice = () => {
   if (!meeting) {
     return <div>No meeting data found.</div>; // Optional error UI
   }
-  
+
   const { daySpecific } = meeting || {};
   const { date, slot } = daySpecific || {};
   const { startTime, endTime } = slot || {};
