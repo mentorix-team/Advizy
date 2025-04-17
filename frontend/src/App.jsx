@@ -171,7 +171,7 @@ const App = () => {
         />
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
         <Route path="/payment-success" element={<BookingConfirmation />} />
-        <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
+        {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
         <Route path="/meeting" element={<Meeting />} />
         {/* Dashboard Routes */}
         <Route

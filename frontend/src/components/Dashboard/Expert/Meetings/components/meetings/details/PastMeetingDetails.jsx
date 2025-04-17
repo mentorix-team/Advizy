@@ -28,7 +28,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   if (!meeting) return null;
 
   const handlePrintNavigate = () => {
-    navigate("/receipt", {
+    navigate(`/dashboard/expert/meetings/receipt/${meeting._id}`, {
       state: { meeting },
     });
   };

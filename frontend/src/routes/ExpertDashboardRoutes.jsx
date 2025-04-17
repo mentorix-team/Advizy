@@ -20,7 +20,7 @@ const ExpertDashboardRoutes = () => {
         <Route path="/chats" element={<Chats />} />
         <Route path="/availability" element={<Availability />} />
         <Route path="/meetings" element={<Meetings />} />
-        <Route path="/meetings/receipt" element={<MeetingInvoice />} />
+        <Route path="/meetings/receipt/:id" element={<MeetingInvoice />} />
         <Route path="/service-pricing" element={<ServicePricing />} />
         <Route path="/profile-detail" element={<ProfileDetails />} />
         <Route path="/payments" element={<Payments />} />
