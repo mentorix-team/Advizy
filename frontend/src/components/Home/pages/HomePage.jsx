@@ -247,7 +247,7 @@ function HomePage() {
         />
 
         {/* Hero Section */}
-        <div id="hero-section" className="relative pt-16 w-full">
+        <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0 }}
@@ -257,44 +257,48 @@ function HomePage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6 sm:mt-4">
+                <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
                   One Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.5 }}
-                    className="text-[#169544]"
+                    className="text-[#169544] tracking-wide"
                   >
-                    Mentor
+                    {" Mentor "}
                   </motion.span>
                   Can
                   <br className="hidden sm:block" />
-                  Change Everything
+                  <span className="block sm:inline">Change Everything</span>
                 </motion.h1>
 
-                <motion.p className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto">
+                <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
                   Your Growth, success, clarity start here. Find the right
-                  <br />
                   guidance for your journey.
                 </motion.p>
 
-                <motion.button
-                  onClick={() => setIsModalOpen(true)}
-                  className="btn-expert"
-                >
-                  Find an Mentor
-                </motion.button>
+                {(() => {
+                  const [isModalOpen, setIsModalOpen] = useState(false);
+                  return (
+                    <motion.button
+                      onClick={() => setIsModalOpen(true)}
+                      className="btn-expert"
+                    >
+                      Find a Mentor
+                    </motion.button>
+                  );
+                })()}
               </motion.div>
 
               <motion.div
                 id="category-grid"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-16 w-full max-w-5xl mx-auto px-4"
+                className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                   {categories.map((category, index) => (
                     <motion.div
                       key={index}

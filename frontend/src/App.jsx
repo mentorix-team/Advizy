@@ -16,6 +16,7 @@ import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
 import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
+import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -145,6 +146,11 @@ const App = () => {
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
 
+        // routing setup for google auth redirection
+        <Route
+          path="/google-auth-success"
+          element={<GoogleRedirectHandler />}
+        />
         {/* Protected Routes */}
         <Route
           path="/expert-onboarding"
@@ -152,7 +158,6 @@ const App = () => {
         >
           <Route path="" element={<ProfileDetails />} />
         </Route>
-
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
@@ -168,7 +173,6 @@ const App = () => {
         <Route path="/payment-success" element={<BookingConfirmation />} />
         <Route path="/google-auth-success" element={<GoogleAuthSuccess />} />
         <Route path="/meeting" element={<Meeting />} />
-
         {/* Dashboard Routes */}
         <Route
           path="/dashboard/user/*"
@@ -176,7 +180,6 @@ const App = () => {
         >
           <Route path="*" element={<UserDashboardRoutes />} />
         </Route>
-
         <Route
           path="/dashboard/expert/*"
           element={
@@ -188,7 +191,6 @@ const App = () => {
         >
           <Route path="*" element={<ExpertDashboardRoutes />} />
         </Route>
-
         <Route path="*" element={<Error404 />} />
       </Routes>
 
