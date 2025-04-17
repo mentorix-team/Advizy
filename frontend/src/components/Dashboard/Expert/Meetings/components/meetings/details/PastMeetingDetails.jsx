@@ -13,6 +13,7 @@ import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 import MeetingInvoice from "../utils/MeetingInvoice";
+import { useNavigate } from "react-router-dom";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
@@ -22,22 +23,14 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
   const { date, slot } = daySpecific || {};
   const { startTime, endTime } = slot || {};
 
-  const invoiceRef = useRef(null);
+  const navigate = useNavigate();
 
   if (!meeting) return null;
 
-  const handleDownloadInvoice = async () => {
-    const element = invoiceRef.current;
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`invoice-${meeting._id || "meeting"}.pdf`);
+  const handlePrintNavigate = () => {
+    navigate("/receipt", {
+      state: { meeting },
+    });
   };
 
   return (
@@ -66,18 +59,31 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
           <div className="flex justify-between">
             <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
             <button
-              onClick={handleDownloadInvoice}
-              className="text-primary hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
+              onClick={handlePrintNavigate}
+              className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 no-print"
             >
-              <Download className="w-4 h-4" />
-              Download Invoice
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
+              </svg>
+              View Receipt
             </button>
           </div>
 
           {/* Invoice preview area (invisible but used for PDF generation) */}
-          <div ref={invoiceRef} className="hidden">
+          {/* <div ref={invoiceRef} className="hidden">
             <MeetingInvoice meeting={meeting} />
-          </div>
+          </div> */}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>

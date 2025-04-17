@@ -10,6 +10,7 @@ import Testimonials from "@/components/Dashboard/Expert/Testimonial/Testimonial"
 import ProfileDetails from "@/components/Dashboard/Expert/ProfileDetails/App";
 import Clients from "@/components/Dashboard/Expert/Clients/Clients/Clients";
 import ClientDetails from "@/components/Dashboard/Expert/Clients/Clients/pages/ClientDetails";
+import MeetingInvoice from "@/components/Dashboard/Expert/Meetings/components/meetings/utils/MeetingInvoice";
 
 const ExpertDashboardRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const ExpertDashboardRoutes = () => {
         <Route path="/chats" element={<Chats />} />
         <Route path="/availability" element={<Availability />} />
         <Route path="/meetings" element={<Meetings />} />
+        <Route path="/meetings/receipt" element={<MeetingInvoice />} />
         <Route path="/service-pricing" element={<ServicePricing />} />
         <Route path="/profile-detail" element={<ProfileDetails />} />
         <Route path="/payments" element={<Payments />} />
