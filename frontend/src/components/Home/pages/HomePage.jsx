@@ -329,7 +329,7 @@ function HomePage() {
                 className="text-center w-full"
               >
                 <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
-                  One Right
+                  Find your Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -338,9 +338,9 @@ function HomePage() {
                   >
                     {" Mentor "}
                   </motion.span>
-                  Can
+                  {/* Can
                   <br className="hidden sm:block" />
-                  <span className="block sm:inline">Change Everything</span>
+                  <span className="block sm:inline">Change Everything</span> */}
                 </motion.h1>
 
                 <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
