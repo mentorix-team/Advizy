@@ -123,7 +123,8 @@ const MentoringCard = ({ mentoringService }) => {
         onClose={() => setIsModalOpen(false)}
         service={{
           title: mentoringService.title,
-          description: mentoringService.detailedDescription,
+          detailedDescription: mentoringService.detailedDescription,
+          shortDescription: mentoringService.shortDescription,
           features: mentoringService.features,
           one_on_one :mentoringService.one_on_one,
           serviceId:mentoringService.serviceId,
