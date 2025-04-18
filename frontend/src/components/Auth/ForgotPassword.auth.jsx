@@ -122,14 +122,14 @@ function ForgotPassword({ onClose, onSwitchView }) {
           >
             Email
           </button>
-          <button
+          {/* <button
             onClick={() => setInputType("mobile")}
             className={`py-2 px-8 rounded-md text-sm font-medium ${
               inputType === "mobile" ? "bg-[#169544] text-white" : "bg-gray-200"
             }`}
           >
             Mobile
-          </button>
+          </button> */}
         </div>
 
         <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto">

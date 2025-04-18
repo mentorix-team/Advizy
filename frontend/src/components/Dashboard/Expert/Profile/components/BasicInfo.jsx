@@ -9,17 +9,18 @@ import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
 
-const BasicInfo = ({ 
-  formData, 
-  onUpdate, 
-  errors, 
-  touched, 
+const BasicInfo = ({
+  formData,
+  onUpdate,
+  errors,
+  touched,
   onBlur,
   isEmailVerified,
-  isMobileVerified,
+  // isMobileVerified,
   onVerificationSuccess,
   setIsEmailVerified,
-  setIsMobileVerified 
+  setIsMobileVerified,
+  // showMobileVerification,
 }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
@@ -27,37 +28,40 @@ const BasicInfo = ({
   const [verificationType, setVerificationType] = useState("");
   const [phoneNumber, setPhoneNumber] = useState({
     countryCode: formData.countryCode || "",
-    number: formData.mobile || ""
+    number: formData.mobile || "",
   });
 
   const handleChange = (field, value) => {
     if (field === "email") {
-      const savedEmailVerification = localStorage.getItem(`emailVerified_${value}`);
-      
+      const savedEmailVerification = localStorage.getItem(
+        `emailVerified_${value}`
+      );
+
       if (savedEmailVerification === "true") {
-        setIsEmailVerified(true);  // Restore verification if the email matches the previously verified one
+        setIsEmailVerified(true); // Restore verification if the email matches the previously verified one
       } else {
         setIsEmailVerified(false); // Otherwise, reset verification
       }
     }
-  
+
     onUpdate({ ...formData, [field]: value });
   };
-  
-  
+
   const handlePhoneChange = ({ countryCode, phoneNumber }) => {
     const newMobile = `${countryCode}${phoneNumber}`;
 
-    const savedMobileVerification = localStorage.getItem(`mobileVerified_${newMobile}`);
-    
+    const savedMobileVerification = localStorage.getItem(
+      `mobileVerified_${newMobile}`
+    );
+
     if (savedMobileVerification === "true") {
-      setIsMobileVerified(true);  // Restore verification if the mobile matches the previously verified one
+      setIsMobileVerified(true); // Restore verification if the mobile matches the previously verified one
     } else {
       setIsMobileVerified(false); // Otherwise, reset verification
     }
     setPhoneNumber({
       countryCode,
-      number: phoneNumber
+      number: phoneNumber,
     });
   };
 
@@ -67,16 +71,18 @@ const BasicInfo = ({
       onUpdate({
         ...formData,
         countryCode: phoneNumber.countryCode,
-        mobile: phoneNumber.number
+        mobile: phoneNumber.number,
       });
     }
 
     setVerificationType(type);
     setContactInfo(
-      type === "email" ? formData.email : phoneNumber.countryCode + phoneNumber.number
+      type === "email"
+        ? formData.email
+        : phoneNumber.countryCode + phoneNumber.number
     );
     setShowOtpPopup(true);
-    
+
     try {
       if (type === "email") {
         await dispatch(generateOtpforValidating(formData.email));
@@ -146,7 +152,7 @@ const BasicInfo = ({
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {/* First Name */}
         <div>
@@ -160,11 +166,15 @@ const BasicInfo = ({
             onBlur={() => onBlur("firstName")}
             placeholder="John"
             className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
-              errors.firstName && touched.firstName ? "border-red-500" : "border-gray-300"
+              errors.firstName && touched.firstName
+                ? "border-red-500"
+                : "border-gray-300"
             }`}
           />
           {errors.firstName && touched.firstName && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.firstName}</p>
+            <p className="text-red-500 text-xs sm:text-sm mt-1">
+              {errors.firstName}
+            </p>
           )}
         </div>
 
@@ -346,7 +356,7 @@ const BasicInfo = ({
                 dropdownClass="phone-input-dropdown"
               />
             </div>
-            <button
+            {/* <button
               type="button"
               onClick={() => handleVerifyClick("mobile")}
               disabled={isMobileVerified}
@@ -364,7 +374,7 @@ const BasicInfo = ({
               ) : (
                 "Verify"
               )}
-            </button>
+            </button> */}
           </div>
           {errors.mobile && touched.mobile && (
             <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>

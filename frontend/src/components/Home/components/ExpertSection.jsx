@@ -87,11 +87,11 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="mb-12 relative px-4 sm:px-6 lg:px-8" // Added padding for better spacing
+      className="relative" // Added padding for better spacing
     >
       <motion.div
         variants={headerVariants}
-        className="flex justify-between items-center mb-6 pt-20"
+        className="flex justify-between items-center mb-1 pt-2"
       >
         <div>
           <motion.h2
@@ -195,7 +195,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
           </motion.button>
         </div>
 
-        <div className="overflow-hidden pb-20 pt-10 -mx-2 px-2">
+        <div className="overflow-hidden pb-4 pt-4 -mx-2 px-2">
           {isLoading ? (
             <div className="flex gap-4">
               {[...Array(Math.min(4, visibleCards))].map((_, index) => (

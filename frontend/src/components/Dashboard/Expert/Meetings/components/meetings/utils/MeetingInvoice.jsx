@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const MeetingInvoice = () => {
@@ -85,6 +86,14 @@ const MeetingInvoice = () => {
 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Advizy</h1>
+
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 no-print"
+        >
+          <Download />
+          Print Receipt
+        </button>
       </div>
 
       <div className="mb-6">
@@ -103,27 +112,6 @@ const MeetingInvoice = () => {
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
             Order Details
           </h3>
-
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 no-print"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-              />
-            </svg>
-            Print Receipt
-          </button>
 
           <div className="space-y-1">
             <p className="text-gray-600">

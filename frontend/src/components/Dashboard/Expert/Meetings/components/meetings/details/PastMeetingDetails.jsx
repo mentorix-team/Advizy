@@ -6,12 +6,9 @@ import {
 } from "react-icons/bs";
 import PropTypes from "prop-types";
 import { FaStar } from "react-icons/fa";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import PriceBreakdownModal from "../../modals/PriceBreakdownModal";
 import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
-import { Download } from "lucide-react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
