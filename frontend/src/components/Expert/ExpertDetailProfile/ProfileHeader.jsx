@@ -18,9 +18,10 @@ const ProfileHeader = ({
   image,
   isTopRatedVisible,
   toggleTopRated,
-  redirect_uri
+  redirect_uri,
+  isAdminApproved,
 }) => {
-  console.log('this is redirecturl',redirect_uri)
+  console.log("this is redirecturl", redirect_uri);
   const [isFavorited, setIsFavorited] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -42,15 +43,15 @@ const ProfileHeader = ({
     <div className="relative w-full">
       {/* Updated background with an image */}
       <div
-      className="h-48 w-full"
-      style={{
-        backgroundImage: `url(${coverImage})`, // Corrected background image syntax
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundColor: "lightgray", // Optional fallback color
-      }}
-    ></div>
+        className="h-48 w-full"
+        style={{
+          backgroundImage: `url(${coverImage})`, // Corrected background image syntax
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundColor: "lightgray", // Optional fallback color
+        }}
+      ></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative -mt-24 bg-white rounded-lg p-6 shadow-lg">
           <div className="flex flex-col md:flex-row items-start gap-6">
@@ -67,8 +68,11 @@ const ProfileHeader = ({
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <div>
-                  <h1 className="text-black font-figtree text-4xl font-medium leading-[120%] mb-2">
+                  <h1 className="text-black font-figtree text-4xl font-medium leading-[120%] mb-2 flex gap-2 items-center">
                     {name}
+                    {isAdminApproved && (
+                      <img src="/svg-image-65.svg" alt="verified tick" />
+                    )}
                   </h1>
                   <p className="text-black font-figtree text-xl font-normal leading-[140%]">
                     {title || "Career Coach & Leadership Mentor"}
@@ -81,17 +85,15 @@ const ProfileHeader = ({
                   {/* Ratings Section */}
                   <div className="flex items-center gap-1 mt-2">
                     <RatingStarIcon className="w-6 h-6" />
-                    <span className="text-gray-800 font-medium">{rating || 0}</span>
-                    <span className="text-gray-600">({reviewsCount || 0} reviews)</span>
+                    <span className="text-gray-800 font-medium">
+                      {rating || 0}
+                    </span>
+                    <span className="text-gray-600">
+                      ({reviewsCount || 0} reviews)
+                    </span>
                   </div>
                   {/* Verified and Top Rated Badges */}
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                      <VerifiedTickIcon className="w-4 h-4" />
-                      <span className="text-[#1F409B] text-center font-figtree text-base font-semibold leading-[150%]">
-                        Verified
-                      </span>
-                    </span>
                     {isTopRatedVisible && ( // Conditionally render the Top Rated badge
                       <span className="flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
                         <svg
@@ -142,7 +144,12 @@ const ProfileHeader = ({
                       </button>
 
                       {/* Share Modal */}
-                      {isShareOpen && <Share onClose={closeShareModal} redirect_url = {redirect_uri} />}
+                      {isShareOpen && (
+                        <Share
+                          onClose={closeShareModal}
+                          redirect_url={redirect_uri}
+                        />
+                      )}
                     </div>
                   </div>
                   {/* Button to toggle Top Rated badge */}

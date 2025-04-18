@@ -22,7 +22,9 @@ const ExpertCard = ({ expert }) => {
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
-        const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap();
+        const response = await dispatch(
+          getAvailabilitybyid(expert._id)
+        ).unwrap();
         setAvailability(response.availability);
       } catch (error) {
         console.error("Error fetching availability:", error);
@@ -34,7 +36,7 @@ const ExpertCard = ({ expert }) => {
 
   // Get the first enabled slot from one-on-one services
   const firstEnabledSlot = expert.credentials?.services?.[0]?.one_on_one?.find(
-    slot => slot.enabled === true
+    (slot) => slot.enabled === true
   );
 
   // Get starting price and duration from the first enabled slot
@@ -43,20 +45,19 @@ const ExpertCard = ({ expert }) => {
 
   // Find the first available day and time slot
   const firstAvailableDay = availability?.daySpecific?.find(
-    day => day.slots && day.slots.length > 0
+    (day) => day.slots && day.slots.length > 0
   );
 
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
   // Calculate rating
-  const rating = expert.reviews?.length > 0
-    ? Math.round(
-        expert.reviews.reduce(
-          (acc, review) => acc + review.rating,
-          0
-        ) / expert.reviews.length
-      )
-    : 0;
+  const rating =
+    expert.reviews?.length > 0
+      ? Math.round(
+          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+            expert.reviews.length
+        )
+      : 0;
 
   // Get total sessions/ratings
   const totalSessions = expert.sessions?.length || 0;
@@ -111,7 +112,10 @@ const ExpertCard = ({ expert }) => {
                     <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] truncate">
                       {expert.firstName} {expert.lastName}
                     </h2>
-                    <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#0000FF] flex-shrink-0" />
+                    <img src="" alt="" />
+                    {expert.admin_approved_expert && (
+                      <img src="/svg-image-65.svg" alt="verified tick" />
+                    )}
                   </div>
                   <p className="text-[14px] sm:text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[1.4] sm:leading-[23.2px] mb-2">
                     {expert.credentials?.professionalTitle?.[0]}
@@ -226,7 +230,9 @@ const ExpertCard = ({ expert }) => {
               </button>
               <button
                 onClick={() => {
-                  navigate(`/expert/${expert.redirect_url}?scrollTo=services-offered`);
+                  navigate(
+                    `/expert/${expert.redirect_url}?scrollTo=services-offered`
+                  );
                 }}
                 className="h-[32px] sm:h-[34px] rounded-[11.04px] px-3 sm:px-4 bg-[#edfbf1] text-[#169544] font-semibold text-[13px] sm:text-[14.5px] shadow-[0px_2.45px_6.13px_2.15px_#0000001a] hover:bg-[#ddf9e5] whitespace-nowrap"
               >

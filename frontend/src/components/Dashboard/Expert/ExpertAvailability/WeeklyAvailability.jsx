@@ -255,7 +255,7 @@ function WeeklyAvailability({ availability }) {
       console.error("Error saving changes:", error);
     } finally {
       setIsSaving(false);
-      setIsSubmitting(true); // Add this line
+      setIsSubmitting(false); // Add this line
     }
   };
 
@@ -280,7 +280,7 @@ function WeeklyAvailability({ availability }) {
           className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto flex items-center justify-center gap-2
             ${
               isSaving || isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-green-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
         >
