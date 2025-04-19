@@ -109,7 +109,9 @@ function Availability() {
                 />
               </div>
               <div className="space-y-6">
-                <BlockUnavailableDates />
+                <BlockUnavailableDates 
+                  availability={availability}
+                />
                 <DateSpecificHours />
               </div>
             </div>
@@ -121,5 +123,4 @@ function Availability() {
     </BlockedDatesProvider>
   );
 }
-
 export default Availability;

@@ -3,29 +3,55 @@ import DatePicker from 'react-datepicker';
 import BlockedDateCard from './BlockedDateCard';
 import { useBlockedDates } from '@/Context/BlockedDatesContext';
 import "react-datepicker/dist/react-datepicker.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addBlockedDates } from "@/Redux/Slices/availability.slice";
 
-function BlockUnavailableDates() {
+function BlockUnavailableDates({ availability }) {
   const dispatch = useDispatch();
-  const availability = useSelector((state) => state.availability.availability); 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
-  const [disabledDates, setDisabledDates] = useState([]); 
+  const [disabledDates, setDisabledDates] = useState([]);
+  const [allBlockedDates, setAllBlockedDates] = useState([]);
   const { blockedDates, setBlockedDates } = useBlockedDates();
 
   useEffect(() => {
-    console.log("useEffect triggered. Availability:", availability);
-  
-    if (availability?.availability?.daySpecific) {
-      console.log("Availability Data:", availability.availability.daySpecific);
-  
-      const nullSlotDays = availability.availability.daySpecific
-        .filter((entry) => !entry.slots) // Filters out days with null or undefined slots
-        .map((entry) => {
-          console.log("Day Value:", entry.day); // Log the day value to debug the format
-  
-          const dayOfWeek = entry.day.toLowerCase(); // Convert to lowercase for consistency
+    console.log('Availability data:', availability);
+    
+    // Extract blocked dates from availability prop
+    const blockedDatesFromAPI = availability?.availability[0].blockedDates || [];
+    console.log('Blocked dates from API:', blockedDatesFromAPI);
+
+    // Convert string dates to Date objects
+    const formattedDates = blockedDatesFromAPI.flatMap(item => {
+      if (item?.dates) {
+        try {
+          const date = new Date(item.dates);
+          return isNaN(date.getTime()) ? [] : date;
+        } catch (error) {
+          console.error('Error parsing date:', error);
+          return [];
+        }
+      }
+      return [];
+    });
+
+    console.log('Formatted blocked dates:', formattedDates);
+
+    // Combine with context blockedDates
+    const combinedDates = [...blockedDates, ...formattedDates].filter(
+      (date, index, self) => 
+        index === self.findIndex(d => d.getTime() === date.getTime())
+    );
+
+    console.log('All blocked dates:', combinedDates);
+    setAllBlockedDates(combinedDates);
+
+    // Handle day-specific availability
+    if (availability?.daySpecific) {
+      const nullSlotDays = availability.daySpecific
+        .filter(entry => !entry.slots)
+        .map(entry => {
+          const dayOfWeek = entry.day.toLowerCase();
           const daysOfWeek = {
             sunday: 0,
             monday: 1,
@@ -35,36 +61,29 @@ function BlockUnavailableDates() {
             friday: 5,
             saturday: 6
           };
-  
-          return daysOfWeek[dayOfWeek]; // Only return the weekday index (0-6)
+          return daysOfWeek[dayOfWeek];
         })
-        .filter((day) => day !== undefined); // Filter out undefined days
-  
-      console.log("Days with Null or Undefined Slots:", nullSlotDays);
-      setDisabledDates(nullSlotDays); // Set disabled days by weekday index
+        .filter(day => day !== undefined);
+      
+      setDisabledDates(nullSlotDays);
     }
-  }, [availability]);
-  
-  
-  
-  
-  
-  
+  }, [availability, blockedDates]);
+
   const handleDateSelect = (date) => {
-    setSelectedDates((prev) =>
-      prev.some((d) => d.getTime() === date.getTime())
-        ? prev.filter((d) => d.getTime() !== date.getTime())
+    setSelectedDates(prev =>
+      prev.some(d => d.getTime() === date.getTime())
+        ? prev.filter(d => d.getTime() !== date.getTime())
         : [...prev, date]
     );
   };
 
   const handleConfirm = () => {
-    const formattedDates = selectedDates.map((date) => date.toISOString());
+    const formattedDates = selectedDates.map(date => date.toISOString());
 
     dispatch(addBlockedDates({ dates: formattedDates }))
       .then((response) => {
         if (response?.payload?.success) {
-          setBlockedDates([...blockedDates, ...selectedDates]);
+          setBlockedDates([...allBlockedDates, ...selectedDates]);
           setSelectedDates([]);
           setIsOpen(false);
         } else {
@@ -77,7 +96,8 @@ function BlockUnavailableDates() {
   };
 
   const handleRemoveDate = (dateToRemove) => {
-    setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
+    const updatedDates = allBlockedDates.filter(date => date.getTime() !== dateToRemove.getTime());
+    setBlockedDates(updatedDates);
   };
 
   return (
@@ -92,14 +112,22 @@ function BlockUnavailableDates() {
         Block Unavailable Dates
       </button>
   
-      {blockedDates.length > 0 && (
+      {allBlockedDates.length > 0 ? (
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Blocked Dates:</h3>
           <div className="flex flex-wrap gap-2 items-center">
-            {blockedDates.map((date) => (
-              <BlockedDateCard key={date.getTime()} date={date} onRemove={handleRemoveDate} />
+            {allBlockedDates.map((date) => (
+              <BlockedDateCard 
+                key={date.getTime()} 
+                date={date} 
+                onRemove={handleRemoveDate} 
+              />
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="mt-4 text-sm text-gray-500">
+          No dates are currently blocked.
         </div>
       )}
   
@@ -124,7 +152,7 @@ function BlockUnavailableDates() {
                 onChange={handleDateSelect}
                 selected={null}
                 highlightDates={selectedDates}
-                excludeDates={[]} // Exclude specific dates if needed
+                excludeDates={allBlockedDates}
                 minDate={new Date()}
                 className="w-full border border-gray-300 rounded-md p-2"
                 calendarClassName="bg-white shadow-md"
@@ -132,7 +160,7 @@ function BlockUnavailableDates() {
                   const dayOfWeek = date.getDay();
                   return disabledDates.includes(dayOfWeek)
                     ? "bg-gray-200 text-gray-400"
-                    : selectedDates.some((d) => d.getTime() === date.getTime())
+                    : selectedDates.some(d => d.getTime() === date.getTime())
                     ? "text-white bg-black rounded-md"
                     : "hover:bg-gray-100 rounded-md";
                 }}
@@ -150,7 +178,6 @@ function BlockUnavailableDates() {
       )}
     </div>
   );
-  
 }
 
 export default BlockUnavailableDates;
