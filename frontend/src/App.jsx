@@ -17,6 +17,8 @@ import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
+import PayuOrderSummary from "./components/Dashboard/User/payuordersummary";
+import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -146,7 +148,6 @@ const App = () => {
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
 
-        // routing setup for google auth redirection
         <Route
           path="/google-auth-success"
           element={<GoogleRedirectHandler />}
@@ -170,6 +171,10 @@ const App = () => {
           element={<ReSchedulingUser />}
         />
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
+        <Route path="/expert/payu-order-summary/" element={<PayuOrderSummary />} />
+
+        <Route path="/payu-payment-success" element={<PayyBookingConfirmation />} />
+
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
         <Route path="/meeting" element={<Meeting />} />

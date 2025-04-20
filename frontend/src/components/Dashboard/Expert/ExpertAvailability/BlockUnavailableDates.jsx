@@ -175,7 +175,7 @@ function BlockUnavailableDates({ availability }) {
             </button>
           </div>
         </div>
-      )}
+      )}  
     </div>
   );
 }
