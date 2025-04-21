@@ -203,7 +203,6 @@ const App = () => {
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>
-
       <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
     </Suspense>
   );
