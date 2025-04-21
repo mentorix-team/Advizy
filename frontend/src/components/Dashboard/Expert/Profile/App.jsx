@@ -194,9 +194,10 @@ function App() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Please enter a valid email address";
-    } else if (!isEmailVerified) {
-      newErrors.email = "Please verify your email address";
-    }
+    } 
+    // else if (!isEmailVerified) {
+    //   newErrors.email = "Please verify your email address";
+    // }
 
     // Languages validation
     if (basic.languages.length === 0) {
@@ -238,20 +239,20 @@ function App() {
     setTouched(allTouched);
 
     // Check if both email and mobile are verified
-    if (!isEmailVerified) {
-      toast.error(
-        "Please verify both email and mobile number before submitting",
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        }
-      );
-      return;
-    }
+    // if (!isEmailVerified) {
+    //   toast.error(
+    //     "Please verify both email and mobile number before submitting",
+    //     {
+    //       position: "top-right",
+    //       autoClose: 3000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //     }
+    //   );
+    //   return;
+    // }
 
     // If there are validation errors, show a toast and return
     if (Object.keys(validationErrors).length > 0) {
@@ -358,7 +359,7 @@ function App() {
               errors={errors}
               touched={touched}
               onBlur={(field) => setTouched({ ...touched, [field]: true })}
-              isEmailVerified={isEmailVerified}
+              isEmailVerified={true}
               isMobileVerified={true}
               onVerificationSuccess={handleVerificationSuccess}
               setIsEmailVerified={setIsEmailVerified} // Pass the setter function
@@ -371,15 +372,11 @@ function App() {
         <div className="flex justify-end text-end mt-6">
           <button
             onClick={handleNext}
-            disabled={loadingState || !isEmailVerified}
-            className={`px-4 sm:px-6 py-2 text-white rounded-lg transition ${
-              loadingState || !isEmailVerified
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primary hover:bg-green-600"
-            }`}
+            disabled={loadingState}
+            className={`px-4 sm:px-6 py-2 text-white rounded-lg transition bg-primary hover:bg-green-600 `}
           >
             {loadingState ? (
-              <svg
+              <svg  
                 className="animate-spin h-5 w-5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"

@@ -5,6 +5,7 @@ import DomainBar from "./DomainBar";
 import Navbar from "../Home/components/Navbar";
 import { useSearchParams } from "react-router-dom";
 import { domainOptions } from "@/utils/Options";
+import NavbarWithoutSearchModal from "../Home/components/NavbarWithoutSearchModal";
 
 const Homees = () => {
   const [searchParams] = useSearchParams();
@@ -24,6 +25,11 @@ const Homees = () => {
   useEffect(() => {
     console.log("Updated Filters:", filters);
   }, [filters]);
+
+
+  useEffect(() => {
+    console.log("Selected Domain:", selectedDomain);
+  }, [selectedDomain]);
 
   useEffect(() => {
     const categoryFromUrl = searchParams.get("category");
@@ -79,7 +85,9 @@ const Homees = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Fixed Domain Bar */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
-        <Navbar />
+        <NavbarWithoutSearchModal onSearch={(query) => {
+          console.log("Search Query:", query);
+        }}/>
         <DomainBar
           onDomainSelect={(domain) => setSelectedDomain(domain)}
           resetFilters={resetFilters}

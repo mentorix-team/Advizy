@@ -17,9 +17,8 @@ import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
-import PayuOrderSummary from "./components/Dashboard/User/payuordersummary";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
-
+import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
   import("./routes/ExpertDashboardRoutes")
@@ -103,7 +102,7 @@ const App = () => {
       /^\/terms-of-service$/,
       /^\/explore/,
       /^\/meeting$/,
-      /^\/expert\/[^/]+$/, // ← ✅ this makes /expert/:redirect_url public
+      /^\/expert\/[^/]+$/, // ←-< this makes /expert/:redirect_url public
       /^\/expert\/scheduling\/[^/]+$/,
       /^\/become-expert$/,
     ];
@@ -171,9 +170,15 @@ const App = () => {
           element={<ReSchedulingUser />}
         />
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
-        <Route path="/expert/payu-order-summary/" element={<PayuOrderSummary />} />
+        <Route
+          path="/expert/payu-order-summary/"
+          element={<PayuOrderSummary />}
+        />
 
-        <Route path="/payu-payment-success" element={<PayyBookingConfirmation />} />
+        <Route
+          path="/payu-payment-success"
+          element={<PayyBookingConfirmation />}
+        />
 
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}

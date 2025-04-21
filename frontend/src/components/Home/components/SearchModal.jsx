@@ -10,11 +10,11 @@ import { useNavigate } from "react-router-dom";
 import { domainOptions } from "@/utils/Options";
 
 // Update your categories to match domainOptions
-const categories = domainOptions.map(domain => ({
+const categories = domainOptions.map((domain) => ({
   icon: "⭐", // Add appropriate icons
   title: domain.label,
   value: domain.value,
-  hasArrow: true
+  hasArrow: true,
 }));
 
 const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
@@ -39,6 +39,7 @@ const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
       </div>
       {category.hasArrow && <ArrowRight className="w-5 h-5 text-gray-400" />}
     </motion.button>
+
   );
 });
 
