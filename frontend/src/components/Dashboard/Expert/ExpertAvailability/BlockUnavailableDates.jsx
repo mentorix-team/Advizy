@@ -18,7 +18,7 @@ function BlockUnavailableDates({ availability }) {
     console.log('Availability data:', availability);
     
     // Extract blocked dates from availability prop
-    const blockedDatesFromAPI = availability?.availability[0].blockedDates || [];
+    const blockedDatesFromAPI = availability?.availability[0]?.blockedDates || [];
     console.log('Blocked dates from API:', blockedDatesFromAPI);
 
     // Convert string dates to Date objects
@@ -175,7 +175,7 @@ function BlockUnavailableDates({ availability }) {
             </button>
           </div>
         </div>
-      )}  
+      )}
     </div>
   );
 }
