@@ -329,7 +329,7 @@ function HomePage() {
                 className="text-center w-full"
               >
                 <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
-                  Find your Right
+                  Find Your Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -342,13 +342,11 @@ function HomePage() {
                   <br className="hidden sm:block" />
                   <span className="block sm:inline">Change Everything</span> */}
                 </motion.h1>
-
                 <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
                   Your Growth, success, clarity start here. Find the right
                   guidance for your journey.
                 </motion.p>
-
-                {(() => {
+                {/* {(() => {
                   const [isModalOpen, setIsModalOpen] = useState(false);
                   return (
                     <motion.button
@@ -358,7 +356,16 @@ function HomePage() {
                       Find a Mentor
                     </motion.button>
                   );
-                })()}
+                })()} */}
+                {/* Replace with this */}
+                <motion.button
+                  onClick={() => setIsModalOpen(true)}
+                  className="btn-expert"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Find a Mentor
+                </motion.button>
               </motion.div>
 
               <motion.div

@@ -15,17 +15,17 @@ const BasicInfo = ({
   errors,
   touched,
   onBlur,
-  isEmailVerified,
+  // isEmailVerified,
   // isMobileVerified,
-  onVerificationSuccess,
-  setIsEmailVerified,
-  setIsMobileVerified,
+  // onVerificationSuccess,
+  // setIsEmailVerified,
+  // setIsMobileVerified,
   // showMobileVerification,
 }) => {
   const dispatch = useDispatch();
-  const [showOtpPopup, setShowOtpPopup] = useState(false);
-  const [contactInfo, setContactInfo] = useState("");
-  const [verificationType, setVerificationType] = useState("");
+  // const [showOtpPopup, setShowOtpPopup] = useState(false);
+  // const [contactInfo, setContactInfo] = useState("");
+  // const [verificationType, setVerificationType] = useState("");
   const [phoneNumber, setPhoneNumber] = useState({
     countryCode: formData.countryCode || "",
     number: formData.mobile || "",
@@ -37,11 +37,11 @@ const BasicInfo = ({
         `emailVerified_${value}`
       );
 
-      if (savedEmailVerification === "true") {
-        setIsEmailVerified(true); // Restore verification if the email matches the previously verified one
-      } else {
-        setIsEmailVerified(false); // Otherwise, reset verification
-      }
+      // if (savedEmailVerification === "true") {
+      //   setIsEmailVerified(true); // Restore verification if the email matches the previously verified one
+      // } else {
+      //   setIsEmailVerified(false); // Otherwise, reset verification
+      // }
     }
 
     onUpdate({ ...formData, [field]: value });
@@ -392,32 +392,13 @@ const BasicInfo = ({
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
-              placeholder="john@example.com"
+              placeholder="name@example.com"
               className={`flex-1 p-2.5 border ${
                 errors.email && touched.email
                   ? "border-red-500"
                   : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
             />
-            <button
-              type="button"
-              onClick={() => handleVerifyClick("email")}
-              disabled={isEmailVerified}
-              className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                isEmailVerified
-                  ? "bg-green-100 text-green-700 cursor-default"
-                  : "bg-primary text-white hover:bg-green-600"
-              }`}
-            >
-              {isEmailVerified ? (
-                <>
-                  Verified
-                  <Check className="w-4 h-4" />
-                </>
-              ) : (
-                "Verify"
-              )}
-            </button>
           </div>
           {errors.email && touched.email && (
             <p className="text-red-500 text-sm mt-1">{errors.email}</p>

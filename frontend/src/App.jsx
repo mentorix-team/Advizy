@@ -171,9 +171,15 @@ const App = () => {
           element={<ReSchedulingUser />}
         />
         <Route path="/expert/order-summary/" element={<OrderSummary />} />
-        <Route path="/expert/payu-order-summary/" element={<PayuOrderSummary />} />
+        <Route
+          path="/expert/payu-order-summary/"
+          element={<PayuOrderSummary />}
+        />
 
-        <Route path="/payu-payment-success" element={<PayyBookingConfirmation />} />
+        <Route
+          path="/payu-payment-success"
+          element={<PayyBookingConfirmation />}
+        />
 
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
