@@ -102,7 +102,7 @@ const App = () => {
       /^\/terms-of-service$/,
       /^\/explore/,
       /^\/meeting$/,
-      /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
+      /^\/expert\/[^/]+$/, // ←-< this makes /expert/:redirect_url public
       /^\/expert\/scheduling\/[^/]+$/,
       /^\/become-expert$/,
     ];
