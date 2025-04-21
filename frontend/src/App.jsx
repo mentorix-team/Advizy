@@ -17,9 +17,8 @@ import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
-import PayuOrderSummary from "./components/Dashboard/User/payuordersummary";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
-
+import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
   import("./routes/ExpertDashboardRoutes")
