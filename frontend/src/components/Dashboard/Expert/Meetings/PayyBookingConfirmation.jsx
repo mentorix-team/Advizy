@@ -8,8 +8,7 @@ import Footer from "@/components/Home/components/Footer";
 import { AnimatePresence } from "framer-motion";
 import SearchModal from "@/components/Home/components/SearchModal";
 import { useDispatch } from "react-redux";
-// import { success } from "@/Redux/Slices/Payu.slice";
-import success  from "@/Redux/Slices/paymentSlice"
+import { success } from "@/Redux/Slices/Payu.slice";
 
 const PayyBookingConfirmation = () => {
   const [showConfetti, setShowConfetti] = useState(false);
