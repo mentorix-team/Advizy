@@ -103,7 +103,7 @@ export const verifyPayUPayment = async (response) => {
   
       // Rest of your PayU code...
       const payuData = {
-        key: 'BbfPbe',
+        key: 'W6AOVT',
         txnid: txnid || `TXN${Date.now()}`,
         amount,
         firstname,
