@@ -172,7 +172,7 @@ const App = () => {
           path="/user/rescheduling/:serviceId"
           element={<ReSchedulingUser />}
         />
-        <Route path="/expert/order-summary/" element={<OrderSummary />} />
+        {/* <Route path="/expert/order-summary/" element={<OrderSummary />} /> */}
         <Route
           path="/expert/payu-order-summary/"
           element={<PayuOrderSummary />}
