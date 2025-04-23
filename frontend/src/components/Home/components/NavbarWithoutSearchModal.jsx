@@ -292,9 +292,9 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
                         onClick={() => openExpertProfile(hit.objectID)}
                       >
                         <div className="flex items-center space-x-3">
-                          {hit.profileImageUrl ? (
+                          {hit.profileImage ? (
                             <img
-                              src={hit.profileImageUrl}
+                              src={hit.profileImage}
                               alt={hit.name}
                               className="w-10 h-10 rounded-full object-cover"
                             />
