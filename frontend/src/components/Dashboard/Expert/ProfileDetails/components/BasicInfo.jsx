@@ -222,8 +222,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       </div>
       {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-<<<<<<< HEAD
-=======
         {/* Bio Description */}
         <div className="mt-6 w-full">
           <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
@@ -250,7 +248,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           )}
         </div>
 
->>>>>>> 917f6e1a8ba4cc0007aee25b5344dd78b98c4ab5
         <hr className="border-gray-300 dark:border-gray-600 my-2" />
 
         {/* First Name */}
