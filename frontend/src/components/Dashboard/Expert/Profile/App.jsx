@@ -194,7 +194,7 @@ function App() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Please enter a valid email address";
-    } 
+    }
     // else if (!isEmailVerified) {
     //   newErrors.email = "Please verify your email address";
     // }
@@ -376,7 +376,7 @@ function App() {
             className={`px-4 sm:px-6 py-2 text-white rounded-lg transition bg-primary hover:bg-green-600 `}
           >
             {loadingState ? (
-              <svg  
+              <svg
                 className="animate-spin h-5 w-5 text-white"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
