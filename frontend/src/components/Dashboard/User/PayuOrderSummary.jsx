@@ -4,7 +4,10 @@ import ExpertProfileInSchedule from "./Scheduling/ExpertProfileInSchedule";
 import { useDispatch, useSelector } from "react-redux";
 import { createVideoCall, getMeet, payed } from "@/Redux/Slices/meetingSlice";
 import { getServicebyid } from "@/Redux/Slices/expert.Slice";
-import { createpaymentOrder, verifypaymentOrder } from "@/Redux/Slices/paymentSlice";
+import {
+  createpaymentOrder,
+  verifypaymentOrder,
+} from "@/Redux/Slices/paymentSlice";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import CategoryNav from "@/components/Home/components/CategoryNav";
 import Navbar from "@/components/Home/components/Navbar";
@@ -21,24 +24,41 @@ const PayuOrderSummary = () => {
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [delayedPrice, setDelayedPrice] = useState(null);
-  const { selectedMeeting, loading, error } = useSelector((state) => state.meeting);
-  const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
-  const {data} = useSelector((state)=>state.auth)
+  const { selectedMeeting, loading, error } = useSelector(
+    (state) => state.meeting
+  );
+  const {
+    selectedExpert,
+    loading: expertLoading,
+    error: expertError,
+    selectedService,
+  } = useSelector((state) => state.expert);
+  const { data } = useSelector((state) => state.auth);
 
-  
-  const user = typeof data === 'string' ? JSON.parse(data) : data;
+  const [isPriceLoading, setIsPriceLoading] = useState(true);
 
-  const { loading: paymentLoading, error: paymentError } = useSelector((state) => state.payment);
-  console.log("this is selected meeting",selectedMeeting)
+  const user = typeof data === "string" ? JSON.parse(data) : data;
+
+  const { loading: paymentLoading, error: paymentError } = useSelector(
+    (state) => state.payment
+  );
+  console.log("this is selected meeting", selectedMeeting);
   const [message, setMessage] = useState("");
 
-  const { durationforstate,selectedDate,includes,serviceDescription,title,selectedTime } = location.state || {};
-  console.log('slec',selectedTime)
-  console.log('slecttt',selectedDate)
+  const {
+    durationforstate,
+    selectedDate,
+    includes,
+    serviceDescription,
+    title,
+    selectedTime,
+  } = location.state || {};
+  console.log("slec", selectedTime);
+  console.log("slecttt", selectedDate);
   const Price = location.state?.Price; // Ensure it exists before accessing
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
-  console.log('parsed',parsedDate)
-  console.log('this is also price',Price)
+  console.log("parsed", parsedDate);
+  console.log("this is also price", Price);
 
   useEffect(() => {
     dispatch(getMeet());
@@ -50,14 +70,17 @@ const PayuOrderSummary = () => {
 
   useEffect(() => {
     if (selectedMeeting?.serviceId && selectedMeeting?.expertId) {
-      dispatch(getServicebyid({ 
-        serviceId: selectedMeeting.serviceId, 
-        expertId: selectedMeeting.expertId 
-      })).unwrap()
-        .then(response => {
+      dispatch(
+        getServicebyid({
+          serviceId: selectedMeeting.serviceId,
+          expertId: selectedMeeting.expertId,
+        })
+      )
+        .unwrap()
+        .then((response) => {
           console.log("Service fetched successfully:", response);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Failed to fetch service:", error);
         });
     }
@@ -83,17 +106,19 @@ const PayuOrderSummary = () => {
   }, []);
 
   useEffect(() => {
+    setIsPriceLoading(true);
     if (selectedService?.price) {
       setDelayedPrice(selectedService.price);
+      setIsPriceLoading(false);
     } else {
       const timeout = setTimeout(() => {
         setDelayedPrice(selectedService?.price || Price);
+        setIsPriceLoading(false);
       }, 3000); // Wait for 3 seconds
-  
+
       return () => clearTimeout(timeout); // Cleanup the timeout
     }
-  }, [selectedService?.price]);
-  
+  }, [selectedService?.price, Price]);
 
   if (loading || expertLoading) {
     return <Spinner />;
@@ -109,28 +134,32 @@ const PayuOrderSummary = () => {
 
   const formatTime = (timeString) => {
     if (!timeString) return { hours: 0, minutes: 0 }; // Default to 00:00 if no time is provided
-    
+
     // Split the string time into hours and minutes
     const [time, modifier] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
-  
+
     // Convert time to 24-hour format
     if (modifier === "PM" && hours < 12) hours += 12;
     if (modifier === "AM" && hours === 12) hours = 0;
-  
+
     return { hours, minutes }; // Return an object
   };
 
   const expert = {
-    image: selectedExpert.profileImage?.secure_url || 'https://via.placeholder.com/100',
+    image:
+      selectedExpert.profileImage?.secure_url ||
+      "https://via.placeholder.com/100",
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: selectedExpert.credentials?.professionalTitle ||title|| 'No Title Provided',
+    title:
+      selectedExpert.credentials?.professionalTitle ||
+      title ||
+      "No Title Provided",
     sessionDuration: selectedService.duration || durationforstate,
     price: selectedService.price || Price,
     description: selectedService.detailedDescription || serviceDescription,
     includes: selectedService.features || includes,
   };
-  
 
   const formatSelectedDate = (date) => {
     if (!date) return { monthDate: "No Date", day: "No Day" };
@@ -150,7 +179,6 @@ const PayuOrderSummary = () => {
     navigate(-1);
   };
 
-
   const handlePayuPayment = async () => {
     try {
       if (!selectedDate) {
@@ -163,11 +191,17 @@ const PayuOrderSummary = () => {
           : selectedDate;
 
       if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
-        throw new Error("Failed to parse selected date into a valid Date object.");
+        throw new Error(
+          "Failed to parse selected date into a valid Date object."
+        );
       }
 
-      const { hours: startHours, minutes: startMinutes } = formatTime(selectedMeeting?.daySpecific?.slot?.startTime);
-      const { hours: endHours, minutes: endMinutes } = formatTime(selectedMeeting?.daySpecific?.slot?.endTime);
+      const { hours: startHours, minutes: startMinutes } = formatTime(
+        selectedMeeting?.daySpecific?.slot?.startTime
+      );
+      const { hours: endHours, minutes: endMinutes } = formatTime(
+        selectedMeeting?.daySpecific?.slot?.endTime
+      );
 
       const startDateTime = new Date(parsedDate);
       startDateTime.setHours(startHours, startMinutes, 0, 0);
@@ -178,32 +212,29 @@ const PayuOrderSummary = () => {
       const paymentData = {
         txnid: `TXN${Date.now()}`,
         amount: priceforsession.toString(),
-        firstname: selectedMeeting?.userName||"Customer Name", // Replace with actual user data
-        email: user?.email||"customer@example.com", // Replace with actual user data
-        phone: user?.mobile||"9999999999", // Replace with actual user data
+        firstname: selectedMeeting?.userName || "Customer Name", // Replace with actual user data
+        email: user?.email || "customer@example.com", // Replace with actual user data
+        phone: user?.mobile || "9999999999", // Replace with actual user data
         productinfo: selectedService?.title || "Service Booking",
         serviceId: selectedMeeting?.serviceId,
         expertId: selectedMeeting?.expertId,
-        userId:user?._id,
-        date: parsedDate.toISOString().split('T')[0],
+        userId: user?._id,
+        date: parsedDate.toISOString().split("T")[0],
         startTime: startDateTime.toISOString(),
         endTime: endDateTime.toISOString(),
-        message: message
+        message: message,
       };
 
       const response = await dispatch(PayU(paymentData)).unwrap();
-      const payuWindow = window.open('', '_blank');
-      if(response){
+      const payuWindow = window.open("", "_blank");
+      if (response) {
         payuWindow.document.write(response);
       }
-      
     } catch (error) {
       console.error("PayU payment failed:", error);
       // Handle error (show toast, etc.)
     }
   };
-
-
 
   const handleConfirmPayment = async () => {
     try {
@@ -212,12 +243,12 @@ const PayuOrderSummary = () => {
       console.error("Payment failed:", error);
     }
   };
-  
-  console.log('this is delayed',delayedPrice)
+
+  console.log("this is delayed", delayedPrice);
   const priceforsession = delayedPrice;
 
-  if(loading && paymentLoading && expertLoading){
-    return <Spinner/>
+  if (loading && paymentLoading && expertLoading) {
+    return <Spinner />;
   }
 
   return (
@@ -262,10 +293,12 @@ const PayuOrderSummary = () => {
                   </div>
                   <div className="flex-grow min-w-0">
                     <p className="text-gray-900 font-bold truncate">
-                      {trimDay}, {date || "No date selected"} {month || "No month selected"}
+                      {trimDay}, {date || "No date selected"}{" "}
+                      {month || "No month selected"}
                     </p>
                     <p className="text-gray-700 font-medium text-sm truncate">
-                      {`${selectedMeeting?.daySpecific?.slot?.startTime} - ${selectedMeeting?.daySpecific?.slot?.endTime} (GMT+5:30)` || "No time selected"}
+                      {`${selectedMeeting?.daySpecific?.slot?.startTime} - ${selectedMeeting?.daySpecific?.slot?.endTime} (GMT+5:30)` ||
+                        "No time selected"}
                     </p>
                   </div>
                   <button
@@ -282,8 +315,16 @@ const PayuOrderSummary = () => {
                 <h1 className="text-lg font-semibold mb-4">Order Summary</h1>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <p className="text-gray-700 truncate max-w-[70%]">{selectedService.title}</p>
-                    <span className="font-medium">₹{priceforsession || "0"}</span>
+                    <p className="text-gray-700 truncate max-w-[70%]">
+                      {selectedService.title}
+                    </p>
+                    {isPriceLoading ? (
+                      <Spinner />
+                    ) : (
+                      <span className="font-medium">
+                        ₹{priceforsession || "0"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-500">Platform fee</span>
@@ -292,7 +333,13 @@ const PayuOrderSummary = () => {
                   <hr className="border-gray-200" />
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total</span>
-                    <span className="font-bold">₹{priceforsession || "0"}</span>
+                    {isPriceLoading ? (
+                      <Spinner />
+                    ) : (
+                      <span className="font-medium">
+                        ₹{priceforsession || "0"}
+                      </span>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -311,12 +358,14 @@ const PayuOrderSummary = () => {
               </div>
 
               {/* Payment Button */}
-              <button 
+              <button
                 className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleConfirmPayment}
                 disabled={paymentLoading}
               >
-                {paymentLoading ? "Processing..." : `Confirm and Pay ₹${priceforsession || "0"}`}
+                {paymentLoading
+                  ? "Processing..."
+                  : `Confirm and Pay ₹${priceforsession || "0"}`}
               </button>
             </div>
 
@@ -331,9 +380,7 @@ const PayuOrderSummary = () => {
       </main>
 
       <footer className=" border-t mt-auto">
-        
-          <Footer />
-        
+        <Footer />
       </footer>
 
       <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
