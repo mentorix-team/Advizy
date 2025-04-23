@@ -19,6 +19,10 @@ import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
+
+
+// nothing
+
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
   import("./routes/ExpertDashboardRoutes")
@@ -102,7 +106,7 @@ const App = () => {
       /^\/terms-of-service$/,
       /^\/explore/,
       /^\/meeting$/,
-      /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
+      /^\/expert\/[^/]+$/, // ←-< this makes /expert/:redirect_url public
       /^\/expert\/scheduling\/[^/]+$/,
       /^\/become-expert$/,
     ];
@@ -203,7 +207,6 @@ const App = () => {
         </Route>
         <Route path="*" element={<Error404 />} />
       </Routes>
-
       <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />
     </Suspense>
   );

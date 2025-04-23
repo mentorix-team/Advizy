@@ -27,6 +27,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:8001",
       "http://advizy-adminpanel.onrender.com",
+      "https://advizy.onrender.com",
       "*"
     ], // Allow frontend
     credentials: true,

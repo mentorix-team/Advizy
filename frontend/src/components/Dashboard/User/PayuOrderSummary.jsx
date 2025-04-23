@@ -12,7 +12,6 @@ import Footer from "@/components/Home/components/Footer";
 import { AnimatePresence } from "framer-motion";
 import SearchModal from "@/components/Home/components/SearchModal";
 import { PayU } from "@/Redux/Slices/Payu.slice";
-import { PaymentFormSubmit } from "@/Redux/Slices/expert.Slice";
 
 const PayuOrderSummary = () => {
   const navigate = useNavigate();
@@ -24,6 +23,11 @@ const PayuOrderSummary = () => {
   const [delayedPrice, setDelayedPrice] = useState(null);
   const { selectedMeeting, loading, error } = useSelector((state) => state.meeting);
   const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
+  const {data} = useSelector((state)=>state.auth)
+
+  
+  const user = typeof data === 'string' ? JSON.parse(data) : data;
+
   const { loading: paymentLoading, error: paymentError } = useSelector((state) => state.payment);
   console.log("this is selected meeting",selectedMeeting)
   const [message, setMessage] = useState("");
@@ -174,12 +178,13 @@ const PayuOrderSummary = () => {
       const paymentData = {
         txnid: `TXN${Date.now()}`,
         amount: priceforsession.toString(),
-        firstname: "Customer Name", // Replace with actual user data
-        email: "customer@example.com", // Replace with actual user data
-        phone: "9999999999", // Replace with actual user data
-        productinfo: selectedService.title || "Service Booking",
-        serviceId: selectedMeeting.serviceId,
-        expertId: selectedMeeting.expertId,
+        firstname: selectedMeeting?.userName||"Customer Name", // Replace with actual user data
+        email: user?.email||"customer@example.com", // Replace with actual user data
+        phone: user?.mobile||"9999999999", // Replace with actual user data
+        productinfo: selectedService?.title || "Service Booking",
+        serviceId: selectedMeeting?.serviceId,
+        expertId: selectedMeeting?.expertId,
+        userId:user?._id,
         date: parsedDate.toISOString().split('T')[0],
         startTime: startDateTime.toISOString(),
         endTime: endDateTime.toISOString(),
@@ -188,7 +193,9 @@ const PayuOrderSummary = () => {
 
       const response = await dispatch(PayU(paymentData)).unwrap();
       const payuWindow = window.open('', '_blank');
-      payuWindow.document.write(response);
+      if(response){
+        payuWindow.document.write(response);
+      }
       
     } catch (error) {
       console.error("PayU payment failed:", error);

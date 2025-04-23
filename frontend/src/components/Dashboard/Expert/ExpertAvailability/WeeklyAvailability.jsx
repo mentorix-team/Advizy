@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import DayRow from "./DayRow";
 import { validateTimeSlot, checkOverlap } from "@/utils/timeValidation";
-import {
-  addAvailability,
-  saveAvailability,
-} from "@/Redux/Slices/availability.slice";
+import { addAvailability, saveAvailability } from "@/Redux/Slices/availability.slice";
 
 const DAYS = [
   { id: 1, name: "Monday", enabled: true },
@@ -17,98 +14,23 @@ const DAYS = [
   { id: 7, name: "Sunday", enabled: true },
 ];
 
-function WeeklyAvailability({ availability }) {
-  console.log("this is availa at wee", availability);
+function WeeklyAvailability() {
   const dispatch = useDispatch();
-  const [days, setDays] = useState([]);
+  const [days, setDays] = useState(
+    DAYS.map((day) => ({
+      ...day,
+      slots: [{ id: 1, start: "09:00 AM", end: "10:00 AM" }],
+      error: null,
+    }))
+  );
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  // Add loading state
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Initialize days state based on availability
-  useEffect(() => {
-    if (
-      availability &&
-      availability.length > 0 &&
-      availability[0].daySpecific
-    ) {
-      const daySpecific = availability[0].daySpecific;
-
-      const initialDays = daySpecific.map((dayData) => {
-        // Day is enabled only if it has slots array with at least one slot
-        const isEnabled =
-          Array.isArray(dayData.slots) && dayData.slots.length > 0;
-
-        const slots = isEnabled
-          ? dayData.slots.map((slot) => ({
-              id: slot._id || Date.now() + Math.random(),
-              start: convertTo12HourFormat(slot.startTime),
-              end: convertTo12HourFormat(slot.endTime),
-            }))
-          : [{ id: Date.now(), start: "", end: "" }]; // Default empty slot for disabled days
-
-        return {
-          id: getDayId(dayData.day),
-          name: dayData.day,
-          enabled: isEnabled,
-          slots,
-          error: null,
-        };
-      });
-
-      setDays(initialDays);
-      setIsLoading(false);
-    }
-  }, [availability]);
-
-  // More robust time conversion function
-  const convertTo12HourFormat = (time24) => {
-    if (!time24 || typeof time24 !== "string") return "";
-
-    try {
-      // Remove any whitespace and convert to uppercase for consistent comparison
-      time24 = time24.trim().toUpperCase();
-
-      // If already in 12-hour format with AM/PM, return as is
-      if (time24.includes("AM") || time24.includes("PM")) {
-        return time24;
-      }
-
-      // Handle 24-hour format (HH:MM or H:MM)
-      const [hoursStr, minutesStr] = time24.split(":");
-      const hours = parseInt(hoursStr, 10);
-      const minutes = minutesStr || "00";
-
-      if (isNaN(hours) || hours < 0 || hours > 23) return "";
-
-      const period = hours >= 12 ? "PM" : "AM";
-      const hours12 = hours % 12 || 12; // Convert 0 to 12 for 12 AM
-
-      return `${hours12}:${minutes.padStart(2, "0")} ${period}`;
-    } catch (e) {
-      console.error(`Failed to convert time "${time24}":`, e);
-      return "";
-    }
-  };
-
-  const getDayId = (dayName) => {
-    const dayMap = {
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-      Sunday: 7,
-    };
-    return dayMap[dayName] || 0;
-  };
 
   const handleToggle = (dayId) => {
     setDays(
       days.map((day) =>
-        day.id === dayId ? { ...day, enabled: !day.enabled, error: null } : day
+        day.id === dayId
+          ? { ...day, enabled: !day.enabled, error: null }
+          : day
       )
     );
   };
@@ -197,13 +119,12 @@ function WeeklyAvailability({ availability }) {
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
-    setIsSubmitting(true); // Add this line
-
+  
     try {
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth(); // Month is zero-indexed (0 = January)
-
+      const currentMonth = currentDate.getMonth();
+  
       const getDatesForDay = (day) => {
         const daysOfWeek = [
           "Sunday",
@@ -215,55 +136,48 @@ function WeeklyAvailability({ availability }) {
           "Saturday",
         ];
         const dayIndex = daysOfWeek.indexOf(day);
-
+  
         if (dayIndex === -1) return [];
-
+  
         const dates = [];
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
         const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-
+  
         for (
           let date = new Date(firstDayOfMonth);
           date <= lastDayOfMonth;
           date.setDate(date.getDate() + 1)
         ) {
           if (date.getDay() === dayIndex) {
-            dates.push(new Date(date)); // Push a copy of the date
+            dates.push(new Date(date));
           }
         }
         return dates;
       };
-
+  
       const data = days
-        .filter((day) => day.enabled) // Include only enabled days
+        .filter((day) => day.enabled)
         .map((day) => {
-          const dates = getDatesForDay(day.name); // Get all dates for this day in the current month
-
+          const dates = getDatesForDay(day.name);
+  
           return {
             day: day.name,
             slots: day.slots.map((slot) => ({
               startTime: slot.start,
               endTime: slot.end,
-              dates: dates.map((date) => date.toISOString()), // Convert dates to ISO strings
+              dates: dates.map((date) => date.toISOString()),
             })),
           };
         });
-
-      dispatch(addAvailability({ data })); // Dispatch the action
+  
+      dispatch(addAvailability({ data }));
       console.log("Dispatched data with dates:", data);
     } catch (error) {
       console.error("Error saving changes:", error);
     } finally {
       setIsSaving(false);
-      setIsSubmitting(false); // Add this line
     }
   };
-
-  useEffect(() => {
-    if (days.length > 0) {
-      console.log("Mapped days state:", days);
-    }
-  }, [days]);
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-md">
@@ -276,44 +190,18 @@ function WeeklyAvailability({ availability }) {
         <button
           id="save-changes-button"
           onClick={handleSaveChanges}
-          disabled={isSaving || isSubmitting}
-          className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto flex items-center justify-center gap-2
+          disabled={isSaving}
+          className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto
             ${
-              isSaving || isSubmitting
+              isSaving
                 ? "bg-green-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
         >
-          {isSubmitting ? (
-            <>
-              <svg
-                className="animate-spin h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              <span>Saving...</span>
-            </>
-          ) : (
-            "Save Changes"
-          )}
+          {isSaving ? "Saving..." : "Save Changes"}
         </button>
       </div>
-
+  
       <div className="divide-y divide-gray-100">
         {days.map((day) => (
           <DayRow
