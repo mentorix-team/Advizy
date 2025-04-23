@@ -15,6 +15,7 @@ import Footer from "@/components/Home/components/Footer";
 import { AnimatePresence } from "framer-motion";
 import SearchModal from "@/components/Home/components/SearchModal";
 import { PayU } from "@/Redux/Slices/Payu.slice";
+import SmallSpinner from "@/components/LoadingSkeleton/SmallSpinner";
 
 const PayuOrderSummary = () => {
   const navigate = useNavigate();
@@ -319,7 +320,7 @@ const PayuOrderSummary = () => {
                       {selectedService.title}
                     </p>
                     {isPriceLoading ? (
-                      <Spinner />
+                      <SmallSpinner />
                     ) : (
                       <span className="font-medium">
                         ₹{priceforsession || "0"}
@@ -334,7 +335,7 @@ const PayuOrderSummary = () => {
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total</span>
                     {isPriceLoading ? (
-                      <Spinner />
+                      <SmallSpinner />
                     ) : (
                       <span className="font-medium">
                         ₹{priceforsession || "0"}
