@@ -198,7 +198,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       {/* Form Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {/* Bio Description */}
-        <div className="mt-6">
+        <div className="mt-6 w-full">
           <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Bio Description
