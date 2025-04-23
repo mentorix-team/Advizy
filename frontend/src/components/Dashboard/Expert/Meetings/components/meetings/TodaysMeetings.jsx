@@ -1,9 +1,10 @@
-import PropTypes from 'prop-types';
-import { BsClock} from 'react-icons/bs';
-import { CalendarIcon } from '@/icons/Icons';
-import NoData from '@/NoData';
+import PropTypes from "prop-types";
+import { BsClock } from "react-icons/bs";
+import { CalendarIcon } from "@/icons/Icons";
+import NoData from "@/NoData";
 
 const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
+  
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
       <div className="p-4 border-b border-gray-200">
@@ -17,17 +18,30 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr className="bg-gray-50">
-                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">Client</th>
-                <th className="hidden sm:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">Service</th>
-                <th className="hidden md:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">Time Slot</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">Status</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">Actions</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">
+                  Client
+                </th>
+                <th className="hidden sm:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">
+                  Service
+                </th>
+                <th className="hidden md:table-cell px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">
+                  Time Slot
+                </th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">
+                  Status
+                </th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-medium text-gray-500">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {meetings.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-3 md:px-6 py-4 text-center text-gray-500 text-sm">
+                  <td
+                    colSpan="5"
+                    className="px-3 md:px-6 py-4 text-center text-gray-500 text-sm"
+                  >
                     <NoData />
                   </td>
                 </tr>
@@ -35,27 +49,33 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
                 meetings.map((meeting, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="px-3 md:px-6 py-4">
-                      <span className="text-xs md:text-sm font-medium text-gray-900">{meeting.client}</span>
-                      <div className="md:hidden text-xs text-gray-500 mt-1">
+                      <span className="text-xs md:text-sm font-medium text-gray-900">
+                        {meeting.userName}
+                      </span>
+                      {/* <div className="md:hidden text-xs text-gray-500 mt-1">
                         <BsClock className="inline text-[#16A348] mr-1" />
                         {meeting.time}
-                      </div>
+                      </div> */}
                     </td>
                     <td className="hidden sm:table-cell px-3 md:px-6 py-4">
-                      <span className="text-xs md:text-sm text-gray-900">{meeting.service}</span>
+                      <span className="text-xs md:text-sm text-gray-900">
+                        {meeting.serviceName}
+                      </span>
                     </td>
                     <td className="hidden md:table-cell px-3 md:px-6 py-4">
                       <div className="flex items-center text-xs md:text-sm text-gray-900">
                         <BsClock className="text-[#16A348] mr-2" />
-                        {meeting.time}
+                        {meeting?.daySpecific?.slot?.startTime || "N/A"}
                       </div>
                     </td>
                     <td className="px-3 md:px-6 py-4">
-                      <span className={`inline-flex px-2 py-1 text-xs md:text-sm rounded-full font-medium ${
-                        meeting.sessionStatus === 'Confirmed'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs md:text-sm rounded-full font-medium ${
+                          meeting.sessionStatus === "Confirmed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
                         {meeting.sessionStatus}
                       </span>
                     </td>
