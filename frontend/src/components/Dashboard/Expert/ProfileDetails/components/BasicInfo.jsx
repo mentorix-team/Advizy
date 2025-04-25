@@ -183,18 +183,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
 
   return (
     <div className="py-6">
-      {/* Info Banner */}
-      {/* <div className="bg-[#F0FFF2] p-6 rounded-lg mb-8">
-        <h3 className="text-[#16A348] text-lg font-semibold mb-2">
-          Why Basic Info Matters
-        </h3>
-        <p className="text-[#16A348]">
-          Your basic information is the first thing potential clients see. A
-          complete and professional profile increases your chances of making a
-          great first impression and attracting more clients.
-        </p>
-      </div> */}
-
       {/* Bio Description */}
       <div className="mt-6">
         <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
@@ -220,9 +208,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
       </div>
+      
       {/* Form Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <hr className="border-gray-300 dark:border-gray-600 my-2" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
+        <hr className="border-gray-300 dark:border-gray-600 my-2 col-span-full" />
 
         {/* First Name */}
         <div>
@@ -412,15 +401,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <div className="flex-1">
               <input
                 type="tel"
-                id="phone"
-                name="phone"
                 value={formData.mobile}
                 onChange={handlePhoneChange}
-                className={`w-full px-3 py-2 border ${
-                  errors.phone ? "border-red-500" : "border-gray-300"
-                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                onBlur={() => onBlur("mobile")}
+                className={`w-full p-2.5 border ${
+                  errors.mobile && touched.mobile ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-1 focus:ring-primary`}
                 placeholder="Enter 10-digit phone number"
-                maxLength="10"
+                maxLength={10}
               />
             </div>
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
@@ -462,9 +450,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      <br></br>
-
-      <div>
+      {/* Languages Known */}
+      <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Languages Known
         </label>
@@ -476,11 +463,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className={`flex-1 p-2.5 border ${
-            errors.languages && touched.languages
-              ? "border-red-500"
-              : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          className="w-full"
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
@@ -496,9 +479,12 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <button
             type="button"
             onClick={handleAddSocialLink}
-            className="flex items-center px-4 py-2 gap-2 bg-primary text-white rounded-lg hover:bg-green-600"
+            className="flex items-center px-4 py-2 gap-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
           >
-            Add More Link
+            <span>Add More Link</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
           </button>
         </div>
         <div className="space-y-4">
@@ -513,7 +499,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 handleChange("socialLinks", newLinks);
               }}
               placeholder="https://linkedin.com/in/username"
-              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary"
+              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary transition-all duration-200"
             />
           ))}
         </div>
