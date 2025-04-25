@@ -26,7 +26,6 @@ const Homees = () => {
     console.log("Updated Filters:", filters);
   }, [filters]);
 
-
   useEffect(() => {
     console.log("Selected Domain:", selectedDomain);
   }, [selectedDomain]);
@@ -85,9 +84,11 @@ const Homees = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Fixed Domain Bar */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
-        <NavbarWithoutSearchModal onSearch={(query) => {
-          console.log("Search Query:", query);
-        }}/>
+        <NavbarWithoutSearchModal
+          onSearch={(query) => {
+            console.log("Search Query:", query);
+          }}
+        />
         <DomainBar
           onDomainSelect={(domain) => setSelectedDomain(domain)}
           resetFilters={resetFilters}

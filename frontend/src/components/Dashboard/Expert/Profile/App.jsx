@@ -185,7 +185,7 @@ function App() {
       newErrors.mobile = "Mobile number is required";
     } else if (basic.mobile.length < 10) {
       newErrors.mobile = "Please enter a valid mobile number";
-    } 
+    }
     // else if (!isMobileVerified) {
     //   newErrors.mobile = "Please verify your mobile number";
     // }

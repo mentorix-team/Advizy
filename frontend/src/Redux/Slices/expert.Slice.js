@@ -444,6 +444,11 @@ export const getAllExperts = createAsyncThunk(
   "expert/get",
   async (queryParams = {}, { rejectWithValue }) => {
     try {
+      const queryParamsWithApproval = {
+        ...queryParams,
+        admin_approved_expert: true
+      };
+
       // Construct query string dynamically
       const queryString = new URLSearchParams(queryParams).toString();
       const endpoint = queryString
@@ -451,8 +456,10 @@ export const getAllExperts = createAsyncThunk(
         : "expert/getexperts";
 
       const { data } = await axiosInstance.get(endpoint);
-      console.log(data);
-      return data;
+
+      const approvedExperts = data.filter(expert => expert.admin_approved_expert === true);
+      console.log(approvedExperts);
+      return approvedExperts;
     } catch (error) {
       console.error("Error fetching experts:", error);
       const errorMessage =
