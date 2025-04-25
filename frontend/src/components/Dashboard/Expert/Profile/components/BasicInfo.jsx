@@ -63,6 +63,13 @@ const BasicInfo = ({
       countryCode,
       number: phoneNumber,
     });
+
+    // Update parent form data with both countryCode and mobile number
+    onUpdate({
+      ...formData,
+      countryCode: countryCode,
+      mobile: phoneNumber, // This is the actual phone number without country code
+    });
   };
 
   const handleVerifyClick = async (type) => {
@@ -418,7 +425,11 @@ const BasicInfo = ({
           hideSelectedOptions={false}
           onBlur={() => onBlur("languages")}
           value={formData.languages}
-          onChange={(value) => handleChange("languages", value)}
+          // onChange={(value) => handleChange("languages", value)}
+          onChange={(value) => {
+            // Convert the Select component's value format to match your form data structure
+            handleChange("languages", value || []);
+          }}
           className={`${
             errors.languages && touched.languages
               ? "border-red-500"
