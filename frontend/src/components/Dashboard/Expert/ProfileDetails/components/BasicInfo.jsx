@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PhoneInput from "react-phone-input-2";
 import { FaPlus } from "react-icons/fa";
 import CustomDatePicker from "./CustomDatePicker";
-import { CircleCheckBig } from "lucide-react";
+import { CircleCheckBig,Info } from "lucide-react";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
@@ -185,11 +185,14 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     <div className="py-6">
       {/* Bio Description */}
       <div className="mb-8">
-        <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="flex items-center gap-2 mb-1">
+          <label className="block text-sm font-medium text-gray-700">
             Bio Description
           </label>
-        </Tooltip>
+          <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
+            <Info className="w-4 h-4 text-gray-400 cursor-help" />
+          </Tooltip>
+        </div>
         <textarea
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
