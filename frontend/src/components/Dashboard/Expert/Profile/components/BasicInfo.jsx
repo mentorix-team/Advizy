@@ -55,9 +55,9 @@ const BasicInfo = ({
     );
 
     if (savedMobileVerification === "true") {
-      setIsMobileVerified(true); // Restore verification if the mobile matches the previously verified one
+      // setIsMobileVerified(true); // Restore verification if the mobile matches the previously verified one
     } else {
-      setIsMobileVerified(false); // Otherwise, reset verification
+      // setIsMobileVerified(false); // Otherwise, reset verification
     }
     setPhoneNumber({
       countryCode,
