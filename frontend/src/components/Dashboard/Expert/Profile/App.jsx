@@ -185,9 +185,17 @@ function App() {
       newErrors.mobile = "Mobile number is required";
     } else if (basic.mobile.length < 10) {
       newErrors.mobile = "Please enter a valid mobile number";
-    } else if (!isMobileVerified) {
-      newErrors.mobile = "Please verify your mobile number";
-    }
+    } 
+    // else if (!isMobileVerified) {
+    //   newErrors.mobile = "Please verify your mobile number";
+    // }
+
+    // Log validation data for debugging
+    console.log("Validation Check:", {
+      mobile: basic.mobile,
+      countryCode: basic.countryCode,
+      hasError: !!newErrors.mobile,
+    });
 
     // Email validation
     if (!basic.email.trim()) {
@@ -200,7 +208,12 @@ function App() {
     // }
 
     // Languages validation
-    if (basic.languages.length === 0) {
+    // if (basic.languages.length === 0) {
+    //   newErrors.languages = "Please select at least one language";
+    // }
+
+    // Languages validation - check if it's an array and has items
+    if (!Array.isArray(basic.languages) || basic.languages.length === 0) {
       newErrors.languages = "Please select at least one language";
     }
 
@@ -226,8 +239,12 @@ function App() {
   };
 
   const handleNext = async () => {
+    // Log form data before validation
+    console.log("Form Data before validation:", formData.basic);
+
     // Validate all fields and show all errors
     const validationErrors = validateBasicInfo();
+    console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
 
     // Mark all fields as touched to show all errors
@@ -360,8 +377,8 @@ function App() {
               touched={touched}
               onBlur={(field) => setTouched({ ...touched, [field]: true })}
               isEmailVerified={true}
-              isMobileVerified={true}
-              onVerificationSuccess={handleVerificationSuccess}
+              // isMobileVerified={true}
+              // onVerificationSuccess={handleVerificationSuccess}
               setIsEmailVerified={setIsEmailVerified} // Pass the setter function
               setIsMobileVerified={setIsMobileVerified}
               showMobileVerification={false}
@@ -371,7 +388,12 @@ function App() {
 
         <div className="flex justify-end text-end mt-6">
           <button
-            onClick={handleNext}
+            // onClick={handleNext}
+            // disabled={loadingState}
+            onClick={() => {
+              console.log("Current Form Data:", formData.basic); // Add this for debugging
+              handleNext();
+            }}
             disabled={loadingState}
             className={`px-4 sm:px-6 py-2 text-white rounded-lg transition bg-primary hover:bg-green-600 `}
           >
