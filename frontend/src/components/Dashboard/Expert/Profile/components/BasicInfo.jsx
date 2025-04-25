@@ -81,7 +81,7 @@ const BasicInfo = ({
         ? formData.email
         : phoneNumber.countryCode + phoneNumber.number
     );
-    setShowOtpPopup(true);
+    // setShowOtpPopup(true);
 
     try {
       if (type === "email") {
@@ -430,13 +430,13 @@ const BasicInfo = ({
         )}
       </div>
 
-      {showOtpPopup && (
+      {/* {showOtpPopup && (
         <VerifyThedetails
           onClose={() => setShowOtpPopup(false)}
           onSwitchView={handleOtpVerificationSuccess}
           contactInfo={contactInfo}
         />
-      )}
+      )} */}
     </div>
   );
 };
