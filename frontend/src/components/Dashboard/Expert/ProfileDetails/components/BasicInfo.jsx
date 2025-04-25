@@ -196,6 +196,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         <textarea
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
+          
           onBlur={() => onBlur("bio")}
           placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
