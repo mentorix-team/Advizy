@@ -184,7 +184,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   return (
     <div className="py-6">
       {/* Bio Description */}
-      <div className="mt-6">
+      <div className="mb-8">
         <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Bio Description
@@ -208,13 +208,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
         )}
       </div>
-      
-      {/* Form Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-        <hr className="border-gray-300 dark:border-gray-600 my-2 col-span-full" />
 
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             First Name <span className="text-red-500">*</span>
           </label>
@@ -236,7 +234,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Last Name */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Last Name <span className="text-red-500">*</span>
           </label>
@@ -258,7 +256,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Gender */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Gender <span className="text-red-500">*</span>
           </label>
@@ -283,7 +281,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Date of Birth */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Date of Birth <span className="text-red-500">*</span>
           </label>
@@ -303,7 +301,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Nationality */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Nationality
           </label>
@@ -373,7 +371,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* City */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             City
           </label>
@@ -393,7 +391,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Mobile Number */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Mobile Number
           </label>
@@ -422,7 +420,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
 
         {/* Email Address */}
-        <div>
+        <div className="col-span-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Email Address
           </label>
