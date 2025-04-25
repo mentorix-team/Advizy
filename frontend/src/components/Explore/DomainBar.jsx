@@ -24,7 +24,7 @@ const DomainBar = ({
   };
 
   return (
-    <div className="bg-white p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
+    <div className="bg-white/50 backdrop-blur-md p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
       {/* Mobile Filter Button */}
       <button
         onClick={toggleSidebar}
@@ -131,12 +131,12 @@ const DomainBar = ({
       </div>
 
       {/* Reset Filter Button - Visible on both mobile and desktop */}
-      <button
+      {/* <button
         onClick={resetFilters}
         className="px-3 py-1 md:px-4 md:py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-xs md:text-sm font-medium whitespace-nowrap"
       >
         Reset Filter
-      </button>
+      </button> */}
 
       {/* Sorting Dropdown - Visible on both mobile and desktop */}
       <select

@@ -108,8 +108,22 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 
       const result = await dispatch(createMeet(meetData)).unwrap();
 
+      // if (result) {
+      //   navigate(`/expert/order-summary/`, {
+      //     state: {
+      //       durationforstate:sessionDuration,
+      //       selectedDate: formattedDate,
+      //       selectedTime: time,
+      //       Price: sessionPrice,
+      //       title:title,
+      //       serviceDescription:serviceDescription,
+      //       includes:includes
+      //     },
+      //   });
+      // }
+
       if (result) {
-        navigate(`/expert/order-summary/`, {
+        navigate(`/expert/payu-order-summary/`, {
           state: {
             durationforstate:sessionDuration,
             selectedDate: formattedDate,

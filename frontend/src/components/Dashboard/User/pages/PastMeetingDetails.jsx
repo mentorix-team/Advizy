@@ -196,9 +196,9 @@ export default function PastMeetingDetails() {
                   <p className="text-2xl font-medium">${meeting.price}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <button className="text-green-600 hover:text-green-700 border border-gray-200 px-4 py-2 rounded-lg text-sm">
+                  {/* <button className="text-green-600 hover:text-green-700 border border-gray-200 px-4 py-2 rounded-lg text-sm">
                     Order Summary
-                  </button>
+                  </button> */}
                   <button className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm">
                     <BiDownload className="w-5 h-5 mr-1" />
                     Download Invoice

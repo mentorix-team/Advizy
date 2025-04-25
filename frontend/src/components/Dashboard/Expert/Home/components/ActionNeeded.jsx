@@ -10,15 +10,15 @@ const iconMap = {
   star: <Star className="text-yellow-500 w-6 h-6" />,
   calendar: <CalendarDays className="text-blue-500 w-6 h-6" />,
   edit: <Pencil className="text-green-500 w-6 h-6" />,
-  payment: <Landmark className="text-green-500 w-6 h-6" />,
+  // payment: <Landmark className="text-green-500 w-6 h-6" />,
 };
 
 const actionTooltips = {
   "Add Your Expertise": "Help clients understand your expertise.",
   "Add Your Services": "Set your own price and duration for sessions.",
   "Set your Availability": "Let clients know when they can book you.",
-  "Update your Payment Details": "Get ready to receive hassle-free payments.",
   "Edit your One-on-One Service": "Set your own price and duration for sessions.",
+  // "Update your Payment Details": "Get ready to receive hassle-free payments.",
 };
 
 const actionRoutes = {
@@ -26,7 +26,7 @@ const actionRoutes = {
   "Add Your Services": "/dashboard/expert/service-pricing",
   "Set your Availability": "/dashboard/expert/availability",
   "Edit your One-on-One Service": "/dashboard/expert/service-pricing",
-  "Update your Payment Details": "/dashboard/expert/payments",
+  // "Update your Payment Details": "/dashboard/expert/payments",
 };
 
 function ActionNeeded({ actions }) {

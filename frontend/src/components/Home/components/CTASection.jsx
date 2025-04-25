@@ -24,7 +24,7 @@ const CTASection = ({ onOpenSearchModal }) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 tracking-tight"
           >
-            Let's Find Your Perfect Expert Match
+            Let's Find Your Perfect Mentor Match
           </motion.h2>
 
           <motion.p
@@ -34,7 +34,7 @@ const CTASection = ({ onOpenSearchModal }) => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-xl text-gray-600 mb-10"
           >
-            Our AI-powered matching system will connect you with the ideal expert for your needs
+            Our AI-powered matching system will connect you with the ideal mentor for your needs
           </motion.p>
 
           <motion.button
@@ -45,7 +45,7 @@ const CTASection = ({ onOpenSearchModal }) => {
             onClick={onOpenSearchModal}
             className="btn-expert"
           >
-            Find Your Expert Now
+            Find Your Mentor Now
           </motion.button>
         </motion.div>
       </div>

@@ -11,7 +11,17 @@ import ReadyToShare from "../components/ReadyToShare";
 import CTASection from "../components/CTASection";
 import FAQSection from "../components/FAQSection";
 import ContactForm from "../components/ContactForm";
-import { BookOpen, Palette,  Rocket, Laptop,Briefcase,Search, Award, User,Clock3} from "lucide-react";
+import {
+  BookOpen,
+  Palette,
+  Rocket,
+  Laptop,
+  Briefcase,
+  Search,
+  Award,
+  User,
+  Clock3,
+} from "lucide-react";
 import Footer from "../components/Footer";
 import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
@@ -24,7 +34,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Briefcase   className="text-primary w-5 h-5" />
+        <Briefcase className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Carrer growth",
@@ -32,15 +42,15 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Rocket   className="text-primary w-5 h-5" />
+        <Rocket className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Startup",
   },
   {
     icon: (
-      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center" >
-        <Laptop   className="text-primary w-5 h-5" />
+      <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
+        <Laptop className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Freelancing",
@@ -48,7 +58,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <BookOpen   className="text-primary w-5 h-5" />
+        <BookOpen className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Upskilling",
@@ -56,7 +66,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Search   className="text-primary w-5 h-5" />
+        <Search className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Job Hunting",
@@ -64,7 +74,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Award  className="text-primary w-5 h-5" />
+        <Award className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Education",
@@ -72,7 +82,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <User   className="text-primary w-5 h-5" />
+        <User className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Personal Branding",
@@ -80,7 +90,7 @@ const categories = [
   {
     icon: (
       <div className="w-8 h-8 bg-[#E8F5E9] text-primary rounded-full flex items-center justify-center">
-        <Clock3    className="text-primary w-5 h-5" />
+        <Clock3 className="text-primary w-5 h-5" />
       </div>
     ),
     title: "Work Life Balance",
@@ -99,9 +109,14 @@ function HomePage() {
   const [careerExperts, setCareerExperts] = useState([]);
 
   useEffect(() => {
-    const expertData = localStorage.getItem("expertData");
-    if (expertData) {
-      setIsExpertMode(true);
+    const expertDataString = localStorage.getItem("expertData");
+    if (expertDataString) {
+      const expertData = JSON.parse(expertDataString);
+      if (expertData.admin_approved_expert === true) {
+        setIsExpertMode(true);
+      } else {
+        setIsExpertMode(false);
+      }
     }
   }, []);
 
@@ -110,7 +125,7 @@ function HomePage() {
   };
 
   const handleCategorySelect = (category) => {
-    console.log('category selected: ', category)
+    console.log("category selected: ", category);
     navigate(`/explore?category=${category.value}`);
     setIsModalOpen(false);
   };
@@ -232,7 +247,7 @@ function HomePage() {
         />
 
         {/* Hero Section */}
-        <div id="hero-section" className="relative pt-16 w-full">
+        {/* <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0 }}
@@ -242,53 +257,136 @@ function HomePage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center"
+                className="text-center w-full"
               >
-                <motion.h1 className="text-6xl sm:text-7xl font-bold mb-6">
-                  Find Your Perfect{" "}
+                <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
+                  <span className="block sm:inline">
+                    One Right
+                    <motion.span
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.8, delay: 0.5 }}
+                      className="text-[#169544] tracking-wide"
+                    >
+                      {" Mentor "}
+                    </motion.span>
+                  </span>
+                  <span className="block sm:inline">Can</span>
+                  <span className="block sm:inline">Change Everything</span>
+                </motion.h1>
+
+                <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
+                  Your Growth, success, clarity start here. Find the right
+                  guidance for your journey.
+                </motion.p>
+
+                {(() => {
+                  const [isModalOpen, setIsModalOpen] = useState(false);
+                  return (
+                    <motion.button
+                      onClick={() => setIsModalOpen(true)}
+                      className="btn-expert"
+                    >
+                      Find a Mentor
+                    </motion.button>
+                  );
+                })()}
+              </motion.div>
+
+              <motion.div
+                id="category-grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
+              >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                  {categories.map((category, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <CategoryCard {...category} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div> */}
+
+        <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
+          <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)]"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center w-full"
+              >
+                <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
+                  Find Your Right
                   <motion.span
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.5 }}
-                    className="text-[#169544]"
+                    className="text-[#169544] tracking-wide"
                   >
-                    Expert
+                    {" Mentor "}
                   </motion.span>
+                  {/* Can
+                  <br className="hidden sm:block" />
+                  <span className="block sm:inline">Change Everything</span> */}
                 </motion.h1>
-
-                <motion.p className="text-gray-600 text-xl mb-10 max-w-2xl mx-auto">
-                  Get personalized guidance from top professionals and
-                  <br />
-                  Unlock your potential
+                <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
+                  Your Growth, success, clarity start here. Find the right
+                  guidance for your journey.
                 </motion.p>
-
+                {/* {(() => {
+                  const [isModalOpen, setIsModalOpen] = useState(false);
+                  return (
+                    <motion.button
+                      onClick={() => setIsModalOpen(true)}
+                      className="btn-expert"
+                    >
+                      Find a Mentor
+                    </motion.button>
+                  );
+                })()} */}
+                {/* Replace with this */}
                 <motion.button
                   onClick={() => setIsModalOpen(true)}
                   className="btn-expert"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Find an Expert
+                  Find a Mentor
                 </motion.button>
               </motion.div>
 
               <motion.div
-                    id="category-grid"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-16 w-full max-w-5xl mx-auto px-4"
-                  >
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {categories.map((category, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <CategoryCard {...category} />
-                        </motion.div>
-                      ))}
-                    </div>
-      </motion.div>
+                id="category-grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
+              >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+                  {categories.map((category, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <CategoryCard {...category} />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -296,17 +394,17 @@ function HomePage() {
         {/* Rest of the sections */}
         <div className="relative w-full">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
-            <div className="space-y-8 sm:space-y-12">
+            <div className="space-y-8 sm:space-y-12 mt-10">
               {/* Top Fitness Experts Section */}
-              <ExpertSection
+              {/* <ExpertSection
                 title="Top Fitness Experts"
                 subtitle="Specialized guidance in fitness"
                 experts={fitnessExperts}
                 link="/explore"
-              />
+              /> */}
 
               {/* Career Mentors Section */}
-              <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 sm:px-6 py-8 sm:py-12">
+              <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 py-4 sm:px-6 sm:py-6">
                 <ExpertSection
                   title="Career Mentors"
                   subtitle="Professional career guidance"

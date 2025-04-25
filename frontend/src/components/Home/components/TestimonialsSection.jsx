@@ -5,7 +5,7 @@ import { useAutoScroll } from '../hooks/useAutoScroll';
 const testimonials = [
   {
     rating: 4,
-    text: "Mentorixx helped me level up my skills and land a promotion. My mentor's guidance was invaluable.",
+    text: "Advizy helped me level up my skills and land a promotion. My mentor's guidance was invaluable.",
     name: "Alex Thompson",
     title: "Marketing Manager",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop"

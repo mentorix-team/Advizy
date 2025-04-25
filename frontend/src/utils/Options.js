@@ -1,15 +1,15 @@
 export const domainOptions = [
   { value: "career_and_education", label: "Career and Education" },
-  { value: "health_and_fitness", label: "Health and Fitness" },
+  // { value: "health_and_fitness", label: "Health and Fitness" },
   { value: "personal_development", label: "Personal Development" },
   {
     value: "business_and_entrepreneurship",
     label: "Business and Entrepreneurship",
   },
-  {
-    value: "relationships_and_life_guidance",
-    label: "Relationships and Life Guidance",
-  },
+  // {
+  //   value: "relationships_and_life_guidance",
+  //   label: "Relationships and Life Guidance",
+  // },
   {
     value: "technology_and_digital_skills",
     label: "Technology and Digital Skills",
@@ -24,20 +24,20 @@ export const domainOptions = [
     value: "social_impact_and_volunteering",
     label: "Social Impact and Volunteering",
   },
-  {
-    value: "parenting_and_child_development",
-    label: "Parenting and Child Development",
-  },
+  // {
+  //   value: "parenting_and_child_development",
+  //   label: "Parenting and Child Development",
+  // },
   {
     value: "hobbies_and_personal_interests",
     label: "Hobbies and Personal Interests",
   },
-  {
-    value: "spirituality_and_mindfulness",
-    label: "Spirituality and Mindfulness",
-  },
-  { value: "astrology", label: "Astrology" },
-  { value: "event_planning", label: "Event Planning" },
+  // {
+  //   value: "spirituality_and_mindfulness",
+  //   label: "Spirituality and Mindfulness",
+  // },
+  // { value: "astrology", label: "Astrology" },
+  // { value: "event_planning", label: "Event Planning" },
 ];
 
 export const nicheOptions = {
@@ -76,17 +76,17 @@ export const nicheOptions = {
       label: "Learning Disability Support",
     },
   ],
-  health_and_fitness: [
-    { value: "weight_training", label: "Weight Training" },
-    { value: "cardio_training", label: "Cardio Training" },
-    { value: "fitness_training", label: "Fitness Training" },
-    { value: "nutrition_and_diet_plans", label: "Nutrition and Diet Plans" },
-    {
-      value: "chronic_disease_management",
-      label: "Chronic Disease Management",
-    },
-    { value: "weight_management", label: "Weight Management" },
-  ],
+  // health_and_fitness: [
+  //   { value: "weight_training", label: "Weight Training" },
+  //   { value: "cardio_training", label: "Cardio Training" },
+  //   { value: "fitness_training", label: "Fitness Training" },
+  //   { value: "nutrition_and_diet_plans", label: "Nutrition and Diet Plans" },
+  //   {
+  //     value: "chronic_disease_management",
+  //     label: "Chronic Disease Management",
+  //   },
+  //   { value: "weight_management", label: "Weight Management" },
+  // ],
   personal_development: [
     { value: "public_speaking", label: "Public Speaking" },
     { value: "confidence_building", label: "Confidence Building" },
@@ -106,13 +106,13 @@ export const nicheOptions = {
     { value: "branding_and_marketing", label: "Branding and Marketing" },
     { value: "leadership_coaching", label: "Leadership Coaching" },
   ],
-  relationships_and_life_guidance: [
-    { value: "relationship_counseling", label: "Relationship Counseling" },
-    { value: "life_coaching", label: "Life Coaching" },
-    { value: "family_counseling", label: "Family Counseling" },
-    { value: "stress_management", label: "Stress Management" },
-    { value: "work_life_balance", label: "Work-Life Balance" },
-  ],
+  // relationships_and_life_guidance: [
+  //   { value: "relationship_counseling", label: "Relationship Counseling" },
+  //   { value: "life_coaching", label: "Life Coaching" },
+  //   { value: "family_counseling", label: "Family Counseling" },
+  //   { value: "stress_management", label: "Stress Management" },
+  //   { value: "work_life_balance", label: "Work-Life Balance" },
+  // ],
   technology_and_digital_skills: [
     { value: "coding_bootcamps", label: "Coding Bootcamps" },
     { value: "app_development", label: "App Development" },
@@ -150,35 +150,35 @@ export const nicheOptions = {
     { value: "volunteer_training", label: "Volunteer Training" },
     { value: "community_service", label: "Community Service" },
   ],
-  parenting_and_child_development: [
-    { value: "child_behavioral_guidance", label: "Child Behavioral Guidance" },
-    { value: "special_needs_support", label: "Special Needs Support" },
-    { value: "parenting_skills", label: "Parenting Skills" },
-  ],
+  // parenting_and_child_development: [
+  //   { value: "child_behavioral_guidance", label: "Child Behavioral Guidance" },
+  //   { value: "special_needs_support", label: "Special Needs Support" },
+  //   { value: "parenting_skills", label: "Parenting Skills" },
+  // ],
   hobbies_and_personal_interests: [
     { value: "photography", label: "Photography" },
     { value: "gardening", label: "Gardening" },
     { value: "cooking", label: "Cooking" },
     { value: "creative_writing", label: "Creative Writing" },
   ],
-  spirituality_and_mindfulness: [
-    { value: "meditation", label: "Meditation" },
-    { value: "yoga", label: "Yoga" },
-    { value: "mindfulness_practices", label: "Mindfulness Practices" },
-  ],
-  astrology: [
-    { value: "vedic_astrology", label: "Vedic Astrology" },
-    { value: "numerology", label: "Numerology" },
-    { value: "tarot_reading", label: "Tarot Reading" },
-  ],
-  event_planning: [
-    { value: "wedding_planning", label: "Wedding Planning" },
-    {
-      value: "corporate_event_management",
-      label: "Corporate Event Management",
-    },
-    { value: "party_planning", label: "Party Planning" },
-  ],
+  // spirituality_and_mindfulness: [
+  //   { value: "meditation", label: "Meditation" },
+  //   { value: "yoga", label: "Yoga" },
+  //   { value: "mindfulness_practices", label: "Mindfulness Practices" },
+  // ],
+  // astrology: [
+  //   { value: "vedic_astrology", label: "Vedic Astrology" },
+  //   { value: "numerology", label: "Numerology" },
+  //   { value: "tarot_reading", label: "Tarot Reading" },
+  // ],
+  // event_planning: [
+  //   { value: "wedding_planning", label: "Wedding Planning" },
+  //   {
+  //     value: "corporate_event_management",
+  //     label: "Corporate Event Management",
+  //   },
+  //   { value: "party_planning", label: "Party Planning" },
+  // ],
 };
 
 

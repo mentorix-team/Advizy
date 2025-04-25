@@ -61,31 +61,35 @@ function App() {
   useEffect(() => {
     const email = formData.basic.email;
     const mobile = formData.basic.mobile;
-    
+
     if (email) {
-      const savedEmailVerification = localStorage.getItem(`emailVerified_${email}`);
+      const savedEmailVerification = localStorage.getItem(
+        `emailVerified_${email}`
+      );
       setIsEmailVerified(true);
     }
-    
+
     if (mobile) {
-      const savedMobileVerification = localStorage.getItem(`mobileVerified_${mobile}`);
+      const savedMobileVerification = localStorage.getItem(
+        `mobileVerified_${mobile}`
+      );
       setIsMobileVerified(true);
     }
   }, []);
   useEffect(() => {
     const savedEmail = localStorage.getItem("latestVerifiedEmail");
     const savedMobile = localStorage.getItem("latestVerifiedMobile");
-  
+
     const savedEmailVerification = savedEmail
       ? localStorage.getItem(`emailVerified_${savedEmail}`)
       : null;
     const savedMobileVerification = savedMobile
       ? localStorage.getItem(`mobileVerified_${savedMobile}`)
       : null;
-  
+
     setIsEmailVerified(savedEmailVerification === "true");
     setIsMobileVerified(savedMobileVerification === "true");
-  
+
     setFormData((prevData) => ({
       basic: {
         ...prevData.basic,
@@ -94,19 +98,25 @@ function App() {
       },
     }));
   }, []);
-  
+
   // Update localStorage when verification status changes
   useEffect(() => {
     const email = formData.basic.email;
     if (email) {
-      localStorage.setItem(`emailVerified_${email}`, isEmailVerified.toString());
+      localStorage.setItem(
+        `emailVerified_${email}`,
+        isEmailVerified.toString()
+      );
     }
   }, [isEmailVerified, formData.basic.email]);
 
   useEffect(() => {
     const mobile = formData.basic.mobile;
     if (mobile) {
-      localStorage.setItem(`mobileVerified_${mobile}`, isMobileVerified.toString());
+      localStorage.setItem(
+        `mobileVerified_${mobile}`,
+        isMobileVerified.toString()
+      );
     }
   }, [isMobileVerified, formData.basic.mobile]);
   useEffect(() => {
@@ -115,14 +125,13 @@ function App() {
       localStorage.setItem(`emailVerified_${formData.basic.email}`, "true");
     }
   }, [isEmailVerified, formData.basic.email]);
-  
+
   useEffect(() => {
     if (isMobileVerified) {
       localStorage.setItem("latestVerifiedMobile", formData.basic.mobile);
       localStorage.setItem(`mobileVerified_${formData.basic.mobile}`, "true");
     }
   }, [isMobileVerified, formData.basic.mobile]);
-  
 
   const validateBasicInfo = () => {
     const newErrors = {};
@@ -185,9 +194,10 @@ function App() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Please enter a valid email address";
-    } else if (!isEmailVerified) {
-      newErrors.email = "Please verify your email address";
     }
+    // else if (!isEmailVerified) {
+    //   newErrors.email = "Please verify your email address";
+    // }
 
     // Languages validation
     if (basic.languages.length === 0) {
@@ -229,21 +239,24 @@ function App() {
     setTouched(allTouched);
 
     // Check if both email and mobile are verified
-    if (!isEmailVerified || !isMobileVerified) {
-      toast.error("Please verify both email and mobile number before submitting",{
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      return;
-    }
+    // if (!isEmailVerified) {
+    //   toast.error(
+    //     "Please verify both email and mobile number before submitting",
+    //     {
+    //       position: "top-right",
+    //       autoClose: 3000,
+    //       hideProgressBar: false,
+    //       closeOnClick: true,
+    //       pauseOnHover: true,
+    //       draggable: true,
+    //     }
+    //   );
+    //   return;
+    // }
 
     // If there are validation errors, show a toast and return
     if (Object.keys(validationErrors).length > 0) {
-      toast.error("Please fill in all required fields correctly",{
+      toast.error("Please fill in all required fields correctly", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -258,8 +271,8 @@ function App() {
 
     try {
       const basicData = new FormData();
-      Object.keys(formData.basic).forEach(key => {
-        if (key === 'languages') {
+      Object.keys(formData.basic).forEach((key) => {
+        if (key === "languages") {
           basicData.append(key, JSON.stringify(formData.basic[key]));
         } else {
           basicData.append(key, formData.basic[key]);
@@ -267,46 +280,49 @@ function App() {
       });
 
       const response = await dispatch(basicFormSubmit(basicData)).unwrap();
-      
+
       if (response.success) {
         toast.success("Basic information submitted successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         navigate("/dashboard/expert");
       } else {
         toast.error(response.message || "Failed to submit basic information", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
       console.error("Error submitting basic form:", error);
-      toast.error(error.message || "An error occurred while submitting the form", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(
+        error.message || "An error occurred while submitting the form",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        }
+      );
     } finally {
       setLoadingState(false);
     }
   };
 
   const handleVerificationSuccess = (type) => {
-    if (type === 'email') {
+    if (type === "email") {
       setIsEmailVerified(true);
-    } else if (type === 'mobile') {
+    } else if (type === "mobile") {
       setIsMobileVerified(true);
     }
   };
@@ -322,15 +338,15 @@ function App() {
           <ArrowLeft className="w-5 h-5 text-gray-800" />
           <span>Back</span>
         </button>
-        
+
         <div className="bg-white shadow-sm rounded-lg p-6 sm:p-8 mb-6">
           <div className="flex flex-col items-start gap-4">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
               Join <span className="text-primary font-extrabold">Advizy</span>
             </h1>
             <p className="text-md font-semibold text-gray-600">
-              Empower others with your knowledge while growing your influence and
-              professional reach.
+              Empower others with your knowledge while growing your influence
+              and professional reach.
             </p>
           </div>
         </div>
@@ -343,11 +359,12 @@ function App() {
               errors={errors}
               touched={touched}
               onBlur={(field) => setTouched({ ...touched, [field]: true })}
-              isEmailVerified={isEmailVerified}
-              isMobileVerified={isMobileVerified}
+              isEmailVerified={true}
+              isMobileVerified={true}
               onVerificationSuccess={handleVerificationSuccess}
-              setIsEmailVerified={setIsEmailVerified}  // Pass the setter function
+              setIsEmailVerified={setIsEmailVerified} // Pass the setter function
               setIsMobileVerified={setIsMobileVerified}
+              showMobileVerification={false}
             />
           </div>
         </div>
@@ -355,12 +372,8 @@ function App() {
         <div className="flex justify-end text-end mt-6">
           <button
             onClick={handleNext}
-            disabled={loadingState || !isEmailVerified || !isMobileVerified}
-            className={`px-4 sm:px-6 py-2 text-white rounded-lg transition ${
-              loadingState || !isEmailVerified || !isMobileVerified
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-primary hover:bg-green-600"
-            }`}
+            disabled={loadingState}
+            className={`px-4 sm:px-6 py-2 text-white rounded-lg transition bg-primary hover:bg-green-600 `}
           >
             {loadingState ? (
               <svg

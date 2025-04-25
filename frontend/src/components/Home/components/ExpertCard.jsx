@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Star, User } from 'lucide-react';
-import { getAvailabilitybyid } from '@/Redux/Slices/availability.slice';
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle, Star, User } from "lucide-react";
+import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
 const ExpertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -15,25 +15,26 @@ const ExpertCard = ({ expert }) => {
   const dispatch = useDispatch();
 
   const calculateTotalExperience = (workExperiences) => {
-    if (!Array.isArray(workExperiences) || workExperiences.length === 0) return "0 years";
-  
+    if (!Array.isArray(workExperiences) || workExperiences.length === 0)
+      return "0 years";
+
     let totalMonths = 0;
-  
+
     workExperiences.forEach((job) => {
       if (!job.startDate || !job.endDate) return;
-  
+
       const start = new Date(job.startDate);
       const end = new Date(job.endDate);
-  
+
       const yearsDiff = end.getFullYear() - start.getFullYear();
       const monthsDiff = end.getMonth() - start.getMonth();
-  
+
       totalMonths += yearsDiff * 12 + monthsDiff;
     });
-  
+
     const years = Math.floor(totalMonths / 12);
     const months = totalMonths % 12;
-  
+
     return years > 0 ? `${years} years ${months} months` : `${months} months`;
   };
 
@@ -48,12 +49,14 @@ const ExpertCard = ({ expert }) => {
   const startingPrice = firstEnabledSlot?.price || 0;
   const duration = firstEnabledSlot?.duration || "N/A";
 
-  const totalExperience = calculateTotalExperience(expert.credentials?.work_experiences);
+  const totalExperience = calculateTotalExperience(
+    expert.credentials?.work_experiences
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           setIsVisible(entry.isIntersecting);
         });
       },
@@ -74,7 +77,9 @@ const ExpertCard = ({ expert }) => {
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
-        const response = await dispatch(getAvailabilitybyid(expert._id)).unwrap(); 
+        const response = await dispatch(
+          getAvailabilitybyid(expert._id)
+        ).unwrap();
         setAvailability(response.availability);
       } catch (error) {
         console.error("Error fetching availability:", error);
@@ -84,37 +89,43 @@ const ExpertCard = ({ expert }) => {
     fetchAvailability();
   }, [dispatch, expert._id]);
 
-  const firstAvailableDay = availability?.daySpecific?.find(day => day.slots.length > 0);
+  const firstAvailableDay = availability?.daySpecific?.find(
+    (day) => day.slots.length > 0
+  );
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
     setIsFavorite(!isFavorite);
     toast.success(
-      !isFavorite ? 'Added to favorites!' : 'Removed from favorites!',
+      !isFavorite ? "Added to favorites!" : "Removed from favorites!",
       {
         duration: 2000,
-        position: 'top-right',
+        position: "top-right",
         style: {
-          background: '#169544',
-          color: '#fff',
-          borderRadius: '10px',
+          background: "#169544",
+          color: "#fff",
+          borderRadius: "10px",
         },
       }
     );
   };
 
-  const averageRating = expert.reviews?.length > 0
-    ? (expert.reviews.reduce((acc, review) => acc + review.rating, 0) / expert.reviews.length).toFixed(1)
-    : "0.0";
+  const averageRating =
+    expert.reviews?.length > 0
+      ? (
+          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+          expert.reviews.length
+        ).toFixed(1)
+      : "0.0";
 
   return (
     <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ 
+      animate={{
         opacity: isVisible ? 1 : 0.3,
-        y: 0
+        y: 0,
       }}
       transition={{ duration: 0.5 }}
       className="flex flex-row justify-center w-full"
@@ -124,7 +135,10 @@ const ExpertCard = ({ expert }) => {
           <div className="py-2.5">
             <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
               <img
-                src={expert?.profileImage?.secure_url || "https://via.placeholder.com/100"}
+                src={
+                  expert?.profileImage?.secure_url ||
+                  "https://via.placeholder.com/100"
+                }
                 alt={`${expert.firstName} ${expert.lastName}`}
                 className="w-full h-full object-cover"
               />
@@ -146,7 +160,10 @@ const ExpertCard = ({ expert }) => {
               <h3 className="font-['Figtree'] font-semibold text-[#1d1f1d] text-xl leading-7">
                 {`${expert.firstName} ${expert.lastName}`}
               </h3>
-              <CheckCircle className="w-5 h-5 text-blue-500" />
+              {expert.admin_approved_expert && (
+                <img src="/svg-image-65.svg" alt="verified tick" />
+                /* <CheckCircle className="w-5 h-5 text-blue-500" /> */
+              )}
             </div>
             <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
               {expert.credentials?.professionalTitle || "Expert"}
@@ -159,7 +176,9 @@ const ExpertCard = ({ expert }) => {
                 Next Available Slot:
               </span>
               <span className="font-['Figtree'] font-normal text-[#1f409b] text-xs leading-[18px]">
-                {firstAvailableDay ? `${firstAvailableDay.day}, ${firstAvailableTime}` : "No slots available"}
+                {firstAvailableDay
+                  ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                  : "No slots available"}
               </span>
             </div>
 

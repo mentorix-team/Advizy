@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
-import { CircleCheckBig } from "lucide-react";
+import { CircleCheckBig } from 'lucide-react';
 
 export default function Profile() {
   const dispatch = useDispatch();
@@ -15,6 +15,11 @@ export default function Profile() {
   const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
 
   const userData = JSON.parse(data);
+  
+  // Store the original values for comparison
+  const originalEmail = userData.email;
+  const originalPhone = userData.number || "";
+
   const [formData, setFormData] = useState({
     firstName: userData.firstName,
     lastName: userData.lastName,
@@ -25,24 +30,53 @@ export default function Profile() {
     interests: userData.interests || [],
   });
 
+  // Initialize verification status - auto-verify if matches original data
   const [verificationStatus, setVerificationStatus] = useState({
-    email: false,
-    phone: false,
+    email: true, // Auto-verify if using original email
+    phone: Boolean(userData.number), // Auto-verify if original number exists
   });
 
   const [errors, setErrors] = useState({});
+  
+  // Store previous values for comparison to prevent unnecessary verification resets
+  const [prevValues, setPrevValues] = useState({
+    email: userData.email,
+    phone: userData.number || "",
+  });
 
   useEffect(() => {
     const savedData = localStorage.getItem("profileData");
     if (savedData) {
-      setFormData(JSON.parse(savedData));
+      const parsedData = JSON.parse(savedData);
+      setFormData(parsedData);
+      
+      // Update previous values for comparison
+      setPrevValues({
+        email: parsedData.email,
+        phone: parsedData.phone
+      });
     }
-    // Load verification status
+    
+    // Load verification status from localStorage, but maintain auto-verification
     const savedVerification = localStorage.getItem("verificationStatus");
     if (savedVerification) {
-      setVerificationStatus(JSON.parse(savedVerification));
+      const parsedVerification = JSON.parse(savedVerification);
+      
+      // If email matches original, keep it verified regardless of saved status
+      const emailVerified = formData.email === originalEmail ? true : parsedVerification.email;
+      
+      // If phone matches original, keep it verified regardless of saved status
+      const phoneVerified = formData.phone === originalPhone && originalPhone !== "" ? true : parsedVerification.phone;
+      
+      setVerificationStatus({
+        email: emailVerified,
+        phone: phoneVerified
+      });
     }
   }, []);
+
+  // Check if both email and phone are verified
+  const isBothVerified = verificationStatus.email && verificationStatus.phone;
 
   const interests = [
     { id: "technology", label: "Technology", category: "col1" },
@@ -72,7 +106,9 @@ export default function Profile() {
     }
 
     const phoneRegex = /^\d{10}$/;
-    if (formData.phone && !phoneRegex.test(formData.phone)) {
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!phoneRegex.test(formData.phone)) {
       newErrors.phone = "Phone number must be 10 digits";
     }
 
@@ -94,13 +130,31 @@ export default function Profile() {
       ...prev,
       [name]: value,
     }));
-    // Reset verification status when email/phone changes
-    if (name === "email" || name === "phone") {
+    
+    // Only reset verification status if value actually changed from original data
+    if ((name === "email" && value !== originalEmail && value !== prevValues.email) ||
+        (name === "phone" && value !== originalPhone && value !== prevValues.phone)) {
       setVerificationStatus((prev) => ({
         ...prev,
         [name]: false,
       }));
+      
+      // Update previous values for comparison
+      setPrevValues(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
+    
+    // Auto-verify if value matches original from user data
+    if ((name === "email" && value === originalEmail) || 
+        (name === "phone" && value === originalPhone && originalPhone !== "")) {
+      setVerificationStatus(prev => ({
+        ...prev,
+        [name]: true
+      }));
+    }
+    
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -113,15 +167,37 @@ export default function Profile() {
     const { value } = e.target;
     const numbers = value.replace(/\D/g, "");
     const truncated = numbers.slice(0, 10);
+    
+    // Store previous phone value before updating
+    const previousPhone = formData.phone;
+    
     setFormData((prev) => ({
       ...prev,
       phone: truncated,
     }));
-    // Reset phone verification when number changes
-    setVerificationStatus((prev) => ({
-      ...prev,
-      phone: false,
-    }));
+    
+    // Only reset verification if the value actually changes AND doesn't match original
+    if (truncated !== previousPhone && truncated !== originalPhone) {
+      setVerificationStatus((prev) => ({
+        ...prev,
+        phone: false,
+      }));
+      
+      // Update previous value for future comparison
+      setPrevValues(prev => ({
+        ...prev,
+        phone: truncated
+      }));
+    }
+    
+    // Auto-verify if matches original phone
+    if (truncated === originalPhone && originalPhone !== "") {
+      setVerificationStatus(prev => ({
+        ...prev,
+        phone: true
+      }));
+    }
+    
     if (errors.phone) {
       setErrors((prev) => ({
         ...prev,
@@ -134,7 +210,7 @@ export default function Profile() {
     setVerificationType(type);
     setContactInfo(type === "email" ? formData.email : formData.phone);
     setShowOtpPopup(true);
-
+    
     try {
       if (type === "email") {
         await dispatch(generateOtpforValidating(formData.email));
@@ -143,48 +219,32 @@ export default function Profile() {
         await dispatch(generateOtpforValidating(formData.phone));
       }
     } catch (error) {
-      toast.error(`Failed to send verification code to your ${type}`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(`Failed to send verification code to your ${type}`);
     }
   };
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
-
+    
     // Update verification status
     const newVerificationStatus = {
       ...verificationStatus,
-      [verificationType]: true,
+      [verificationType]: true
     };
-
+    
     // Update state
     setVerificationStatus(newVerificationStatus);
-
+    
     // Save to localStorage immediately
-    localStorage.setItem(
-      "verificationStatus",
-      JSON.stringify(newVerificationStatus)
-    );
-
-    toast.success(
-      `${
-        verificationType === "email" ? "Email" : "Phone"
-      } verified successfully!`,
-      {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      }
-    );
+    localStorage.setItem('verificationStatus', JSON.stringify(newVerificationStatus));
+    
+    // Update previous values to maintain verification if value changes back
+    setPrevValues(prev => ({
+      ...prev,
+      [verificationType === "email" ? "email" : "phone"]: formData[verificationType === "email" ? "email" : "phone"]
+    }));
+    
+    toast.success(`${verificationType === 'email' ? 'Email' : 'Phone'} verified successfully!`);
   };
 
   const handleInterestChange = (e) => {
@@ -206,23 +266,15 @@ export default function Profile() {
         "verificationStatus",
         JSON.stringify(verificationStatus)
       );
-      toast.success("Changes saved successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+      toast.success("Changes saved successfully");
+      
+      // Update previous values after saving
+      setPrevValues({
+        email: formData.email,
+        phone: formData.phone
       });
     } else {
-      toast.error("Please fix the errors before saving", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Please fix the errors before saving");
     }
   };
 
@@ -239,10 +291,20 @@ export default function Profile() {
             Keep your profile updated to get the most out of your mentorship
             experience.
           </p>
+          {!isBothVerified && (
+            <p className="text-amber-600 mt-1 font-medium">
+              Please verify both your email and phone number to save changes.
+            </p>
+          )}
         </div>
         <button
           onClick={handleSave}
-          className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          disabled={!isBothVerified}
+          className={`w-full sm:w-auto px-4 py-2 rounded-lg transition-colors ${
+            isBothVerified 
+              ? "bg-green-600 text-white hover:bg-green-700" 
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
         >
           Save Changes
         </button>
@@ -306,7 +368,9 @@ export default function Profile() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email Address *
+              Email Address * {verificationStatus.email && (
+                <span className="text-green-600 text-xs ml-1">(Verified)</span>
+              )}
             </label>
             <div className="flex gap-2">
               <div className="flex-1">
@@ -331,7 +395,12 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={() => handleVerify("email")}
-                    className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
+                    disabled={!formData.email || (errors.email ? true : false)}
+                    className={`px-3 py-2 text-sm rounded-lg transition-colors whitespace-nowrap ${
+                      !formData.email || errors.email
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }`}
                   >
                     Verify Email
                   </button>
@@ -341,6 +410,11 @@ export default function Profile() {
             {errors.email && (
               <p className="mt-1 text-sm text-red-500">{errors.email}</p>
             )}
+            {formData.email === originalEmail && (
+              <p className="mt-1 text-xs text-green-600">
+                Using your original email (auto-verified)
+              </p>
+            )}
           </div>
 
           <div>
@@ -348,7 +422,9 @@ export default function Profile() {
               htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Phone Number
+              Phone Number * {verificationStatus.phone && (
+                <span className="text-green-600 text-xs ml-1">(Verified)</span>
+              )}
             </label>
             <div className="flex gap-2">
               <div className="flex-1">
@@ -372,19 +448,27 @@ export default function Profile() {
                     Verified
                   </div>
                 ) : (
-                  formData.phone.length === 10 && (
-                    <button
-                      onClick={() => handleVerify("phone")}
-                      className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors whitespace-nowrap"
-                    >
-                      Verify Phone
-                    </button>
-                  )
+                  <button
+                    onClick={() => handleVerify("phone")}
+                    disabled={formData.phone.length !== 10}
+                    className={`px-3 py-2 text-sm rounded-lg transition-colors whitespace-nowrap ${
+                      formData.phone.length !== 10
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700"
+                    }`}
+                  >
+                    Verify Phone
+                  </button>
                 )}
               </div>
             </div>
             {errors.phone && (
               <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+            )}
+            {formData.phone === originalPhone && originalPhone !== "" && (
+              <p className="mt-1 text-xs text-green-600">
+                Using your original phone number (auto-verified)
+              </p>
             )}
           </div>
 

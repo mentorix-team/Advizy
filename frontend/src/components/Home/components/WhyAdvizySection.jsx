@@ -6,7 +6,7 @@ const WhyAdvizySection = () => {
     {
       icon: <Zap className="w-6 h-6 text-[#169544]" />,
       title: "A Vision Beyond Mentorship",
-      description: "More than just finding an expert, we help you discover what's next for you. Our mission is to help everyone unlock their true potential."
+      description: "More than just finding an mentor, we help you discover what's next for you. Our mission is to help everyone unlock their true potential."
     },
     {
       icon: <Users className="w-6 h-6 text-[#169544]" />,
@@ -15,7 +15,7 @@ const WhyAdvizySection = () => {
     },
     {
       icon: <TrendingUp className="w-6 h-6 text-[#169544]" />,
-      title: "Learn From Those Who've Done It",
+      title: "Learn From Those Who Excel in it",
       description: "Whether it's career decisions, freelancing, or starting a business, connect with real people who've been in your shoes."
     }
   ];

@@ -192,8 +192,8 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Empowering Experts.<br className="hidden sm:block" />
-              Connecting People.
+              Connecting People with<br className="hidden sm:block" />
+              Life-Changing Mentorship
             </motion.h1>
             <br />
             
@@ -203,7 +203,7 @@ const AboutPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              "We live that one conversation with right mentor can change everthing. Our mission is to democratize access to quality guidance for everyone"<br />
+              We belive that one conversation with right mentor can change everthing. Our mission is to democratize access to quality guidance for everyone.<br />
               
             </motion.p>
             <br />
@@ -218,7 +218,7 @@ const AboutPage = () => {
             <div className="relative aspect-[4/3]">
               <Image3D 
                 src="https://i.postimg.cc/DyPNYcd2/OBJECTS.png"
-                alt="About Mentorix"
+                alt="About Advizy"
               />
             </div>
 
@@ -274,7 +274,7 @@ const AboutPage = () => {
             >
               <img 
                 src="https://i.postimg.cc/BZH2kYSV/13746503-5340735.png"
-                alt="Mentorix Mission"
+                alt="Advizy Mission"
                 className="w-full h-full object-cover rounded-2xl"
                 loading="lazy"
               />
@@ -288,7 +288,7 @@ const AboutPage = () => {
               className="space-y-4 sm:space-y-6"
             >
               <p className="text-base sm:text-lg md:text-xl text-gray-600">
-                At Mentorix, our mission extends beyond simply connecting mentors and
+                At Advizy, our mission extends beyond simply connecting mentors and
                 mentees. We're building a future where world-class expertise is accessible to
                 everyone, regardless of their location, background, or circumstances.
               </p>
@@ -320,7 +320,7 @@ const AboutPage = () => {
             transition={{ duration: 0.8 }}
             className="text-3xl sm:text-4xl font-bold text-center text-[#1D2939] mb-12"
           >
-            Revolutionizing Expert Consultations
+            Revolutionizing Mentoring
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -334,7 +334,7 @@ const AboutPage = () => {
             >
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-[#169544] text-2xl">⭐</span>
-                <h3 className="text-xl sm:text-2xl font-bold">For Experts</h3>
+                <h3 className="text-xl sm:text-2xl font-bold">For Mentors</h3>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
@@ -400,7 +400,7 @@ const AboutPage = () => {
                 onClick={() => navigate('/explore')}
                 className="w-full btn-expert"
               >
-                Search Experts
+                Search mentors
               </button>
             </motion.div>
           </div>
@@ -428,7 +428,7 @@ const AboutPage = () => {
                 </svg>
               }
               title="Trust & Quality"
-              description="We rigorously vet our experts to ensure you receive top-tier guidance. Your growth and security are our priorities."
+              description="We rigorously vet our mentors to ensure you receive top-tier guidance. Your growth and security are our priorities."
             />
             <VisionCard
               icon={
@@ -447,7 +447,7 @@ const AboutPage = () => {
                 </svg>
               }
               title="Continuous Innovation"
-              description="We're constantly evolving our platform to provide cutting-edge tools for both experts and learners."
+              description="We're constantly evolving our platform to provide cutting-edge tools for both mentors and learners."
             />
           </div>
         </div>
@@ -480,7 +480,7 @@ const AboutPage = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8"
             >
-              Connect with world-class experts who can help you achieve your goals
+              Connect with world-class mentors who can help you achieve your goals
             </motion.p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
@@ -494,7 +494,7 @@ const AboutPage = () => {
                 whileTap={{ scale: 0.98 }}
                 className="btn-expert"
               >
-                Find an Expert
+                Find an Mentor
               </motion.button>
 
               <motion.button

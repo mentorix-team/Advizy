@@ -32,29 +32,27 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
     ? filteredNiches
     : filteredNiches.slice(0, 3);
 
+  const resetFilters = () => {
+    // Reset all state values
+    setSelectedNiches([]);
+    setPriceRange([200, 100000]);
+    setSelectedLanguages([]);
+    setSelectedRatings([]);
+    setSelectedDurations([]);
+    setSorting("");
 
-    const resetFilters = () => {
-      // Reset all state values
-      setSelectedNiches([]);
-      setPriceRange([200, 100000]);
-      setSelectedLanguages([]);
-      setSelectedRatings([]);
-      setSelectedDurations([]);
-      setSorting("");
-  
-      // Immediately apply the reset filters
-      onApplyFilters({
-        selectedDomain,
-        selectedNiches: [],
-        priceRange: [200, 100000],
-        selectedLanguages: [],
-        selectedRatings: [],
-        selectedDurations: [],
-        sorting: "",
-      });
-      
-    };
-  
+    // Immediately apply the reset filters
+    onApplyFilters({
+      selectedDomain,
+      selectedNiches: [],
+      priceRange: [200, 100000],
+      selectedLanguages: [],
+      selectedRatings: [],
+      selectedDurations: [],
+      sorting: "",
+    });
+  };
+
   const handleCheckboxChange = (setFunction, value) => {
     setFunction((prev) =>
       prev.includes(value)
@@ -110,25 +108,25 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   }, []);
 
   return (
-    <div className="max-w-80 w-80 border shadow-md relative">
-{/* Sticky header with buttons */}
-<div className="sticky top-0 bg-white z-10 p-4 border-b">
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={handleApplyFilters}
-            className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition text-sm font-medium"
-          >
-            Apply Filters
-          </button>
-          <button
-            onClick={resetFilters}
-            className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
-          >
-            Reset
-          </button>
-        </div>
+    <div className="max-w-80 w-[300px] border shadow-md p-5 relative">
+      {/* Sticky header with buttons */}
+      <div className="sticky top-0 bg-white/50 backdrop-blur-md z-10 border-b">
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={handleApplyFilters}
+          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition text-sm font-medium"
+        >
+          Apply Filters
+        </button>
+        <button
+          onClick={resetFilters}
+          className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
+        >
+          Reset
+        </button>
       </div>
-      
+    </div>
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Filters</h2>
         <button

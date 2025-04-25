@@ -1,22 +1,28 @@
-import PropTypes from 'prop-types';
-import { IoClose } from 'react-icons/io5';
+import PropTypes from "prop-types";
+import { IoClose } from "react-icons/io5";
 
 const PriceBreakdownModal = ({ isOpen, onClose, amount }) => {
   if (!isOpen) return null;
- const platformFee = Math.round(amount * 0.2); // 20% platform fee
-  const baseRate = Math.round(amount * 0.8); // 80% of total amount
- const netEarning = baseRate - platformFee;
+  const baseRate = Math.round(amount); // total amount
+  const platformFee = Math.round(amount * 0.2); // 20% platform fee
+  const netEarning = baseRate - platformFee;
+
+  console.log(amount);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div 
+      <div
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center px-6 py-4 border-b">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Price Breakdown</h2>
-            <p className="text-sm text-gray-500 mt-1">Detailed breakdown of the meeting cost</p>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Price Breakdown
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Detailed breakdown of the meeting cost
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -25,11 +31,13 @@ const PriceBreakdownModal = ({ isOpen, onClose, amount }) => {
             <IoClose className="w-6 h-6" />
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Base Rate (₹{Math.round(baseRate/60)}/hour)</span>
-            <span className="text-gray-900">₹{baseRate}</span>
+            <span className="text-gray-600">
+              Base Rate (₹{Math.round(baseRate / 60)}/hour)
+            </span>
+            <span className="text-gray-900 font-semibold">₹{baseRate}</span>
           </div>
 
           <div className="flex justify-between items-center">
@@ -50,7 +58,7 @@ const PriceBreakdownModal = ({ isOpen, onClose, amount }) => {
 PriceBreakdownModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  amount: PropTypes.number.isRequired
+  amount: PropTypes.number.isRequired,
 };
 
 export default PriceBreakdownModal;

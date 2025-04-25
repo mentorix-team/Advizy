@@ -1,17 +1,33 @@
-import { BsArrowLeft, BsChevronDown, BsChevronUp, BsClock } from "react-icons/bs";
+import {
+  BsArrowLeft,
+  BsChevronDown,
+  BsChevronUp,
+  BsClock,
+} from "react-icons/bs";
 import PropTypes from "prop-types";
 import { FaStar } from "react-icons/fa";
 import { useState } from "react";
 import PriceBreakdownModal from "../../modals/PriceBreakdownModal";
 import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
+import { useNavigate } from "react-router-dom";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
   const [notes, setNotes] = useState(meeting?.notes || "");
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const { daySpecific } = meeting || {};
+  const { date, slot } = daySpecific || {};
+  const { startTime, endTime } = slot || {};
 
+  const navigate = useNavigate();
 
   if (!meeting) return null;
+
+  const handlePrintNavigate = () => {
+    navigate(`/dashboard/expert/meetings/receipt/${meeting._id}`, {
+      state: {meeting},
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -26,31 +42,68 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
 
         <div className="flex items-center gap-4 mb-6">
           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-lg">{Array.isArray(meeting.client) && meeting.client.length > 0 ? meeting.client[0] : "N/A"}</span>
+            <span className="text-lg">
+              {Array.isArray(meeting.userName) && meeting.userName.length > 0
+                ? meeting.userName[0]
+                : "N/A"}
+            </span>
           </div>
-          <h1 className="text-xl font-semibold">{meeting.client}</h1>
+          <h1 className="text-xl font-semibold">{meeting.userName}</h1>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
+          <div className="flex justify-between">
+            <h2 className="text-xl font-semibold mb-6">Meeting Details</h2>
+            <button
+              onClick={handlePrintNavigate}
+              className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 no-print"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
+              </svg>
+              View Receipt
+            </button>
+          </div>
+
+          {/* Invoice preview area (invisible but used for PDF generation) */}
+          {/* <div ref={invoiceRef} className="hidden">
+            <MeetingInvoice meeting={meeting} />
+          </div> */}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Date</h3>
               <div className="flex items-center gap-2">
                 <ColorCalendarIcon className="w-5 h-5" />
-                <p className="text-gray-900">{meeting.date}</p>
+                <p className="text-gray-900">
+                  {date
+                    ? new Date(date).toLocaleDateString("en-GB")
+                    : "no date"}
+                </p>
               </div>
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Time</h3>
               <div className="flex items-center gap-2">
                 <BsClock className="text-[169544]" />
-                <p className="text-gray-900">{meeting.time}</p>
+                <p className="text-gray-900">
+                  {startTime && endTime ? `${startTime} - ${endTime}` : "-"}
+                </p>
                 <span
                   className={`text-sm ${
                     meeting.sessionStatus === "Completed"
-                      ? "text-[#169544]"
+                      ? "text-[#169544] bg-green-100 w-fit p-1 rounded-full"
                       : "text-red-600"
                   }`}
                 >
@@ -60,7 +113,7 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Service</h3>
-              <p className="text-gray-900">{meeting.service}</p>
+              <p className="text-gray-900">{meeting.serviceName}</p>
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Amount</h3>

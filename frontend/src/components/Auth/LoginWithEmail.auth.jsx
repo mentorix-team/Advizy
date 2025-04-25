@@ -32,9 +32,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const returnUrl = new URLSearchParams(location.search);
   const searchParams = new URLSearchParams(location.search);
-  const returnedUrl = searchParams.get("returnUrl") || "/";
 
   const validateField = (name, value) => {
     switch (name) {
@@ -103,7 +101,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      navigate(decodeURIComponent(returnUrl), { replace: true });
+      navigate(decodeURIComponent('/'), { replace: true });
     }
 
     setlogindata({
@@ -112,21 +110,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     });
   }
 
-  // const handleGoogleSignup = (event) => {
-  //   event.preventDefault(); // Prevent the form from submitting
-  //   const currentPath = window.location.pathname;
-  //   sessionStorage.setItem("redirectAfterLogin", currentPath);
-  //   window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
-  // };
-
-  // Update Google login handler
+  // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    // Pass the returnUrl through to Google auth
     window.open(
-      `https://advizy.onrender.com/api/v1/user/auth/google?state=${encodeURIComponent(
-        returnUrl
-      )}`,
+      `https://advizy.onrender.com/api/v1/user/auth/google`,
       "_self"
     );
   };
@@ -134,12 +122,12 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const isLoggedIn = localStorage.getItem("isLoggedIn");
 
   // After successful auth processing
-  useEffect(() => {
-    if (isLoggedIn) {
-      // Your auth check logic
-      navigate(decodeURIComponent(returnUrl), { replace: true });
-    }
-  }, [isLoggedIn, returnUrl, navigate]);
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     // Your auth check logic
+  //     navigate(decodeURIComponent(returnUrl), { replace: true });
+  //   }
+  // }, [isLoggedIn, returnUrl, navigate]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
@@ -241,7 +229,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
               Login with Google
             </button>
 
-            <button
+            {/* <button
               className="w-full h-10 flex items-center justify-center gap-2 py-2 mb-4 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
               onClick={() => onSwitchView("LoginWithMobile")}
             >
@@ -254,7 +242,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
                 <path d="M20 2c0-1.105-.896-2-2-2h-12c-1.105 0-2 .896-2 2v20c0 1.104.895 2 2 2h12c1.104 0 2-.896 2-2v-20zm-9.501 0h3.001c.276 0 .5.224.5.5s-.224.5-.5.5h-3.001c-.275 0-.499-.224-.499-.5s.224-.5.499-.5zm1.501 20c-.553 0-1-.448-1-1s.447-1 1-1c.552 0 .999.448.999 1s-.447 1-.999 1zm6-3h-12v-14.024h12v14.024z" />
               </svg>
               Login with Mobile
-            </button>
+            </button> */}
           </div>
         </form>
 

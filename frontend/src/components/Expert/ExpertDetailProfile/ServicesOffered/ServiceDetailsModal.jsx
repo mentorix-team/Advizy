@@ -3,22 +3,20 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
+const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
   if (!isOpen) return null;
-  const navigate = useNavigate()
-  const dispatch= useDispatch()
-  console.log("Tihis is service open",service)
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleBook = async () => {
-    
-      console.log('Dispatching getServicebyid...');
-      // const expertId = selectedExpert.expert._id;
-      const serviceId = service.serviceId
-      try {
-        await dispatch(getServicebyid({ serviceId, expertId })).unwrap();
-        navigate(`/expert/scheduling/${serviceId}`);
-      } catch (error) {
-        console.error('Failed to fetch service details:', error);
-      }
+    console.log("Dispatching getServicebyid...");
+    // const expertId = selectedExpert.expert._id;
+    const serviceId = service.serviceId;
+    try {
+      await dispatch(getServicebyid({ serviceId, expertId })).unwrap();
+      navigate(`/expert/scheduling/${serviceId}`);
+    } catch (error) {
+      console.error("Failed to fetch service details:", error);
+    }
     // } else {
     //   console.error('Cannot dispatch getServicebyid - missing expertId or serviceId');
     // }
@@ -29,9 +27,15 @@ const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
       <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-4 sm:mb-6">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl font-medium">{service?.title || "Service Details"}</h2>
+          <div className="flex-1 items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-medium">
+              {service?.title || "Service Details"}
+              <p className="text-gray-600 text-sm sm:text-base">
+                {service?.shortDescription || "No description available."}
+              </p>
+            </h2>
           </div>
+
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 p-1"
@@ -55,45 +59,76 @@ const ServiceDetailsModal = ({ isOpen, onClose, service,expertId }) => {
 
         {/* Description Section */}
         <div className="mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-medium mb-2">Description:</h3>
-          <p className="text-gray-600 text-sm sm:text-base">{service?.shortDescription || "No description available."}</p>
+          {/* <h3 className="text-base sm:text-lg font-medium my-1">
+            Short Description:
+          </h3> */}
+          <h3 className="text-base sm:text-lg font-medium mb-1">
+            Detailed Description:
+          </h3>
+          <p className="text-gray-600 text-sm sm:text-base">
+            {service?.detailedDescription || "No description available."}
+          </p>
         </div>
-          {/* Duration & Price Section */}
-          {service?.one_on_one?.length > 0 ? (
-            <div className="mb-4 sm:mb-6">
-              <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Select Duration:</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-                {service.one_on_one
-                  .filter(opt => opt.enabled)
-                  .map((option, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 border rounded-xl text-center bg-gray-50 hover:bg-gray-100 transition"
-                    >
-                      <div className="text-sm font-medium">{option.duration} min</div>
-                      <div className="text-xs text-gray-600">₹{option.price}</div>
-                    </div>
-                  ))}
+        <div>
+          <h4 className="mb-1">What's Included: </h4>
+          {service?.features && service.features.length > 0 ? (
+            service.features.map((feature, index) => (
+              <div key={index} className="flex items-center my-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="8"
+                  height="8"
+                  fill="currentColor"
+                  className="bi bi-check-circle-fill text-green-500 mr-2"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M16 8a8 8 0 1 1-16 0 8 8 0 0 1 16 0zM7.247 11.14-3.14 3.14a.5.5 0 1 1 .707-.707l4.5 4.5L12.854.646a.5.5 0 1 1 .707.707l-6.354 6.354a.5.5 0 0 1-.707-.707z" />
+                </svg>
+                <p className="text-gray-600 text-sm sm:text-base">{feature}</p>
               </div>
-            </div>
+            ))
           ) : (
-            <>
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">Duration:</h3>
-                <div className="text-sm sm:text-base font-medium">{service.duration} min</div>
-              </div>
-              <div className="mb-4 sm:mb-6">
-                <h3 className="text-base sm:text-lg font-medium mb-2">Price:</h3>
-                <p className="text-gray-900 text-sm sm:text-base font-medium">₹{service?.price || "N/A"}</p>
-              </div>
-            </>
+            <p className="text-gray-500 text-sm italic">
+              No features available
+            </p>
           )}
-
+        </div>
+        {/* Duration & Price Section */}
+        {service?.one_on_one?.length > 0 ? (
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">
+              Select Duration:
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
+              {service.one_on_one
+                .filter((opt) => opt.enabled)
+                .map((option, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 border rounded-xl text-center bg-gray-50 hover:bg-gray-100 transition"
+                  >
+                    <div className="text-sm font-medium">
+                      {option.duration} min
+                    </div>
+                    <div className="text-xs text-gray-600">₹{option.price}</div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center my-4">
+              <h3 className="mr-2 sm:text-lg font-medium mb-3 sm:mb-4">
+                Duration & price:
+              </h3>
+              <p className="flex items-start text-center text-base sm:text-lg font-medium mb-2 border px-3 py-1 border-primary rounded-lg ">
+                {`${service.duration} min` || "N/A"} ₹{service?.price || "N/A"}
+              </p>
+            </div>
+          </>
+        )}
 
         {/* Book Button */}
-        <button className="w-full bg-[#16A348] text-white py-2.5 sm:py-3 rounded-lg hover:bg-[#128A3E] font-medium text-sm sm:text-base transition-colors" onClick={handleBook}>
-          Book Session
-        </button>
       </div>
     </div>
   );
