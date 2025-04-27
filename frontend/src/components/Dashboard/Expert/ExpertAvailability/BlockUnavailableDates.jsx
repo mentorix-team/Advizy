@@ -9,47 +9,46 @@ import { addBlockedDates } from "@/Redux/Slices/availability.slice";
 function BlockUnavailableDates() {
   const dispatch = useDispatch();
   const availability = useSelector((state) => state.availability.availability); 
+  console.log('this is availabliity at blocked dates',availability)
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
   const [disabledDates, setDisabledDates] = useState([]); 
   const { blockedDates, setBlockedDates } = useBlockedDates();
 
   useEffect(() => {
-    console.log("useEffect triggered. Availability:", availability);
-  
-    if (availability?.availability?.daySpecific) {
-      console.log("Availability Data:", availability.availability.daySpecific);
-  
-      const nullSlotDays = availability.availability.daySpecific
-        .filter((entry) => !entry.slots) // Filters out days with null or undefined slots
-        .map((entry) => {
-          console.log("Day Value:", entry.day); // Log the day value to debug the format
-  
-          const dayOfWeek = entry.day.toLowerCase(); // Convert to lowercase for consistency
-          const daysOfWeek = {
-            sunday: 0,
-            monday: 1,
-            tuesday: 2,
-            wednesday: 3,
-            thursday: 4,
-            friday: 5,
-            saturday: 6
-          };
-  
-          return daysOfWeek[dayOfWeek]; // Only return the weekday index (0-6)
-        })
-        .filter((day) => day !== undefined); // Filter out undefined days
-  
-      console.log("Days with Null or Undefined Slots:", nullSlotDays);
-      setDisabledDates(nullSlotDays); // Set disabled days by weekday index
-    }
-  }, [availability]);
-  
-  
-  
-  
-  
-  
+  console.log("useEffect triggered. Availability:", availability);
+
+  if (availability?.availability[0]?.daySpecific) {
+    const nullSlotDays = availability.availability[0].daySpecific
+      .filter((entry) => !entry.slots)
+      .map((entry) => {
+        const dayOfWeek = entry.day.toLowerCase();
+        const daysOfWeek = {
+          sunday: 0,
+          monday: 1,
+          tuesday: 2,
+          wednesday: 3,
+          thursday: 4,
+          friday: 5,
+          saturday: 6
+        };
+        return daysOfWeek[dayOfWeek];
+      })
+      .filter((day) => day !== undefined);
+
+    setDisabledDates(nullSlotDays);
+  }
+
+  // -------- THIS PART ADDED --------
+  if (availability?.availability[0]?.blockedDates?.length > 0) {
+    const formattedBlockedDates = availability.availability[0].blockedDates.map(
+      (dateObj) => new Date(dateObj.dates)
+    );
+    setBlockedDates(formattedBlockedDates);
+  }
+}, [availability]);
+
+    
   const handleDateSelect = (date) => {
     setSelectedDates((prev) =>
       prev.some((d) => d.getTime() === date.getTime())

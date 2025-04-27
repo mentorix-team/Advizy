@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import TimeRangePicker from "./TimeInput";
 import { PlusIcon, TrashIcon } from "@/icons/Icons";
@@ -8,12 +8,29 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
 import { addSpecificDates } from "@/Redux/Slices/availability.slice";
 
-function DateSpecificHours() {
+function DateSpecificHours({availability}) {
+  console.log('this is availability at specifuc',availability)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
   const { blockedDates } = useBlockedDates();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (availability?.availability[0]?.specific_dates?.length > 0) {
+      const formattedDates = availability.availability[0].specific_dates.map((specificDate) => ({
+        id: Date.now() + Math.random(), // unique id
+        date: new Date(specificDate.date), // convert string to Date object
+        slots: specificDate.slots.map((slot) => ({
+          id: Date.now() + Math.random(), // unique id
+          start: slot.startTime,
+          end: slot.endTime,
+        })),
+      }));
+      setDates(formattedDates);
+    }
+  }, [availability]);
+
 
   const isDateBlocked = (date) =>
     blockedDates.some(

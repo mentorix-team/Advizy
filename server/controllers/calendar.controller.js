@@ -333,34 +333,33 @@ const addSpecificDates = async (req, res, next) => {
 
     const existingSpecificDates = availability.specific_dates || [];
 
-    // Convert the provided dates to UTC format and ensure uniqueness
     const uniqueSpecificDates = [
-      ...existingSpecificDates.map((d) => d.date.toISOString()), // Existing dates in UTC format
-      ...specific_dates.map((d) => moment(d.date).utc().toISOString()), // Convert new dates to UTC
-    ].filter((date, index, self) => self.indexOf(date) === index); // Filter to ensure uniqueness
+      ...existingSpecificDates.map((d) => d.date.toISOString()), 
+      ...specific_dates.map((d) => moment(d.date).utc().toISOString()), 
+    ].filter((date, index, self) => self.indexOf(date) === index); 
 
-    // Map the unique dates and their respective slots
     availability.specific_dates = uniqueSpecificDates.map((date) => {
-      // Find the corresponding specific date and slots from the request body
       const matchingSpecificDate = specific_dates.find(
         (specificDate) => moment(specificDate.date).utc().toISOString() === date
       );
-
-      // Convert the date string (ISO 8601) back to a Date object
-      const convertedDate = new Date(date); // This is in UTC
-
-      console.log("Storing date in DB:", convertedDate.toISOString()); // Log the UTC date being stored
-
+    
+      const convertedDate = new Date(date);
+     
+      console.log("Storing date in DB:", convertedDate.toISOString());
+    
       return {
-        date: convertedDate, // Store the UTC date
-        slots: matchingSpecificDate ? matchingSpecificDate.slots : [], // Store the associated slots
+        date: convertedDate,
+        slots: matchingSpecificDate
+          ? matchingSpecificDate.slots.map((slot) => ({
+              startTime: slot.start,
+              endTime: slot.end,
+            }))
+          : [],
       };
     });
 
-    // Save the updated availability document
     await availability.save();
 
-    // Respond with success
     res.status(200).json({
       success: true,
       message: "Specific dates and slots added successfully.",
@@ -371,7 +370,6 @@ const addSpecificDates = async (req, res, next) => {
     return next(new AppError(error.message || "Server error while saving specific dates.", 500));
   }
 };
-
   
 
 const updateAvailability = async (req, res, next) => {

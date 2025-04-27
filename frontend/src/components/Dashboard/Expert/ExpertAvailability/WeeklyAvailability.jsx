@@ -5,24 +5,56 @@ import { validateTimeSlot, checkOverlap } from "@/utils/timeValidation";
 import { addAvailability, saveAvailability } from "@/Redux/Slices/availability.slice";
 
 const DAYS = [
-  { id: 1, name: "Monday", enabled: true },
-  { id: 2, name: "Tuesday", enabled: true },
-  { id: 3, name: "Wednesday", enabled: true },
-  { id: 4, name: "Thursday", enabled: true },
-  { id: 5, name: "Friday", enabled: true },
-  { id: 6, name: "Saturday", enabled: true },
-  { id: 7, name: "Sunday", enabled: true },
+  { id: 1, name: "Monday" },
+  { id: 2, name: "Tuesday" },
+  { id: 3, name: "Wednesday" },
+  { id: 4, name: "Thursday" },
+  { id: 5, name: "Friday" },
+  { id: 6, name: "Saturday" },
+  { id: 7, name: "Sunday" },
 ];
 
-function WeeklyAvailability() {
+function WeeklyAvailability({availability}) {
   const dispatch = useDispatch();
-  const [days, setDays] = useState(
-    DAYS.map((day) => ({
-      ...day,
-      slots: [{ id: 1, start: "09:00 AM", end: "10:00 AM" }],
-      error: null,
-    }))
-  );
+  const [days, setDays] = useState(() => {
+    if (availability && availability.length > 0 && availability[0].daySpecific) {
+      const apiDays = availability[0].daySpecific;
+
+      return DAYS.map((day) => {
+        const matchedDay = apiDays.find((d) => d.day === day.name);
+
+        if (matchedDay && matchedDay.slots && matchedDay.slots.length > 0) {
+          // Populate slots dynamically
+          return {
+            ...day,
+            enabled: true,
+            slots: matchedDay.slots.map((slot, index) => ({
+              id: index + 1,
+              start: slot.startTime || "",
+              end: slot.endTime || "",
+            })),
+            error: null,
+          };
+        } else {
+          // No slots for that day → toggle off
+          return {
+            ...day,
+            enabled: false,
+            slots: [{ id: 1, start: "", end: "" }],
+            error: null,
+          };
+        }
+      });
+    } else {
+      // No availability data → default static
+      return DAYS.map((day) => ({
+        ...day,
+        enabled: true,
+        slots: [{ id: 1, start: "09:00 AM", end: "10:00 AM" }],
+        error: null,
+      }));
+    }
+  });
   const [isSaving, setIsSaving] = useState(false);
 
   const handleToggle = (dayId) => {
