@@ -27,6 +27,7 @@ import {
   PanelRightCloseIcon,
   HouseIcon,
   Search,
+  CircleHelp,
 } from "lucide-react";
 
 const ExpertDashboardLayout = () => {
@@ -491,7 +492,21 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Reviews</span>
               </NavLink>
             </li>
-           
+            <li>
+              <NavLink
+                to="/dashboard/expert/help-center"
+                className={({ isActive }) =>
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
+                    isActive
+                      ? "bg-[#d6fae2] font-semibold text-green-900"
+                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <CircleHelp className="w-5 h-5"/>
+                <span className="ms-3">Help Center</span>
+              </NavLink>
+            </li>
           </ul>
         </div>
       </aside>

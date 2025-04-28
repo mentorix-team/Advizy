@@ -11,6 +11,7 @@ import ProfileDetails from "@/components/Dashboard/Expert/ProfileDetails/App";
 import Clients from "@/components/Dashboard/Expert/Clients/Clients/Clients";
 import ClientDetails from "@/components/Dashboard/Expert/Clients/Clients/pages/ClientDetails";
 import MeetingInvoice from "@/components/Dashboard/Expert/Meetings/components/meetings/utils/MeetingInvoice";
+import HelpCenter from "@/components/Dashboard/Expert/HelpCenter/HelpCenter";
 
 const ExpertDashboardRoutes = () => {
   return (
@@ -27,6 +28,7 @@ const ExpertDashboardRoutes = () => {
         <Route path="/reviews" element={<Testimonials />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/clients/:id" element={<ClientDetails />} />
+        <Route path="//help-center" element={<HelpCenter />} />
       </Route>
     </Routes>
   );
