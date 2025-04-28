@@ -23,6 +23,11 @@ const ClientFeedback = ({
     ));
   };
 
+  const truncateText = (text, maxLength = 120) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength).trim() + '...';
+  };
+
   return (
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
@@ -58,7 +63,9 @@ const ClientFeedback = ({
                   <span className="font-medium truncate">{item.userName}</span>
                   <div className="flex">{renderStars(item.rating)}</div>
                 </div>
-                <p className="text-sm text-gray-600 break-words">{item.feedback}</p>
+                <p className="text-sm text-gray-600 break-words line-clamp-2">
+                  {truncateText(item.feedback)}
+                </p>
               </div>
             </div>
           ))
