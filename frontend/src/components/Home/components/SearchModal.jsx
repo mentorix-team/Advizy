@@ -4,23 +4,12 @@ import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import instantsearch from "instantsearch.js";
 import { hits, configure } from "instantsearch.js/es/widgets";
-import { ArrowRight, Circle as CircleX, Search, X } from "lucide-react";
+import { ArrowRight, CircleX, Search, X } from "lucide-react";
 import debounce from "lodash/debounce";
 import { useNavigate } from "react-router-dom";
+import { domainOptions } from "@/utils/Options";
 
-// Sample domain options since actual implementation reference isn't available
-const domainOptions = [
-  { label: "Technology", value: "technology" },
-  { label: "Design", value: "design" },
-  { label: "Marketing", value: "marketing" },
-  { label: "Business", value: "business" },
-  { label: "Finance", value: "finance" },
-  { label: "Health", value: "health" },
-  { label: "Education", value: "education" },
-  { label: "Legal", value: "legal" }
-];
-
-// Categories based on domain options
+// Update your categories to match domainOptions
 const categories = domainOptions.map((domain) => ({
   icon: "⭐", // Add appropriate icons
   title: domain.label,
@@ -29,16 +18,13 @@ const categories = domainOptions.map((domain) => ({
 }));
 
 const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
-  const navigate = useNavigate ? useNavigate() : () => {};
+  const navigate = useNavigate();
 
   const handleExplore = () => {
     onCategorySelect(category);
-    if (navigate) {
-      navigate(`/explore?category=${category.value}`);
-    }
+    navigate(`/explore?category=${category.value}`);
     onClose();
   };
-  
   return (
     <motion.button
       onClick={handleExplore}
@@ -53,11 +39,13 @@ const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
       </div>
       {category.hasArrow && <ArrowRight className="w-5 h-5 text-gray-400" />}
     </motion.button>
+
   );
 });
 
 CategoryButton.displayName = "CategoryButton";
 
+// Rest of the code remains exactly the same as in the previous artifact...
 const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
   const searchRef = useRef(null);
   const searchClient = useRef(null);
@@ -68,7 +56,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
     hasResults: true,
   });
 
-  const navigate = useNavigate ? useNavigate() : () => {};
+  const navigate = useNavigate();
 
   // Memoize the search client creation
   useEffect(() => {
@@ -143,13 +131,13 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
           },
         },
         cssClasses: {
-          list: "space-y-2 max-h-full overflow-y-auto",
+          list: "space-y-2",
         },
       });
 
       searchRef.current.addWidgets([
         configure({
-          hitsPerPage: 4, // Changed from 3 to 4 as requested
+          hitsPerPage: 3,
         }),
         hitWidget,
       ]);
@@ -197,8 +185,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
   const toggleShowAll = useCallback(() => {
     setSearchState((prev) => ({ ...prev, showAll: !prev.showAll }));
     navigate("/explore");
-    onClose();
-  }, [navigate, onClose]);
+  }, []);
 
   // Memoize the categories grid
   const categoriesGrid = useMemo(
@@ -251,34 +238,36 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
                 <CircleX className="w-5 h-5 text-gray-600" />
               </button>
             )}
-            
-            {/* Absolute positioned results container that overlaps content below */}
-            <div 
-              id="hits-container" 
-              className={`absolute left-0 right-0 top-full mt-2 z-20 ${
-                searchState.hasQuery ? "block" : "hidden"
-              }`}
-            >
-              <div
-                id="hits"
-                className="bg-white border border-gray-200 rounded-xl shadow-lg max-h-[280px] overflow-y-auto p-3"
-              ></div>
-              
-              {searchState.hasQuery && searchState.hasResults && (
-                <motion.button
-                  onClick={toggleShowAll}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full flex items-center rounded-b-xl justify-center gap-2 text-center text-blue-600 bg-white border border-t-0 border-gray-200 focus:outline-none py-2 shadow-lg hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-medium">See all results</span>
-                  <ArrowRight className="w-4 h-4" />
-                </motion.button>
-              )}
-            </div>
           </div>
 
-          <div className="mt-24 sm:mt-16">
+          <div
+            id="hits"
+            className={`mb-8 ${searchState.hasQuery ? "block" : "hidden"}`}
+          >
+            <div
+              id="initial-hits"
+              className={`${searchState.showAll ? "hidden" : "block"}`}
+            ></div>
+
+            <div
+              id="all-hits"
+              className={`${searchState.showAll ? "block" : "hidden"}`}
+            ></div>
+
+            {searchState.hasQuery &&
+              !searchState.showAll &&
+              searchState.hasResults && (
+                <button
+                  onClick={toggleShowAll}
+                  className="w-full flex items-center rounded-full justify-center gap-4 text-center text-black border border-gray-300 focus:outline-none py-2 mt-2"
+                >
+                  see all results
+                  <ArrowRight className="w-5 h-5 text-gray-600" />
+                </button>
+              )}
+          </div>
+
+          <div>
             <h3 className="text-lg font-semibold mb-2">Explore by Category</h3>
             {categoriesGrid}
           </div>
