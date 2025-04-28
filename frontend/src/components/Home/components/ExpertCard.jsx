@@ -196,4 +196,4 @@ const expertCard = ({ expert }) => {
   );
 };
 
-export default expertCard
+export default expertCard;
