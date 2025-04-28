@@ -180,17 +180,21 @@ import axios from 'axios';
 
 const success = async (req, res, next) => {
     try {
-        const { sessionId } = req.query;
         const response = req.body;
+        const { sessionId } = req.body; // Get sessionId from body instead of query
         
-        console.log("Payment Success:", response);
-        
+        console.log("Payment Success Data:", { sessionId, response });
+
+        if (!sessionId) {
+            return res.status(400).send("Session ID is required");
+        }
+
         // 1. Verify the payment with PayU
         const isPaymentValid = await verifyPayUPayment(response);
         if (!isPaymentValid) {
             return res.status(400).send("Payment verification failed");
         }
-        
+
         // 2. Update the payment session
         const updatedSession = await PaymentSession.findByIdAndUpdate(
             sessionId,
@@ -203,7 +207,7 @@ const success = async (req, res, next) => {
             },
             { new: true }
         );
-        
+
         if (!updatedSession) {
             return res.status(404).send("Payment session not found");
         }
@@ -279,14 +283,20 @@ const success = async (req, res, next) => {
             }
         };
 
-
         await PaymentSession.findByIdAndUpdate(sessionId, { 
             successToken,
             processingCompleted: true 
         });
-        
-        res.redirect(`https://www.advizy.in/payu-payment-success?data=${encodeURIComponent(JSON.stringify(confirmationData))}`);        
-    } catch (error) {
+
+        // ✅ Correct way to build the redirect URL
+        const redirectUrl = new URL('https://www.advizy.in/payu-payment-success');
+        redirectUrl.searchParams.append('data', JSON.stringify(confirmationData));
+        redirectUrl.searchParams.append('sessionId', sessionId);
+        redirectUrl.searchParams.append('token', successToken);
+
+        res.redirect(redirectUrl.toString());
+    
+    }catch (error) {
         console.error("Payment success handler error:", error);
         
         // Update session with error status if processing failed

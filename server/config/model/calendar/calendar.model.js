@@ -77,6 +77,17 @@ const AvailabilitySchema = new Schema(
         ],
       },
     ],
+    specific_dates: [
+      {
+        date: { type: Date },
+        slots: [
+          {
+            startTime: { type: String },
+            endTime: { type: String },
+          },
+        ],
+      },
+    ],
     timezone: {
       value: { type: String, required: true },
       label: { type: String, required: true },

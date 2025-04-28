@@ -18,7 +18,7 @@ const ExpertList = ({ filters, sorting }) => {
     error: state.expert.error,
   }));
 
-  const experts = expertsData?.experts || [];
+  const experts = expertsData || [];
   const totalExperts = experts.length;
   const totalPages = Math.ceil(totalExperts / ITEMS_PER_PAGE);
 
@@ -27,7 +27,18 @@ const ExpertList = ({ filters, sorting }) => {
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
   useEffect(() => {
-    if (JSON.stringify(filters) !== JSON.stringify(prevFiltersRef.current)) {
+    const filtersReady =
+      filters.selectedDomain ||
+      filters.selectedNiches?.length > 0 ||
+      filters.selectedLanguages?.length > 0 ||
+      filters.selectedRatings?.length > 0 ||
+      filters.selectedDurations?.length > 0 ||
+      sorting;
+  
+    if (
+      filtersReady &&
+      JSON.stringify(filters) !== JSON.stringify(prevFiltersRef.current)
+    ) {
       const queryParams = {
         domain: filters.selectedDomain?.value || "",
         niches: filters.selectedNiches || [],
@@ -38,7 +49,7 @@ const ExpertList = ({ filters, sorting }) => {
         durations: filters.selectedDurations || [],
         sorting: sorting || "",
       };
-
+  
       const cleanedQueryParams = Object.fromEntries(
         Object.entries(queryParams).filter(([key, value]) => {
           if (Array.isArray(value)) {
@@ -47,13 +58,19 @@ const ExpertList = ({ filters, sorting }) => {
           return value !== "";
         })
       );
-
+  
+      console.log("Dispatching getAllExperts with params:", cleanedQueryParams);
       dispatch(getAllExperts(cleanedQueryParams));
       prevFiltersRef.current = filters;
       setCurrentPage(1);
     }
   }, [dispatch, filters, sorting]);
 
+  useEffect(() => {
+    console.log("Fetched Experts Data:", expertsData);
+  }, [expertsData]);
+  
+  
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
