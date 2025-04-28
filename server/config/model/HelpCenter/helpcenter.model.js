@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const helpCenterSchema = new mongoose.Schema({
-  expert_id: {
+  expertId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ExpertBasics",
   },
