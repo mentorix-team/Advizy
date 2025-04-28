@@ -12,7 +12,7 @@ export default function RecentEarnings({
   const navigate = useNavigate();
 
   // Limit to maximum 4 earnings
-  const limitedEarnings = earnings.slice(0, 4);
+  const limitedEarnings = earnings.slice(0, 3);
 
   const onEarnings = () => {
     navigate("/dashboard/expert/payments");
