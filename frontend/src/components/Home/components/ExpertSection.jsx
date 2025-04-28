@@ -9,7 +9,6 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { loading, error } = useSelector((state) => state.expert);
   const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     setIsLoading(loading);
   }, [loading]);

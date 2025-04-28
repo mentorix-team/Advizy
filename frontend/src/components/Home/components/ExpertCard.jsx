@@ -3,16 +3,18 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Star, User } from "lucide-react";
+import { Star } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
-const ExpertCard = ({ expert }) => {
+const expertCard = ({ expert }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
   const [availability, setAvailability] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  console.log("expert in expert CARD ----", expert);
 
   const calculateTotalExperience = (workExperiences) => {
     if (!Array.isArray(workExperiences) || workExperiences.length === 0)
@@ -87,7 +89,7 @@ const ExpertCard = ({ expert }) => {
     };
 
     fetchAvailability();
-  }, [dispatch, expert._id]);
+  }, [dispatch, expert]);
 
   const firstAvailableDay = availability?.daySpecific?.find(
     (day) => day.slots.length > 0
@@ -136,10 +138,10 @@ const ExpertCard = ({ expert }) => {
             <div className="w-[120px] h-[120px] rounded-full overflow-hidden">
               <img
                 src={
-                  expert?.profileImage?.secure_url ||
+                  expert.image ||
                   "https://via.placeholder.com/100"
                 }
-                alt={`${expert.firstName} ${expert.lastName}`}
+                alt={`${expert.name}`}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -151,22 +153,21 @@ const ExpertCard = ({ expert }) => {
               {averageRating}
             </span>
             <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree']">
-              ({expert.reviews?.length || 0} reviews)
+              ({expert.reviews || 0} reviews)
             </span>
           </div>
 
           <div className="flex flex-col items-center w-full mt-2">
             <div className="flex items-center gap-2">
               <h3 className="font-['Figtree'] font-semibold text-[#1d1f1d] text-xl leading-7">
-                {`${expert.firstName} ${expert.lastName}`}
+                {`${expert.name}`}
               </h3>
               {expert.admin_approved_expert && (
                 <img src="/svg-image-65.svg" alt="verified tick" />
-                /* <CheckCircle className="w-5 h-5 text-blue-500" /> */
               )}
             </div>
             <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
-              {expert.credentials?.professionalTitle || "Expert"}
+              {expert.title || "experts"}
             </p>
           </div>
 
@@ -195,4 +196,4 @@ const ExpertCard = ({ expert }) => {
   );
 };
 
-export default ExpertCard;
+export default expertCard

@@ -106,7 +106,31 @@ function HomePage() {
   const { experts } = useSelector((state) => state.expert);
   const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
   const [fitnessExperts, setFitnessExperts] = useState([]);
-  const [careerExperts, setCareerExperts] = useState([]);
+  // const [careerExperts, setCareerExperts] = useState([]);
+
+  // Assuming `data` is the array you console.logged
+  const careerExperts = Array.isArray(experts)
+  ? experts
+      .filter((expert) => expert?.credentials?.domain === "career_and_education") // Filter by domain
+      .map((expert) => {
+        return {
+          id: expert._id,
+          name: `${expert.firstName} ${expert.lastName}`,
+          city: expert.city,
+          image: expert?.profileImage?.secure_url || "", // Fallback if not available
+          title: expert?.credentials?.professionalTitle?.[0] || "Mentor", // Fallback to "Mentor" if no title
+          redirect_url: expert?.redirect_url,
+          services: expert.credentials?.services || [], // Fallback to empty array if no services
+          availability: expert.availability, // Include availability data
+          reviews: expert.reviews || [],
+          admin_approved_expert : expert?.admin_approved_expert || false,
+          reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+        };
+      })
+  : [];
+
+console.log('Filtered career experts: ', careerExperts);
+
 
   useEffect(() => {
     const expertDataString = localStorage.getItem("expertData");
@@ -190,7 +214,7 @@ function HomePage() {
     dispatch(getAllExperts(cleanedQueryParams))
       .unwrap()
       .then((data) => {
-        setCareerExperts(data.experts);
+        // setCareerExperts(data.experts);
       })
       .catch((error) => {
         console.error("Error fetching career experts:", error);
