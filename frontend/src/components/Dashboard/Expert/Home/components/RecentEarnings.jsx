@@ -11,6 +11,9 @@ export default function RecentEarnings({
 }) {
   const navigate = useNavigate();
 
+  // Limit to maximum 4 earnings
+  const limitedEarnings = earnings.slice(0, 4);
+
   const onEarnings = () => {
     navigate("/dashboard/expert/payments");
   };
@@ -44,7 +47,7 @@ export default function RecentEarnings({
       </div>
 
       <div className="space-y-4">
-        {earnings.map((earning, index) => (
+        {limitedEarnings.map((earning, index) => (
           <div key={index} className="flex items-center justify-between">
             <div>
               <p className="font-medium">{formatCurrency(earning.amount)}</p>
@@ -65,7 +68,7 @@ export default function RecentEarnings({
 
       <button
         onClick={onEarnings}
-        className="w-full flex items-center mt-6 text-center text-primary hover:text-secondary text-sm font-medium"
+        className="w-full flex items-center justify-center gap-2 mt-6 text-primary hover:text-secondary text-sm font-medium"
       >
         View Earnings Report <ArrowUpRight className="w-4 h-4" />
       </button>

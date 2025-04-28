@@ -7,7 +7,7 @@ const ClientFeedback = ({
   onViewAll = () => {},
 }) => {
   // Limit to maximum 4 feedback items
-  const limitedFeedback = feedback.slice(0, 3);
+  const limitedFeedback = feedback.slice(0, 4);
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
