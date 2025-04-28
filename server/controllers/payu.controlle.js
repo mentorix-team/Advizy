@@ -283,16 +283,20 @@ const success = async (req, res, next) => {
             }
         };
 
-
         await PaymentSession.findByIdAndUpdate(sessionId, { 
             successToken,
             processingCompleted: true 
         });
-        
-        res.redirect(`https://www.advizy.in/payu-payment-success?data=${encodeURIComponent(JSON.stringify(confirmationData))}`);      
+
+        // ✅ Correct way to build the redirect URL
+        const redirectUrl = new URL('https://www.advizy.in/payu-payment-success');
+        redirectUrl.searchParams.append('data', JSON.stringify(confirmationData));
         redirectUrl.searchParams.append('sessionId', sessionId);
-        redirectUrl.searchParams.append('token', successToken);  
-    } catch (error) {
+        redirectUrl.searchParams.append('token', successToken);
+
+        res.redirect(redirectUrl.toString());
+    
+    }catch (error) {
         console.error("Payment success handler error:", error);
         
         // Update session with error status if processing failed

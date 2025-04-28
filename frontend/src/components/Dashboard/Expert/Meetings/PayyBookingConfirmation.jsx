@@ -104,7 +104,7 @@ const PayyBookingConfirmation = () => {
     );
   }
 
-  const { image, name, title, sessionDuration, price, date, time } = bookingData;
+  const { image = '', name = '', title = '', sessionDuration = '', price = '', date = '', time = {} } = bookingData || {};
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -120,10 +120,10 @@ const PayyBookingConfirmation = () => {
       </div>
 
       {/* Category Navigation */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {showCategoryNav && <CategoryNav categories={categories} />}
       </AnimatePresence>
-
+ */}
       {/* Main Content */}
       <main className="flex-grow pt-24 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
