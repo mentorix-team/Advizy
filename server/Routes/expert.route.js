@@ -1,5 +1,3 @@
-
-
 import Router from "express";
 import { isExpert, isLoggedIn } from "../middlewares/auth.middleare.js";
 import manageService, {
@@ -34,6 +32,7 @@ import manageService, {
   updateProfileStatus,
   updateService,
   validatethnumberormobile,
+  HelpCenter,
 } from "../controllers/expert.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { verifyInternalToken } from "../middlewares/admin.middleware.js";
@@ -147,7 +146,7 @@ router.post(
   deleteExpertEducation
 );
 
-router.post('/adminapproved',adminapproved)
+router.post("/adminapproved", adminapproved);
 router.post("/updateExpertDetails", isLoggedIn, isExpert, updateProfileStatus);
 router.get("/getexperts", getAllExperts);
 router.get("/getServices", isExpert, getExpertServices);
@@ -161,6 +160,7 @@ router.post("/service/:serviceId", getService);
 router.get("/sync-algolia", pushExpertsToAlgolia);
 router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
-router.get("/getAllthefkexperts",getAllExpertswithoutfilter)
-router.post('handlesuspend',handleSuspendExpert)
+router.get("/getAllthefkexperts", getAllExpertswithoutfilter);
+router.post("handlesuspend", handleSuspendExpert);
+router.post("/help-center", isLoggedIn, isExpert, HelpCenter);
 export default router;

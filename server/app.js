@@ -28,7 +28,7 @@ app.use(
       "http://localhost:8001",
       "http://advizy-adminpanel.onrender.com",
       "https://advizy.onrender.com",
-      "*"
+      "*",
     ], // Allow frontend
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -57,7 +57,7 @@ app.use("/api/v1/expert", expertRoutes);
 app.use("/api/v1/calendar", calendarRoutes);
 app.use("/api/v1/meeting", meetingRoutes);
 app.use("/api/v1/payment", razorpayRoutes);
-app.use('/api/v1/payu', payURoutes);
+app.use("/api/v1/payu", payURoutes);
 
 // app.use('/api/v1/admin', adminRoutes);
 

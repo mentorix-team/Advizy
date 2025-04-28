@@ -1,10 +1,8 @@
-import { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import instantsearch from "instantsearch.js";
 import { configure } from "instantsearch.js/es/widgets";
 import debounce from "lodash/debounce";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -14,29 +12,25 @@ import {
   UserCheck,
   LayoutDashboard,
   ChevronRight,
+  Search,
 } from "lucide-react";
-import { logout } from "@/Redux/Slices/authSlice";
-import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import SearchModal from "./SearchModal";
 
-const NavbarWithoutSearchModal = ({ onSearch }) => {
+const NavbarWithSearch = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const navigate = useNavigate();
   const [isExpertMode, setIsExpertMode] = useState(false);
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const userName = useSelector((state) => state.auth.user?.name || "User");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const [hasExpertData, setHasExpertData] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const searchClient = useRef(null);
   const searchRef = useRef(null);
   const [hits, setHits] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState("");
-
-  const dispatch = useDispatch();
-  const location = useLocation();
 
   // Debounced search function
   const handleNavbarSearch = useCallback(
@@ -98,35 +92,9 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
 
   const openExpertProfile = (expertId) => {
     // Navigate to expert profile
-    navigate(`/expert/${expertId}`);
+    console.log(`Navigating to expert/${expertId}`);
     setShowDropdown(false);
   };
-
-  const isLinkActive = (path) => {
-    return location.pathname === path;
-  };
-
-  useEffect(() => {
-    const expertData = localStorage.getItem("expertData");
-    setIsExpertMode(true);
-    if (expertData) {
-      setHasExpertData(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode") === "true";
-    setIsExpertMode(expertMode);
-  }, []);
-
-  useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode");
-    if (expertMode === "true") {
-      setIsExpertMode(true);
-    } else {
-      setIsExpertMode(false);
-    }
-  }, []);
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
@@ -136,32 +104,32 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
     setAuthPopupOpen(false);
   };
 
-  const handleLogout = async () => {
-    await dispatch(logout());
+  const handleLogout = () => {
+    setIsLoggedIn(false);
     setIsDropdownOpen(false);
-    navigate("/");
   };
 
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
-
-    if (newMode) {
-      localStorage.setItem("expertMode", "true");
-    } else {
-      localStorage.removeItem("expertMode");
-    }
-
     setIsExpertMode(newMode);
-
-    if (newMode) {
-      console.log("Navigating to Expert Dashboard");
-      navigate("/dashboard/expert/");
-    } else {
-      console.log("Navigating to User Dashboard");
-      navigate("/dashboard/user/meetings");
-    }
-
     setIsMenuOpen(false);
+  };
+
+  const handleOpenSearchModal = () => {
+    setIsSearchModalOpen(true);
+  };
+
+  const handleCloseSearchModal = () => {
+    setIsSearchModalOpen(false);
+  };
+
+  const handleSearchQueryChange = (value) => {
+    setQuery(value);
+    if (value.trim() === "") {
+      setHits([]);
+    } else {
+      handleNavbarSearch(value);
+    }
   };
 
   const UserDropdown = () => (
@@ -218,7 +186,7 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
                   <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
                 </a>
-                {isLoggedIn && hasExpertData && (
+                {hasExpertData && (
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
@@ -243,12 +211,12 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
+    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200 bg-[#FCFCFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <a href="/" className="flex items-center font-bold text-gray-900">
-              <img src="/logo104.99&44.svg" alt="Advizy Logo" />
+              <img src="/logo104.99&44.svg" alt="Logo" />
             </a>
           </div>
 
@@ -259,19 +227,7 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <Search className="w-5 h-5 text-primary" />
               </div>
               <input
                 type="text"
@@ -323,8 +279,15 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
             </motion.div>
           </div>
 
-          {/* Mobile menu button - Only visible on mobile */}
-          <div className="lg:hidden">
+          {/* Mobile navbar actions */}
+          <div className="flex items-center lg:hidden">
+            <button
+              onClick={handleOpenSearchModal}
+              className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 mr-1"
+              aria-label="Open search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
@@ -359,11 +322,7 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
-              className={`transition-colors duration-200 text-base font-medium ${
-                isLinkActive("/about-us")
-                  ? "text-primary underline underline-offset-4"
-                  : "text-gray-600 hover:text-primary"
-              }`}
+              className="transition-colors duration-200 text-base font-medium text-gray-600 hover:text-primary"
             >
               About Us
             </a>
@@ -371,11 +330,7 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
             {!isExpertMode && (
               <a
                 href="/become-expert"
-                className={`transition-colors duration-200 text-base font-medium ${
-                  isLinkActive("/become-expert")
-                    ? "text-primary underline underline-offset-4"
-                    : "text-gray-600 hover:text-primary"
-                }`}
+                className="transition-colors duration-200 text-base font-medium text-gray-600 hover:text-primary"
               >
                 Share Your Expertise
               </a>
@@ -407,92 +362,16 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
               className="lg:hidden py-4 border-t border-gray-200 bg-white"
             >
               <div className="flex flex-col space-y-4">
-                <div className="w-full px-4">
-                  <motion.div
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  >
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search mentors..."
-                      value={query}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                    />
-                    {showDropdown && query.trim() !== "" && (
-                      <div className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {hits.length > 0 ? (
-                          hits.map((hit) => (
-                            <div
-                              key={hit.objectID}
-                              className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                              onClick={() => openExpertProfile(hit.objectID)}
-                            >
-                              <div className="flex items-center space-x-3">
-                                {hit.profileImageUrl ? (
-                                  <img
-                                    src={hit.profileImageUrl}
-                                    alt={hit.name}
-                                    className="w-8 h-8 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                    <User className="w-4 h-4 text-gray-500" />
-                                  </div>
-                                )}
-                                <div>
-                                  <div className="font-medium text-sm">{hit.name}</div>
-                                  <div className="text-xs text-gray-500">
-                                    {hit.professionalTitle || hit.expertise || "Expert"}
-                                  </div>
-                                </div>
-                              </div>
-                              <ChevronRight className="w-4 h-4 text-gray-400" />
-                            </div>
-                          ))
-                        ) : (
-                          <div className="px-4 py-3 text-gray-500 text-sm">
-                            No experts found matching your search
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                </div>
                 <a
                   href="/about-us"
-                  className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                    isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                  }`}
+                  className="w-full text-center py-2 transition-colors duration-200 text-sm font-medium text-gray-600 hover:text-primary"
                 >
                   About Us
                 </a>
                 {!isExpertMode && (
                   <a
                     href="/become-expert"
-                    className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                      isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
-                    }`}
+                    className="w-full text-center py-2 transition-colors duration-200 text-sm font-medium text-gray-600 hover:text-primary"
                   >
                     Share Your Expertise
                   </a>
@@ -561,9 +440,18 @@ const NavbarWithoutSearchModal = ({ onSearch }) => {
           )}
         </AnimatePresence>
       </div>
-      <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={handleCloseSearchModal}
+        query={query}
+        onQueryChange={handleSearchQueryChange}
+        hits={hits}
+        onExpertSelect={openExpertProfile}
+      />
     </nav>
   );
 };
 
-export default NavbarWithoutSearchModal;
+export default NavbarWithSearch;

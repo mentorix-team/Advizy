@@ -1895,6 +1895,24 @@ const handleSuspendExpert = async(req,res,next) =>{
 
 }
 
+const HelpCenter = async (req, res) => {
+  try {
+    const { name, mobile, problem } = req.body;
+
+    if (!name || !mobile || !problem) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    const newRequest = new HelpCenter({ name, mobile, problem });
+    await newRequest.save();
+
+    res.status(200).json({ message: 'Support request submitted successfully.', data: newRequest });
+  } catch (error) {
+    console.error('Error in HelpCenter:', error.message);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+};
+
 export {
   getExpert,
 
@@ -1942,5 +1960,8 @@ export {
   adminapproved,
 
   getAllExpertswithoutfilter,
-  handleSuspendExpert
+  handleSuspendExpert,
+  
+  // help center
+  HelpCenter
 }
