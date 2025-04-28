@@ -1,8 +1,8 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const helpCenterSchema = new mongoose.Schema({
   expert_id: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "ExpertBasics",
   },
   name: {

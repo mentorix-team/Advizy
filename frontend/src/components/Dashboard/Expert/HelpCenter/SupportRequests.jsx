@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import SmallSpinner from "@/components/LoadingSkeleton/SmallSpinner";
 
 function SupportRequests() {
   const [supportRequests, setSupportRequests] = useState([]);
@@ -30,7 +31,7 @@ function SupportRequests() {
     fetchSupportRequests();
   }, []);
 
-  if (loading) return <p>Loading support requests...</p>;
+  if (loading) return <SmallSpinner />;
   if (error) return <p>Error: {error}</p>;
 
   return (
