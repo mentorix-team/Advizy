@@ -1,4 +1,5 @@
 import { ExpertBasics, ExpertCredentials } from "../config/model/expert/expertfinal.model.js";
+import HelpCenterModel from "../config/model/HelpCenter/helpcenter.model.js";
 import AppError from "../utils/AppError.js";
 import cloudinary from "cloudinary"
 import mongoose from 'mongoose'
@@ -1903,7 +1904,7 @@ const HelpCenter = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
-    const newRequest = new HelpCenter({ name, mobile, problem });
+    const newRequest = new HelpCenterModel({ name, mobile, problem });
     await newRequest.save();
 
     res.status(200).json({ message: 'Support request submitted successfully.', data: newRequest });
@@ -1961,7 +1962,7 @@ export {
 
   getAllExpertswithoutfilter,
   handleSuspendExpert,
-  
+
   // help center
   HelpCenter
 }

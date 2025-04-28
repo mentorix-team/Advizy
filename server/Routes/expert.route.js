@@ -162,5 +162,5 @@ router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
 router.get("/getAllthefkexperts", getAllExpertswithoutfilter);
 router.post("handlesuspend", handleSuspendExpert);
-router.post("/help-center", isLoggedIn, isExpert, HelpCenter);
+router.post("/help-center", HelpCenter);
 export default router;

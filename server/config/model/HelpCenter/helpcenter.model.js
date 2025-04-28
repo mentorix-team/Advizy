@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const helpCenterSchema = new mongoose.Schema({
   name: {
@@ -19,9 +19,8 @@ const helpCenterSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
-const HelpCenter = mongoose.model('helpcenter', helpCenterSchema);
-
-module.exports = HelpCenter;
+const HelpCenterModel = mongoose.model("HelpCenter", helpCenterSchema);
+export default HelpCenterModel;
