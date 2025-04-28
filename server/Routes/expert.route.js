@@ -33,6 +33,7 @@ import manageService, {
   updateService,
   validatethnumberormobile,
   HelpCenter,
+  getSupportRequestsForExpert,
 } from "../controllers/expert.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { verifyInternalToken } from "../middlewares/admin.middleware.js";
@@ -162,5 +163,7 @@ router.post("/generateotpforvalidating", generateOtpForVerifying);
 router.post("/verifyingotpgot", validatethnumberormobile);
 router.get("/getAllthefkexperts", getAllExpertswithoutfilter);
 router.post("handlesuspend", handleSuspendExpert);
+//help center
 router.post("/help-center", HelpCenter);
+router.get("/support-requests", isExpert, getSupportRequestsForExpert);
 export default router;

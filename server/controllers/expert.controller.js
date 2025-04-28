@@ -1914,6 +1914,22 @@ const HelpCenter = async (req, res) => {
   }
 };
 
+const getSupportRequestsForExpert = async (req, res) => {
+  try {
+    const expertId = req.expert._id; // assuming you are using `isLoggedIn` middleware that sets req.user
+
+    if(!expertId){
+      return res.status(400).json({ error: 'Expert ID not found.' });
+    }
+    const supportRequests = await HelpCenterModel.find({ expertId }).sort({ createdAt: -1 });
+
+    res.status(200).json({ data: supportRequests });
+  } catch (error) {
+    console.error("Error fetching support requests:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 export {
   getExpert,
 
@@ -1964,5 +1980,6 @@ export {
   handleSuspendExpert,
 
   // help center
-  HelpCenter
+  HelpCenter,
+  getSupportRequestsForExpert,
 }

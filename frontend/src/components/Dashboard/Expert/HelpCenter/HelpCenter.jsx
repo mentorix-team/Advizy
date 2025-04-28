@@ -3,6 +3,7 @@ import PhoneSupport from "./PhoneSupport";
 import FAQSection from "./FAQSection";
 import RequestCallModal from "./RequestCallModal";
 import { useSelector } from "react-redux";
+import SupportRequests from "./SupportRequests";
 
 function HelpCenter() {
   const [showRequestCall, setShowRequestCall] = useState(false);
@@ -48,6 +49,8 @@ function HelpCenter() {
       <div className="max-w-md mx-auto mb-12">
         <PhoneSupport onRequestCall={handleRequestCall} />
       </div>
+
+      <SupportRequests />
 
       <FAQSection />
 
