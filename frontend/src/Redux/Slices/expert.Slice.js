@@ -440,43 +440,88 @@ export const submitExpertForm = createAsyncThunk(
   }
 );
 
+// export const getAllExperts = createAsyncThunk(
+//   "expert/get",
+//   async (queryParams = {}, { rejectWithValue }) => {
+//     try {
+//       const queryParamsWithApproval = {
+//         ...queryParams,
+//         admin_approved_expert: true,
+//       };
+
+//       // Construct query string dynamically
+//       const queryString = new URLSearchParams(
+//         queryParamsWithApproval
+//       ).toString();
+//       const endpoint = queryString
+//         ? `expert/getexperts?${queryString}`
+//         : "expert/getexperts";
+
+//       const { data } = await axiosInstance.get(endpoint);
+
+//       // Check if response.data is an array
+//       const experts = Array.isArray(data.data) ? data.data : [];
+
+//       // Filter approved experts
+//       const approvedExperts = experts.filter(
+//         (expert) => expert?.admin_approved_expert === true
+//       );
+
+//       console.log("Fetched Experts:", {
+//         total: experts.length,
+//         approved: approvedExperts.length,
+//       });
+
+//       // const approvedExperts = data.filter(
+//       //   (expert) => expert.admin_approved_expert === true
+//       // );
+//       console.log(approvedExperts);
+//       return approvedExperts;
+//     } catch (error) {
+//       console.error("Error fetching experts:", error);
+//       const errorMessage =
+//         error.response?.data?.message ||
+//         "Failed to fetch experts. Please try again.";
+//       toast.error(errorMessage, {
+//         position: "top-right",
+//         autoClose: 3000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//       });
+//       return rejectWithValue(error.response?.data || { message: errorMessage });
+//     }
+//   }
+// );
+
 export const getAllExperts = createAsyncThunk(
   "expert/get",
   async (queryParams = {}, { rejectWithValue }) => {
     try {
       const queryParamsWithApproval = {
         ...queryParams,
-        admin_approved_expert: true
+        admin_approved_expert: true,
       };
 
-      // Construct query string dynamically
-      const queryString = new URLSearchParams(queryParams).toString();
-      const endpoint = queryString
-        ? `expert/getexperts?${queryString}`
-        : "expert/getexperts";
+      const queryString = new URLSearchParams(queryParamsWithApproval).toString();
+      const endpoint = `expert/getexperts?${queryString}`;
 
-      const { data } = await axiosInstance.get(endpoint);
+      const response = await axiosInstance.get(endpoint);
 
-      const approvedExperts = data.filter(expert => expert.admin_approved_expert === true);
-      console.log(approvedExperts);
-      return approvedExperts;
+      const expertsData = response.data?.experts || [];
+      console.log("API Response:", response.data);
+      return expertsData;
     } catch (error) {
       console.error("Error fetching experts:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to fetch experts. Please try again.";
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
+      return rejectWithValue({
+        message: error.response?.data?.message || "Failed to fetch experts",
+        details: error.response?.data,
       });
-      return rejectWithValue(error.response?.data || { message: errorMessage });
     }
   }
 );
+
 
 export const getExpertById = createAsyncThunk(
   "expert/getExpertById",
@@ -965,10 +1010,19 @@ const expertSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
+      // .addCase(getAllExperts.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.experts = action.payload; // Store the array of experts
+      // })
       .addCase(getAllExperts.fulfilled, (state, action) => {
+        if (action.payload.length > 0 || state.experts.length === 0) {
+          state.experts = action.payload;
+        }
         state.loading = false;
-        state.experts = action.payload; // Store the array of experts
+        state.error = null;
+        console.log("Updated state.experts:", state.experts);
       })
+      
       .addCase(getAllExperts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Error fetching experts";
