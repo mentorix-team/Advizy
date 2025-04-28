@@ -3,7 +3,6 @@ import PhoneSupport from './PhoneSupport';
 import FAQSection from './FAQSection';
 import RequestCallModal from './RequestCallModal';
 
-
 function HelpCenter() {
   const [showRequestCall, setShowRequestCall] = useState(false);
 
