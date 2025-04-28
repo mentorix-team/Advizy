@@ -1,17 +1,24 @@
 import React from 'react';
-import { BiStar } from 'react-icons/bi';
+import { Star } from 'lucide-react';
 import PropTypes from 'prop-types';
 
-export default function ClientFeedback({ 
+const ClientFeedback = ({
   feedback = [],
-  onViewAll = () => {}
-}) {
+  onViewAll = () => {},
+}) => {
+  // Limit to maximum 4 feedback items
+  const limitedFeedback = feedback.slice(0, 3);
+
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
-      <BiStar
+      <Star
         key={index}
-        className={index < rating ? 'text-yellow-400' : 'text-gray-200'}
         size={16}
+        className={`${
+          index < rating 
+            ? 'text-yellow-400 fill-yellow-400' 
+            : 'text-gray-200'
+        } transition-colors`}
       />
     ));
   };
@@ -22,49 +29,57 @@ export default function ClientFeedback({
         <h2 className="text-lg sm:text-xl font-bold">Recent Client Feedback</h2>
         <button 
           onClick={onViewAll}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-gray-500 hover:text-gray-800 transition-colors p-2 -m-2"
+          aria-label="View all feedback"
         >
-          →
+          <span className="text-xl">→</span>
         </button>
       </div>
 
       <div className="space-y-6">
-      {Array.isArray(feedback) && feedback.length > 0 ? (
-  feedback.map((item, index) => (
-    <div key={index} className="flex items-start gap-4">
-      <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0">
-        {item.avatar && (
-          <img 
-            src={item.avatar} 
-            alt={item.userName}
-            className="w-full h-full rounded-full object-cover"
-          />
+        {Array.isArray(limitedFeedback) && limitedFeedback.length > 0 ? (
+          limitedFeedback.map((item, index) => (
+            <div key={index} className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden">
+                {item.avatar ? (
+                  <img 
+                    src={item.avatar} 
+                    alt={`${item.userName}'s avatar`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-500 font-medium text-sm">
+                    {item.userName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-medium truncate">{item.userName}</span>
+                  <div className="flex">{renderStars(item.rating)}</div>
+                </div>
+                <p className="text-sm text-gray-600 break-words">{item.feedback}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500">No feedback available</p>
         )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <span className="font-medium truncate">{item.userName}</span>
-          <div className="flex">{renderStars(item.rating)}</div>
-        </div>
-        <p className="text-sm text-gray-600 break-words">{item.feedback}</p>
-      </div>
-    </div>
-  ))
-) : (
-  <p className="text-gray-500">No feedback available</p>
-)}
-
       </div>
     </div>
   );
-}
+};
 
 ClientFeedback.propTypes = {
-  feedback: PropTypes.arrayOf(PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    rating: PropTypes.number.isRequired,
-    comment: PropTypes.string.isRequired,
-    avatar: PropTypes.string
-  })),
+  feedback: PropTypes.arrayOf(
+    PropTypes.shape({
+      userName: PropTypes.string.isRequired,
+      rating: PropTypes.number.isRequired,
+      feedback: PropTypes.string.isRequired,
+      avatar: PropTypes.string
+    })
+  ),
   onViewAll: PropTypes.func
 };
+
+export default ClientFeedback;
