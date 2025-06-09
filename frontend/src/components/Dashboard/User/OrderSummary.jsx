@@ -12,6 +12,8 @@ import Footer from "@/components/Home/components/Footer";
 import { AnimatePresence } from "framer-motion";
 import SearchModal from "@/components/Home/components/SearchModal";
 
+
+
 const OrderSummary = () => {
   const navigate = useNavigate();
   const location = useLocation();
