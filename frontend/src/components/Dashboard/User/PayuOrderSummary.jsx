@@ -230,7 +230,7 @@ const PayuOrderSummary = () => {
       console.log('this is payu response',response)
       const payuWindow = window.open("", "_blank");
       if (response) {
-        payuWindow.document.write(response);
+        payuWindow.document.write(response)
       }
     } catch (error) {
       console.error("PayU payment failed:", error);
