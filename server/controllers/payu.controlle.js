@@ -4,34 +4,26 @@ import mongoose from 'mongoose';
 // import axios from 'axios';
 import crypto from "crypto";
 
-export const generatePayUHash = async (req, res) => {
-  try {
-    const data = req.body;
+import crypto from "crypto";
 
-    const key = data.key;
-    const txnid = data.txnid;
-    const amount = data.amount;
-    const productinfo = data.productinfo;
-    const firstname = data.firstname;
-    const email = data.email;
-
-    const udf1 = data.udf1 || ""; // optional fields
-    const udf2 = data.udf2 || "";
-    const udf3 = data.udf3 || "";
-    const udf4 = data.udf4 || "";
-    const udf5 = data.udf5 || "";
-
-    const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz"; // Your PayU salt
-
-    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${SALT}`;
-    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
-
-    return res.status(200).json({ hash });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
+export function generatePayUHash(params, salt) {
+    const {
+      key,
+      txnid,
+      amount,
+      productinfo,
+      firstname,
+      email,
+      udf1 = "",
+      udf2 = "",
+      udf3 = "",
+      udf4 = "",
+      udf5 = ""
+    } = params;
+  
+    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${salt}`;
+    return crypto.createHash("sha512").update(hashString).digest("hex");
   }
-};
 
 export const createPaymentSession = async (paymentData) => {
     try {
@@ -153,9 +145,10 @@ export const verifyPayUPayment = async (req, res) => {
         udf4: date,
         udf5: message || ''
       };
+
+      const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz";
   
-      const hash = generatePayUHash(payuData); // Make sure your hash function includes udf1-udf5 if needed
-  
+      const hash = generatePayUHash(payuData, SALT);  
       // Send auto-submitting form to PayU
       const html = `
       <!DOCTYPE html>
