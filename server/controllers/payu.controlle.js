@@ -148,6 +148,8 @@ export const verifyPayUPayment = async (req, res) => {
 
       const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz";
   
+
+      
       const hash = generatePayUHash(payuData, SALT);  
       // Send auto-submitting form to PayU
       const html = `
