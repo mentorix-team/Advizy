@@ -3,7 +3,7 @@ import PaymentSession from '../config/model/transaction/PayuModel.js';
 import mongoose from 'mongoose';
 // import axios from 'axios';
 function generatePayUHash(data) {
-    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||${'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCbOmeInpy0GLl1/ErGzEOn7sUyHE1ZaoX/yOOZq0A64K0Pn3oAT6prU9cT5dU44OuNlop3aqnZZSWn1KiP3xrBEjQT1c1JVnbO6kDRftmcaDplg4JJsexMvKwOgf5dvHJNKCcovvUjymxwoZTKbaXtZbseekiP/0RmpsW5yFRqSnxlPNgPpBPb3PgD5up2CKfvB2fptHv1Te4ZhMMiW870QmZdP6FOmdy07hjhRAYF0Vm68QSRarddBn6ycIMkaY2Z3JUez9JGokwOt7XVCS8o5smwfFQkmcmGFtNOtzVFFzAiyW9IOCadWHmUyJOB5k467Odd7gB3jnwvVTnmT3ahAgMBAAECggEAMtV/jlgTDU+DfMXwXwYJqfchkPV/xyaBV3CcSHiyghWN1y3ssClmr9s29gcwOn495ZJFKjI+CTl8iWe1A9iWVF/3uf8sSTYNlllUfMbD0Nq5NQFKK4Qe1Ep9NgsQF/ZcoDPkDw3qDZx+wqvHpDsgOYw1KRf2p2F7LvqyidK3Ak97ZEd13rxzgivMMff6NM5PrurheQjhwuRzGAMMhd4MpKw5ZXCpNrYgKaXZStMPk1yTfFIlEHwhczYkZxvT2sb83TPUzk0HulN5cBef9ieRMeW4+shCEUYrm6qlex6DAb6Q6aexxPrb8vbKYxhTH83jMNvYLJNUQp64B25e3Oj02QKBgQC5qhnAdqDs1jeDgcVMsCJtnCJYpqH9MINQk1TQdS1lX2oH+F2K7VfpxxNBPyhYmJzK0CTH1ZCG9B/A7IPayCsQEJgPeMuTPh4XVPwFwFhJqgCj+5X6I28/jtAyootQDSOtk/spCmWKpo1/vsGT/TEDEYVRttjKJpfrMP+2gxXSDwKBgQDWCJBZ9oxesd801tGHe2oTIy0BSIf0BjPSK0s1iMUhGRG96wBml3dyojT7vk1FANlYokF5ObPy0jUEkCyCTXeVFHW2mYSXf9qv7HZimUn3D2iO5/YD0WdEHf3H/X8/RbimLCEuZrRfWQYHDb8qK+1wZGmNZLiXvsj4N5V96MYcTwKBgQCYMWGurQ+5VNhoyoXLGU7/fs+A0AdVnuDluf/6aTNvN8mZAvTbHzfDgNa902HlTiSo8/pSfTReC9vDr51eSFtUbeXYOPLXnkHYame05zj4GY0w3tjQFR/qf80W1LtSQZMPhJCL0ePuxhyTrPDNuOzmUQRyOWp4Oy6pMp9LIyVN7QKBgHYw2HW1XiJUmut0zNPB5PuYaxvQT7MDUc53NdrkIed7Dn8PrHL6pW1aAWQa3FSEeYEmaH1mzeYDCl/wtYNm/+gFGlOxRrTaV4raSy17dIrHqXdwxDurgRjubtvnMkNgXuz0ZYZYFLaqVFfE0ZGaHE36RQddXUn+gr//AcA7sFqlAoGBAK08TX9U9tFk7rZ+YtDplK46ksPXqsIzMZt3CXNEOWr+bBf/qNEG7cIiTkS9zfPWKYiTb5tOIJ4BjK3pBSSayW0YUzn+EI8HFhaFbv0dKSilmHc5FDTXmA29yanjlwqKZmtaFFxoktGwYVl6PvY6jwwk8hnq2V+RK6dyWwEQFhsM'}`;
+    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|${data.serviceId}|${data.expertId}|${data.userId}|${data.date}|||||||${'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCbOmeInpy0GLl1/ErGzEOn7sUyHE1ZaoX/yOOZq0A64K0Pn3oAT6prU9cT5dU44OuNlop3aqnZZSWn1KiP3xrBEjQT1c1JVnbO6kDRftmcaDplg4JJsexMvKwOgf5dvHJNKCcovvUjymxwoZTKbaXtZbseekiP/0RmpsW5yFRqSnxlPNgPpBPb3PgD5up2CKfvB2fptHv1Te4ZhMMiW870QmZdP6FOmdy07hjhRAYF0Vm68QSRarddBn6ycIMkaY2Z3JUez9JGokwOt7XVCS8o5smwfFQkmcmGFtNOtzVFFzAiyW9IOCadWHmUyJOB5k467Odd7gB3jnwvVTnmT3ahAgMBAAECggEAMtV/jlgTDU+DfMXwXwYJqfchkPV/xyaBV3CcSHiyghWN1y3ssClmr9s29gcwOn495ZJFKjI+CTl8iWe1A9iWVF/3uf8sSTYNlllUfMbD0Nq5NQFKK4Qe1Ep9NgsQF/ZcoDPkDw3qDZx+wqvHpDsgOYw1KRf2p2F7LvqyidK3Ak97ZEd13rxzgivMMff6NM5PrurheQjhwuRzGAMMhd4MpKw5ZXCpNrYgKaXZStMPk1yTfFIlEHwhczYkZxvT2sb83TPUzk0HulN5cBef9ieRMeW4+shCEUYrm6qlex6DAb6Q6aexxPrb8vbKYxhTH83jMNvYLJNUQp64B25e3Oj02QKBgQC5qhnAdqDs1jeDgcVMsCJtnCJYpqH9MINQk1TQdS1lX2oH+F2K7VfpxxNBPyhYmJzK0CTH1ZCG9B/A7IPayCsQEJgPeMuTPh4XVPwFwFhJqgCj+5X6I28/jtAyootQDSOtk/spCmWKpo1/vsGT/TEDEYVRttjKJpfrMP+2gxXSDwKBgQDWCJBZ9oxesd801tGHe2oTIy0BSIf0BjPSK0s1iMUhGRG96wBml3dyojT7vk1FANlYokF5ObPy0jUEkCyCTXeVFHW2mYSXf9qv7HZimUn3D2iO5/YD0WdEHf3H/X8/RbimLCEuZrRfWQYHDb8qK+1wZGmNZLiXvsj4N5V96MYcTwKBgQCYMWGurQ+5VNhoyoXLGU7/fs+A0AdVnuDluf/6aTNvN8mZAvTbHzfDgNa902HlTiSo8/pSfTReC9vDr51eSFtUbeXYOPLXnkHYame05zj4GY0w3tjQFR/qf80W1LtSQZMPhJCL0ePuxhyTrPDNuOzmUQRyOWp4Oy6pMp9LIyVN7QKBgHYw2HW1XiJUmut0zNPB5PuYaxvQT7MDUc53NdrkIed7Dn8PrHL6pW1aAWQa3FSEeYEmaH1mzeYDCl/wtYNm/+gFGlOxRrTaV4raSy17dIrHqXdwxDurgRjubtvnMkNgXuz0ZYZYFLaqVFfE0ZGaHE36RQddXUn+gr//AcA7sFqlAoGBAK08TX9U9tFk7rZ+YtDplK46ksPXqsIzMZt3CXNEOWr+bBf/qNEG7cIiTkS9zfPWKYiTb5tOIJ4BjK3pBSSayW0YUzn+EI8HFhaFbv0dKSilmHc5FDTXmA29yanjlwqKZmtaFFxoktGwYVl6PvY6jwwk8hnq2V+RK6dyWwEQFhsM'}`;
     return crypto.createHash('sha512').update(hashString).digest('hex');
 }
 
@@ -32,7 +32,7 @@ export const createPaymentSession = async (paymentData) => {
 };
 export const verifyPayUPayment = async (response) => {
     try {
-        const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||${process.env.PAYU_SALT}`;
+        const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|${response.serviceId}|${response.expertId}|${response.userId}|${response.date}|||||||${process.env.PAYU_SALT}`;
         const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
         
         if (calculatedHash !== response.hash) {
@@ -72,12 +72,11 @@ export const verifyPayUPayment = async (response) => {
   
       console.log('req.body is:', req.body);
   
-      // Validate required fields
       if (!userId) {
         throw new Error('User ID is required');
       }
   
-      // Convert serviceId to ObjectId if possible, otherwise keep as string
+      
       const serviceIdToUse = mongoose.Types.ObjectId.isValid(serviceId) 
         ? new mongoose.Types.ObjectId(serviceId)
         : serviceId;
@@ -110,8 +109,12 @@ export const verifyPayUPayment = async (response) => {
         email,
         phone,
         productinfo,
-        surl: `https://www.advizy.in/payu-payment-success?sessionId=${paymentSession._id}`,
-        furl: `https://www.advizy.in/payu-payment-failure?sessionId=${paymentSession._id}`,
+        serviceId,
+        expertId,
+        userId,
+        date,
+        surl: `https://advizy.onrender.com/api/v1/payu/success`,
+        furl: `https://advizy.onrender.com/api/v1/payu/failure`,
         service_provider: 'payu_paisa'
       };
   
@@ -157,6 +160,10 @@ export const verifyPayUPayment = async (response) => {
               <input type="hidden" name="email" value="${payuData.email}" />
               <input type="hidden" name="phone" value="${payuData.phone}" />
               <input type="hidden" name="productinfo" value="${payuData.productinfo}" />
+              <input type="hidden" name="serviceId" value="${payuData.serviceId}" />
+              <input type="hidden" name="expertId" value="${payuData.expertId}" />
+              <input type="hidden" name="userId" value="${payuData.userId}" />
+              <input type="hidden" name="date" value="${payuData.date}" />
               <input type="hidden" name="surl" value="${payuData.surl}" />
               <input type="hidden" name="furl" value="${payuData.furl}" />
               <input type="hidden" name="hash" value="${hash}" />
@@ -177,10 +184,12 @@ export const verifyPayUPayment = async (response) => {
   }
 };
 import axios from 'axios';
+import AppError from '../utils/AppError.js';
 
 const success = async (req, res, next) => {
     try {
         const response = req.body;
+        console.log(req.body)
         const { sessionId } = req.body; // Get sessionId from body instead of query
         
         console.log("Payment Success Data:", { sessionId, response });
@@ -220,14 +229,12 @@ const success = async (req, res, next) => {
             razorpay_signature: response.hash
         };
 
-        // 4. Call payedForMeeting endpoint
         const payedResponse = await axios.post(
             `https://advizy.onrender.com/api/v1/meeting/payedformeeting`, 
             paymentData,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add any required auth headers
                 }
             }
         );
@@ -236,20 +243,17 @@ const success = async (req, res, next) => {
             throw new Error("Payment processing failed");
         }
 
-        // 5. Prepare video call data
         const videoCallData = {
             title: updatedSession.metaData.serviceTitle || "Consultation",
             preferred_region: "ap-southeast-1"
         };
 
-        // 6. Call createVideocall endpoint
         const videoCallResponse = await axios.post(
             `https://advizy.onrender.com/api/v1/meeting/createVideoCall`,
             videoCallData,
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add any required auth headers
                 }
             }
         );
@@ -258,7 +262,6 @@ const success = async (req, res, next) => {
             throw new Error("Video call creation failed");
         }
 
-        // 7. Generate success token and redirect
         const successToken = crypto.randomBytes(16).toString('hex');
 
         const confirmationData = {
@@ -288,13 +291,12 @@ const success = async (req, res, next) => {
             processingCompleted: true 
         });
 
-        // ✅ Correct way to build the redirect URL
         const redirectUrl = new URL('https://www.advizy.in/payu-payment-success');
         redirectUrl.searchParams.append('data', JSON.stringify(confirmationData));
         redirectUrl.searchParams.append('sessionId', sessionId);
         redirectUrl.searchParams.append('token', successToken);
 
-        res.redirect(redirectUrl.toString());
+        return res.redirect(redirectUrl.toString());
     
     }catch (error) {
         console.error("Payment success handler error:", error);
@@ -307,14 +309,19 @@ const success = async (req, res, next) => {
             });
         }
         
-        // Redirect to failure page with error details
-        res.redirect(`${process.env.CLIENT_PAYMENT_FAILURE_URL}?error=${encodeURIComponent(error.message)}`);
+      
+        res.redirect(`https://www.advizy.in/payu-payment-failure?error=${encodeURIComponent(error.message)}`);
     }
 };
 const failure = async(req,res,next) =>{
-    const response = req.body;
-    console.log("Payment Failed:", response);
-    res.send("Payment Failed! ❌");
+    try {
+        const response = req.body;
+        console.log("Payment Failed:", response);
+        return res.redirect('https://www.advizy.in/payu-payment-failure')
+    } catch (error) {
+        return next(new AppError(error,503))
+    }
+
 }
 
 

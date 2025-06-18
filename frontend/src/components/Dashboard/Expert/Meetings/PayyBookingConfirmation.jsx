@@ -26,7 +26,6 @@ const PayyBookingConfirmation = () => {
   useEffect(() => {
     const verifyPaymentAndLoadData = async () => {
       try {
-        // Extract data from URL parameters
         const searchParams = new URLSearchParams(location.search);
         const sessionId = searchParams.get('sessionId');
         const token = searchParams.get('token');
@@ -35,7 +34,6 @@ const PayyBookingConfirmation = () => {
           throw new Error('Invalid booking confirmation');
         }
 
-        // Verify payment with backend
         const verification = await dispatch(success({ sessionId, token })).unwrap();
         
         if (!verification.success) {

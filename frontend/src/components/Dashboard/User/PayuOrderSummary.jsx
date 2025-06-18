@@ -227,10 +227,11 @@ const PayuOrderSummary = () => {
       };
 
       const response = await dispatch(PayU(paymentData)).unwrap();
-      const payuWindow = window.open("", "_blank");
-      if (response) {
-        payuWindow.document.write(response);
-      }
+      console.log('this is payu response',response)
+      // const payuWindow = window.open("", "_blank");
+      // if (response) {
+      //   payuWindow.document.write(response);
+      // }
     } catch (error) {
       console.error("PayU payment failed:", error);
       // Handle error (show toast, etc.)
