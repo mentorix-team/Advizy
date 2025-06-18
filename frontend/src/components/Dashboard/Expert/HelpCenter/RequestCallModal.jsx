@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { X, Phone } from "lucide-react";
 import axios from "axios";
 import SmallSpinner from "@/components/LoadingSkeleton/SmallSpinner";
+import { useDispatch } from "react-redux";
+import { fetchSupportQueries } from "@/Redux/Slices/supportQueriesSlice";
 
 function RequestCallModal({ isOpen, onClose, expertName, expertPhone }) {
   const [formData, setFormData] = useState({
@@ -13,6 +15,8 @@ function RequestCallModal({ isOpen, onClose, expertName, expertPhone }) {
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!isOpen) {
@@ -75,13 +79,16 @@ function RequestCallModal({ isOpen, onClose, expertName, expertPhone }) {
 
       await axios.post(
         "https://advizy.onrender.com/api/v1/expert/help-center",
-        payload
+        payload,
+        { withCredentials: true }
       );
 
       setSubmitted(true);
       setTimeout(() => {
         onClose();
       }, 2000);
+
+      dispatch(fetchSupportQueries());
     } catch (error) {
       console.error(
         "Submission failed:",

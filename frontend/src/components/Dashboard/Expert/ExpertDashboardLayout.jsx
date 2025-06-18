@@ -354,6 +354,7 @@ const ExpertDashboardLayout = () => {
             <li>
               <NavLink
                 to="/dashboard/expert"
+                end
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
                     isActive

@@ -2084,7 +2084,7 @@ const HelpCenter = async (req, res) => {
       return res.status(400).json({ error: "All fields are required." });
     }
 
-    const expertId = req.expert.id; 
+    const expertId = req.expert.id;
     if (!expertId) {
       return res.status(400).json({ error: "Expert ID not found." });
     }
