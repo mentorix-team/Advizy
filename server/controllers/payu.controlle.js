@@ -36,6 +36,7 @@ export const verifyPayUPayment = async (response) => {
         const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
         
         
+        
         if (calculatedHash !== response.hash) {
             console.error('Hash mismatch - possible tampering');
             return false;
