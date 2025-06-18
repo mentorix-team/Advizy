@@ -4,8 +4,6 @@ import mongoose from 'mongoose';
 // import axios from 'axios';
 import crypto from "crypto";
 
-import crypto from "crypto";
-
 export function generatePayUHash(params, salt) {
     const {
       key,
