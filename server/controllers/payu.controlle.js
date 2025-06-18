@@ -4,8 +4,6 @@ import mongoose from 'mongoose';
 // import axios from 'axios';
 import crypto from "crypto";
 
-import crypto from "crypto";
-
 function generatePayUHash(data) {
     const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
     return crypto.createHash("sha512").update(hashString).digest("hex");
