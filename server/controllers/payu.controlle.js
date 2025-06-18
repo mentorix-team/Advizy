@@ -6,22 +6,8 @@ import crypto from "crypto";
 
 import crypto from "crypto";
 
-export function generatePayUHash(params, salt) {
-    const {
-      key,
-      txnid,
-      amount,
-      productinfo,
-      firstname,
-      email,
-      udf1 = "",
-      udf2 = "",
-      udf3 = "",
-      udf4 = "",
-      udf5 = ""
-    } = params;
-  
-    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${salt}`;
+function generatePayUHash(data) {
+    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
     return crypto.createHash("sha512").update(hashString).digest("hex");
   }
 
@@ -48,26 +34,12 @@ export const createPaymentSession = async (paymentData) => {
       throw error;
     }
 };
-export const verifyPayUPayment = async (req, res) => {
+export const verifyPayUPayment = async (response) => {
     try {
-      const {
-        key,
-        txnid,
-        amount,
-        productinfo,
-        firstname,
-        email,
-        status,
-        hash: payuReturnedHash,
-      } = req.body;
-  
-      const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz"; // Your PayU salt
-  
-      const hashString = `${SALT}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
-      const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+        const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+        const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
   
       if (calculatedHash === payuReturnedHash) {
-        // ✅ Hash matched – Secure
         return res.status(200).json({ verified: true, status });
       } else {
         // ❌ Hash mismatch
@@ -149,7 +121,7 @@ export const verifyPayUPayment = async (req, res) => {
       const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz";
   
 
-      
+
       const hash = generatePayUHash(payuData, SALT);  
       // Send auto-submitting form to PayU
       const html = `
@@ -195,13 +167,6 @@ export const verifyPayUPayment = async (req, res) => {
           <input type="hidden" name="furl" value="${payuData.furl}" />
           <input type="hidden" name="hash" value="${hash}" />
           <input type="hidden" name="service_provider" value="payu_paisa" />
-          
-          <!-- Custom data as udf fields -->
-          <input type="hidden" name="udf1" value="${payuData.udf1}" />
-          <input type="hidden" name="udf2" value="${payuData.udf2}" />
-          <input type="hidden" name="udf3" value="${payuData.udf3}" />
-          <input type="hidden" name="udf4" value="${payuData.udf4}" />
-          <input type="hidden" name="udf5" value="${payuData.udf5}" />
         </form>
         <script>
           document.getElementById('payuForm').submit();
