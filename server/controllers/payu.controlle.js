@@ -40,7 +40,7 @@ export const verifyPayUPayment = async (response) => {
       if (calculatedHash === payuReturnedHash) {
         return res.status(200).json({ verified: true, status });
       } else {
-        // ❌ Hash mismatch
+
         return res.status(400).json({ verified: false, error: "Hash mismatch" });
       }
     } catch (err) {
@@ -192,11 +192,6 @@ const success = async (req, res, next) => {
         
         console.log("Payment Success Data:", { sessionId, response });
 
-        if (!sessionId) {
-            return res.status(400).send("Session ID is required");
-        }
-
-        // 1. Verify the payment with PayU
         const isPaymentValid = await verifyPayUPayment(response);
         if (!isPaymentValid) {
             return res.status(400).send("Payment verification failed");
