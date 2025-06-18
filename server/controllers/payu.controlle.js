@@ -2,10 +2,36 @@ import crypto from 'crypto'
 import PaymentSession from '../config/model/transaction/PayuModel.js';
 import mongoose from 'mongoose';
 // import axios from 'axios';
-function generatePayUHash(data) {
-    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
-    return crypto.createHash('sha512').update(hashString).digest('hex');
-}
+import crypto from "crypto";
+
+export const generatePayUHash = async (req, res) => {
+  try {
+    const data = req.body;
+
+    const key = data.key;
+    const txnid = data.txnid;
+    const amount = data.amount;
+    const productinfo = data.productinfo;
+    const firstname = data.firstname;
+    const email = data.email;
+
+    const udf1 = data.udf1 || ""; // optional fields
+    const udf2 = data.udf2 || "";
+    const udf3 = data.udf3 || "";
+    const udf4 = data.udf4 || "";
+    const udf5 = data.udf5 || "";
+
+    const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz"; // Your PayU salt
+
+    const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}|${udf2}|${udf3}|${udf4}|${udf5}||||||${SALT}`;
+    const hash = crypto.createHash("sha512").update(hashString).digest("hex");
+
+    return res.status(200).json({ hash });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 export const createPaymentSession = async (paymentData) => {
     try {
@@ -30,28 +56,36 @@ export const createPaymentSession = async (paymentData) => {
       throw error;
     }
 };
-export const verifyPayUPayment = async (response) => {
+export const verifyPayUPayment = async (req, res) => {
     try {
-        const hashString = `ihteCewpIbsofU10x6dc8F8gYJOnL2hz|${response.status}|||||||||||${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
-        const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-    
-        
-        if (calculatedHash !== response.hash) {
-            console.error('Hash mismatch - possible tampering');
-            return false;
-        }
+      const {
+        key,
+        txnid,
+        amount,
+        productinfo,
+        firstname,
+        email,
+        status,
+        hash: payuReturnedHash,
+      } = req.body;
   
-        if (response.status !== 'success') {
-            console.error('Payment not successful according to PayU');
-            return false;
-        }
-        return true;
-    } catch (error) {
-        console.error('Payment verification failed:', error);
-        return false;
+      const SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz"; // Your PayU salt
+  
+      const hashString = `${SALT}|${status}|||||||||||${email}|${firstname}|${productinfo}|${amount}|${txnid}|${key}`;
+      const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+  
+      if (calculatedHash === payuReturnedHash) {
+        // ✅ Hash matched – Secure
+        return res.status(200).json({ verified: true, status });
+      } else {
+        // ❌ Hash mismatch
+        return res.status(400).json({ verified: false, error: "Hash mismatch" });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   };
-  
 
   const payupay = async (req, res, next) => {
     try {
@@ -77,17 +111,17 @@ export const verifyPayUPayment = async (response) => {
         throw new Error('User ID is required');
       }
   
-      
       const serviceIdToUse = mongoose.Types.ObjectId.isValid(serviceId) 
         ? new mongoose.Types.ObjectId(serviceId)
         : serviceId;
-
-    const formatTimeString = (isoString) => {
+  
+      const formatTimeString = (isoString) => {
         if (!isoString.includes('T')) return isoString; // Already formatted
         const date = new Date(isoString);
         return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-        };
+      };
   
+      // Store payment session in DB
       const paymentSession = await createPaymentSession({
         serviceId: serviceIdToUse, 
         expertId: new mongoose.Types.ObjectId(expertId),
@@ -101,7 +135,7 @@ export const verifyPayUPayment = async (response) => {
         status: 'pending'
       });
   
-      // Rest of your PayU code...
+      // Prepare PayU data
       const payuData = {
         key: 'BbfPbe',
         txnid: txnid || `TXN${Date.now()}`,
@@ -110,80 +144,85 @@ export const verifyPayUPayment = async (response) => {
         email,
         phone,
         productinfo,
-        serviceId,
-        expertId,
-        userId,
-        date,
         surl: `https://advizy.onrender.com/api/v1/payu/success`,
         furl: `https://advizy.onrender.com/api/v1/payu/failure`,
-        service_provider: 'payu_paisa'
+        service_provider: 'payu_paisa',
+        udf1: serviceId,
+        udf2: expertId,
+        udf3: userId,
+        udf4: date,
+        udf5: message || ''
       };
   
-      const hash = generatePayUHash(payuData);
-
-      // Generate complete HTML page with proper styling
+      const hash = generatePayUHash(payuData); // Make sure your hash function includes udf1-udf5 if needed
+  
+      // Send auto-submitting form to PayU
       const html = `
       <!DOCTYPE html>
       <html>
       <head>
-          <title>Redirecting to PayU...</title>
-          <style>
-              body {
-                  font-family: Arial, sans-serif;
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  height: 100vh;
-                  margin: 0;
-                  background: #f5f5f5;
-              }
-              .loader {
-                  border: 5px solid #f3f3f3;
-                  border-top: 5px solid #3498db;
-                  border-radius: 50%;
-                  width: 50px;
-                  height: 50px;
-                  animation: spin 2s linear infinite;
-              }
-              @keyframes spin {
-                  0% { transform: rotate(0deg); }
-                  100% { transform: rotate(360deg); }
-              }
-          </style>
+        <title>Redirecting to PayU...</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+          }
+          .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+          }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
       </head>
       <body>
-          <div class="loader"></div>
-          <form id="payuForm" action="https://secure.payu.in/_payment" method="post">
-              <input type="hidden" name="key" value="${payuData.key}" />
-              <input type="hidden" name="txnid" value="${payuData.txnid}" />
-              <input type="hidden" name="amount" value="${payuData.amount}" />
-              <input type="hidden" name="firstname" value="${payuData.firstname}" />
-              <input type="hidden" name="email" value="${payuData.email}" />
-              <input type="hidden" name="phone" value="${payuData.phone}" />
-              <input type="hidden" name="productinfo" value="${payuData.productinfo}" />
-              <input type="hidden" name="serviceId" value="${payuData.serviceId}" />
-              <input type="hidden" name="expertId" value="${payuData.expertId}" />
-              <input type="hidden" name="userId" value="${payuData.userId}" />
-              <input type="hidden" name="date" value="${payuData.date}" />
-              <input type="hidden" name="surl" value="${payuData.surl}" />
-              <input type="hidden" name="furl" value="${payuData.furl}" />
-              <input type="hidden" name="hash" value="${hash}" />
-              <input type="hidden" name="service_provider" value="payu_paisa" />
-          </form>
-          <script>
-              document.getElementById('payuForm').submit();
-          </script>
+        <div class="loader"></div>
+        <form id="payuForm" action="https://secure.payu.in/_payment" method="post">
+          <input type="hidden" name="key" value="${payuData.key}" />
+          <input type="hidden" name="txnid" value="${payuData.txnid}" />
+          <input type="hidden" name="amount" value="${payuData.amount}" />
+          <input type="hidden" name="firstname" value="${payuData.firstname}" />
+          <input type="hidden" name="email" value="${payuData.email}" />
+          <input type="hidden" name="phone" value="${payuData.phone}" />
+          <input type="hidden" name="productinfo" value="${payuData.productinfo}" />
+          <input type="hidden" name="surl" value="${payuData.surl}" />
+          <input type="hidden" name="furl" value="${payuData.furl}" />
+          <input type="hidden" name="hash" value="${hash}" />
+          <input type="hidden" name="service_provider" value="payu_paisa" />
+          
+          <!-- Custom data as udf fields -->
+          <input type="hidden" name="udf1" value="${payuData.udf1}" />
+          <input type="hidden" name="udf2" value="${payuData.udf2}" />
+          <input type="hidden" name="udf3" value="${payuData.udf3}" />
+          <input type="hidden" name="udf4" value="${payuData.udf4}" />
+          <input type="hidden" name="udf5" value="${payuData.udf5}" />
+        </form>
+        <script>
+          document.getElementById('payuForm').submit();
+        </script>
       </body>
       </html>
       `;
-
+  
       res.set('Content-Type', 'text/html');
       res.send(html);
-  } catch (error) {
+    } catch (error) {
       console.error("PayU payment error:", error);
       next(error);
-  }
-};
+    }
+  };
+  
 import axios from 'axios';
 import AppError from '../utils/AppError.js';
 
