@@ -3,7 +3,7 @@ import PaymentSession from '../config/model/transaction/PayuModel.js';
 import mongoose from 'mongoose';
 // import axios from 'axios';
 function generatePayUHash(data) {
-    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|${data.serviceId}|${data.expertId}|${data.userId}|${data.date}|||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+    const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo}|${data.firstname}|${data.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
     return crypto.createHash('sha512').update(hashString).digest('hex');
 }
 
@@ -32,10 +32,9 @@ export const createPaymentSession = async (paymentData) => {
 };
 export const verifyPayUPayment = async (response) => {
     try {
-        const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|${response.serviceId}|${response.expertId}|${response.userId}|${response.date}|||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+        const hashString = `ihteCewpIbsofU10x6dc8F8gYJOnL2hz|${response.status}|||||||||||${response.email}|${response.firstname}|${response.productinfo}|${response.amount}|${response.txnid}|${response.key}`;
         const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
-        
-        
+    
         
         if (calculatedHash !== response.hash) {
             console.error('Hash mismatch - possible tampering');
