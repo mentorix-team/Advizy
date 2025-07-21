@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { algoliasearch } from "algoliasearch";
-import { sendOtpMessage } from "../utils/sendnotification.js";
+// import { sendOtpMessage } from "../utils/sendnotification.js";
 import sendEmail from "../utils/sendEmail.js";
 import bcrypt from "bcryptjs";
 import fs from "fs";
@@ -1915,7 +1915,7 @@ const generateOtpForVerifying = async (req, res, next) => {
         : `+91${inputKey}`;
       console.log("Formatted Mobile:", formattedNumber);
 
-      await sendOtpMessage(formattedNumber, otp);
+      // await sendOtpMessage(formattedNumber, otp);
       return res.status(200).json({
         success: true,
         message: `OTP sent to ${formattedNumber}`,

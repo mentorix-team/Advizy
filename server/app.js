@@ -5,7 +5,7 @@ import payURoutes from "./Routes/payu.route.js";
 import expertRoutes from "./Routes/expert.route.js";
 import calendarRoutes from "./Routes/calendar.route.js";
 import meetingRoutes from "./Routes/meeting.route.js";
-import razorpayRoutes from "./Routes/payment.route.js";
+// import razorpayRoutes from "./Routes/payment.route.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import morgan from "morgan";
 import cors from "cors";
@@ -56,7 +56,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/expert", expertRoutes);
 app.use("/api/v1/calendar", calendarRoutes);
 app.use("/api/v1/meeting", meetingRoutes);
-app.use("/api/v1/payment", razorpayRoutes);
+// app.use("/api/v1/payment", razorpayRoutes);
 app.use("/api/v1/payu", payURoutes);
 
 // app.use('/api/v1/admin', adminRoutes);

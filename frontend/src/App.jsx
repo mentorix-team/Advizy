@@ -184,6 +184,7 @@ const App = () => {
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
         <Route path="/meeting" element={<Meeting />} />
+        
         {/* Dashboard Routes */}
         <Route
           path="/dashboard/user/*"
