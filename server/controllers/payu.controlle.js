@@ -37,23 +37,12 @@ export const createPaymentSession = async (paymentData) => {
   }
 };
 export const verifyPayUPayment = async (response) => {
-  try {
-    const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
-    const calculatedHash = crypto
-      .createHash("sha512")
-      .update(hashString)
-      .digest("hex");
-
-    if (calculatedHash === payuReturnedHash) {
-      return res.status(200).json({ verified: true, status });
-    } else {
-      return res.status(400).json({ verified: false, error: "Hash mismatch" });
-    }
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
+  const payuReturnedHash = response.hash;
+  const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+  const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+  return calculatedHash === payuReturnedHash;
 };
+
 
 const payupay = async (req, res, next) => {
   try {
