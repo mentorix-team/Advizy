@@ -553,54 +553,54 @@ const updateUser = async (req, res, next) => {
   }
 };
 
-// const generateOtp = async (req, res, next) => {
-//   let user; // Declare user outside the try block
+const generateOtp = async (req, res, next) => {
+  let user; // Declare user outside the try block
 
-//   try {
-//     const { number } = req.body;
-//     console.log("This is the request coming", req.body);
+  try {
+    const { number } = req.body;
+    console.log("This is the request coming", req.body);
 
-//     // Remove any country code (assuming all numbers are stored without country code in the DB)
-//     const normalizedNumber = number.startsWith("+")
-//       ? number.slice(3) // Remove '+91' or other codes
-//       : number.startsWith("91")
-//       ? number.slice(2)
-//       : number;
+    // Remove any country code (assuming all numbers are stored without country code in the DB)
+    const normalizedNumber = number.startsWith("+")
+      ? number.slice(3) // Remove '+91' or other codes
+      : number.startsWith("91")
+      ? number.slice(2)
+      : number;
 
-//     user = await User.findOne({ number: normalizedNumber });
+    user = await User.findOne({ number: normalizedNumber });
 
-//     if (!user) {
-//       return next(new AppError("User not found", 502));
-//     }
+    if (!user) {
+      return next(new AppError("User not found", 502));
+    }
 
-//     const otp = user.generateVerifyToken();
-//     await user.save();
+    const otp = user.generateVerifyToken();
+    await user.save();
 
-//     const formattedNumber = String(number).startsWith("+")
-//       ? String(number)
-//       : `+91${number}`; // Assuming all numbers are Indian
+    const formattedNumber = String(number).startsWith("+")
+      ? String(number)
+      : `+91${number}`; // Assuming all numbers are Indian
 
-//     await sendOtpMessage(formattedNumber, otp);
+    await sendOtpMessage(formattedNumber, otp);
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "OTP generated and sent successfully",
-//     });
-//   } catch (error) {
-//     if (user) {
-//       user.otptoken = undefined;
-//       user.otpexpiry = undefined;
-//       await user.save();
-//     }
-//     console.error(error);
-//     return next(
-//       new AppError(
-//         error.message || "Failed to send OTP. Please try again later.",
-//         504
-//       )
-//     );
-//   }
-// };
+    return res.status(200).json({
+      success: true,
+      message: "OTP generated and sent successfully",
+    });
+  } catch (error) {
+    if (user) {
+      user.otptoken = undefined;
+      user.otpexpiry = undefined;
+      await user.save();
+    }
+    console.error(error);
+    return next(
+      new AppError(
+        error.message || "Failed to send OTP. Please try again later.",
+        504
+      )
+    );
+  }
+};
 
 const login_with_otp = async (req, res, next) => {
   try {
@@ -891,64 +891,64 @@ const validate_otp_email = async (req, res, next) => {
   }
 };
 
-// const generate_otp_for_Signup_mobile = async (req, res, next) => {
-//   try {
-//     const { firstName, lastName, phoneNumber, password } = req.body;
-//     console.log("Request Body:", req.body);
-//     if (!firstName || !lastName || !number || !password) {
-//       return next(new AppError("All fields are required", 400));
-//     }
+const generate_otp_for_Signup_mobile = async (req, res, next) => {
+  try {
+    const { firstName, lastName, phoneNumber, password } = req.body;
+    console.log("Request Body:", req.body);
+    if (!firstName || !lastName || !number || !password) {
+      return next(new AppError("All fields are required", 400));
+    }
 
-//     // Extract countryCode and number separately
-//     const { countryCode, phoneNumber: number } = phoneNumber;
-//     console.log("Extracted countryCode:", countryCode);
-//     console.log("Extracted number:", number);
+    // Extract countryCode and number separately
+    const { countryCode, phoneNumber: number } = phoneNumber;
+    console.log("Extracted countryCode:", countryCode);
+    console.log("Extracted number:", number);
 
-//     // Check if user already exists
-//     const userExists = await User.findOne({ email });
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
 
-//     if (userExists) {
-//       if (userExists.googleId) {
-//         return next(
-//           new AppError("User already exists, login with Google.", 400)
-//         );
-//       }
-//       return next(new AppError("User already exists. Please log in.", 400));
-//     }
+    if (userExists) {
+      if (userExists.googleId) {
+        return next(
+          new AppError("User already exists, login with Google.", 400)
+        );
+      }
+      return next(new AppError("User already exists. Please log in.", 400));
+    }
 
-//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-//     const otpToken = bcrypt.hashSync(otp, 10);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpToken = bcrypt.hashSync(otp, 10);
 
-//     res.cookie("otpToken", otpToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "None",
-//       maxAge: 10 * 60 * 1000,
-//     });
-//     res.cookie(
-//       "tempUser",
-//       { firstName, lastName, countryCode, number, password },
-//       {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === "production",
-//         sameSite: "None",
-//       }
-//     );
+    res.cookie("otpToken", otpToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      maxAge: 10 * 60 * 1000,
+    });
+    res.cookie(
+      "tempUser",
+      { firstName, lastName, countryCode, number, password },
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+      }
+    );
 
-//     const formattedNumber = String(number).startsWith("+")
-//       ? String(number)
-//       : `+91${number}`;
+    const formattedNumber = String(number).startsWith("+")
+      ? String(number)
+      : `+91${number}`;
 
-//     await sendOtpMessage(formattedNumber, otp);
+    await sendOtpMessage(formattedNumber, otp);
 
-//     return res.status(200).json({
-//       success: true,
-//       message: `OTP sent to ${number}`,
-//     });
-//   } catch (error) {
-//     return next(new AppError(error.message, 500));
-//   }
-// };
+    return res.status(200).json({
+      success: true,
+      message: `OTP sent to ${number}`,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
+};
 
 const validate_otp_mobile = async (req, res, next) => {
   const { otp } = req.body;
@@ -1371,13 +1371,13 @@ export {
   setPassword,
   login_with_mobile,
   login_with_otp,
-  // generateOtp,
+  generateOtp,
   forgot_with_otp_email,
   generate_otp_with_email,
   reset_password,
   generate_otp_with_mobile,
   forgot_with_otp_mobile,
-  // generate_otp_for_Signup_mobile,
+  generate_otp_for_Signup_mobile,
   validate_otp_mobile,
   validate_otp_email,
   generate_otp_for_Signup,
