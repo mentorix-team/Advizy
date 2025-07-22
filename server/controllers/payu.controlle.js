@@ -173,13 +173,13 @@ const success = async (req, res, next) => {
     console.log("Payment Success Data:", { sessionId, response });
 
     if (!sessionId) {
-      return res.status(400).send("Session ID is required");
+      return res.status(402).send("Session ID is required");
     }
 
     // 1. Verify the payment with PayU
     const isPaymentValid = await verifyPayUPayment(response);
     if (!isPaymentValid) {
-      return res.status(400).send("Payment verification failed");
+      return res.status(403).send("Payment verification failed");
     }
 
     // 2. Update the payment session
