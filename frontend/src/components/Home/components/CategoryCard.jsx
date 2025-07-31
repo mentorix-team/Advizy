@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const CategoryCard = ({ icon, title }) => {
+const CategoryCard = ({ icon, title, value }) => {
   const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/explore?category=${encodeURIComponent(value)}`);
+  };
   return (
     <motion.div
-      onClick={() => navigate('/explore')}
+      onClick={handleClick}
       initial={{ scale: 1 }}
       whileHover={{ 
         scale: 1.05,

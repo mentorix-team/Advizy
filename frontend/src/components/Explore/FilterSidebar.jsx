@@ -10,7 +10,7 @@ import "../../index.css";
 
 const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const [selectedNiches, setSelectedNiches] = useState([]);
-  const [priceRange, setPriceRange] = useState([200, 100000]); // Initial state within valid range
+  const [priceRange, setPriceRange] = useState([1, 100000]); // Initial state within valid range
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedRatings, setSelectedRatings] = useState([]);
   const [selectedDurations, setSelectedDurations] = useState([]);
@@ -35,7 +35,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const resetFilters = () => {
     // Reset all state values
     setSelectedNiches([]);
-    setPriceRange([200, 100000]);
+    setPriceRange([1, 100000]);
     setSelectedLanguages([]);
     setSelectedRatings([]);
     setSelectedDurations([]);
@@ -45,7 +45,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
     onApplyFilters({
       selectedDomain,
       selectedNiches: [],
-      priceRange: [200, 100000],
+      priceRange: [1, 100000],
       selectedLanguages: [],
       selectedRatings: [],
       selectedDurations: [],
@@ -76,7 +76,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   };
 
   const handlePriceChange = (index, value) => {
-    const numericValue = Math.max(200, Math.min(Number(value), 100000)); // Clamp values to min and max
+    const numericValue = Math.max(1, Math.min(Number(value), 100000)); // Clamp values to min and max
     const newRange = [...priceRange];
     newRange[index] = numericValue;
 
@@ -120,7 +120,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
         </button>
         <button
           onClick={resetFilters}
-          className="px-4 py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
+          className="px-4 py-2 rounded-md border border-gray-1 hover:bg-gray-100 transition text-sm font-medium"
         >
           Reset
         </button>
@@ -192,7 +192,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
               className="border rounded px-2 py-1 w-24 text-sm"
               value={priceRange[0]}
               onChange={(e) => handlePriceChange(0, e.target.value)}
-              min="200"
+              min="1"
               max="100000"
             />
             <span className="mx-2 text-gray-500">to</span>
@@ -202,7 +202,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
               className="border rounded px-2 py-1 w-24 text-sm"
               value={priceRange[1]}
               onChange={(e) => handlePriceChange(1, e.target.value)}
-              min="200"
+              min="1"
               max="100000"
             />
           </div>
@@ -211,14 +211,14 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           <div className="py-2">
             <Range
               step={100}
-              min={200}
+              min={1}
               max={100000}
               values={priceRange}
               onChange={(values) => setPriceRange(values)}
               renderTrack={({ props, children }) => (
                 <div
                   {...props}
-                  className="w-full h-1 bg-gray-200 rounded-full"
+                  className="w-full h-1 bg-gray-1 rounded-full"
                   style={{
                     ...props.style,
                   }}
@@ -228,10 +228,10 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
                     style={{
                       position: "absolute",
                       left: `${
-                        ((priceRange[0] - 200) / (100000 - 200)) * 100
+                        ((priceRange[0] - 1) / (100000 - 1)) * 100
                       }%`,
                       width: `${
-                        ((priceRange[1] - priceRange[0]) / (100000 - 200)) * 100
+                        ((priceRange[1] - priceRange[0]) / (100000 - 1)) * 100
                       }%`,
                     }}
                   />
@@ -280,7 +280,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             className={`h-5 w-5 transition-transform ${
               isLanguageDropdownOpen ? "rotate-180" : ""
             }`}
-            xmlns="http://www.w3.org/2000/svg"
+            xmlns="http://www.w3.org/10/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
           >

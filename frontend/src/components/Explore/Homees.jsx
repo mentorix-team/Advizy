@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import FilterSidebar from "./FilterSidebar";
 import ExpertList from "./ExpertList";
 import DomainBar from "./DomainBar";
-import Navbar from "../Home/components/Navbar";
 import { useSearchParams } from "react-router-dom";
 import { domainOptions } from "@/utils/Options";
 import NavbarWithoutSearchModal from "../Home/components/NavbarWithoutSearchModal";
 
 const Homees = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedDomain, setSelectedDomain] = useState(null);
   const [filters, setFilters] = useState({
@@ -30,27 +31,46 @@ const Homees = () => {
     console.log("Selected Domain:", selectedDomain);
   }, [selectedDomain]);
 
+  // useEffect(() => {
+  //   const categoryFromUrl = searchParams.get("category");
+  //   if (categoryFromUrl) {
+  //     const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
+  //     if (domain) {
+  //       setSelectedDomain(domain);
+  //       setFilters((prev) => ({
+  //         ...prev,
+  //         selectedDomain: domain,
+  //       }));
+  //     }
+  //   }
+  // }, [searchParams]);
+
+  // Update filters whenever selectedDomain changes
+  const updateDomain = (domain) => {
+    setSelectedDomain(domain);
+    setFilters((prev) => ({
+      ...prev,
+      selectedDomain: domain,
+    }));
+
+    navigate(`/explore?category=${domain.value}`);
+  };
+
   useEffect(() => {
     const categoryFromUrl = searchParams.get("category");
-    if (categoryFromUrl) {
-      const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
-      if (domain) {
-        setSelectedDomain(domain);
-        setFilters((prev) => ({
-          ...prev,
-          selectedDomain: domain,
-        }));
-      }
+    const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
+    if (domain) {
+      updateDomain(domain);
     }
   }, [searchParams]);
 
   // Update filters whenever selectedDomain changes
-  useEffect(() => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      selectedDomain,
-    }));
-  }, [selectedDomain]);
+  // useEffect(() => {
+  //   setFilters((prevFilters) => ({
+  //     ...prevFilters,
+  //     selectedDomain,
+  //   }));
+  // }, [selectedDomain]);
 
   const handleApplyFilters = (newFilters) => {
     setFilters((prevFilters) => ({
@@ -90,7 +110,7 @@ const Homees = () => {
           }}
         />
         <DomainBar
-          onDomainSelect={(domain) => setSelectedDomain(domain)}
+          onDomainSelect={updateDomain}
           resetFilters={resetFilters}
           sorting={sorting} // Pass sorting state
           setSorting={setSorting} // Pass setSorting function

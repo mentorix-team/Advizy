@@ -23,11 +23,12 @@ app.use(
   cors({
     origin: [
       process.env.frontendurl,
-      "https://www.admin.advizy.in",
+      // "https://www.admin.advizy.in",
       "http://localhost:5173",
       "http://localhost:8001",
-      "http://advizy-adminpanel.onrender.com",
-      "https://advizy.onrender.com",
+      "http://localhost:5030",
+      // "http://advizy-adminpanel.onrender.com",
+      // "https://advizy.onrender.com",
       "*",
     ], // Allow frontend
     credentials: true,

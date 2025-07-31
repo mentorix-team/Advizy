@@ -510,7 +510,7 @@ export const getAllExperts = createAsyncThunk(
       const response = await axiosInstance.get(endpoint);
 
       const expertsData = response.data?.experts || [];
-      console.log("API Response:", response.data);
+      // console.log("API Response:", response.data);
       return expertsData;
     } catch (error) {
       console.error("Error fetching experts:", error);
@@ -1009,6 +1009,7 @@ const expertSlice = createSlice({
       .addCase(getAllExperts.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.experts = [];
       })
       // .addCase(getAllExperts.fulfilled, (state, action) => {
       //   state.loading = false;
@@ -1020,12 +1021,13 @@ const expertSlice = createSlice({
         }
         state.loading = false;
         state.error = null;
-        console.log("Updated state.experts:", state.experts);
+        // console.log("Updated state.experts:", state.experts);
       })
       
       .addCase(getAllExperts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Error fetching experts";
+        state.experts = [];
       })
       .addCase(getExpertById.pending, (state) => {
         state.loading = true;

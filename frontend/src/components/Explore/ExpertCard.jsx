@@ -85,8 +85,6 @@ const ExpertCard = ({
     }
   };
 
-  console.log(verified)
-
   return (
     <div className="w-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
       <div className="flex flex-col h-full">

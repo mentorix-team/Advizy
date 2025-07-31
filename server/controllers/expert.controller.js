@@ -410,6 +410,7 @@ const adminapproved = async (req, res, next) => {
     const records = approvedExperts.map((expert) => ({
       objectID: expert._id.toString(),
       name: `${expert.firstName} ${expert.lastName}`,
+      username: expert.redirect_url,
       bio: expert.bio || "",
       profileImage: expert.profileImage?.secure_url || "",
       domain: expert.credentials?.domain || "",

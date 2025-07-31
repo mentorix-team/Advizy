@@ -11,7 +11,6 @@ import { domainOptions } from "@/utils/Options";
 
 // Update your categories to match domainOptions
 const categories = domainOptions.map((domain) => ({
-  icon: "⭐", // Add appropriate icons
   title: domain.label,
   value: domain.value,
   hasArrow: true,
@@ -31,10 +30,9 @@ const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
       layout
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="flex items-center border justify-between px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+      className="flex items-center border justify-between px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 hover:text-black text-zinc-800 font-bold transition-colors"
     >
       <div className="flex items-center gap-3">
-        <span className="text-2xl">{category.icon}</span>
         <span className="font-medium">{category.title}</span>
       </div>
       {category.hasArrow && <ArrowRight className="w-5 h-5 text-gray-400" />}
@@ -94,6 +92,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
         container: "#hits",
         templates: {
           item: (hit) => {
+            console.log('hit',hit)
             return `
               <div class="flex items-center justify-between w-full bg-white border rounded-full shadow-sm hover:shadow-md transition-shadow duration-300 mb-2 py-1 px-3">
                 <div class="flex items-center space-x-3">
@@ -112,7 +111,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
                 </div>
                 <button 
                   class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
-                  onclick="window.location.href='/expert/${hit.objectID}'"
+                  onclick="window.location.href='/expert/${hit.username}'"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>

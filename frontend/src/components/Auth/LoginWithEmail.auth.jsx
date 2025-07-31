@@ -114,7 +114,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const handleGoogleSignup = (event) => {
     event.preventDefault();
     window.open(
-      `https://advizy.onrender.com/api/v1/user/auth/google`,
+      `http://localhost:5030/api/v1/user/auth/google/`,
       "_self"
     );
   };
