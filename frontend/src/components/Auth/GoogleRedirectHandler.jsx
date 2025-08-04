@@ -16,17 +16,24 @@ const GoogleRedirectHandler = () => {
         const token = searchParams.get("token");
         const userParam = searchParams.get("user");
         const expertParam = searchParams.get("expert");
-        const returnUrl = searchParams.get("returnUrl") || "/";
+        const redirectURL = sessionStorage.getItem("redirectURL");
 
         if (!token || !userParam) {
           throw new Error("Missing authentication data");
         }
 
         const user = JSON.parse(decodeURIComponent(userParam));
-        const expert = expertParam ? JSON.parse(decodeURIComponent(expertParam)) : null;
+        const expert = expertParam
+          ? JSON.parse(decodeURIComponent(expertParam))
+          : null;
 
         await dispatch(googleLogin({ user, expert, token }));
-        navigate(decodeURIComponent(returnUrl), { replace: true });
+        if (redirectURL) {
+          navigate(redirectURL);
+          sessionStorage.removeItem("redirectURL");
+        } else {
+          navigate("/"); // fallback
+        }
       } catch (error) {
         console.error("Authentication error:", error);
         navigate("/auth-error");
@@ -39,7 +46,7 @@ const GoogleRedirectHandler = () => {
   }, [dispatch, navigate, searchParams]);
 
   if (isLoading) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   return null;

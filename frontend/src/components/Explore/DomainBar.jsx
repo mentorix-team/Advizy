@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { domainOptions } from "../../utils/Options";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
 const DomainBar = ({
   onDomainSelect,
@@ -10,51 +10,95 @@ const DomainBar = ({
   toggleSidebar,
   selectedDomain,
 }) => {
-  const primaryDomains = domainOptions.slice(0, 5);
-  const remainingDomains = domainOptions.slice(5);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const [visibleDomains, setVisibleDomains] = useState(domainOptions.slice(0, 5));
+  const [remainingDomains, setRemainingDomains] = useState(domainOptions.slice(5));
 
-  const handleMoreClick = () => {
-    setDropdownVisible((prev) => !prev);
+  const containerRef = useRef(null);
+  const moreButtonRef = useRef(null);
+  const sortDropdownRef = useRef(null);
+  const domainButtonRefs = useRef([]);
+
+  const updateVisibleDomains = () => {
+    if (!containerRef.current || !moreButtonRef.current || !sortDropdownRef.current) return;
+
+    const containerWidth = containerRef.current.offsetWidth;
+    const moreButtonWidth = moreButtonRef.current.offsetWidth;
+    const sortSelectWidth = sortDropdownRef.current.offsetWidth;
+    const mobileFilterButtonWidth = 48; // mobile filter button (hamburger)
+    const gapWidth = 16;
+
+    const availableWidth =
+      containerWidth -
+      moreButtonWidth -
+      sortSelectWidth -
+      mobileFilterButtonWidth -
+      gapWidth * 4;
+
+    let currentWidth = 0;
+    const newVisibleDomains = [];
+    const newRemainingDomains = [];
+
+    domainOptions.forEach((domain, index) => {
+      const buttonWidth = domainButtonRefs.current[index]?.offsetWidth || 100;
+      if (currentWidth + buttonWidth <= availableWidth) {
+        newVisibleDomains.push(domain);
+        currentWidth += buttonWidth + gapWidth;
+      } else {
+        newRemainingDomains.push(domain);
+      }
+    });
+
+    setVisibleDomains(newVisibleDomains);
+    setRemainingDomains(newRemainingDomains);
   };
 
-  // Helper function to check if a domain is selected
-  const isDomainSelected = (domainValue) => {
-    return selectedDomain?.value === domainValue;
-  };
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(() => requestAnimationFrame(updateVisibleDomains));
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMoreClick = () => setDropdownVisible((prev) => !prev);
+  const isDomainSelected = (domainValue) => selectedDomain?.value === domainValue;
 
   return (
-    <div className="bg-white/50 backdrop-blur-md p-2 flex flex-wrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40 overflow-x-auto">
+    <div
+      ref={containerRef}
+      className="mt-2 bg-white p-2 flex flex-nowrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40"
+    >
       {/* Mobile Filter Button */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden p-2 rounded-md hover:bg-gray-100"
+        className="md:hidden p-2 rounded-md hover:bg-gray-100 flex-shrink-0"
+        style={{ width: "48px" }}
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Primary Domain Buttons - Hidden on Mobile */}
-      {primaryDomains.map((domain) => (
+      {/* Domain Buttons */}
+      {visibleDomains.map((domain, index) => (
         <button
           key={domain.value}
-          className={`px-3 py-1 md:px-4 md:py-2 rounded-md border transition text-xs md:text-sm font-medium whitespace-nowrap ${
+          ref={(el) => (domainButtonRefs.current[index] = el)}
+          className={`px-3 py-1 md:px-4 md:py-2 rounded-md border transition text-xs md:text-sm font-medium whitespace-nowrap flex-shrink-0 ${
             isDomainSelected(domain.value)
               ? "bg-primary text-white border-primary"
               : "border-gray-200 hover:bg-gray-100"
-          } hidden md:block`}
+          }`}
           onClick={() => onDomainSelect(domain)}
         >
           {domain.label}
         </button>
       ))}
 
-      {/* More Dropdown - Visible on both mobile and desktop*/}
-      <div className="relative">
+      {/* More Dropdown */}
+      <div ref={moreButtonRef} className="flex-shrink-0 relative">
         <button
           onClick={handleMoreClick}
           className={`px-3 py-1 md:px-4 md:py-2 rounded-md border transition text-xs md:text-sm font-medium whitespace-nowrap flex items-center gap-1 ${
-            selectedDomain &&
-            !primaryDomains.some((d) => d.value === selectedDomain.value)
+            selectedDomain && remainingDomains.some((d) => d.value === selectedDomain.value)
               ? "bg-primary text-white border-primary"
               : "border-gray-200 hover:bg-gray-100"
           }`}
@@ -70,53 +114,16 @@ const DomainBar = ({
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-
-        {/* Dropdown Content - Fixed positioning to ensure it's not constrained */}
         {isDropdownVisible && (
-          <div
-            className="fixed bg-white shadow-lg border rounded-md w-48 md:w-56 mt-1 z-50 max-h-60 overflow-y-auto"
-            style={{
-              top: "auto",
-              left: "auto",
-              transform: "none",
-            }}
-          >
-            {/* On mobile, show all domains */}
-            <div className="md:hidden">
-              {primaryDomains.map((domain) => (
-                <button
-                  key={domain.value}
-                  className={`w-full text-left px-4 py-2 text-xs md:text-sm font-medium transition ${
-                    isDomainSelected(domain.value)
-                      ? "bg-primary text-white"
-                      : "hover:bg-gray-100"
-                  }`}
-                  onClick={() => {
-                    onDomainSelect(domain);
-                    setDropdownVisible(false);
-                  }}
-                >
-                  {domain.label}
-                </button>
-              ))}
-              <div className="border-t border-gray-100 my-1"></div>
-            </div>
-
-            {/* Show remaining domains on both mobile and desktop */}
+          <div className="absolute bg-white shadow-lg border rounded-md w-48 md:w-56 mt-1 z-50 max-h-60 overflow-y-auto">
             {remainingDomains.map((domain) => (
               <button
                 key={domain.value}
                 className={`w-full text-left px-4 py-2 text-xs md:text-sm font-medium transition ${
-                  isDomainSelected(domain.value)
-                    ? "bg-primary text-white"
-                    : "hover:bg-gray-100"
+                  isDomainSelected(domain.value) ? "bg-primary text-white" : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
                   onDomainSelect(domain);
@@ -130,19 +137,12 @@ const DomainBar = ({
         )}
       </div>
 
-      {/* Reset Filter Button - Visible on both mobile and desktop */}
-      {/* <button
-        onClick={resetFilters}
-        className="px-3 py-1 md:px-4 md:py-2 rounded-md border border-gray-200 hover:bg-gray-100 transition text-xs md:text-sm font-medium whitespace-nowrap"
-      >
-        Reset Filter
-      </button> */}
-
-      {/* Sorting Dropdown - Visible on both mobile and desktop */}
+      {/* Sorting Dropdown (measured dynamically) */}
       <select
+        ref={sortDropdownRef}
         value={sorting}
         onChange={(e) => setSorting(e.target.value)}
-        className="ml-auto px-2 py-1 md:px-4 md:py-2 border border-gray-300 rounded-md text-xs md:text-sm"
+        className="ml-auto px-2 py-1 md:px-4 md:py-2 border border-gray-300 rounded-md text-xs md:text-sm flex-shrink-0"
       >
         <option value="">Sort By</option>
         <option value="price-low-high">Price: Low to High</option>
@@ -152,4 +152,5 @@ const DomainBar = ({
     </div>
   );
 };
+
 export default DomainBar;

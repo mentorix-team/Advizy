@@ -371,6 +371,7 @@ function App() {
       const nextTab = tabs[currentIndex + 1];
       setEnabledTabs((prev) => [...prev, nextTab]);
       setActiveTab(nextTab);
+      localStorage.setItem('activeTab', nextTab);
       toast.success("Skipped to next section", {
         position: "top-right",
         autoClose: 3000,

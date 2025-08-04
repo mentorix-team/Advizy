@@ -1746,6 +1746,37 @@ const getAllExperts = async (req, res, next) => {
   }
 };
 
+const getExpertAndServiceByServiceId = async (req, res, next) => {
+  const { serviceID } = req.params;
+
+  try {
+    // Find expert by matching serviceId
+    const expert = await ExpertBasics.findOne({
+      "credentials.services.serviceId": serviceID,
+    });
+
+    if (!expert) {
+      return res.status(404).json({ message: "Expert not found" });
+    }
+
+    // Extract the actual service
+    const service = expert.credentials.services.find(
+      (s) => s.serviceId === serviceID
+    );
+
+    if (!service) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    return res.status(200).json({
+      expert,
+      service,
+    });
+  } catch (error) {
+    return next(new AppError(error.message || "Server error", 500));
+  }
+};
+
 const getAllExpertswithoutfilter = async (req, res, next) => {
   try {
     const expert = await ExpertBasics.find();
@@ -2148,6 +2179,7 @@ export {
   getExpertByRedirectURL,
   manageService,
   getExpertServices,
+  getExpertAndServiceByServiceId,
   deleteService,
   getService,
   expertPaymentDetails,

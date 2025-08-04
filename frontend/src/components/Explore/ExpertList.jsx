@@ -26,51 +26,39 @@ const ExpertList = ({ filters, sorting }) => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
-  useEffect(() => {
-    const filtersReady =
-      filters.selectedDomain ||
-      filters.selectedNiches?.length > 0 ||
-      filters.selectedLanguages?.length > 0 ||
-      filters.selectedRatings?.length > 0 ||
-      filters.selectedDurations?.length > 0 ||
-      sorting;
-  
-    if (
-      filtersReady &&
-      JSON.stringify(filters) !== JSON.stringify(prevFiltersRef.current)
-    ) {
-      const queryParams = {
-        domain: filters.selectedDomain?.value || "",
-        niches: filters.selectedNiches || [],
-        priceMin: filters.priceRange?.[0] || 200,
-        priceMax: filters.priceRange?.[1] || 100000,
-        languages: filters.selectedLanguages || [],
-        ratings: filters.selectedRatings || [],
-        durations: filters.selectedDurations || [],
-        sorting: sorting || "",
-      };
-  
-      const cleanedQueryParams = Object.fromEntries(
-        Object.entries(queryParams).filter(([key, value]) => {
-          if (Array.isArray(value)) {
-            return value.length > 0;
-          }
-          return value !== "";
-        })
-      );
-  
-      console.log("Dispatching getAllExperts with params:", cleanedQueryParams);
-      dispatch(getAllExperts(cleanedQueryParams));
-      prevFiltersRef.current = filters;
-      setCurrentPage(1);
-    }
-  }, [dispatch, filters, sorting]);
+useEffect(() => {
+  if (!filters.selectedDomain) return; //don't dispatch if domain isn't ready
+
+  const queryParams = {
+    domain: filters.selectedDomain?.value || "",
+    niches: filters.selectedNiches || [],
+    priceMin: filters.priceRange?.[0] || 200,
+    priceMax: filters.priceRange?.[1] || 100000,
+    languages: filters.selectedLanguages || [],
+    ratings: filters.selectedRatings || [],
+    durations: filters.selectedDurations || [],
+    sorting: sorting || "",
+  };
+
+  const cleanedQueryParams = Object.fromEntries(
+    Object.entries(queryParams).filter(([key, value]) => {
+      if (Array.isArray(value)) {
+        return value.length > 0;
+      }
+      return value !== "";
+    })
+  );
+
+  console.log("Dispatching getAllExperts with params:", cleanedQueryParams);
+  dispatch(getAllExperts(cleanedQueryParams));
+  prevFiltersRef.current = filters;
+  setCurrentPage(1);
+}, [dispatch, filters, sorting]);
 
   useEffect(() => {
     console.log("Fetched Experts Data:", expertsData);
   }, [expertsData]);
-  
-  
+
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -116,12 +104,12 @@ const ExpertList = ({ filters, sorting }) => {
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <div className="grid grid-cols-1 2xl:grid-cols-2 auto-rows-fr gap-4 sm:gap-6 mb-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
-              <div key={index} className="w-full">
-                <ExpertCardSkeleton />
+              <div key={index} className="w-full h-full">
+                <ExpertCardSkeleton className="h-full" />
               </div>
             ))}
           </>
@@ -162,8 +150,8 @@ const ExpertList = ({ filters, sorting }) => {
             );
 
             return (
-              <div key={expert._id} className="w-full">
-                <ExpertCard
+              <div key={expert._id} className="w-full h-full">
+                <ExpertCard className="h-full"
                   id={expert._id}
                   redirect_url={expert.redirect_url}
                   name={`${expert.firstName} ${expert.lastName}`}
