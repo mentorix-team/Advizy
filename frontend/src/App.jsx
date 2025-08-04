@@ -64,40 +64,40 @@ const App = () => {
   const handleAuthPopupOpen = () => setShowAuthPopup(true);
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
-useEffect(() => {
-  const excludedPathPatterns = [
-    /^\/$/,
-    /^\/auth-error$/,
-    /^\/about-us$/,
-    /^\/contact$/,
-    /^\/cookie-policy$/,
-    /^\/privacy-policy$/,
-    /^\/refund-policy$/,
-    /^\/terms-of-service$/,
-    /^\/explore/,
-    /^\/meeting$/,
-    /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
-    /^\/expert\/scheduling\/[^/]+$/,
-    /^\/become-expert$/,
-  ];
+  useEffect(() => {
+    const excludedPathPatterns = [
+      /^\/$/,
+      /^\/auth-error$/,
+      /^\/about-us$/,
+      /^\/contact$/,
+      /^\/cookie-policy$/,
+      /^\/privacy-policy$/,
+      /^\/refund-policy$/,
+      /^\/terms-of-service$/,
+      /^\/explore/,
+      /^\/meeting$/,
+      /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
+      /^\/expert\/scheduling\/[^/]+$/,
+      /^\/become-expert$/,
+    ];
 
-  const isExcluded = excludedPathPatterns.some((pattern) =>
-    pattern.test(location.pathname)
-  );
+    const isExcluded = excludedPathPatterns.some((pattern) =>
+      pattern.test(location.pathname)
+    );
 
-  if (!isExcluded) {
-    const timeout = setTimeout(() => {
-      dispatch(validateToken()).then((response) => {
-        if (!response?.payload?.valid) {
-          localStorage.clear();
-          setShowAuthPopup(true);
-        }
-      });
-    }, 500); // ⏳ give cookies time to arrive
+    if (!isExcluded) {
+      const timeout = setTimeout(() => {
+        dispatch(validateToken()).then((response) => {
+          if (!response?.payload?.valid) {
+            localStorage.clear();
+            setShowAuthPopup(true);
+          }
+        });
+      }, 500); // ⏳ give cookies time to arrive
 
-    return () => clearTimeout(timeout); // cleanup
-  }
-}, [dispatch, location.pathname]);
+      return () => clearTimeout(timeout); // cleanup
+    }
+  }, [dispatch, location.pathname]);
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
@@ -161,7 +161,7 @@ useEffect(() => {
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
         <Route path="/meeting" element={<Meeting />} />
-        
+
         {/* Dashboard Routes */}
         <Route
           path="/dashboard/user/*"

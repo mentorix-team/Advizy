@@ -11,6 +11,8 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
 
+
+
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
       console.warn("Missing availability data or selectedDate");
@@ -89,6 +91,14 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   }, [selectedDate, selectedAvailability, sessionDuration]);
 
   const handleBooking = async (time) => {
+    if (!userName) {
+      toast.error("Please login to book a session", {
+        position: "top-right",
+        autoClose: 1500,
+        pauseOnHover: true,
+      });
+      return;
+    }
     try {
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
       const meetData = {
@@ -169,6 +179,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 }
 
 TimeSlots.propTypes = {
+  triggerAuthPopup: PropTypes.func.isRequired,
   selectedDate: PropTypes.instanceOf(Date).isRequired,
   sessionDuration: PropTypes.number.isRequired,
   selectedAvailability: PropTypes.object,

@@ -104,7 +104,7 @@ const ExpertDetailPage = () => {
         isExpertMode={isExpertMode}
         onToggleExpertMode={handleToggle}
       />
-      <main>
+      <main className="top-[100px]">
         <ProfileHeader
           coverImage={expert?.coverImage?.secure_url}
           name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}

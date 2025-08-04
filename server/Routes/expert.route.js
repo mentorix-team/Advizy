@@ -25,6 +25,7 @@ import manageService, {
   getExpertById,
   getExpertByRedirectURL,
   getExpertServices,
+  getExpertAndServiceByServiceId,
   getService,
   handleSuspendExpert,
   pushExpertsToAlgolia,
@@ -166,4 +167,7 @@ router.post("handlesuspend", handleSuspendExpert);
 //help center
 router.post("/help-center", isExpert, HelpCenter);
 router.get("/support-requests", isExpert, getSupportRequestsForExpert);
+
+router.get("/:serviceID", getExpertAndServiceByServiceId);
+
 export default router;

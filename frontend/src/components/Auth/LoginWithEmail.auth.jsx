@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginaccount } from "../../Redux/Slices/authSlice";
-import toast from "react-hot-toast";
 import SignupWithEmail from "./SignupWithEmail.auth";
 import LoginWithMobile from "./LoginWithMobile.auth";
 import ForgotPassword from "./ForgotPassword.auth";
@@ -101,7 +95,13 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
     const response = await dispatch(loginaccount(logindata));
     if (response?.payload?.success) {
-      navigate(decodeURIComponent('/'), { replace: true });
+      const redirectURL = sessionStorage.getItem("redirectURL");
+      if (redirectURL) {
+        navigate(redirectURL);
+        sessionStorage.removeItem("redirectURL");
+      } else {
+        navigate("/"); // fallback
+      }
     }
 
     setlogindata({
@@ -113,25 +113,14 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    window.open(
-      `http://localhost:5030/api/v1/user/auth/google/`,
-      "_self"
-    );
+    window.open(`http://localhost:5030/api/v1/user/auth/google/`, "_self");
   };
 
   const isLoggedIn = localStorage.getItem("isLoggedIn");
 
-  // After successful auth processing
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     // Your auth check logic
-  //     navigate(decodeURIComponent(returnUrl), { replace: true });
-  //   }
-  // }, [isLoggedIn, returnUrl, navigate]);
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
-      <div className="relative w-[820px] h-[620px] bg-white rounded-[20px] shadow-lg p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md px-4 py-8 overflow-auto">
+      <div className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-lg p-6 overflow-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"

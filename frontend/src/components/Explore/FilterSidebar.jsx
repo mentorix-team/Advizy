@@ -9,47 +9,80 @@ import { X } from "lucide-react";
 import "../../index.css";
 
 const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
+  const INITIAL_FILTERS = {
+    selectedNiches: [],
+    priceRange: [1, 100000],
+    selectedLanguages: [],
+    selectedRatings: [],
+    selectedDurations: [],
+    sorting: "",
+  };
+
   const [selectedNiches, setSelectedNiches] = useState([]);
-  const [priceRange, setPriceRange] = useState([1, 100000]); // Initial state within valid range
+  const [priceRange, setPriceRange] = useState([1, 100000]);
   const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [selectedRatings, setSelectedRatings] = useState([]);
   const [selectedDurations, setSelectedDurations] = useState([]);
   const [sorting, setSorting] = useState("");
-  const [showAllNiches, setShowAllNiches] = useState(false); // State to control visibility of all niches
+  const [showAllNiches, setShowAllNiches] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
   const languageDropdownRef = useRef(null);
-
-  const durations = ["15 mins", "30 mins", "45 mins", "90 mins", "1 hour"];
+  const durations = ["15 mins", "30 mins", "45 mins", "1 hour","90 mins",];
   const ratings = [5, 4, 3, 2, 1];
-
   const filteredNiches = selectedDomain
     ? nicheOptions[selectedDomain.value] || []
     : Object.values(nicheOptions).flat();
-
-  // Slice the niches to show only 3 by default
   const visibleNiches = showAllNiches
     ? filteredNiches
     : filteredNiches.slice(0, 3);
 
-  const resetFilters = () => {
-    // Reset all state values
-    setSelectedNiches([]);
-    setPriceRange([1, 100000]);
-    setSelectedLanguages([]);
-    setSelectedRatings([]);
-    setSelectedDurations([]);
-    setSorting("");
+  // Check if filters have been changed from initial state
+  useEffect(() => {
+    const checkForChanges = () => {
+      const isChanged = 
+        !arraysEqual(selectedNiches, INITIAL_FILTERS.selectedNiches) ||
+        !arraysEqual(priceRange, INITIAL_FILTERS.priceRange) ||
+        !arraysEqual(selectedLanguages, INITIAL_FILTERS.selectedLanguages) ||
+        !arraysEqual(selectedRatings, INITIAL_FILTERS.selectedRatings) ||
+        !arraysEqual(selectedDurations, INITIAL_FILTERS.selectedDurations) ||
+        sorting !== INITIAL_FILTERS.sorting;
+      
+      setHasUnsavedChanges(isChanged);
+    };
 
-    // Immediately apply the reset filters
+    checkForChanges();
+  }, [selectedNiches, priceRange, selectedLanguages, selectedRatings, selectedDurations, sorting]);
+
+  // Helper function to compare arrays
+  const arraysEqual = (a, b) => {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    // Sort both arrays to compare regardless of order
+    const aSorted = [...a].sort();
+    const bSorted = [...b].sort();
+    
+    for (let i = 0; i < aSorted.length; ++i) {
+      if (aSorted[i] !== bSorted[i]) return false;
+    }
+    return true;
+  };
+
+  const resetFilters = () => {
+    setSelectedNiches(INITIAL_FILTERS.selectedNiches);
+    setPriceRange(INITIAL_FILTERS.priceRange);
+    setSelectedLanguages(INITIAL_FILTERS.selectedLanguages);
+    setSelectedRatings(INITIAL_FILTERS.selectedRatings);
+    setSelectedDurations(INITIAL_FILTERS.selectedDurations);
+    setSorting(INITIAL_FILTERS.sorting);
+    
     onApplyFilters({
       selectedDomain,
-      selectedNiches: [],
-      priceRange: [1, 100000],
-      selectedLanguages: [],
-      selectedRatings: [],
-      selectedDurations: [],
-      sorting: "",
+      ...INITIAL_FILTERS,
     });
   };
 
@@ -59,7 +92,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
         ? prev.filter((item) => item !== value)
         : [...prev, value]
     );
-    console.log(selectedRatings);
   };
 
   const handleApplyFilters = () => {
@@ -76,17 +108,15 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   };
 
   const handlePriceChange = (index, value) => {
-    const numericValue = Math.max(1, Math.min(Number(value), 100000)); // Clamp values to min and max
+    const numericValue = Math.max(1, Math.min(Number(value), 100000));
     const newRange = [...priceRange];
     newRange[index] = numericValue;
-
-    // Ensure left value is not greater than the right and vice versa
+    
     if (index === 0 && numericValue > priceRange[1]) {
       newRange[1] = numericValue;
     } else if (index === 1 && numericValue < priceRange[0]) {
       newRange[0] = numericValue;
     }
-
     setPriceRange(newRange);
   };
 
@@ -110,23 +140,27 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   return (
     <div className="max-w-80 w-[300px] border shadow-md p-5 relative">
       {/* Sticky header with buttons */}
-      <div className="sticky top-0 bg-white/50 backdrop-blur-md z-10 border-b">
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={handleApplyFilters}
-          className="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition text-sm font-medium"
-        >
-          Apply Filters
-        </button>
-        <button
-          onClick={resetFilters}
-          className="px-4 py-2 rounded-md border border-gray-1 hover:bg-gray-100 transition text-sm font-medium"
-        >
-          Reset
-        </button>
+      <div className="sticky pt-2 top-0 bg-white z-10 border-b">
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={handleApplyFilters}
+            className={`flex-1 px-4 py-2 rounded-md transition text-sm font-medium ${
+              hasUnsavedChanges
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'border-2 border-primary bg-white text-primary font-semibold'
+            }`}
+          >
+            Apply Filters
+          </button>
+          <button
+            onClick={resetFilters}
+            className="px-4 py-2 rounded-md border border-gray-500 hover:bg-gray-100 transition text-sm font-medium"
+          >
+            Reset
+          </button>
+        </div>
       </div>
-    </div>
-
+      
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Filters</h2>
         <button
@@ -136,8 +170,8 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           <X className="h-5 w-5" />
         </button>
       </div>
-
-      {/* Domain - Left aligned text */}
+      
+      {/* Domain */}
       <div className="mb-6">
         <label className="font-medium text-base text-left block">Domain</label>
         <div className="mt-2">
@@ -146,7 +180,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           </p>
         </div>
       </div>
-
+      
       {/* Expertise (Niches) */}
       <div className="mb-6">
         <label className="font-medium text-base text-left block">
@@ -176,17 +210,15 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           )}
         </div>
       </div>
-
+      
       {/* Price Range */}
       <div className="mb-6">
         <label className="font-medium text-base text-left block">
           Price Range
         </label>
         <div className="w-full mt-3 flex flex-col gap-3">
-          {/* Inputs for min and max prices */}
           <div className="flex items-center text-sm">
             <span className="mr-1">Rs.</span>
-
             <input
               type="number"
               className="border rounded px-2 py-1 w-24 text-sm"
@@ -206,8 +238,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
               max="100000"
             />
           </div>
-
-          {/* Range slider using react-range */}
+          
           <div className="py-2">
             <Range
               step={100}
@@ -218,7 +249,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
               renderTrack={({ props, children }) => (
                 <div
                   {...props}
-                  className="w-full h-1 bg-gray-1 rounded-full"
+                  className="w-full h-1 bg-gray-200 rounded-full"
                   style={{
                     ...props.style,
                   }}
@@ -239,7 +270,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
                 </div>
               )}
               renderThumb={({ props, index }) => {
-                // Extract the key from props to handle it separately
                 const { key, ...restProps } = props;
                 return (
                   <div
@@ -257,8 +287,8 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           </div>
         </div>
       </div>
-
-      {/* languages */}
+      
+      {/* Languages */}
       <div className="mb-4 relative" ref={languageDropdownRef}>
         <label className="font-medium">Languages</label>
         <button
@@ -280,7 +310,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             className={`h-5 w-5 transition-transform ${
               isLanguageDropdownOpen ? "rotate-180" : ""
             }`}
-            xmlns="http://www.w3.org/10/svg"
+            xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -291,7 +321,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             />
           </svg>
         </button>
-
         {isLanguageDropdownOpen && (
           <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto">
             {languageOptions.map((lang) => (
@@ -313,7 +342,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           </div>
         )}
       </div>
-
+      
       {/* Ratings */}
       <div className="mb-6">
         <label className="font-medium text-base text-left block">Ratings</label>
@@ -331,7 +360,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
           ))}
         </div>
       </div>
-
+      
       {/* Time Duration */}
       <div className="mb-6">
         <label className="font-medium text-base text-left block">

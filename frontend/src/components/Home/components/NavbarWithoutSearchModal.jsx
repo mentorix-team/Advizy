@@ -4,6 +4,10 @@ import instantsearch from "instantsearch.js";
 import { configure } from "instantsearch.js/es/widgets";
 import debounce from "lodash/debounce";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "@/Redux/Slices/authSlice";
+import { useNavigate } from "react-router-dom";
+import AuthPopup from "@/components/Auth/AuthPopup.auth";
 import {
   ChevronDown,
   LogOut,
@@ -13,25 +17,40 @@ import {
   LayoutDashboard,
   ChevronRight,
   Search,
+  X
 } from "lucide-react";
 import SearchModal from "./SearchModal";
 
 const NavbarWithSearch = () => {
+  // Redux and navigation
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  
+  // State variables
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("User");
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const [hasExpertData, setHasExpertData] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-
+  const [isMobileSearchActive, setIsMobileSearchActive] = useState(false); // New state for mobile search
+  
+  // Search functionality
   const searchClient = useRef(null);
   const searchRef = useRef(null);
   const [hits, setHits] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState("");
-
+  
+  // Initialize expert mode and data from localStorage
+  useEffect(() => {
+    const expertData = localStorage.getItem("expertData");
+    const expertMode = localStorage.getItem("expertMode") === "true";
+    setHasExpertData(!!expertData);
+    setIsExpertMode(expertMode);
+  }, []);
+  
   // Debounced search function
   const handleNavbarSearch = useCallback(
     debounce((query) => {
@@ -41,7 +60,8 @@ const NavbarWithSearch = () => {
     }, 300),
     []
   );
-
+  
+  // Initialize Algolia search
   useEffect(() => {
     if (!searchClient.current) {
       searchClient.current = algoliasearch(
@@ -49,15 +69,12 @@ const NavbarWithSearch = () => {
         "1d072ac04759ef34bc76e8216964c29e" // your Search API Key (public)
       );
     }
-
     if (!searchRef.current) {
       searchRef.current = instantsearch({
         indexName: "experts_index",
         searchClient: searchClient.current,
       });
-
       searchRef.current.addWidgets([configure({ hitsPerPage: 5 })]);
-
       searchRef.current.on("render", () => {
         const results = searchRef.current.helper.lastResults;
         if (results && results.hits) {
@@ -67,10 +84,8 @@ const NavbarWithSearch = () => {
           setShowDropdown(query.trim() !== "");
         }
       });
-
       searchRef.current.start();
     }
-
     return () => {
       if (searchRef.current) {
         searchRef.current.dispose();
@@ -78,7 +93,8 @@ const NavbarWithSearch = () => {
       }
     };
   }, [query]);
-
+  
+  // Input change handler
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -89,40 +105,54 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-
+  
+  // Navigation handlers
   const openExpertProfile = (expertId) => {
     // Navigate to expert profile
     console.log(`Navigating to expert/${expertId}`);
     setShowDropdown(false);
+    setIsMobileSearchActive(false); // Close mobile search after selection
   };
-
+  
+  // Authentication handlers
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
   };
-
+  
   const handleCloseAuthPopup = () => {
     setAuthPopupOpen(false);
   };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  
+  // Logout handler
+  const handleLogout = async () => {
+    await dispatch(logout());
     setIsDropdownOpen(false);
+    navigate('/');
   };
-
+  
+  // Expert mode toggle
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
+    if (newMode) {
+      localStorage.setItem("expertMode", "true");
+      navigate("/dashboard/expert/");
+    } else {
+      localStorage.removeItem("expertMode");
+      navigate("/dashboard/user/meetings");
+    }
     setIsExpertMode(newMode);
-    setIsMenuOpen(false);
+    setIsDropdownOpen(false);
   };
-
+  
+  // Search modal handlers
   const handleOpenSearchModal = () => {
     setIsSearchModalOpen(true);
   };
-
+  
   const handleCloseSearchModal = () => {
     setIsSearchModalOpen(false);
   };
-
+  
   const handleSearchQueryChange = (value) => {
     setQuery(value);
     if (value.trim() === "") {
@@ -131,19 +161,31 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-
+  
+  // Mobile search handlers
+  const handleOpenMobileSearch = () => {
+    setIsMobileSearchActive(true);
+  };
+  
+  const handleCloseMobileSearch = () => {
+    setIsMobileSearchActive(false);
+    setQuery("");
+    setHits([]);
+    setShowDropdown(false);
+  };
+  
+  // User dropdown component
   const UserDropdown = () => (
     <div className="relative">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
+        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200  focus:outline-none p-2 rounded-md"
       >
         <span className="text-sm font-medium">
           <CircleUserRound className="w-5 h-5" />
         </span>
         <ChevronDown className="w-4 h-4" />
       </button>
-
       <AnimatePresence>
         {isDropdownOpen && (
           <motion.div
@@ -169,19 +211,12 @@ const NavbarWithSearch = () => {
                   <User className="w-4 h-4" />
                   Switch to User Mode
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
               </>
             ) : (
               <>
                 <a
                   href="/dashboard/user/meetings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className=" z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
@@ -195,23 +230,23 @@ const NavbarWithSearch = () => {
                     Switch to Expert Mode
                   </button>
                 )}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </button>
               </>
             )}
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
-
+  
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 border-b border-gray-200 bg-[#FCFCFC]">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -219,7 +254,8 @@ const NavbarWithSearch = () => {
               <img src="/logo104.99&44.svg" alt="Logo" />
             </a>
           </div>
-
+          
+          {/* Desktop search */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
             <motion.div
               className="relative"
@@ -278,46 +314,113 @@ const NavbarWithSearch = () => {
               )}
             </motion.div>
           </div>
-
+          
           {/* Mobile navbar actions */}
           <div className="flex items-center lg:hidden">
-            <button
-              onClick={handleOpenSearchModal}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 mr-1"
-              aria-label="Open search"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
-              aria-label="Toggle menu"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+            {!isMobileSearchActive ? (
+              <>
+                <button
+                  onClick={handleOpenMobileSearch}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 mr-1"
+                  aria-label="Open search"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+                  aria-label="Toggle menu"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    {isMenuOpen ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    )}
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center w-full">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-primary" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search mentors..."
+                    value={query}
+                    onChange={handleInputChange}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                    onFocus={() => query.trim() !== "" && hits.length > 0 && setShowDropdown(true)}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                    autoFocus
                   />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </svg>
-            </button>
+                  {showDropdown && query.trim() !== "" && (
+                    <div className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {hits.length > 0 ? (
+                        hits.map((hit) => (
+                          <div
+                            key={hit.objectID}
+                            className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => openExpertProfile(hit.objectID)}
+                          >
+                            <div className="flex items-center space-x-3">
+                              {hit.profileImage ? (
+                                <img
+                                  src={hit.profileImage}
+                                  alt={hit.name}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                  <User className="w-5 h-5 text-gray-500" />
+                                </div>
+                              )}
+                              <div>
+                                <div className="font-medium">{hit.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {hit.professionalTitle || hit.expertise || "Expert"}
+                                </div>
+                              </div>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-gray-500">
+                          No experts found matching your search
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleCloseMobileSearch}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+                  aria-label="Close search"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
-
+          
           {/* Desktop navigation - Only visible on desktop */}
           <div className="hidden lg:flex items-center gap-6">
             <a
@@ -326,7 +429,6 @@ const NavbarWithSearch = () => {
             >
               About Us
             </a>
-
             {!isExpertMode && (
               <a
                 href="/become-expert"
@@ -335,7 +437,6 @@ const NavbarWithSearch = () => {
                 Share Your Expertise
               </a>
             )}
-
             {isLoggedIn ? (
               <UserDropdown />
             ) : (
@@ -350,10 +451,10 @@ const NavbarWithSearch = () => {
             )}
           </div>
         </div>
-
+        
         {/* Mobile menu - Only visible on mobile */}
         <AnimatePresence>
-          {isMenuOpen && (
+          {isMenuOpen && !isMobileSearchActive && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -440,7 +541,7 @@ const NavbarWithSearch = () => {
           )}
         </AnimatePresence>
       </div>
-
+      
       {/* Search Modal */}
       <SearchModal
         isOpen={isSearchModalOpen}
@@ -450,6 +551,9 @@ const NavbarWithSearch = () => {
         hits={hits}
         onExpertSelect={openExpertProfile}
       />
+      
+      {/* Auth Popup */}
+      <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>
   );
 };

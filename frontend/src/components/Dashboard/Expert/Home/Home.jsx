@@ -9,8 +9,6 @@ import RecentEarnings from "./components/RecentEarnings";
 import AvailabilityCalendar from "./components/AvailabilityCalendar";
 import ClientFeedback from "./components/ClientFeedback";
 import RecommendedResources from "./components/RecommendedResources";
-import { BiUser, BiCalendar, BiRupee, BiStar } from "react-icons/bi";
-import { TwoPersonIcon } from "@/icons/Icons";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getMeetingByExpertId,

@@ -58,6 +58,17 @@ const ExpertCard = ({
   );
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
+  const truncateByChar = (text, maxChars) => {
+    if (text.length <= maxChars) return text;
+
+    let truncated = text.slice(0, maxChars);
+    // Ensure we don't cut off in the middle of a word
+    if (text[maxChars] !== " ") {
+      truncated = truncated.slice(0, truncated.lastIndexOf(" "));
+    }
+    return truncated + "...";
+  };
+
   const handleFavoriteClick = async () => {
     try {
       await dispatch(addFavourites({ expertId: id }));
@@ -86,7 +97,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
+    <div className="w-full h-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
       <div className="flex flex-col h-full">
         {/* Content Section */}
         <div className="flex-1 flex flex-col gap-3">
@@ -112,7 +123,7 @@ const ExpertCard = ({
                     )}
                   </div>
                   <p className="text-[14px] sm:text-[15.5px] text-[#1d1f1d] opacity-80 font-['Figtree',Helvetica] leading-[1.4] sm:leading-[23.2px] mb-2">
-                    {title}
+                    {truncateByChar(title, 36)}
                   </p>
 
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -130,7 +141,7 @@ const ExpertCard = ({
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-0.5 sm:gap-1">
+                  <div className="flex flex-col gap-0.5 sm:gap-1 z-0">
                     <p className="font-['Figtree',Helvetica] text-[14px] sm:text-[15.5px] leading-[1.4] sm:leading-[23.2px]">
                       <span className="text-[#1d1d1d]">Experience: </span>
                       <span className="font-medium text-[#1d1d1d]">
@@ -157,7 +168,7 @@ const ExpertCard = ({
                   }`}
                 >
                   <Heart
-                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
+                    className={`w-5 h-5 z-0 sm:w-6 sm:h-6 transition-transform duration-300 ${
                       isAnimating ? "scale-125" : ""
                     }`}
                     fill={isFavorite ? "#EF4444" : "none"}
@@ -175,25 +186,26 @@ const ExpertCard = ({
                 <span className="font-['Figtree',Helvetica] text-[14px] sm:text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
-                {expertise.slice(0, 2).map((skill, index) => (
-                  <span
-                    key={`${skill}-${index}`}
-                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
-                  >
-                    {skill}
-                  </span>
-                ))}
+                {expertise.slice(0, 5).map((skill, index) => (
+  <span
+    key={`${skill}-${index}`}
+    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+  >
+    {skill}
+  </span>
+))}
+
               </div>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
+              {/* <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                 {expertise.slice(2).map((skill, index) => (
                   <span
-                    key={`${skill}-${index}`}
+                    key={${skill}-${index}}
                     className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
                   >
                     {skill}
                   </span>
                 ))}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -206,7 +218,7 @@ const ExpertCard = ({
                 Next Available Slot:
               </span>
               <span className="font-['Figtree',Helvetica] text-[13px] sm:text-[14.5px] text-[#1f409b] leading-[1.4] sm:leading-[21.7px]">
-                {firstAvailableDay
+                {firstAvailableDay && firstAvailableTime
                   ? `${firstAvailableDay.day}, ${firstAvailableTime}`
                   : "No slots available"}
               </span>

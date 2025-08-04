@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import DayRow from "./DayRow";
-import { validateTimeSlot, checkOverlap } from "@/utils/timeValidation";
-import { addAvailability, saveAvailability } from "@/Redux/Slices/availability.slice";
+import {
+  validateTimeSlot,
+  checkOverlap,
+  convert24To12Hour,
+} from "@/utils/timeValidation";
+import {
+  addAvailability,
+  saveAvailability,
+} from "@/Redux/Slices/availability.slice";
 
 const DAYS = [
   { id: 1, name: "Monday" },
@@ -14,10 +21,14 @@ const DAYS = [
   { id: 7, name: "Sunday" },
 ];
 
-function WeeklyAvailability({availability}) {
+function WeeklyAvailability({ availability }) {
   const dispatch = useDispatch();
   const [days, setDays] = useState(() => {
-    if (availability && availability.length > 0 && availability[0].daySpecific) {
+    if (
+      availability &&
+      availability.length > 0 &&
+      availability[0].daySpecific
+    ) {
       const apiDays = availability[0].daySpecific;
 
       return DAYS.map((day) => {
@@ -30,8 +41,15 @@ function WeeklyAvailability({availability}) {
             enabled: true,
             slots: matchedDay.slots.map((slot, index) => ({
               id: index + 1,
-              start: slot.startTime || "",
-              end: slot.endTime || "",
+              start:
+                slot.startTime.includes("AM") || slot.startTime.includes("PM")
+                  ? slot.startTime
+                  : convert24To12Hour(slot.startTime),
+
+              end:
+                slot.endTime.includes("AM") || slot.endTime.includes("PM")
+                  ? slot.endTime
+                  : convert24To12Hour(slot.endTime),
             })),
             error: null,
           };
@@ -60,9 +78,7 @@ function WeeklyAvailability({availability}) {
   const handleToggle = (dayId) => {
     setDays(
       days.map((day) =>
-        day.id === dayId
-          ? { ...day, enabled: !day.enabled, error: null }
-          : day
+        day.id === dayId ? { ...day, enabled: !day.enabled, error: null } : day
       )
     );
   };
@@ -151,12 +167,12 @@ function WeeklyAvailability({availability}) {
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
-  
+
     try {
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
       const currentMonth = currentDate.getMonth();
-  
+
       const getDatesForDay = (day) => {
         const daysOfWeek = [
           "Sunday",
@@ -168,13 +184,13 @@ function WeeklyAvailability({availability}) {
           "Saturday",
         ];
         const dayIndex = daysOfWeek.indexOf(day);
-  
+
         if (dayIndex === -1) return [];
-  
+
         const dates = [];
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
         const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-  
+
         for (
           let date = new Date(firstDayOfMonth);
           date <= lastDayOfMonth;
@@ -186,12 +202,12 @@ function WeeklyAvailability({availability}) {
         }
         return dates;
       };
-  
+
       const data = days
         .filter((day) => day.enabled)
         .map((day) => {
           const dates = getDatesForDay(day.name);
-  
+
           return {
             day: day.name,
             slots: day.slots.map((slot) => ({
@@ -201,7 +217,7 @@ function WeeklyAvailability({availability}) {
             })),
           };
         });
-  
+
       dispatch(addAvailability({ data }));
       console.log("Dispatched data with dates:", data);
     } catch (error) {
@@ -233,7 +249,7 @@ function WeeklyAvailability({availability}) {
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
       </div>
-  
+
       <div className="divide-y divide-gray-100">
         {days.map((day) => (
           <DayRow

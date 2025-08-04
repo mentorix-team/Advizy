@@ -91,6 +91,7 @@ useEffect(() => {
     const months = totalMonths % 12;
 
     return years > 0 ? `${years} years ${months} months` : `${months} months`;
+
   };
 
   return (
@@ -104,12 +105,12 @@ useEffect(() => {
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <div className="grid grid-cols-1 2xl:grid-cols-2 auto-rows-fr gap-4 sm:gap-6 mb-6">
         {loading && (
           <>
             {[...Array(10)].map((_, index) => (
-              <div key={index} className="w-full">
-                <ExpertCardSkeleton />
+              <div key={index} className="w-full h-full">
+                <ExpertCardSkeleton className="h-full" />
               </div>
             ))}
           </>
@@ -150,8 +151,8 @@ useEffect(() => {
             );
 
             return (
-              <div key={expert._id} className="w-full">
-                <ExpertCard
+              <div key={expert._id} className="w-full h-full">
+                <ExpertCard className="h-full"
                   id={expert._id}
                   redirect_url={expert.redirect_url}
                   name={`${expert.firstName} ${expert.lastName}`}

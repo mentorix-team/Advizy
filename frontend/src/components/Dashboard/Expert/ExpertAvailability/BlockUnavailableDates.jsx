@@ -15,11 +15,13 @@ function BlockUnavailableDates() {
   const [disabledDates, setDisabledDates] = useState([]); 
   const { blockedDates, setBlockedDates } = useBlockedDates();
 
-  useEffect(() => {
+useEffect(() => {
   console.log("useEffect triggered. Availability:", availability);
 
-  if (availability?.availability[0]?.daySpecific) {
-    const nullSlotDays = availability.availability[0].daySpecific
+  const expertAvailability = availability?.availability?.[0];
+
+  if (expertAvailability?.daySpecific) {
+    const nullSlotDays = expertAvailability.daySpecific
       .filter((entry) => !entry.slots)
       .map((entry) => {
         const dayOfWeek = entry.day.toLowerCase();
@@ -30,7 +32,7 @@ function BlockUnavailableDates() {
           wednesday: 3,
           thursday: 4,
           friday: 5,
-          saturday: 6
+          saturday: 6,
         };
         return daysOfWeek[dayOfWeek];
       })
@@ -39,14 +41,14 @@ function BlockUnavailableDates() {
     setDisabledDates(nullSlotDays);
   }
 
-  // -------- THIS PART ADDED --------
-  if (availability?.availability[0]?.blockedDates?.length > 0) {
-    const formattedBlockedDates = availability.availability[0].blockedDates.map(
+  if (expertAvailability?.blockedDates?.length > 0) {
+    const formattedBlockedDates = expertAvailability.blockedDates.map(
       (dateObj) => new Date(dateObj.dates)
     );
     setBlockedDates(formattedBlockedDates);
   }
 }, [availability]);
+
 
     
   const handleDateSelect = (date) => {

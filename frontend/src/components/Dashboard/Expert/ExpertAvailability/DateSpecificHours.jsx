@@ -8,8 +8,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
 import { addSpecificDates } from "@/Redux/Slices/availability.slice";
 
-function DateSpecificHours({availability}) {
-  console.log('this is availability at specifuc',availability)
+function DateSpecificHours({ availability }) {
+  console.log("this is availability at specifuc", availability);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
@@ -17,44 +17,51 @@ function DateSpecificHours({availability}) {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (availability?.availability[0]?.specific_dates?.length > 0) {
-      const formattedDates = availability.availability[0].specific_dates.map((specificDate) => ({
-        id: Date.now() + Math.random(), // unique id
-        date: new Date(specificDate.date), // convert string to Date object
-        slots: specificDate.slots.map((slot) => ({
-          id: Date.now() + Math.random(), // unique id
-          start: slot.startTime,
-          end: slot.endTime,
-        })),
-      }));
+    const availabilityArray = availability?.availability;
+    if (
+      Array.isArray(availabilityArray) &&
+      availabilityArray.length > 0 &&
+      Array.isArray(availabilityArray[0].specific_dates) &&
+      availabilityArray[0].specific_dates.length > 0
+    ) {
+      const formattedDates = availabilityArray[0].specific_dates.map(
+        (specificDate) => ({
+          id: Date.now() + Math.random(),
+          date: new Date(specificDate.date),
+          slots: specificDate.slots.map((slot) => ({
+            id: Date.now() + Math.random(),
+            start: slot.startTime,
+            end: slot.endTime,
+          })),
+        })
+      );
       setDates(formattedDates);
     }
   }, [availability]);
-
 
   const isDateBlocked = (date) =>
     blockedDates.some(
       (blockedDate) => blockedDate.getTime() === date.getTime()
     );
 
-    const handleAddDate = (selectedDate) => {
-      if (isDateBlocked(selectedDate)) {
-        alert("This date is blocked or already selected.");
-        return;
-      }
-      const newDate = {
-        id: Date.now(),
-        date: selectedDate,
-        slots: [],
-      };
-      setDates([...dates, newDate]);
-      setIsDatePickerOpen(false);
+  const handleAddDate = (selectedDate) => {
+    if (isDateBlocked(selectedDate)) {
+      alert("This date is blocked or already selected.");
+      return;
+    }
+    const newDate = {
+      id: Date.now(),
+      date: selectedDate,
+      slots: [],
     };
+    setDates([...dates, newDate]);
+    setIsDatePickerOpen(false);
+  };
 
-    const getExcludedDates = () => {
-      const selectedDates = dates.map((date) => date.date);
-      return [...selectedDates, ...blockedDates];
-    };
+  const getExcludedDates = () => {
+    const selectedDates = dates.map((date) => date.date);
+    return [...selectedDates, ...blockedDates];
+  };
 
   const handleAddSlot = (dateId) => {
     setDates((prevDates) =>
@@ -119,19 +126,19 @@ function DateSpecificHours({availability}) {
 
   const handleSave = () => {
     const formattedData = dates.map((date) => ({
-      date: date.date.toISOString(), 
+      date: date.date.toISOString(),
       slots: date.slots.map((slot) => ({
-        start: slot.start, 
-        end: slot.end, 
+        start: slot.start,
+        end: slot.end,
       })),
     }));
-    console.log(formattedData)
-  
+    console.log(formattedData);
+
     dispatch(addSpecificDates(formattedData));
-  
+
     console.log("Formatted Data Sent to API:", formattedData);
   };
-  
+
   const getDaysWithAvailability = () => {
     // Get the days of the week (0 = Sunday, 1 = Monday, etc.) from the `dates` array where slots exist
     return dates
@@ -248,7 +255,8 @@ function DateSpecificHours({availability}) {
                 const daysWithAvailability = getDaysWithAvailability();
                 return !daysWithAvailability.includes(date.getDay()); // Disable days with availability
               }}
-            />;
+            />
+            ;
           </div>
         </div>
       )}

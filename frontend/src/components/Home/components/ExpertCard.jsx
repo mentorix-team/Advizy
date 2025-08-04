@@ -14,6 +14,8 @@ const expertCard = ({ expert }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  console.log('expert data from', expert)
+
   const calculateTotalExperience = (workExperiences) => {
     if (!Array.isArray(workExperiences) || workExperiences.length === 0)
       return "0 years";
@@ -78,7 +80,7 @@ const expertCard = ({ expert }) => {
     const fetchAvailability = async () => {
       try {
         const response = await dispatch(
-          getAvailabilitybyid(expert._id)
+          getAvailabilitybyid(expert.id)
         ).unwrap();
         setAvailability(response.availability);
       } catch (error) {
@@ -164,7 +166,7 @@ const expertCard = ({ expert }) => {
                 <img src="/svg-image-65.svg" alt="verified tick" />
               )}
             </div>
-            <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6">
+            <p className="opacity-80 font-['Figtree'] font-normal text-black text-base text-center leading-6 min-h-[48px] line-clamp-3">
               {expert.title || "experts"}
             </p>
           </div>

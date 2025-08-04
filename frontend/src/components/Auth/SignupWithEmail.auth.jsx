@@ -148,7 +148,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
       const otpResponse = await dispatch(generateOtpEmail(signupData)).unwrap();
 
       if (otpResponse?.success) {
-        toast.success("OTP sent to your email. Please verify.",{
+        toast.success("OTP sent to your email. Please verify.", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -187,7 +187,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
-      <div className="relative w-[820px] h-[620px] bg-white rounded-[20px] shadow-lg p-8">
+      <div className="relative w-[90%] max-w-[820px] max-h-[90vh] overflow-y-auto bg-white rounded-[20px] shadow-lg p-6 sm:p-8">
         <button
           onClick={onClose}
           className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"

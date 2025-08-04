@@ -43,7 +43,7 @@ const ProfileHeader = ({
     <div className="relative w-full">
       {/* Updated background with an image */}
       <div
-        className="h-48 w-full"
+        className="h-60 w-full"
         style={{
           backgroundImage: `url(${coverImage})`, // Corrected background image syntax
           backgroundSize: "cover",

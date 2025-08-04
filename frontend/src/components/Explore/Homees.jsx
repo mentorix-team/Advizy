@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import FilterSidebar from "./FilterSidebar";
-import ExpertList from "./ExpertList";
 import DomainBar from "./DomainBar";
+import ExpertList from "./ExpertList";
 import { useSearchParams } from "react-router-dom";
 import { domainOptions } from "@/utils/Options";
 import NavbarWithoutSearchModal from "../Home/components/NavbarWithoutSearchModal";
@@ -14,7 +14,7 @@ const Homees = () => {
   const [filters, setFilters] = useState({
     selectedDomain: null,
     selectedNiches: [],
-    priceRange: [200, 100000],
+    priceRange: [1, 100000],
     selectedLanguages: [],
     selectedRatings: [],
     selectedDurations: [],
@@ -30,20 +30,6 @@ const Homees = () => {
   useEffect(() => {
     console.log("Selected Domain:", selectedDomain);
   }, [selectedDomain]);
-
-  // useEffect(() => {
-  //   const categoryFromUrl = searchParams.get("category");
-  //   if (categoryFromUrl) {
-  //     const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
-  //     if (domain) {
-  //       setSelectedDomain(domain);
-  //       setFilters((prev) => ({
-  //         ...prev,
-  //         selectedDomain: domain,
-  //       }));
-  //     }
-  //   }
-  // }, [searchParams]);
 
   // Update filters whenever selectedDomain changes
   const updateDomain = (domain) => {
@@ -103,7 +89,7 @@ const Homees = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Fixed Domain Bar */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <NavbarWithoutSearchModal
           onSearch={(query) => {
             console.log("Search Query:", query);
