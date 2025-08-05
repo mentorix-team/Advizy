@@ -504,15 +504,13 @@ export const getAllExperts = createAsyncThunk(
         admin_approved_expert: true,
       };
 
-      const queryString = new URLSearchParams(
-        queryParamsWithApproval
-      ).toString();
+      const queryString = new URLSearchParams(queryParamsWithApproval).toString();
       const endpoint = `expert/getexperts?${queryString}`;
 
       const response = await axiosInstance.get(endpoint);
 
       const expertsData = response.data?.experts || [];
-      // console.log("API Response:", response.data);
+      console.log("API Response:", response.data);
       return expertsData;
     } catch (error) {
       console.error("Error fetching experts:", error);
@@ -1028,6 +1026,7 @@ const expertSlice = createSlice({
       .addCase(getAllExperts.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.experts = [];
       })
       // .addCase(getAllExperts.fulfilled, (state, action) => {
       //   state.loading = false;
