@@ -30,7 +30,7 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   const languageDropdownRef = useRef(null);
-  const durations = ["15 mins", "30 mins", "45 mins", "90 mins", "1 hour"];
+  const durations = ["15 mins", "30 mins", "45 mins", "1 hour","90 mins",];
   const ratings = [5, 4, 3, 2, 1];
   const filteredNiches = selectedDomain
     ? nicheOptions[selectedDomain.value] || []
@@ -147,14 +147,14 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
             className={`flex-1 px-4 py-2 rounded-md transition text-sm font-medium ${
               hasUnsavedChanges
                 ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-green-400 text-white hover:bg-green-500'
+                : 'border-2 border-primary bg-white text-primary font-semibold'
             }`}
           >
             Apply Filters
           </button>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 rounded-md border border-gray-1 hover:bg-gray-100 transition text-sm font-medium"
+            className="px-4 py-2 rounded-md border border-gray-500 hover:bg-gray-100 transition text-sm font-medium"
           >
             Reset
           </button>

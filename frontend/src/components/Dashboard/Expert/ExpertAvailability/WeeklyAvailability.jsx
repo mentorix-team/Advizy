@@ -21,6 +21,29 @@ const DAYS = [
   { id: 7, name: "Sunday" },
 ];
 
+// Helper: Add offset to 12-hour time string (e.g., "09:00 AM")
+const addOffset = (timeStr, offsetMinutes) => {
+  if (!timeStr) return timeStr;
+
+  const [time, meridian] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (meridian === "PM" && hours !== 12) hours += 12;
+  if (meridian === "AM" && hours === 12) hours = 0;
+
+  const date = new Date();
+  date.setHours(hours);
+  date.setMinutes(minutes + offsetMinutes);
+
+  // Format back to 12-hour
+  let newHours = date.getHours();
+  const newMeridian = newHours >= 12 ? "PM" : "AM";
+  newHours = newHours % 12 || 12;
+  const newMinutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${newHours}:${newMinutes} ${newMeridian}`;
+};
+
 function WeeklyAvailability({ availability }) {
   const dispatch = useDispatch();
   const [days, setDays] = useState(() => {
@@ -35,7 +58,6 @@ function WeeklyAvailability({ availability }) {
         const matchedDay = apiDays.find((d) => d.day === day.name);
 
         if (matchedDay && matchedDay.slots && matchedDay.slots.length > 0) {
-          // Populate slots dynamically
           return {
             ...day,
             enabled: true,
@@ -45,7 +67,6 @@ function WeeklyAvailability({ availability }) {
                 slot.startTime.includes("AM") || slot.startTime.includes("PM")
                   ? slot.startTime
                   : convert24To12Hour(slot.startTime),
-
               end:
                 slot.endTime.includes("AM") || slot.endTime.includes("PM")
                   ? slot.endTime
@@ -54,7 +75,6 @@ function WeeklyAvailability({ availability }) {
             error: null,
           };
         } else {
-          // No slots for that day → toggle off
           return {
             ...day,
             enabled: false,
@@ -64,7 +84,6 @@ function WeeklyAvailability({ availability }) {
         }
       });
     } else {
-      // No availability data → default static
       return DAYS.map((day) => ({
         ...day,
         enabled: true,
@@ -211,15 +230,17 @@ function WeeklyAvailability({ availability }) {
           return {
             day: day.name,
             slots: day.slots.map((slot) => ({
-              startTime: slot.start,
-              endTime: slot.end,
-              dates: dates.map((date) => date.toISOString()),
+              startTime: addOffset(slot.start, 330), // +5:30h offset
+              endTime: addOffset(slot.end, 330),     // +5:30h offset
+              dates: dates.map((date) =>
+                date.toISOString().split("T")[0] // save as YYYY-MM-DD
+              ),
             })),
           };
         });
 
       dispatch(addAvailability({ data }));
-      console.log("Dispatched data with dates:", data);
+      console.log("Dispatched data with 5:30h offset:", data);
     } catch (error) {
       console.error("Error saving changes:", error);
     } finally {

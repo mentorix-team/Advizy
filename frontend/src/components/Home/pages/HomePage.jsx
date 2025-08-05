@@ -103,35 +103,33 @@ function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
-  const { experts } = useSelector((state) => state.expert);
+  const { experts, dataLoading } = useSelector((state) => state.expert);
   const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
-  const [fitnessExperts, setFitnessExperts] = useState([]);
-  // const [careerExperts, setCareerExperts] = useState([]);
 
-  // Assuming `data` is the array you console.logged
+  // Assuming data is the array you console.logged
   const careerExperts = Array.isArray(experts)
-  ? experts
-      .filter((expert) => expert?.credentials?.domain === "career_and_education") // Filter by domain
-      .map((expert) => {
-        return {
-          id: expert._id,
-          name: `${expert.firstName} ${expert.lastName}`,
-          city: expert.city,
-          image: expert?.profileImage?.secure_url || "", // Fallback if not available
-          title: expert?.credentials?.professionalTitle?.[0] || "Mentor", // Fallback to "Mentor" if no title
-          redirect_url: expert?.redirect_url,
-          services: expert.credentials?.services || [], // Fallback to empty array if no services
-          availability: expert.availability, // Include availability data
-          reviews: expert.reviews || [],
-          admin_approved_expert : expert?.admin_approved_expert || false,
-          reviews: expert?.reviews || [], // Fallback to empty array if no reviews
-        };
-      })
-  : [];
+    ? experts
+        .filter(
+          (expert) => expert?.credentials?.domain === "career_and_education"
+        ) // Filter by domain
+        .map((expert) => {
+          return {
+            id: expert._id,
+            name: `${expert.firstName} ${expert.lastName}`,
+            city: expert.city,
+            image: expert?.profileImage?.secure_url || "", // Fallback if not available
+            title: expert?.credentials?.professionalTitle?.[0] || "Mentor", // Fallback to "Mentor" if no title
+            redirect_url: expert?.redirect_url,
+            services: expert.credentials?.services || [], // Fallback to empty array if no services
+            availability: expert.availability, // Include availability data
+            reviews: expert.reviews || [],
+            admin_approved_expert: expert?.admin_approved_expert || false,
+            reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+          };
+        })
+    : [];
 
-console.log('Filtered career experts: ', careerExperts);
-
-
+  // console.log('Filtered career experts: ', careerExperts);
   useEffect(() => {
     const expertDataString = localStorage.getItem("expertData");
     if (expertDataString) {
@@ -168,30 +166,6 @@ console.log('Filtered career experts: ', careerExperts);
   }, []);
 
   useEffect(() => {
-    const queryParams = {
-      domain: "health_and_fitness",
-    };
-
-    const cleanedQueryParams = Object.fromEntries(
-      Object.entries(queryParams).filter(([key, value]) => {
-        if (Array.isArray(value)) {
-          return value.length > 0;
-        }
-        return value !== "";
-      })
-    );
-
-    dispatch(getAllExperts(cleanedQueryParams))
-      .unwrap()
-      .then((data) => {
-        setFitnessExperts(data.experts);
-      })
-      .catch((error) => {
-        console.error("Error fetching fitness experts:", error);
-      });
-  }, [dispatch]);
-
-  useEffect(() => {
     if (!loading && isLoggedIn) {
       navigate("/");
     }
@@ -222,6 +196,9 @@ console.log('Filtered career experts: ', careerExperts);
   }, [dispatch]);
 
   if (loading) {
+    return <Spinner />;
+  }
+  if (dataLoading) {
     return <Spinner />;
   }
 
@@ -428,12 +405,12 @@ console.log('Filtered career experts: ', careerExperts);
               /> */}
 
               {/* Career Mentors Section */}
-              <div className="bg-[#F3F3F3] -mx-4 sm:-mx-6 px-4 py-4 sm:px-6 sm:py-6">
+              <div className="-mx-4 sm:-mx-6 px-4 py-4 sm:px-6 sm:py-6">
                 <ExpertSection
                   title="Career Mentors"
                   subtitle="Professional career guidance"
                   experts={careerExperts}
-                  link="/explore"
+                  link="/explore?category=career_and_education"
                 />
               </div>
 

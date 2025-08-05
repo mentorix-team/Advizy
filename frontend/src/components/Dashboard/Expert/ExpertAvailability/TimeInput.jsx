@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
 
-export function TimeInput({ value, onChange, disabled }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // Generate time intervals in 15-minute increments with 12-hour format and AM/PM
-  const timeIntervals = Array.from({ length: 96 }, (_, i) => {
+// Utility function to generate time intervals in 15-minute increments
+export function generateTimeIntervals() {
+  return Array.from({ length: 96 }, (_, i) => {
     const totalMinutes = i * 15;
     const hours24 = Math.floor(totalMinutes / 60);
     const minutes = (totalMinutes % 60).toString().padStart(2, "0");
-
     const hours12 = hours24 % 12 || 12; // Convert 24-hour to 12-hour format
     const ampm = hours24 < 12 ? "AM" : "PM";
-
     return `${hours12}:${minutes} ${ampm}`;
   });
+}
+
+export function TimeInput({ value, onChange, disabled }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const timeIntervals = generateTimeIntervals();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -22,7 +23,6 @@ export function TimeInput({ value, onChange, disabled }) {
         setIsOpen(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
@@ -60,7 +60,6 @@ export function TimeInput({ value, onChange, disabled }) {
           <p className="text-base font-sans text-black">{value}</p>
         </div>
       </button>
-
       {isOpen && !disabled && (
         <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
           <div className="h-48 overflow-y-auto py-1">
@@ -83,10 +82,58 @@ export function TimeInput({ value, onChange, disabled }) {
 }
 
 const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndChange }) => {
+  const timeOptions = generateTimeIntervals();
+
+  // Normalize time value to ensure consistent format
+  const normalizeTime = (time) => {
+    if (!time) return '';
+    
+    // If already in correct format (e.g., "12:00 AM"), return as is
+    if (/\d{1,2}:\d{2} [AP]M/.test(time)) {
+      return time;
+    }
+    
+    // Try to parse as 24-hour format "HH:MM" or "HH:MM:SS"
+    const match = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if (match) {
+      let hours = parseInt(match[1]);
+      const minutes = match[2];
+      const ampm = hours < 12 ? 'AM' : 'PM';
+      hours = hours % 12 || 12;
+      return `${hours}:${minutes} ${ampm}`;
+    }
+    
+    // If we can't parse, try to see if it's one of our generated options
+    const found = timeOptions.find(option => option === time);
+    if (found) {
+      return found;
+    }
+    
+    // If still not found, try to convert from Date object
+    try {
+      const date = new Date(`1970-01-01T${time}`);
+      if (!isNaN(date.getTime())) {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const ampm = hours < 12 ? 'AM' : 'PM';
+        const hours12 = hours % 12 || 12;
+        const minutesStr = minutes.toString().padStart(2, '0');
+        return `${hours12}:${minutesStr} ${ampm}`;
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+    
+    return time; // fallback
+  };
+
+  const normalizedStartTime = normalizeTime(startTime);
+  const normalizedEndTime = normalizeTime(endTime);
+
   return (
     <div className="flex items-center gap-2">
       <select
-        value={startTime || ''}
+        value={normalizedStartTime}
         onChange={(e) => onStartChange(e.target.value)}
         disabled={disabled}
         className="form-select border border-gray-300 rounded-md"
@@ -94,8 +141,7 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
         <option value="" disabled>
           Start Time
         </option>
-        {/* Populate time options */}
-        {generateTimeOptions().map((time) => (
+        {timeOptions.map((time) => (
           <option key={time} value={time}>
             {time}
           </option>
@@ -103,7 +149,7 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
       </select>
       <span>to</span>
       <select
-        value={endTime || ''}
+        value={normalizedEndTime}
         onChange={(e) => onEndChange(e.target.value)}
         disabled={disabled}
         className="form-select border border-gray-300 rounded-md"
@@ -111,8 +157,7 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
         <option value="" disabled>
           End Time
         </option>
-        {/* Populate time options */}
-        {generateTimeOptions().map((time) => (
+        {timeOptions.map((time) => (
           <option key={time} value={time}>
             {time}
           </option>
@@ -121,26 +166,5 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
     </div>
   );
 }
-
-// Helper to generate time options in 15-minute intervals
-function generateTimeOptions() {
-  const times = [];
-  
-  // Loop through each hour of the day
-  for (let hour = 0; hour < 24; hour++) {
-    // Loop through minutes in 15-minute increments
-    for (let min = 0; min < 60; min += 15) {
-      // Format the time as HH:MM AM/PM
-      const time = new Date(1970, 0, 1, hour, min).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      times.push(time);
-    }
-  }
-
-  return times;
-}
-
 
 export default TimeRangePicker;
