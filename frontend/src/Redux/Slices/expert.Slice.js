@@ -1043,6 +1043,7 @@ const expertSlice = createSlice({
       .addCase(getAllExperts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Error fetching experts";
+        state.experts = [];
       })
       .addCase(getExpertById.pending, (state) => {
         state.loading = true;
