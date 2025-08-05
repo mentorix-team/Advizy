@@ -1,3 +1,4 @@
+import ReactGA from "react-ga4";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
 import { useDispatch } from "react-redux";
@@ -135,6 +136,11 @@ const App = () => {
     }
   }, [location, navigate]);
 
+    // Track route changes as pageviews
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname });
+  }, [location.pathname]);
+
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
@@ -184,7 +190,7 @@ const App = () => {
         <Route path="/payment-success" element={<BookingConfirmation />} />
         {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
         <Route path="/meeting" element={<Meeting />} />
-        
+
         {/* Dashboard Routes */}
         <Route
           path="/dashboard/user/*"
