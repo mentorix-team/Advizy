@@ -180,63 +180,70 @@ const PayuOrderSummary = () => {
     navigate(-1);
   };
 
-  const handlePayuPayment = async () => {
-    try {
-      if (!selectedDate) {
-        throw new Error("Selected date is invalid.");
-      }
-
-      const parsedDate =
-        typeof selectedDate === "string" || typeof selectedDate === "number"
-          ? new Date(selectedDate)
-          : selectedDate;
-
-      if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
-        throw new Error(
-          "Failed to parse selected date into a valid Date object."
-        );
-      }
-
-      const { hours: startHours, minutes: startMinutes } = formatTime(
-        selectedMeeting?.daySpecific?.slot?.startTime
-      );
-      const { hours: endHours, minutes: endMinutes } = formatTime(
-        selectedMeeting?.daySpecific?.slot?.endTime
-      );
-
-      const startDateTime = new Date(parsedDate);
-      startDateTime.setHours(startHours, startMinutes, 0, 0);
-
-      const endDateTime = new Date(parsedDate);
-      endDateTime.setHours(endHours, endMinutes, 0, 0);
-
-      const paymentData = {
-        txnid: `TXN${Date.now()}`,
-        amount: priceforsession.toString(),
-        firstname: selectedMeeting?.userName || "Customer Name", // Replace with actual user data
-        email: user?.email || "customer@example.com", // Replace with actual user data
-        phone: user?.mobile || "9999999999", // Replace with actual user data
-        productinfo: selectedService?.title || "Service Booking",
-        serviceId: selectedMeeting?.serviceId,
-        expertId: selectedMeeting?.expertId,
-        userId: user?._id,
-        date: parsedDate.toISOString().split("T")[0],
-        startTime: startDateTime.toISOString(),
-        endTime: endDateTime.toISOString(),
-        message: message,
-      };
-
-      const response = await dispatch(PayU(paymentData)).unwrap();
-      console.log('this is payu response',response)
-      const payuWindow = window.open("", "_blank");
-      if (response) {
-        payuWindow.document.write(response)
-      }
-    } catch (error) {
-      console.error("PayU payment failed:", error);
-      // Handle error (show toast, etc.)
+const handlePayuPayment = async () => {
+  try {
+    if (!selectedDate) {
+      throw new Error("Selected date is invalid.");
     }
-  };
+    const parsedDate =
+      typeof selectedDate === "string" || typeof selectedDate === "number"
+        ? new Date(selectedDate)
+        : selectedDate;
+    if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
+      throw new Error(
+        "Failed to parse selected date into a valid Date object."
+      );
+    }
+    const { hours: startHours, minutes: startMinutes } = formatTime(
+      selectedMeeting?.daySpecific?.slot?.startTime
+    );
+    const { hours: endHours, minutes: endMinutes } = formatTime(
+      selectedMeeting?.daySpecific?.slot?.endTime
+    );
+    const startDateTime = new Date(parsedDate);
+    startDateTime.setHours(startHours, startMinutes, 0, 0);
+    const endDateTime = new Date(parsedDate);
+    endDateTime.setHours(endHours, endMinutes, 0, 0);
+    const paymentData = {
+      txnid: `TXN${Date.now()}`,
+      amount: priceforsession.toString(),
+      firstname: selectedMeeting?.userName || "Customer Name",
+      email: user?.email || "customer@example.com",
+      phone: user?.mobile || "9999999999",
+      productinfo: selectedService?.title || "Service Booking",
+      serviceId: selectedMeeting?.serviceId,
+      expertId: selectedMeeting?.expertId,
+      userId: user?._id,
+      date: parsedDate.toISOString().split("T")[0],
+      startTime: startDateTime.toISOString(),
+      endTime: endDateTime.toISOString(),
+      message: message,
+    };
+    
+    // Get the HTML form from the backend
+    const response = await dispatch(PayU(paymentData)).unwrap();
+    
+    // Create a temporary div to hold the form
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = response;
+    
+    // Get the form from the temp div
+    const form = tempDiv.querySelector('form');
+    
+    if (form) {
+      // Append the form to the body
+      document.body.appendChild(form);
+      
+      // Submit the form
+      form.submit();
+    } else {
+      throw new Error('Invalid payment form received');
+    }
+  } catch (error) {
+    console.error("PayU payment failed:", error);
+    // Handle error (show toast, etc.)
+  }
+};
 
   const handleConfirmPayment = async () => {
     try {
@@ -276,12 +283,10 @@ const PayuOrderSummary = () => {
 
       <main className="flex-grow py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-6">
+          <div className="flex flex-col lg:flex-row  lg:gap-6">
             {/* Expert Profile - Hidden on mobile initially */}
             <div className="hidden lg:block lg:w-full lg:max-w-md">
-              <div className="bg-white rounded-lg shadow-md p-6">
                 <ExpertProfileInSchedule expert={expert} />
-              </div>
             </div>
 
             {/* Order Summary Section */}

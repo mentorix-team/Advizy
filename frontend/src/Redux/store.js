@@ -5,6 +5,8 @@ import availabilitySliceReducer from './Slices/availability.slice.js'
 import meetingSliceReducer from './Slices/meetingSlice.js'
 import paymentSliceReducer from './Slices/paymentSlice.js'
 import supportQueriesSliceReducer from './Slices/supportQueriesSlice.js'
+import payuReducer from './Slices/Payu.slice.js'
+
 const store = configureStore({
     reducer:{
         auth : authSliceReducer,
@@ -13,6 +15,7 @@ const store = configureStore({
         meeting:meetingSliceReducer,
         payment:paymentSliceReducer,
         supportQueries: supportQueriesSliceReducer,
+        payu: payuReducer,
     },
     devTools:true
 });
