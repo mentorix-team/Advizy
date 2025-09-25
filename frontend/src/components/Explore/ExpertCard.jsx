@@ -97,7 +97,7 @@ const ExpertCard = ({
   };
 
   return (
-    <div className="w-full h-full max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
+    <div className="w-full h-full sm:max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto">
       <div className="flex flex-col h-full">
         {/* Content Section */}
         <div className="flex-1 flex flex-col gap-3">
@@ -111,10 +111,10 @@ const ExpertCard = ({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] truncate">
+                    <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] break-words">
                       {name}
                     </h2>
                     {verified === true && (
@@ -163,14 +163,12 @@ const ExpertCard = ({
 
                 <button
                   onClick={handleFavoriteClick}
-                  className={`absolute right-0 top-0 ${
-                    isAnimating ? "animate-ping" : ""
-                  }`}
+                  className={`absolute right-0 top-0 ${isAnimating ? "animate-ping" : ""
+                    }`}
                 >
                   <Heart
-                    className={`w-5 h-5 z-0 sm:w-6 sm:h-6 transition-transform duration-300 ${
-                      isAnimating ? "scale-125" : ""
-                    }`}
+                    className={`w-5 h-5 z-0 sm:w-6 sm:h-6 transition-transform duration-300 ${isAnimating ? "scale-125" : ""
+                      }`}
                     fill={isFavorite ? "#EF4444" : "none"}
                     stroke={isFavorite ? "#EF4444" : "currentColor"}
                   />
@@ -182,18 +180,18 @@ const ExpertCard = ({
           {/* Expertise Tags */}
           <div className="w-full">
             <div className="flex flex-col">
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center break-words overflow-wrap: anywhere  ">
                 <span className="font-['Figtree',Helvetica] text-[14px] sm:text-[15px] text-[#1d1f1d]">
                   Expertise:
                 </span>
                 {expertise.slice(0, 5).map((skill, index) => (
-  <span
-    key={`${skill}-${index}`}
-    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
-  >
-    {skill}
-  </span>
-))}
+                  <span
+                    key={`${skill}-${index}`}
+                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+                  >
+                    {skill}
+                  </span>
+                ))}
 
               </div>
               {/* <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">

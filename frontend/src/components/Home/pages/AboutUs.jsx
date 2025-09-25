@@ -15,10 +15,10 @@ const Image3D = ({ src, alt }) => {
     const rect = imageRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     const x = ((e.clientX - centerX) / rect.width) * 100;
     const y = ((e.clientY - centerY) / rect.height) * 100;
-    
+
     setMousePosition({ x, y });
   };
 
@@ -63,7 +63,7 @@ const Image3D = ({ src, alt }) => {
           transformStyle: "preserve-3d",
         }}
       >
-        <motion.img 
+        <motion.img
           src={src}
           alt={alt}
           className="w-full h-full object-contain"
@@ -77,7 +77,7 @@ const Image3D = ({ src, alt }) => {
             ease: "easeInOut"
           }}
         />
-        
+
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0"
           animate={{
@@ -110,8 +110,8 @@ const VisionCard = ({ icon, title, description }) => {
   return (
     <motion.div
       className="relative bg-white rounded-lg p-6 sm:p-8 shadow-sm border-2 border-transparent"
-      whileHover={{ 
-        scale: 1.05, 
+      whileHover={{
+        scale: 1.05,
         y: -10,
         borderColor: '#169544',
         transition: {
@@ -123,7 +123,7 @@ const VisionCard = ({ icon, title, description }) => {
       onHoverEnd={() => setIsHovered(false)}
     >
       {/* Top right quarter circle */}
-      <motion.div 
+      <motion.div
         className="absolute -top-16 -right-16 w-32 h-32"
         initial={{ scale: 1, opacity: 0.3 }}
         animate={{
@@ -141,7 +141,7 @@ const VisionCard = ({ icon, title, description }) => {
       />
 
       <div className="relative z-10">
-        <motion.div 
+        <motion.div
           className="w-10 h-10 sm:w-12 sm:h-12 bg-[#E8F5E9] rounded-full flex items-center justify-center mb-4 sm:mb-6 text-primary"
           whileHover={{ scale: 1.1, rotate: 5 }}
         >
@@ -167,6 +167,13 @@ const AboutPage = () => {
     navigate('/explore');
   }
 
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <div className="relative w-full">
@@ -175,7 +182,7 @@ const AboutPage = () => {
           isExpertMode={isExpertMode}
         />
       </div>
-      
+
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
@@ -186,7 +193,7 @@ const AboutPage = () => {
             className="w-full"
           >
             <br />
-            <motion.h1 
+            <motion.h1
               className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#169544] mb-4 sm:mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -196,15 +203,15 @@ const AboutPage = () => {
               Life-Changing Mentorship
             </motion.h1>
             <br />
-            
-            <motion.p 
+
+            <motion.p
               className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
               We belive that one conversation with right mentor can change everthing. Our mission is to democratize access to quality guidance for everyone.<br />
-              
+
             </motion.p>
             <br />
           </motion.div>
@@ -216,7 +223,7 @@ const AboutPage = () => {
             className="relative perspective-1000 mt-8 lg:mt-0 hidden lg:block"
           >
             <div className="relative aspect-[4/3]">
-              <Image3D 
+              <Image3D
                 src="https://i.postimg.cc/DyPNYcd2/OBJECTS.png"
                 alt="About Advizy"
               />
@@ -272,7 +279,7 @@ const AboutPage = () => {
               transition={{ duration: 0.8 }}
               className="relative aspect-[4/3] lg:aspect-auto lg:h-[500px]"
             >
-              <img 
+              <img
                 src="https://i.postimg.cc/BZH2kYSV/13746503-5340735.png"
                 alt="Advizy Mission"
                 className="w-full h-full object-cover rounded-2xl"
@@ -356,7 +363,7 @@ const AboutPage = () => {
                   <span className="text-gray-700">Enhance client retention with smart tools</span>
                 </li>
               </ul>
-              <button 
+              <button
                 onClick={() => navigate('/become-expert')}
                 className="w-full btn-expert"
               >
@@ -396,7 +403,7 @@ const AboutPage = () => {
                   <span className="text-gray-700">High-quality video consultations</span>
                 </li>
               </ul>
-              <button 
+              <button
                 onClick={() => navigate('/explore')}
                 className="w-full btn-expert"
               >
@@ -436,7 +443,7 @@ const AboutPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               }
-              
+
               title="Global Accessibility"
               description="We're breaking down geographical barriers, making world-class expertise available to everyone, everywhere."
             />
@@ -515,7 +522,11 @@ const AboutPage = () => {
       </div>
 
       <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };

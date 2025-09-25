@@ -98,7 +98,7 @@ const handleGoogleCallback = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
-      maxAge:24* 60 * 60 * 1000, // 1 hour
+      maxAge: 24 * 60 * 60 * 1000, // 1 hour
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -567,8 +567,8 @@ const generateOtp = async (req, res, next) => {
     const normalizedNumber = number.startsWith("+")
       ? number.slice(3) // Remove '+91' or other codes
       : number.startsWith("91")
-      ? number.slice(2)
-      : number;
+        ? number.slice(2)
+        : number;
 
     user = await User.findOne({ number: normalizedNumber });
 

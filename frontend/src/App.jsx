@@ -81,6 +81,8 @@ const App = () => {
       /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
       /^\/expert\/scheduling\/[^/]+$/,
       /^\/become-expert$/,
+      // /^\/payu-payment-success$/,
+      // /^\/payment-success$/,
     ];
 
     const isExcluded = excludedPathPatterns.some((pattern) =>
@@ -149,7 +151,7 @@ const App = () => {
           path="/user/rescheduling/:serviceId"
           element={<ReSchedulingUser />}
         />
-        <Route path="/expert/order-summary/" element={<OrderSummary />} />
+        {/* <Route path="/expert/order-summary/" element={<OrderSummary />} /> */}
         <Route
           path="/expert/payu-order-summary/"
           element={<PayuOrderSummary />}

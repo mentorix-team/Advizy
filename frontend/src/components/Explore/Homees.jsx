@@ -132,11 +132,10 @@ const Homees = () => {
         {/* Sidebar - Increased width on desktop, hidden on mobile by default */}
         <div
           className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40
-                        md:translate-x-0 ${
-                          isSidebarOpen
-                            ? "translate-x-0"
-                            : "-translate-x-full md:translate-x-0"
-                        }`}
+                        md:translate-x-0 ${isSidebarOpen
+              ? "translate-x-0"
+              : "-translate-x-full md:translate-x-0"
+            }`}
         >
           <FilterSidebar
             selectedDomain={selectedDomain}
