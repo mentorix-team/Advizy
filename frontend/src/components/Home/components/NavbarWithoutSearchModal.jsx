@@ -26,11 +26,6 @@ const NavbarWithSearch = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // State variables
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -39,22 +34,12 @@ const NavbarWithSearch = () => {
   const [hasExpertData, setHasExpertData] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false); // New state for mobile search
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Search functionality
   const searchClient = useRef(null);
   const searchRef = useRef(null);
   const [hits, setHits] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState("");
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Initialize expert mode and data from localStorage
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
@@ -62,11 +47,6 @@ const NavbarWithSearch = () => {
     setHasExpertData(!!expertData);
     setIsExpertMode(expertMode);
   }, []);
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Debounced search function
   const handleNavbarSearch = useCallback(
     debounce((query) => {
@@ -76,11 +56,6 @@ const NavbarWithSearch = () => {
     }, 300),
     []
   );
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Initialize Algolia search
   useEffect(() => {
     if (!searchClient.current) {
@@ -113,11 +88,6 @@ const NavbarWithSearch = () => {
       }
     };
   }, [query]);
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Input change handler
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -129,11 +99,6 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Navigation handlers
   const openExpertProfile = (expertId) => {
     // Navigate to expert profile
@@ -141,11 +106,6 @@ const NavbarWithSearch = () => {
     setShowDropdown(false);
     setIsMobileSearchActive(false); // Close mobile search after selection
   };
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Authentication handlers
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
@@ -154,12 +114,6 @@ const NavbarWithSearch = () => {
   const handleCloseAuthPopup = () => {
     setAuthPopupOpen(false);
   };
-<<<<<<< HEAD
-  
-  // Logout handler
-  const handleLogout = async () => {
-    await dispatch(logout());
-=======
 
   // Logout handler
   const handleLogout = async () => {
@@ -179,29 +133,9 @@ const NavbarWithSearch = () => {
       navigate("/dashboard/user/meetings");
     }
     setIsExpertMode(newMode);
->>>>>>> new-dev
     setIsDropdownOpen(false);
     navigate('/');
   };
-<<<<<<< HEAD
-  
-  // Expert mode toggle
-  const handleToggleExpertMode = () => {
-    const newMode = !isExpertMode;
-    if (newMode) {
-      localStorage.setItem("expertMode", "true");
-      navigate("/dashboard/expert/");
-    } else {
-      localStorage.removeItem("expertMode");
-      navigate("/dashboard/user/meetings");
-    }
-    setIsExpertMode(newMode);
-    setIsDropdownOpen(false);
-  };
-  
-=======
-
->>>>>>> new-dev
   // Search modal handlers
   const handleOpenSearchModal = () => {
     setIsSearchModalOpen(true);
@@ -219,31 +153,16 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // Mobile search handlers
   const handleOpenMobileSearch = () => {
     setIsMobileSearchActive(true);
   };
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   const handleCloseMobileSearch = () => {
     setIsMobileSearchActive(false);
     setQuery("");
     setHits([]);
     setShowDropdown(false);
   };
-<<<<<<< HEAD
-  
-=======
-
->>>>>>> new-dev
   // User dropdown component
   const UserDropdown = () => (
     <div className="relative">
@@ -314,9 +233,6 @@ const NavbarWithSearch = () => {
       </AnimatePresence>
     </div>
   );
-<<<<<<< HEAD
-  
-=======
 
   const handleModalCategorySelect = (category) => {
     if (category.value) {
@@ -325,7 +241,6 @@ const NavbarWithSearch = () => {
     }
   };
 
->>>>>>> new-dev
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -335,11 +250,6 @@ const NavbarWithSearch = () => {
               <img src="/logo104.99&44.svg" alt="Logo" />
             </a>
           </div>
-<<<<<<< HEAD
-          
-=======
-
->>>>>>> new-dev
           {/* Desktop search */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
             <motion.div
@@ -637,11 +547,6 @@ const NavbarWithSearch = () => {
         hits={hits}
         onExpertSelect={openExpertProfile}
       />
-<<<<<<< HEAD
-      
-=======
-
->>>>>>> new-dev
       {/* Auth Popup */}
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>

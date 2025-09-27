@@ -14,11 +14,8 @@ const expertCard = ({ expert }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-<<<<<<< HEAD
-=======
   console.log('expert data from', expert)
 
->>>>>>> new-dev
   const calculateTotalExperience = (workExperiences) => {
     if (!Array.isArray(workExperiences) || workExperiences.length === 0)
       return "0 years";
