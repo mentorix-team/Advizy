@@ -123,7 +123,43 @@ useEffect(() => {
 
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
-  // Expert mode navigation
+  useEffect(() => {
+    const excludedPathPatterns = [
+      /^\/$/,
+      /^\/auth-error$/,
+      /^\/about-us$/,
+      /^\/contact$/,
+      /^\/cookie-policy$/,
+      /^\/privacy-policy$/,
+      /^\/refund-policy$/,
+      /^\/terms-of-service$/,
+      /^\/explore/,
+      /^\/meeting$/,
+      /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
+      /^\/expert\/scheduling\/[^/]+$/,
+      /^\/become-expert$/,
+      // /^\/payu-payment-success$/,
+      // /^\/payment-success$/,
+    ];
+
+    const isExcluded = excludedPathPatterns.some((pattern) =>
+      pattern.test(location.pathname)
+    );
+
+    if (!isExcluded) {
+      const timeout = setTimeout(() => {
+        dispatch(validateToken()).then((response) => {
+          if (!response?.payload?.valid) {
+            localStorage.clear();
+            setShowAuthPopup(true);
+          }
+        });
+      }, 500); // ⏳ give cookies time to arrive
+
+      return () => clearTimeout(timeout); // cleanup
+    }
+  }, [dispatch, location.pathname]);
+
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
     if (
@@ -159,6 +195,30 @@ useEffect(() => {
           path="/google-auth-success"
           element={<GoogleRedirectHandler />}
         />
+        {/* Protected Routes */}
+        <Route
+          path="/expert-onboarding"
+          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
+        >
+          <Route path="" element={<ProfileDetails />} />
+        </Route>
+        <Route path="/explore" element={<Homees />} />
+        <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
+        <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
+        <Route
+          path="/expert/rescheduling/:updatemeetingtoken"
+          element={<ReScheduling />}
+        />
+        <Route
+          path="/user/rescheduling/:serviceId"
+          element={<ReSchedulingUser />}
+        />
+        {/* <Route path="/expert/order-summary/" element={<OrderSummary />} /> */}
+        <Route
+          path="/expert/payu-order-summary/"
+          element={<PayuOrderSummary />}
+        />
+
         <Route
           path="/payu-payment-success"
           element={<PayyBookingConfirmation />}

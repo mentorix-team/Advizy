@@ -1,18 +1,23 @@
 import PaymentSession from "../config/model/transaction/PayuModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
+<<<<<<< HEAD
 import axios from "axios"; // keep if you call other internal endpoints
 import { Meeting } from "../config/model/meeting/meeting.model.js";
 import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
+=======
+import axios from "axios";
+import AppError from "../utils/AppError.js";
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 
 const {
   PAYU_KEY,
   PAYU_SALT,
-  PAYU_ENV = "prod", // "test" -> test.payu.in, "prod" -> secure.payu.in
-  BACKEND_URL = "http://localhost:5030", // must be publicly reachable in prod
+  PAYU_ENV = "prod",
+  BACKEND_URL = "http://localhost:5030",
   FRONTEND_URL = "http://localhost:5173",
 } = process.env;
 
@@ -21,15 +26,23 @@ const PAYU_ACTION =
     ? "https://test.payu.in/_payment"
     : "https://secure.payu.in/_payment";
 
-/** Build request hash for sending user to PayU.
- *  Hash = sha512(key|txnid|amount|productinfo|firstname|email|udf1|...|udf10|SALT)
- *  IMPORTANT: Use EXACT strings posted in the form (do NOT reformat amount).
- */
+function generatePayUHash(data) {
+  const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo
+    }|${data.firstname}|${data.email}|${data.udf1 || ""}|${data.udf2 || ""}|${data.udf3 || ""
+    }|${data.udf4 || ""}|${data.udf5 || ""}|${data.udf6 || ""
+    }|||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+  return crypto.createHash("sha512").update(hashString).digest("hex");
+}
+
 function buildRequestHash(data) {
   const seq = [
     data.key,
     data.txnid,
+<<<<<<< HEAD
     data.amount, // EXACT string you’ll post in the form
+=======
+    data.amount,
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     data.productinfo,
     data.firstname,
     data.email,
@@ -50,9 +63,7 @@ function buildRequestHash(data) {
   return { hash, seq };
 }
 
-/** Verify PayU response hash (reverse sequence). */
 function verifyResponseHash(data) {
-  // Extract all values directly from the response body
   const key = data.key || "";
   const txnid = data.txnid || "";
   const amount = data.amount || "";
@@ -71,7 +82,10 @@ function verifyResponseHash(data) {
   const udf9 = data.udf9 || "";
   const udf10 = data.udf10 || "";
 
+<<<<<<< HEAD
   // Build the sequence in the correct order for response verification
+=======
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
   const seq = [
     process.env.PAYU_SALT,
     status,
@@ -107,7 +121,6 @@ function verifyResponseHash(data) {
   return calc === receivedHash;
 }
 
-/** helper: normalize time to HH:mm if ISO was sent */
 function toHHmm(isoOrHHmm) {
   if (!isoOrHHmm) return "";
   if (!isoOrHHmm.includes("T")) return isoOrHHmm;
@@ -117,27 +130,45 @@ function toHHmm(isoOrHHmm) {
   return `${hh}:${mm}`;
 }
 
-/** DB helper */
 async function createPaymentSession(paymentData) {
   return PaymentSession.create({
     serviceId: String(paymentData.serviceId),
     expertId: new mongoose.Types.ObjectId(paymentData.expertId),
     userId: new mongoose.Types.ObjectId(paymentData.userId),
+<<<<<<< HEAD
     sessionId: paymentData.sessionId, // the one we also send in udf6 & udf10
     amount: paymentData.amount, // number/string is fine; schema coerces to Number
+=======
+    sessionId: paymentData.sessionId,
+    amount: paymentData.amount,
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     date: paymentData.date,
     startTime: paymentData.startTime,
     endTime: paymentData.endTime,
     message: paymentData.message,
     status: "pending",
     paymentGateway: "payu",
+<<<<<<< HEAD
     // Store txnid too — either add a field in schema, or at least keep it in metaData
     payuTransactionId: paymentData.txnid, // <— add this field to your schema if possible
+=======
+    payuTransactionId: paymentData.txnid,
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     metaData: { ...(paymentData.metaData || {}), txnid: paymentData.txnid },
   });
 }
 
+<<<<<<< HEAD
 /** ============ INITIATE PAYMENT: returns auto-submitting HTML form ============ */
+=======
+export const verifyPayUPayment = async (response) => {
+  const payuReturnedHash = response.hash;
+  const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+  const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
+  return calculatedHash === payuReturnedHash;
+};
+
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 export const payupay = async (req, res, next) => {
   try {
     if (!process.env.PAYU_KEY || !process.env.PAYU_SALT) {
@@ -165,20 +196,16 @@ export const payupay = async (req, res, next) => {
       throw new Error("Amount is required");
     }
 
-    // Keep EXACT string for amount (same in hash and form)
     const amountString = String(amount);
-
-    // Generate our IDs
     const sessionId = `SESSION_${Date.now()}`;
     const txnid = clientTxnId || `TXN${Date.now()}`;
 
-    // Persist session BEFORE redirect
     await createPaymentSession({
       serviceId,
       expertId,
       userId,
       sessionId,
-      txnid, // <-- save it
+      txnid,
       amount: amountString,
       date,
       startTime: toHHmm(startTime),
@@ -186,7 +213,6 @@ export const payupay = async (req, res, next) => {
       message,
     });
 
-    // Build fields for PayU
     const payuData = {
       key: process.env.PAYU_KEY,
       txnid,
@@ -195,23 +221,27 @@ export const payupay = async (req, res, next) => {
       email: email || "",
       phone: phone || "",
       productinfo: productinfo || "Service Booking",
-
-      // callbacks MUST be backend endpoints
       surl: `${BACKEND_URL}/api/v1/payu/success`,
       furl: `${BACKEND_URL}/api/v1/payu/failure`,
-
-      // UDFs (send sessionId in BOTH 6 and 10 to be safe)
       udf1: serviceId || "",
       udf2: expertId || "",
       udf3: userId || "",
       udf4: date || "",
       udf5: message || "",
+<<<<<<< HEAD
       udf6: sessionId, // <— filled now
       udf7: "",
       udf8: "",
       udf9: "",
       udf10: sessionId, // <— also filled
 
+=======
+      udf6: sessionId,
+      udf7: "",
+      udf8: "",
+      udf9: "",
+      udf10: sessionId,
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
       service_provider: "payu_paisa",
     };
 
@@ -269,17 +299,13 @@ export const payupay = async (req, res, next) => {
 export const success = async (req, res) => {
   console.log("Raw PayU success body:", req.body);
   console.log("Request method:", req.method);
-  let sessionId; // for crash-safe logging
-  
+  let sessionId;
+
   try {
     const body = req.method === "GET" ? req.query : req.body;
-    
-    // Check if this is a PayU callback (has hash) or a frontend request (has token)
+
     if (body.hash) {
-      // This is a PayU callback
       console.log("Processing PayU callback");
-      
-      // Log all UDF fields for debugging
       console.log("UDF fields:", {
         udf1: body.udf1,
         udf2: body.udf2,
@@ -292,22 +318,19 @@ export const success = async (req, res) => {
         udf9: body.udf9,
         udf10: body.udf10
       });
-      
-      // 1) Verify hash first
+
       const ok = verifyResponseHash(body);
       if (!ok) {
         console.error("PayU hash verification failed");
         sessionId = body.udf10 || body.udf6 || "";
         return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=hash&sessionId=${encodeURIComponent(sessionId)}`);
       }
-      
-      // 2) Resolve the sessionId robustly
-      sessionId = body.udf10 || body.udf6 || ""; // preferred
+
+      sessionId = body.udf10 || body.udf6 || "";
       let sessionDoc = null;
       if (sessionId) {
         sessionDoc = await PaymentSession.findOne({ sessionId });
       }
-      // If PayU didn't echo udf6/udf10, fall back to txnid lookup
       if (!sessionDoc && body.txnid) {
         sessionDoc =
           (await PaymentSession.findOne({ txnid: body.txnid })) ||
@@ -318,14 +341,13 @@ export const success = async (req, res) => {
         console.error("PaymentSession not found. udf6:", body.udf6, "udf10:", body.udf10, "txnid:", body.txnid);
         return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=session`);
       }
-      
-      // 3) Update session
+
       const payuMoneyId = body.payuMoneyId || body.mihpayid || "";
       sessionDoc.status = body.status === "success" ? "completed" : "failed";
       sessionDoc.payuTransactionId = payuMoneyId;
-      // persist full payload for audits
       sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
       await sessionDoc.save();
+<<<<<<< HEAD
       
       // 4) Update the meeting record to mark as paid and create video call
       try {
@@ -471,44 +493,43 @@ export const success = async (req, res) => {
       }
       
       // 5) Short-lived success token you can validate on frontend
+=======
+
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
       const successToken = crypto.randomBytes(16).toString("hex");
       await PaymentSession.updateOne(
         { sessionId: sessionDoc.sessionId },
         { successToken, processingCompleted: true, "metaData.successToken": successToken },
         { strict: false }
       );
-      
+
       return res.redirect(
         `${FRONTEND_URL}/payu-payment-success?sessionId=${encodeURIComponent(
           sessionDoc.sessionId
         )}&token=${encodeURIComponent(successToken)}`
       );
     } else if (body.sessionId && body.token) {
-      // This is a frontend request to verify the payment
       console.log("Processing frontend verification request");
       sessionId = body.sessionId;
       const token = body.token;
-      
-      // Find the session by sessionId and token
-      const sessionDoc = await PaymentSession.findOne({ 
-        sessionId, 
+
+      const sessionDoc = await PaymentSession.findOne({
+        sessionId,
         successToken: token,
         processingCompleted: true
       });
-      
+
       if (!sessionDoc) {
         console.error("Invalid session or token");
         return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_token`);
       }
-      
-      // Return success response
-      return res.status(200).json({ 
-        success: true, 
+
+      return res.status(200).json({
+        success: true,
         sessionId: sessionDoc.sessionId,
         status: sessionDoc.status
       });
     } else {
-      // Unknown request format
       console.error("Unknown request format");
       return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_request`);
     }
@@ -525,7 +546,10 @@ export const success = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 /** ============ FAILURE CALLBACK from PayU (POST) ============ */
+=======
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 export const failure = async (req, res) => {
   try {
     const body = req.method === "GET" ? req.query : req.body;
@@ -545,7 +569,6 @@ export const failure = async (req, res) => {
   }
 };
 
-// Add to your controller file
 export const verifyPayment = async (req, res) => {
   try {
     const { sessionId, token } = req.body;
@@ -553,11 +576,18 @@ export const verifyPayment = async (req, res) => {
     if (!sessionId || !token) {
       return res.status(400).json({
         success: false,
+<<<<<<< HEAD
         message: "Session ID and token are required",
       });
     }
 
     // Find the session by sessionId and token
+=======
+        message: "Session ID and token are required"
+      });
+    }
+
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     const sessionDoc = await PaymentSession.findOne({
       sessionId,
       successToken: token,
@@ -567,11 +597,18 @@ export const verifyPayment = async (req, res) => {
     if (!sessionDoc) {
       return res.status(404).json({
         success: false,
+<<<<<<< HEAD
         message: "Invalid session or token",
       });
     }
 
     // Return success response
+=======
+        message: "Invalid session or token"
+      });
+    }
+
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     return res.status(200).json({
       success: true,
       sessionId: sessionDoc.sessionId,
@@ -587,7 +624,11 @@ export const verifyPayment = async (req, res) => {
     console.error("Payment verification error:", err);
     return res.status(500).json({
       success: false,
+<<<<<<< HEAD
       message: "Payment verification failed",
+=======
+      message: "Payment verification failed"
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     });
   }
 };

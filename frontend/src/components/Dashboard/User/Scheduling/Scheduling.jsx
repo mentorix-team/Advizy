@@ -73,8 +73,8 @@ function Scheduling() {
   // const sessionPrice = price || selectedService?.price;
 
   const defaultSlot = selectedService?.one_on_one?.find(slot => slot.enabled);
-const sessionDuration = duration || defaultSlot?.duration || 30;
-const sessionPrice = price || defaultSlot?.price || 100;
+  const sessionDuration = duration || defaultSlot?.duration || 30;
+  const sessionPrice = price || defaultSlot?.price || 100;
 
 
   const handleToggle = () => {
@@ -104,15 +104,21 @@ const sessionPrice = price || defaultSlot?.price || 100;
 
   // 🧩 Data mapping
   const expert = {
-  image: selectedExpert.profileImage?.secure_url || "https://via.placeholder.com/100",
-  name: selectedExpert.firstName + " " + selectedExpert.lastName,
-  title: selectedExpert.credentials?.professionalTitle || "No Title Provided",
-  sessionDuration,
-  price: sessionPrice,
-  description: selectedService.detailedDescription || "No description provided",
-  includes: selectedService.features || [],
-};
+    image: selectedExpert.profileImage?.secure_url || "https://via.placeholder.com/100",
+    name: selectedExpert.firstName + " " + selectedExpert.lastName,
+    title: selectedExpert.credentials?.professionalTitle || "No Title Provided",
+    sessionDuration,
+    price: sessionPrice,
+    description: selectedService.detailedDescription || "No description provided",
+    includes: selectedService.features || [],
+  };
 
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -122,8 +128,8 @@ const sessionPrice = price || defaultSlot?.price || 100;
         onToggleExpertMode={handleToggle}
       />
 
-      <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-16">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-2">
+        <div className="max-w-[1440px] mx-auto mt-0 px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors mb-6 p-2 rounded-lg hover:bg-green-50"
@@ -181,7 +187,11 @@ const sessionPrice = price || defaultSlot?.price || 100;
       </main>
 
       <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { forgotPassword } from "../../Redux/Slices/authSlice";
@@ -26,10 +26,10 @@ function ForgotPassword({ onClose, onSwitchView }) {
 
   function handlePhoneNumberChange(phoneNumber, isValid, countryData) {
     if (phoneNumber && countryData) {
-      const countryCode = `+${countryData.dialCode}`; // Get dynamic country code
+      const countryCode = `+${countryData.dialCode}`;
       const rawPhoneNumber = phoneNumber
         .replace(`${countryData.dialCode}`, "")
-        .trim(); // Remove country code from number
+        .trim();
 
       setPhoneData({
         countryCode,
@@ -48,13 +48,7 @@ function ForgotPassword({ onClose, onSwitchView }) {
   async function handleSubmit(event) {
     event.preventDefault();
     if (inputType === "email" && !email) {
-      toast.error("Email is required.", {
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Email is required.");
       return;
     }
 
@@ -62,14 +56,7 @@ function ForgotPassword({ onClose, onSwitchView }) {
       inputType === "mobile" &&
       (!phoneData.countryCode || !phoneData.phoneNumber)
     ) {
-      toast.error("Phone number is required.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error("Phone number is required.");
       return;
     }
 
@@ -77,64 +64,40 @@ function ForgotPassword({ onClose, onSwitchView }) {
       forgotPassword(inputType === "email" ? email : phoneData)
     );
 
-    // Log the formatted output
-    console.log(inputType === "email" ? email : phoneData);
-
     if (response?.payload?.success) {
       setEmail("");
-      setPhoneData({
-        countryCode: "",
-        phoneNumber: "",
-      });
+      setPhoneData({ countryCode: "", phoneNumber: "" });
       setIsValid(false);
       onSwitchView("ForgotOTP");
     }
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
-      <div className="relative w-[820px] h-[400px] bg-white rounded-[15px] shadow-lg p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4 py-8 overflow-auto">
+      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 md:p-10 overflow-y-auto max-h-[90vh]">
         <button
           onClick={onClose}
-          className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"
+          className="absolute top-4 right-6 text-gray-700 hover:text-black text-3xl font-bold"
           aria-label="Close"
         >
           &times;
         </button>
 
-        <h2 className="text-2xl mb-4 font-semibold text-gray-900 text-center">
+        <h2 className="text-3xl font-semibold text-center text-gray-900 mb-3">
           Forgot Password
         </h2>
 
-        <div className="w-full flex flex-col items-center">
-          <p className="text-sm text-gray-600 text-center mb-8 max-w-sm">
-            Enter your email address or mobile number and we'll send you a OTP
-            to reset your password
-          </p>
-        </div>
+        <p className="text-base text-gray-600 text-center max-w-md mx-auto mb-10">
+          Enter your email address and we’ll send you an OTP to reset your password.
+        </p>
 
-        <div className="flex justify-center gap-3 mb-6">
-          <button
-            onClick={() => setInputType("email")}
-            className={`py-2 px-8 rounded-md text-sm font-medium ${
-              inputType === "email" ? "bg-[#169544] text-white" : "bg-gray-200"
-            }`}
-          >
-            Email
-          </button>
-          {/* <button
-            onClick={() => setInputType("mobile")}
-            className={`py-2 px-8 rounded-md text-sm font-medium ${
-              inputType === "mobile" ? "bg-[#169544] text-white" : "bg-gray-200"
-            }`}
-          >
-            Mobile
-          </button> */}
-        </div>
-
-        <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto">
+        {/* Email or Phone Input */}
+        <form onSubmit={handleSubmit} className="w-full max-w-sm mx-auto">
           {inputType === "email" ? (
-            <div className="mb-6">
+            <div className="mb-5">
+              <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
+                Email Address
+              </label>
               <input
                 type="email"
                 name="email"
@@ -142,48 +105,37 @@ function ForgotPassword({ onClose, onSwitchView }) {
                 placeholder="Enter your email"
                 value={email}
                 onChange={handleEmailChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#169544]"
                 required
               />
               {!isValid && email && (
-                <p className="text-sm text-red-600">
-                  Please enter a valid email.
-                </p>
+                <p className="text-sm text-red-600 mt-1">Please enter a valid email.</p>
               )}
             </div>
           ) : (
-            <div className="mb-6">
+            <div className="mb-5">
               <PhoneNumberValidation
-                onValidNumber={(phoneNumber, isValid, countryData) =>
-                  handlePhoneNumberChange(phoneNumber, isValid, countryData)
-                }
+                onValidNumber={handlePhoneNumberChange}
                 value={phoneData.phoneNumber}
               />
-              {/* {!isValid && phoneData.phoneNumber && (
-                <p className="text-sm text-red-600">
-                  Please enter a valid phone number.
-                </p>
-              )} */}
+              {/* Add phone validation warning here if needed */}
             </div>
           )}
 
           <button
             type="submit"
-            className={`w-full bg-[#169544] text-white py-2 rounded-lg ${
-              isValid
-                ? "hover:bg-green-700 transition-colors"
-                : " cursor-not-allowed"
-            }`}
+            className={`w-full py-2 mt-4 rounded-lg text-white text-base font-medium ${isValid ? "bg-[#169544] hover:bg-green-700 transition-colors" : "bg-gray-300 cursor-not-allowed"
+              }`}
             disabled={!isValid}
           >
             Send OTP
           </button>
         </form>
 
-        <div className="text-sm m-32 text-gray-500 text-center mt-3">
+        <div className="mt-10 text-sm text-center text-gray-600">
           <span>Remember your password? </span>
           <button
-            className="text-[#169544] underline"
+            className="text-[#169544] font-medium underline hover:text-green-700"
             onClick={() => onSwitchView("LoginWithEmail")}
           >
             Log In

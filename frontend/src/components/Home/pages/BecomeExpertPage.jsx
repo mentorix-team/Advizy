@@ -331,6 +331,13 @@ const BecomeExpertPage = () => {
     });
   };
 
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar
@@ -611,20 +618,18 @@ const BecomeExpertPage = () => {
                   onMouseEnter={() => handleFeatureHover(feature)}
                   onMouseLeave={handleFeatureLeave}
                   className={`border border-gray-100 rounded-lg p-4 sm:p-6 cursor-pointer transition-all duration-300
-                    ${
-                      activeFeature.id === feature.id
-                        ? "border-primary bg-green-50 shadow-md transform -translate-x-2"
-                        : "hover:border-gray-200 hover:shadow-sm hover:-translate-x-1"
+                    ${activeFeature.id === feature.id
+                      ? "border-primary bg-green-50 shadow-md transform -translate-x-2"
+                      : "hover:border-gray-200 hover:shadow-sm hover:-translate-x-1"
                     }`}
                 >
                   <div className="flex items-center gap-3 sm:gap-4">
                     <span
                       className={`text-xs sm:text-sm font-medium transition-colors duration-300
-                      ${
-                        activeFeature.id === feature.id
+                      ${activeFeature.id === feature.id
                           ? "text-primary"
                           : "text-gray-400"
-                      }`}
+                        }`}
                     >
                       {feature.id}
                     </span>
@@ -857,7 +862,11 @@ const BecomeExpertPage = () => {
         </div>
       </div>
       <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };

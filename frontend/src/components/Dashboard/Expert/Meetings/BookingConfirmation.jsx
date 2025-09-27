@@ -16,10 +16,10 @@ const BookingConfirmation = () => {
   const [countdown, setCountdown] = useState(7);
   const navigate = useNavigate();
   const location = useLocation()
-  const {image,name,title,sessionDuration,price,date,time} = location.state 
-  console.log('This is parsed date',date)
-  console.log('selected time',time)
-  console.log('gdsdsf',sessionDuration)
+  const { image, name, title, sessionDuration, price, date, time } = location.state
+  console.log('This is parsed date', date)
+  console.log('selected time', time)
+  console.log('gdsdsf', sessionDuration)
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
     if (!isFirstVisit) {
@@ -47,6 +47,13 @@ const BookingConfirmation = () => {
 
   const handleToggle = () => {
     setIsExpertMode(!isExpertMode);
+  };
+
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -170,7 +177,11 @@ const BookingConfirmation = () => {
       <Footer />
 
       {/* Search Modal */}
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };

@@ -17,11 +17,11 @@ const categories = domainOptions.map((domain) => ({
 }));
 
 const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleExplore = () => {
     onCategorySelect(category);
-    navigate(`/explore?category=${category.value}`);
+    // navigate(`/explore?category=${category.value}`);
     onClose();
   };
   return (
@@ -44,7 +44,7 @@ const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
 CategoryButton.displayName = "CategoryButton";
 
 // Rest of the code remains exactly the same as in the previous artifact...
-const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
+const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
   const searchRef = useRef(null);
   const searchClient = useRef(null);
   const searchInputRef = useRef(null);
@@ -92,15 +92,14 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect }) => {
         container: "#hits",
         templates: {
           item: (hit) => {
-            console.log('hit',hit)
+            console.log('hit', hit)
             return `
               <div class="flex items-center justify-between w-full bg-white border rounded-full shadow-sm hover:shadow-md transition-shadow duration-300 mb-2 py-1 px-3">
                 <div class="flex items-center space-x-3">
                   <img
-                    src="${
-                      hit.profileImage ||
-                      "https://randomuser.me/api/portraits/women/44.jpg"
-                    }"
+                    src="${hit.profileImage ||
+              "https://randomuser.me/api/portraits/women/44.jpg"
+              }"
                     alt="${hit.name}"
                     class="w-8 h-8 rounded-full object-cover"
                     loading="lazy"

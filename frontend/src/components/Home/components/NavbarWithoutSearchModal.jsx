@@ -26,7 +26,7 @@ const NavbarWithSearch = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  
+
   // State variables
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -35,14 +35,14 @@ const NavbarWithSearch = () => {
   const [hasExpertData, setHasExpertData] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false); // New state for mobile search
-  
+
   // Search functionality
   const searchClient = useRef(null);
   const searchRef = useRef(null);
   const [hits, setHits] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState("");
-  
+
   // Initialize expert mode and data from localStorage
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
@@ -50,7 +50,7 @@ const NavbarWithSearch = () => {
     setHasExpertData(!!expertData);
     setIsExpertMode(expertMode);
   }, []);
-  
+
   // Debounced search function
   const handleNavbarSearch = useCallback(
     debounce((query) => {
@@ -60,7 +60,7 @@ const NavbarWithSearch = () => {
     }, 300),
     []
   );
-  
+
   // Initialize Algolia search
   useEffect(() => {
     if (!searchClient.current) {
@@ -93,7 +93,7 @@ const NavbarWithSearch = () => {
       }
     };
   }, [query]);
-  
+
   // Input change handler
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -105,7 +105,7 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-  
+
   // Navigation handlers
   const openExpertProfile = (expertId) => {
     // Navigate to expert profile
@@ -113,23 +113,23 @@ const NavbarWithSearch = () => {
     setShowDropdown(false);
     setIsMobileSearchActive(false); // Close mobile search after selection
   };
-  
+
   // Authentication handlers
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
   };
-  
+
   const handleCloseAuthPopup = () => {
     setAuthPopupOpen(false);
   };
-  
+
   // Logout handler
   const handleLogout = async () => {
     await dispatch(logout());
     setIsDropdownOpen(false);
     navigate('/');
   };
-  
+
   // Expert mode toggle
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
@@ -143,16 +143,16 @@ const NavbarWithSearch = () => {
     setIsExpertMode(newMode);
     setIsDropdownOpen(false);
   };
-  
+
   // Search modal handlers
   const handleOpenSearchModal = () => {
     setIsSearchModalOpen(true);
   };
-  
+
   const handleCloseSearchModal = () => {
     setIsSearchModalOpen(false);
   };
-  
+
   const handleSearchQueryChange = (value) => {
     setQuery(value);
     if (value.trim() === "") {
@@ -161,19 +161,19 @@ const NavbarWithSearch = () => {
       handleNavbarSearch(value);
     }
   };
-  
+
   // Mobile search handlers
   const handleOpenMobileSearch = () => {
     setIsMobileSearchActive(true);
   };
-  
+
   const handleCloseMobileSearch = () => {
     setIsMobileSearchActive(false);
     setQuery("");
     setHits([]);
     setShowDropdown(false);
   };
-  
+
   // User dropdown component
   const UserDropdown = () => (
     <div className="relative">
@@ -244,7 +244,14 @@ const NavbarWithSearch = () => {
       </AnimatePresence>
     </div>
   );
-  
+
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-[#FCFCFC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -254,7 +261,7 @@ const NavbarWithSearch = () => {
               <img src="/logo104.99&44.svg" alt="Logo" />
             </a>
           </div>
-          
+
           {/* Desktop search */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
             <motion.div
@@ -314,7 +321,7 @@ const NavbarWithSearch = () => {
               )}
             </motion.div>
           </div>
-          
+
           {/* Mobile navbar actions */}
           <div className="flex items-center lg:hidden">
             {!isMobileSearchActive ? (
@@ -420,7 +427,7 @@ const NavbarWithSearch = () => {
               </div>
             )}
           </div>
-          
+
           {/* Desktop navigation - Only visible on desktop */}
           <div className="hidden lg:flex items-center gap-6">
             <a
@@ -451,7 +458,7 @@ const NavbarWithSearch = () => {
             )}
           </div>
         </div>
-        
+
         {/* Mobile menu - Only visible on mobile */}
         <AnimatePresence>
           {isMenuOpen && !isMobileSearchActive && (
@@ -541,17 +548,18 @@ const NavbarWithSearch = () => {
           )}
         </AnimatePresence>
       </div>
-      
+
       {/* Search Modal */}
       <SearchModal
         isOpen={isSearchModalOpen}
         onClose={handleCloseSearchModal}
+        onCategorySelect={handleModalCategorySelect}
         query={query}
         onQueryChange={handleSearchQueryChange}
         hits={hits}
         onExpertSelect={openExpertProfile}
       />
-      
+
       {/* Auth Popup */}
       <AuthPopup isOpen={isAuthPopupOpen} onClose={handleCloseAuthPopup} />
     </nav>

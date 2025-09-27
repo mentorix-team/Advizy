@@ -84,6 +84,13 @@ const ContactUs = () => {
     }
   };
 
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar
@@ -187,9 +194,8 @@ const ContactUs = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Your Name"
-                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                      errors.name ? "border-red-500" : "border-gray-200"
-                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.name ? "border-red-500" : "border-gray-200"
+                      } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
                   />
                   {errors.name && (
                     <p className="mt-1 text-sm text-red-500">{errors.name}</p>
@@ -203,9 +209,8 @@ const ContactUs = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Your Email"
-                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                      errors.email ? "border-red-500" : "border-gray-200"
-                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.email ? "border-red-500" : "border-gray-200"
+                      } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
                   />
                   {errors.email && (
                     <p className="mt-1 text-sm text-red-500">{errors.email}</p>
@@ -219,9 +224,8 @@ const ContactUs = () => {
                     onChange={handleChange}
                     placeholder="Your Message"
                     rows="4"
-                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                      errors.message ? "border-red-500" : "border-gray-200"
-                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none`}
+                    className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.message ? "border-red-500" : "border-gray-200"
+                      } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none`}
                   />
                   {errors.message && (
                     <p className="mt-1 text-sm text-red-500">
@@ -245,6 +249,7 @@ const ContactUs = () => {
         <SearchModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          onCategorySelect={handleModalCategorySelect}
         />
       </div>
       <Footer />

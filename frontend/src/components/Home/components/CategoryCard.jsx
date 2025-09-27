@@ -1,22 +1,17 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 
 const CategoryCard = ({ icon, title, value }) => {
-  const navigate = useNavigate();
-  const handleClick = () => {
-    navigate(`/explore?category=${encodeURIComponent(value)}`);
-  };
   return (
     <motion.div
-      onClick={handleClick}
+      // REMOVE onClick={handleClick}
       initial={{ scale: 1 }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.05,
         boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
         borderColor: "#169544"
       }}
       whileTap={{ scale: 0.95 }}
-      transition={{ 
+      transition={{
         type: "spring",
         stiffness: 500,
         damping: 15,
@@ -25,7 +20,7 @@ const CategoryCard = ({ icon, title, value }) => {
       }}
       className="bg-white p-1.5 sm:p-3 rounded-lg shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center justify-center gap-0.5 sm:gap-1.5 h-[60px] sm:h-[80px] transition-colors duration-200"
     >
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.1 }}
         transition={{
           type: "spring",

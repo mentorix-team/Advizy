@@ -27,7 +27,7 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Sample categories remain unchanged
 const categories = [
@@ -97,18 +97,34 @@ const categories = [
   },
 ];
 
+// Mapping from category titles to domain values
+const categoryToDomainMap = {
+  "Carrer growth": "career_and_education",
+  "Startup": "business_and_entrepreneurship",
+  "Freelancing": "business_and_entrepreneurship",
+  "Upskilling": "career_and_education",
+  "Job Hunting": "career_and_education",
+  "Education": "career_and_education",
+  "Personal Branding": "personal_development",
+  "Work Life Balance": "personal_development",
+};
+
 function HomePage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
-  const { experts, dataLoading  } = useSelector((state) => state.expert);
+  const { experts, dataLoading } = useSelector((state) => state.expert);
   const { isLoggedIn, loading, error } = useSelector((state) => state.auth);
+
+  // Track if we've already redirected to prevent multiple redirects
+  const [hasRedirected, setHasRedirected] = useState(false);
 
   // Assuming `data` is the array you console.logged
   const careerExperts = Array.isArray(experts)
-  ? experts
+    ? experts
       .filter((expert) => expert?.credentials?.domain === "career_and_education") // Filter by domain
       .map((expert) => {
         return {
@@ -121,12 +137,16 @@ function HomePage() {
           services: expert.credentials?.services || [], // Fallback to empty array if no services
           availability: expert.availability, // Include availability data
           reviews: expert.reviews || [],
+<<<<<<< HEAD
           admin_approved_expert : expert?.admin_approved_expert || false,
+=======
+          admin_approved_expert: expert?.admin_approved_expert || false,
+          reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+>>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
         };
       })
-  : [];
+    : [];
 
-// console.log('Filtered career experts: ', careerExperts);
   useEffect(() => {
     const expertDataString = localStorage.getItem("expertData");
     if (expertDataString) {
@@ -143,10 +163,25 @@ function HomePage() {
     setIsExpertMode(!isExpertMode);
   };
 
-  const handleCategorySelect = (category) => {
-    console.log("category selected: ", category);
-    navigate(`/explore?category=${category.value}`);
-    setIsModalOpen(false);
+  // Handler for HomePage grid/buttons (uses domain mapping)
+  const handleHomeCategorySelect = (category) => {
+    const domainValue = categoryToDomainMap[category.title];
+    if (domainValue) {
+      navigate(`/explore?category=${domainValue}`);
+      setIsModalOpen(false);
+    } else {
+      console.warn(`No domain mapping found for category: ${category.title}`);
+    }
+  };
+
+  // Handler for SearchModal (uses category.value directly)
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    } else {
+      console.warn(`No value found for category:`, category);
+    }
   };
 
   useEffect(() => {
@@ -157,22 +192,25 @@ function HomePage() {
         setShowCategoryNav(gridBottom <= 64);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    if (!loading && isLoggedIn) {
-      navigate("/");
-    }
-  }, [loading, isLoggedIn, navigate]);
+  // Fixed redirect logic to prevent multiple history entries
+  // useEffect(() => {
+  //   if (!loading && isLoggedIn && location.pathname !== "/" && !hasRedirected) {
+  //     setHasRedirected(true);
+  //     navigate("/", { replace: true });
+  //   }
+  //   if (location.pathname === "/") {
+  //     setHasRedirected(false);
+  //   }
+  // }, [loading, isLoggedIn, location.pathname, navigate, hasRedirected]);
 
   useEffect(() => {
     const queryParams = {
       domain: "career_and_education",
     };
-
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
@@ -181,7 +219,6 @@ function HomePage() {
         return value !== "";
       })
     );
-
     dispatch(getAllExperts(cleanedQueryParams))
       .unwrap()
       .then((data) => {
@@ -208,9 +245,13 @@ function HomePage() {
           onToggleExpertMode={handleToggle}
         />
         <AnimatePresence>
-          {showCategoryNav && <CategoryNav categories={categories} />}
+          {showCategoryNav && (
+            <CategoryNav
+              categories={categories}
+              onCategorySelect={handleHomeCategorySelect}
+            />
+          )}
         </AnimatePresence>
-
         {/* Grid Background with gradient fade */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -243,77 +284,7 @@ function HomePage() {
             height: "120vh",
           }}
         />
-
         {/* Hero Section */}
-        {/* <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
-          <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)]"
-            >
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center w-full"
-              >
-                <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
-                  <span className="block sm:inline">
-                    One Right
-                    <motion.span
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.8, delay: 0.5 }}
-                      className="text-[#169544] tracking-wide"
-                    >
-                      {" Mentor "}
-                    </motion.span>
-                  </span>
-                  <span className="block sm:inline">Can</span>
-                  <span className="block sm:inline">Change Everything</span>
-                </motion.h1>
-
-                <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
-                  Your Growth, success, clarity start here. Find the right
-                  guidance for your journey.
-                </motion.p>
-
-                {(() => {
-                  const [isModalOpen, setIsModalOpen] = useState(false);
-                  return (
-                    <motion.button
-                      onClick={() => setIsModalOpen(true)}
-                      className="btn-expert"
-                    >
-                      Find a Mentor
-                    </motion.button>
-                  );
-                })()}
-              </motion.div>
-
-              <motion.div
-                id="category-grid"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
-              >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                  {categories.map((category, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <CategoryCard {...category} />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div> */}
-
         <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div
@@ -336,26 +307,11 @@ function HomePage() {
                   >
                     {" Mentor "}
                   </motion.span>
-                  {/* Can
-                  <br className="hidden sm:block" />
-                  <span className="block sm:inline">Change Everything</span> */}
                 </motion.h1>
                 <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
                   Your Growth, success, clarity start here. Find the right
                   guidance for your journey.
                 </motion.p>
-                {/* {(() => {
-                  const [isModalOpen, setIsModalOpen] = useState(false);
-                  return (
-                    <motion.button
-                      onClick={() => setIsModalOpen(true)}
-                      className="btn-expert"
-                    >
-                      Find a Mentor
-                    </motion.button>
-                  );
-                })()} */}
-                {/* Replace with this */}
                 <motion.button
                   onClick={() => setIsModalOpen(true)}
                   className="btn-expert"
@@ -365,7 +321,6 @@ function HomePage() {
                   Find a Mentor
                 </motion.button>
               </motion.div>
-
               <motion.div
                 id="category-grid"
                 initial={{ opacity: 0, y: 20 }}
@@ -379,6 +334,8 @@ function HomePage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
+                      onClick={() => handleHomeCategorySelect(category)}
+                      className="cursor-pointer"
                     >
                       <CategoryCard {...category} />
                     </motion.div>
@@ -388,19 +345,10 @@ function HomePage() {
             </motion.div>
           </div>
         </div>
-
         {/* Rest of the sections */}
         <div className="relative w-full">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12 mt-10">
-              {/* Top Fitness Experts Section */}
-              {/* <ExpertSection
-                title="Top Fitness Experts"
-                subtitle="Specialized guidance in fitness"
-                experts={fitnessExperts}
-                link="/explore"
-              /> */}
-
               {/* Career Mentors Section */}
               <div className="-mx-4 sm:-mx-6 px-4 py-4 sm:px-6 sm:py-6">
                 <ExpertSection
@@ -410,11 +358,9 @@ function HomePage() {
                   link="/explore?category=career_and_education"
                 />
               </div>
-
               {/* Why Adviszy Section */}
               <WhyAdvizySection />
             </div>
-
             <HowItWorksAlternate />
             <ReadyToShare />
             <FAQSection />
@@ -427,7 +373,7 @@ function HomePage() {
       <SearchModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onCategorySelect={handleCategorySelect}
+        onCategorySelect={handleModalCategorySelect}
       />
     </div>
   );

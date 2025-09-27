@@ -23,10 +23,10 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 !mt-0">
       <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4 sm:mb-6">
+        <div className="flex items-start justify-between mb-0 sm:mb-6">
           <div className="flex-1 items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-medium">
               {service?.title || "Service Details"}
@@ -94,39 +94,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
           )}
         </div>
         {/* Duration & Price Section */}
-        {service?.one_on_one?.length > 0 ? (
-          <div className="mb-4 sm:mb-6">
-            <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4">
-              Select Duration:
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-              {service.one_on_one
-                .filter((opt) => opt.enabled)
-                .map((option, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 border rounded-xl text-center bg-gray-50 hover:bg-gray-100 transition"
-                  >
-                    <div className="text-sm font-medium">
-                      {option.duration} min
-                    </div>
-                    <div className="text-xs text-gray-600">₹{option.price}</div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center my-4">
-              <h3 className="mr-2 sm:text-lg font-medium mb-3 sm:mb-4">
-                Duration & price:
-              </h3>
-              <p className="flex items-start text-center text-base sm:text-lg font-medium mb-2 border px-3 py-1 border-primary rounded-lg ">
-                {`${service.duration} min` || "N/A"} ₹{service?.price || "N/A"}
-              </p>
-            </div>
-          </>
-        )}
+        
 
         {/* Book Button */}
       </div>
