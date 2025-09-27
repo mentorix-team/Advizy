@@ -1,53 +1,151 @@
 import PaymentSession from "../config/model/transaction/PayuModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
+import axios from "axios"; // keep if you call other internal endpoints
+import { Meeting } from "../config/model/meeting/meeting.model.js";
+import User from "../config/model/user.model.js";
+import { Notification } from "../config/model/Notification/notification.model.js";
+import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
+import { Availability } from "../config/model/calendar/calendar.model.js";
+
+const {
+  PAYU_KEY,
+  PAYU_SALT,
+  PAYU_ENV = "prod",
+  BACKEND_URL = "http://localhost:5030",
+  FRONTEND_URL = "http://localhost:5173",
+} = process.env;
+
+const PAYU_ACTION =
+  PAYU_ENV === "test"
+    ? "https://test.payu.in/_payment"
+    : "https://secure.payu.in/_payment";
 
 function generatePayUHash(data) {
-  const hashString = `${data.key}|${data.txnid}|${data.amount}|${
-    data.productinfo
-  }|${data.firstname}|${data.email}|${data.udf1 || ""}|${data.udf2 || ""}|${
-    data.udf3 || ""
-  }|${data.udf4 || ""}|${data.udf5 || ""}|${
-    data.udf6 || ""
-  }|||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
+  const hashString = `${data.key}|${data.txnid}|${data.amount}|${data.productinfo
+    }|${data.firstname}|${data.email}|${data.udf1 || ""}|${data.udf2 || ""}|${data.udf3 || ""
+    }|${data.udf4 || ""}|${data.udf5 || ""}|${data.udf6 || ""
+    }|||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
   return crypto.createHash("sha512").update(hashString).digest("hex");
 }
 
-export const createPaymentSession = async (paymentData) => {
+function buildRequestHash(data) {
+  const seq = [
+    data.key,
+    data.txnid,
+    data.amount, // EXACT string you’ll post in the form
+    data.productinfo,
+    data.firstname,
+    data.email,
+    data.udf1 || "",
+    data.udf2 || "",
+    data.udf3 || "",
+    data.udf4 || "",
+    data.udf5 || "",
+    data.udf6 || "",
+    data.udf7 || "",
+    data.udf8 || "",
+    data.udf9 || "",
+    data.udf10 || "",
+    process.env.PAYU_SALT,
+  ].join("|");
+
+  const hash = crypto.createHash("sha512").update(seq).digest("hex");
+  return { hash, seq };
+}
+
+function verifyResponseHash(data) {
+  const key = data.key || "";
+  const txnid = data.txnid || "";
+  const amount = data.amount || "";
+  const productinfo = data.productinfo || "";
+  const firstname = data.firstname || "";
+  const email = data.email || "";
+  const status = data.status || "";
+  const udf1 = data.udf1 || "";
+  const udf2 = data.udf2 || "";
+  const udf3 = data.udf3 || "";
+  const udf4 = data.udf4 || "";
+  const udf5 = data.udf5 || "";
+  const udf6 = data.udf6 || "";
+  const udf7 = data.udf7 || "";
+  const udf8 = data.udf8 || "";
+  const udf9 = data.udf9 || "";
+  const udf10 = data.udf10 || "";
+
+  // Build the sequence in the correct order for response verification
+  const seq = [
+    process.env.PAYU_SALT,
+    status,
+    udf10,
+    udf9,
+    udf8,
+    udf7,
+    udf6,
+    udf5,
+    udf4,
+    udf3,
+    udf2,
+    udf1,
+    email,
+    firstname,
+    productinfo,
+    amount,
+    txnid,
+    key,
+  ].join("|");
+
+  console.log("PayU response seq:", seq);
+  const calc = crypto
+    .createHash("sha512")
+    .update(seq)
+    .digest("hex")
+    .toLowerCase();
+  const receivedHash = String(data.hash || "").toLowerCase();
+
+  console.log("Calculated hash:", calc);
+  console.log("Received hash:", receivedHash);
+
+  return calc === receivedHash;
+}
+
+function toHHmm(isoOrHHmm) {
+  if (!isoOrHHmm) return "";
+  if (!isoOrHHmm.includes("T")) return isoOrHHmm;
+  const d = new Date(isoOrHHmm);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
+async function createPaymentSession(paymentData) {
+  return PaymentSession.create({
+    serviceId: String(paymentData.serviceId),
+    expertId: new mongoose.Types.ObjectId(paymentData.expertId),
+    userId: new mongoose.Types.ObjectId(paymentData.userId),
+    sessionId: paymentData.sessionId, // the one we also send in udf6 & udf10
+    amount: paymentData.amount, // number/string is fine; schema coerces to Number
+    date: paymentData.date,
+    startTime: paymentData.startTime,
+    endTime: paymentData.endTime,
+    message: paymentData.message,
+    status: "pending",
+    paymentGateway: "payu",
+    // Store txnid too — either add a field in schema, or at least keep it in metaData
+    payuTransactionId: paymentData.txnid, // <— add this field to your schema if possible
+    metaData: { ...(paymentData.metaData || {}), txnid: paymentData.txnid },
+  });
+}
+
+/** ============ INITIATE PAYMENT: returns auto-submitting HTML form ============ */
+export const payupay = async (req, res, next) => {
   try {
-    const session = await PaymentSession.create({
-      serviceId: paymentData.serviceId,
-      expertId: paymentData.expertId,
-      userId: paymentData.userId, // Now included
-      sessionId: paymentData.sessionId, // Now included
-      amount: paymentData.amount,
-      date: paymentData.date,
-      startTime: paymentData.startTime,
-      endTime: paymentData.endTime,
-      message: paymentData.message,
-      status: paymentData.status || "pending",
-      paymentGateway: "payu",
-      metaData: paymentData.metaData || {}, // Default empty object
-    });
+    if (!process.env.PAYU_KEY || !process.env.PAYU_SALT) {
+      throw new Error("PayU credentials missing (PAYU_KEY/PAYU_SALT).");
+    }
 
-    return session;
-  } catch (error) {
-    console.error("Error creating payment session:", error);
-    throw error;
-  }
-};
-export const verifyPayUPayment = async (response) => {
-  const payuReturnedHash = response.hash;
-  const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
-  const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
-  return calculatedHash === payuReturnedHash;
-};
-
-
-const payupay = async (req, res, next) => {
-  try {
     const {
-      txnid,
+      txnid: clientTxnId,
       amount,
       firstname,
       email,
@@ -62,248 +160,411 @@ const payupay = async (req, res, next) => {
       message,
     } = req.body;
 
-    if (!userId) {
-      throw new Error("User ID is required");
+    if (!userId) throw new Error("User ID is required");
+    if (amount === undefined || amount === null || amount === "") {
+      throw new Error("Amount is required");
     }
 
-    const serviceIdToUse = mongoose.Types.ObjectId.isValid(serviceId)
-      ? new mongoose.Types.ObjectId(serviceId)
-      : serviceId;
-
-    const formatTimeString = (isoString) => {
-      if (!isoString.includes("T")) return isoString;
-      const date = new Date(isoString);
-      return `${date.getHours().toString().padStart(2, "0")}:${date
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`;
-    };
-
+    const amountString = String(amount);
     const sessionId = `SESSION_${Date.now()}`;
+    const txnid = clientTxnId || `TXN${Date.now()}`;
 
-    const paymentSession = await createPaymentSession({
-      serviceId: serviceIdToUse,
-      expertId: new mongoose.Types.ObjectId(expertId),
-      userId: new mongoose.Types.ObjectId(userId),
+    await createPaymentSession({
+      serviceId,
+      expertId,
+      userId,
       sessionId,
-      amount,
+      txnid,
+      amount: amountString,
       date,
-      startTime: formatTimeString(startTime),
-      endTime: formatTimeString(endTime),
+      startTime: toHHmm(startTime),
+      endTime: toHHmm(endTime),
       message,
-      status: "pending",
     });
 
     const payuData = {
-      key: "BbfPbe",
-      txnid: txnid || `TXN${Date.now()}`,
-      amount,
-      firstname,
-      email,
-      phone,
-      productinfo,
-      surl: `https://www.advizy.in/payu-payment-success`,
-      furl: `https://www.advizy.in/payu-payment-failure`,
-      // furl: `https://advizy.onrender.com/api/v1/payu/failure`,
-      service_provider: "payu_paisa",
-      udf1: serviceId,
-      udf2: expertId,
-      udf3: userId,
-      udf4: date,
+      key: process.env.PAYU_KEY,
+      txnid,
+      amount: amountString,
+      firstname: firstname || "",
+      email: email || "",
+      phone: phone || "",
+      productinfo: productinfo || "Service Booking",
+      surl: `${BACKEND_URL}/api/v1/payu/success`,
+      furl: `${BACKEND_URL}/api/v1/payu/failure`,
+      udf1: serviceId || "",
+      udf2: expertId || "",
+      udf3: userId || "",
+      udf4: date || "",
       udf5: message || "",
-      udf6: sessionId, // ✅ Added sessionId here
+      udf6: sessionId, // <— filled now
+      udf7: "",
+      udf8: "",
+      udf9: "",
+      udf10: sessionId, // <— also filled
+
+      service_provider: "payu_paisa",
     };
 
-    const hash = generatePayUHash(payuData);
+    const { hash, seq } = buildRequestHash(payuData);
+    console.log("PayU request seq:", seq);
+    console.log("PayU request hash:", hash);
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Redirecting to PayU...</title>
-        <style>
-          body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f5f5; }
-          .loader { border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 2s linear infinite; }
-          @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        </style>
-      </head>
-      <body>
-        <div class="loader"></div>
-        <form id="payuForm" action="https://secure.payu.in/_payment" method="post">
-          <input type="hidden" name="key" value="${payuData.key}" />
-          <input type="hidden" name="txnid" value="${payuData.txnid}" />
-          <input type="hidden" name="amount" value="${payuData.amount}" />
-          <input type="hidden" name="firstname" value="${payuData.firstname}" />
-          <input type="hidden" name="email" value="${payuData.email}" />
-          <input type="hidden" name="phone" value="${payuData.phone}" />
-          <input type="hidden" name="productinfo" value="${payuData.productinfo}" />
-          <input type="hidden" name="surl" value="${payuData.surl}" />
-          <input type="hidden" name="furl" value="${payuData.furl}" />
-          <input type="hidden" name="hash" value="${hash}" />
-          <input type="hidden" name="service_provider" value="payu_paisa" />
-          <input type="hidden" name="udf1" value="${payuData.udf1}" />
-          <input type="hidden" name="udf2" value="${payuData.udf2}" />
-          <input type="hidden" name="udf3" value="${payuData.udf3}" />
-          <input type="hidden" name="udf4" value="${payuData.udf4}" />
-          <input type="hidden" name="udf5" value="${payuData.udf5}" />
-          <input type="hidden" name="udf6" value="${payuData.udf6}" /> <!-- ✅ Added sessionId -->
-        </form>
-        <script>
-          document.getElementById('payuForm').submit();
-        </script>
-      </body>
-      </html>
-      `;
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting to PayU…</title>
+  <style>
+    body { font-family: system-ui, Arial; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; background:#f7fafc; }
+    .box { text-align:center; }
+  </style>
+</head>
+<body>
+  <div class="box"><p>Redirecting to PayU… Please wait.</p></div>
+  <form id="payuForm" action="${PAYU_ACTION}" method="post">
+    <input type="hidden" name="key" value="${payuData.key}" />
+    <input type="hidden" name="txnid" value="${payuData.txnid}" />
+    <input type="hidden" name="amount" value="${payuData.amount}" />
+    <input type="hidden" name="firstname" value="${payuData.firstname}" />
+    <input type="hidden" name="email" value="${payuData.email}" />
+    <input type="hidden" name="phone" value="${payuData.phone}" />
+    <input type="hidden" name="productinfo" value="${payuData.productinfo}" />
+    <input type="hidden" name="surl" value="${payuData.surl}" />
+    <input type="hidden" name="furl" value="${payuData.furl}" />
+    <input type="hidden" name="hash" value="${hash}" />
+    <input type="hidden" name="service_provider" value="payu_paisa" />
+    <input type="hidden" name="udf1" value="${payuData.udf1}" />
+    <input type="hidden" name="udf2" value="${payuData.udf2}" />
+    <input type="hidden" name="udf3" value="${payuData.udf3}" />
+    <input type="hidden" name="udf4" value="${payuData.udf4}" />
+    <input type="hidden" name="udf5" value="${payuData.udf5}" />
+    <input type="hidden" name="udf6" value="${payuData.udf6}" />
+    <input type="hidden" name="udf7" value="${payuData.udf7}" />
+    <input type="hidden" name="udf8" value="${payuData.udf8}" />
+    <input type="hidden" name="udf9" value="${payuData.udf9}" />
+    <input type="hidden" name="udf10" value="${payuData.udf10}" />
+  </form>
+  <script>document.getElementById('payuForm').submit();</script>
+</body>
+</html>`;
 
     res.set("Content-Type", "text/html");
-    res.send(html);
-  } catch (error) {
-    console.error("PayU payment error:", error);
-    next(error);
+    return res.status(200).send(html);
+  } catch (err) {
+    console.error("PayU init error:", err);
+    return next(err);
   }
 };
 
-import axios from "axios";
-import AppError from "../utils/AppError.js";
+export const success = async (req, res) => {
+  console.log("Raw PayU success body:", req.body);
+  console.log("Request method:", req.method);
+  let sessionId;
 
-const success = async (req, res, next) => {
   try {
-    const response = req.body;
-    console.log(req.body);
-    const { sessionId } = req.body;
-    console.log("Payment Success Data:", { sessionId, response });
+    const body = req.method === "GET" ? req.query : req.body;
 
-    if (!sessionId) {
-      return res.status(402).send("Session ID is required");
-    }
+    if (body.hash) {
+      console.log("Processing PayU callback");
+      console.log("UDF fields:", {
+        udf1: body.udf1,
+        udf2: body.udf2,
+        udf3: body.udf3,
+        udf4: body.udf4,
+        udf5: body.udf5,
+        udf6: body.udf6,
+        udf7: body.udf7,
+        udf8: body.udf8,
+        udf9: body.udf9,
+        udf10: body.udf10
+      });
 
-    // 1. Verify the payment with PayU
-    const isPaymentValid = await verifyPayUPayment(response);
-    if (!isPaymentValid) {
-      return res.status(403).send("Payment verification failed");
-    }
-
-    // 2. Update the payment session
-    const updatedSession = await PaymentSession.findByIdAndUpdate(
-      sessionId,
-      {
-        status: "completed",
-        metaData: {
-          ...response,
-          paymentId: response.payuMoneyId || response.txnid,
-        },
-      },
-      { new: true }
-    );
-
-    if (!updatedSession) {
-      return res.status(404).send("Payment session not found");
-    }
-
-    // 3. Prepare the payment data for payedForMeeting endpoint
-    const paymentData = {
-      amount: updatedSession.amount,
-      razorpay_payment_id: response.payuMoneyId || response.txnid,
-      razorpay_order_id: response.txnid,
-      razorpay_signature: response.hash,
-    };
-
-    const payedResponse = await axios.post(
-      `https://advizy.onrender.com/api/v1/meeting/payedformeeting`,
-      paymentData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const ok = verifyResponseHash(body);
+      if (!ok) {
+        console.error("PayU hash verification failed");
+        sessionId = body.udf10 || body.udf6 || "";
+        return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=hash&sessionId=${encodeURIComponent(sessionId)}`);
       }
-    );
 
-    if (!payedResponse.data.success) {
-      throw new Error("Payment processing failed");
-    }
-
-    const videoCallData = {
-      title: updatedSession.metaData.serviceTitle || "Consultation",
-      preferred_region: "ap-southeast-1",
-    };
-
-    const videoCallResponse = await axios.post(
-      `https://advizy.onrender.com/api/v1/meeting/createVideoCall`,
-      videoCallData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      sessionId = body.udf10 || body.udf6 || "";
+      let sessionDoc = null;
+      if (sessionId) {
+        sessionDoc = await PaymentSession.findOne({ sessionId });
       }
-    );
+      if (!sessionDoc && body.txnid) {
+        sessionDoc =
+          (await PaymentSession.findOne({ txnid: body.txnid })) ||
+          (await PaymentSession.findOne({ "metaData.txnid": body.txnid }));
+        if (sessionDoc) sessionId = sessionDoc.sessionId;
+      }
+      if (!sessionDoc) {
+        console.error("PaymentSession not found. udf6:", body.udf6, "udf10:", body.udf10, "txnid:", body.txnid);
+        return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=session`);
+      }
 
-    if (!videoCallResponse.data.success) {
-      throw new Error("Video call creation failed");
+      const payuMoneyId = body.payuMoneyId || body.mihpayid || "";
+      sessionDoc.status = body.status === "success" ? "completed" : "failed";
+      sessionDoc.payuTransactionId = payuMoneyId;
+      sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
+      await sessionDoc.save();
+      
+      // 4) Update the meeting record to mark as paid and create video call
+      try {
+        // Find the meeting record using the serviceId, expertId, userId, and date
+        const meeting = await Meeting.findOne({
+          serviceId: sessionDoc.serviceId,
+          expertId: sessionDoc.expertId,
+          userId: sessionDoc.userId,
+          "daySpecific.date": sessionDoc.date,
+        });
+        
+        if (meeting) {
+          // Update meeting as paid
+          meeting.isPayed = true;
+          meeting.amount = sessionDoc.amount;
+          meeting.razorpay_payment_id = payuMoneyId;
+          
+          // Create video call using Dyte API
+          try {
+            const dyteResponse = await axios.post(
+              'https://api.dyte.io/v2/meetings',
+              {
+                title: `Meeting with ${meeting.expertName}`,
+                preferredRegion: 'ap-in-1',
+                recordOnStart: false,
+              },
+              {
+                auth: {
+                  username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', 
+                  password: '96f3307b8a180f089a90',
+                },
+                headers: { 'Content-Type': 'application/json' },
+              }
+            );
+            
+            const videoCallId = dyteResponse.data.data.id;
+            meeting.videoCallId = videoCallId;
+            console.log("Video call created with ID:", videoCallId);
+          } catch (videoCallError) {
+            console.error("Error creating video call:", videoCallError);
+            // Continue with payment processing even if video call creation fails
+          }
+          
+          await meeting.save();
+          console.log("Meeting updated successfully:", meeting._id);
+          
+          // Update expert's availability (similar to payedForMeeting function)
+          try {
+            const { expertId, daySpecific } = meeting;
+            const availability = await Availability.findOne({ expert_id: expertId });
+            
+            if (availability) {
+              // Convert meeting details to IST for accurate comparison
+              const meetingDateIST = moment.utc(daySpecific.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
+              const meetingStartTimeIST = moment(daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
+              const meetingEndTimeIST = moment(daySpecific.slot.endTime, "hh:mm A").format("HH:mm");
+              const meetingDay = moment.utc(daySpecific.date).tz(availability.timezone.value).format("dddd");
+              
+              // Find the availability entry for the meeting's day
+              const dayEntry = availability.daySpecific.find((day) => day.day === meetingDay);
+              
+              if (dayEntry && dayEntry.slots) {
+                // Find the matching time slot within that day
+                const matchingSlot = dayEntry.slots.find((slotEntry) => {
+                  const slotStartTimeIST = moment.utc(slotEntry.startTime, "HH:mm").tz("Asia/Kolkata").format("HH:mm");
+                  const slotEndTimeIST = moment.utc(slotEntry.endTime, "HH:mm").tz("Asia/Kolkata").format("HH:mm");
+                  return meetingStartTimeIST >= slotStartTimeIST && meetingEndTimeIST <= slotEndTimeIST;
+                });
+                
+                if (matchingSlot) {
+                  // Find the matching date entry in the slot
+                  const matchingDateEntry = matchingSlot.dates.find((dateEntry) => {
+                    const storedDateIST = moment.utc(dateEntry.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
+                    return storedDateIST === meetingDateIST;
+                  });
+                  
+                  if (matchingDateEntry) {
+                    // Update the matched slot with meeting ID
+                    matchingDateEntry.slots.push({
+                      startTime: meetingStartTimeIST,
+                      endTime: meetingEndTimeIST,
+                      meeting_id: meeting._id,
+                    });
+                    
+                    await availability.save();
+                    console.log("Expert availability updated successfully");
+                  }
+                }
+              }
+            }
+            
+            // Add meeting to expert's sessions
+            const expert = await ExpertBasics.findById(expertId);
+            if (expert) {
+              expert.sessions.push(meeting._id);
+              await expert.save();
+              console.log("Expert sessions updated successfully");
+            }
+            
+            // Create notification
+            const notification = new Notification({
+              expertId: meeting.expertId,
+              message: `Payment received for meeting on ${daySpecific.date} for ₹${meeting.amount}`,
+              amount: meeting.amount,
+            });
+            await notification.save();
+            console.log("Notification created successfully");
+            
+            // Send emails
+            const user = await User.findById(meeting.userId);
+            if (user && expert) {
+              const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
+              let emailTemplate = fs.readFileSync(templatePath, "utf8");
+              const fullDate = moment(meeting.daySpecific.date);
+              const month = fullDate.format("MMMM");
+              const datee = fullDate.format("DD");
+              const day = fullDate.format("dddd");
+              
+              emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+              emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+              emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
+              emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+              emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+              emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+              emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
+              emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
+              emailTemplate = emailTemplate.replace(/{DAY}/g, day);
+              
+              await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
+              await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
+              console.log("Emails sent successfully");
+            }
+          } catch (availabilityError) {
+            console.error("Error updating availability:", availabilityError);
+            // Continue with payment processing even if availability update fails
+          }
+        } else {
+          console.error("Meeting not found for update");
+        }
+      } catch (meetingError) {
+        console.error("Error updating meeting:", meetingError);
+        // Continue with payment processing even if meeting update fails
+      }
+      
+      // 5) Short-lived success token you can validate on frontend
+      const successToken = crypto.randomBytes(16).toString("hex");
+      await PaymentSession.updateOne(
+        { sessionId: sessionDoc.sessionId },
+        { successToken, processingCompleted: true, "metaData.successToken": successToken },
+        { strict: false }
+      );
+
+      return res.redirect(
+        `${FRONTEND_URL}/payu-payment-success?sessionId=${encodeURIComponent(
+          sessionDoc.sessionId
+        )}&token=${encodeURIComponent(successToken)}`
+      );
+    } else if (body.sessionId && body.token) {
+      console.log("Processing frontend verification request");
+      sessionId = body.sessionId;
+      const token = body.token;
+
+      const sessionDoc = await PaymentSession.findOne({
+        sessionId,
+        successToken: token,
+        processingCompleted: true
+      });
+
+      if (!sessionDoc) {
+        console.error("Invalid session or token");
+        return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_token`);
+      }
+
+      return res.status(200).json({
+        success: true,
+        sessionId: sessionDoc.sessionId,
+        status: sessionDoc.status
+      });
+    } else {
+      console.error("Unknown request format");
+      return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_request`);
     }
-
-    const successToken = crypto.randomBytes(16).toString("hex");
-
-    const confirmationData = {
-      sessionId,
-      token: successToken,
-      bookingDetails: {
-        image:
-          updatedSession.metaData.expertImage ||
-          "https://via.placeholder.com/100",
-        name: updatedSession.metaData.expertName || "Expert",
-        title: updatedSession.metaData.serviceTitle || "Consultation",
-        sessionDuration: updatedSession.metaData.duration || "60 mins",
-        price: updatedSession.amount,
-        date: new Date(updatedSession.date).toLocaleDateString("en-IN", {
-          weekday: "long",
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-        time: {
-          startTime: updatedSession.startTime,
-          endTime: updatedSession.endTime,
-        },
-      },
-    };
-
-    await PaymentSession.findByIdAndUpdate(sessionId, {
-      successToken,
-      processingCompleted: true,
-    });
-
-    const redirectUrl = new URL("https://www.advizy.in/payu-payment-success");
-    redirectUrl.searchParams.append("data", JSON.stringify(confirmationData));
-    redirectUrl.searchParams.append("sessionId", sessionId);
-    redirectUrl.searchParams.append("token", successToken);
-
-    return res.redirect(redirectUrl.toString());
-  } catch (error) {
-    console.error("Payment success handler error:", error);
-
-    // Update session with error status if processing failed
+  } catch (err) {
+    console.error("PayU success handler error:", err);
     if (sessionId) {
-      await PaymentSession.findByIdAndUpdate(sessionId, {
-        status: "processing_failed",
-        error: error.message,
+      await PaymentSession.updateOne(
+        { sessionId },
+        { status: "processing_failed", error: err?.message || "unknown" },
+        { strict: false }
+      );
+    }
+    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+  }
+};
+
+/** ============ FAILURE CALLBACK from PayU (POST) ============ */
+export const failure = async (req, res) => {
+  try {
+    const body = req.method === "GET" ? req.query : req.body;
+    const sessionId = body.udf6;
+
+    if (sessionId) {
+      await PaymentSession.findOneAndUpdate(
+        { sessionId },
+        { status: "failed", metaData: { ...body } },
+        { strict: false }
+      );
+    }
+    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+  } catch (err) {
+    console.error("PayU failure handler error:", err);
+    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+  }
+};
+
+export const verifyPayment = async (req, res) => {
+  try {
+    const { sessionId, token } = req.body;
+
+    if (!sessionId || !token) {
+      return res.status(400).json({
+        success: false,
+        message: "Session ID and token are required",
       });
     }
 
-    res.redirect(
-      `https://www.advizy.in/payu-payment-failure?error=${encodeURIComponent(
-        error.message
-      )}`
-    );
-  }
-};
-const failure = async (req, res, next) => {
-  try {
-    const response = req.body;
-    console.log("Payment Failed:", response);
-    return res.redirect("https://www.advizy.in/payu-payment-failure");
-  } catch (error) {
-    return next(new AppError(error, 503));
-  }
-};
+    // Find the session by sessionId and token
+    const sessionDoc = await PaymentSession.findOne({
+      sessionId,
+      successToken: token,
+      processingCompleted: true,
+    });
 
-export { payupay, success, failure };
+    if (!sessionDoc) {
+      return res.status(404).json({
+        success: false,
+        message: "Invalid session or token",
+      });
+    }
+
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      sessionId: sessionDoc.sessionId,
+      status: sessionDoc.status,
+      paymentDetails: {
+        amount: sessionDoc.amount,
+        date: sessionDoc.date,
+        startTime: sessionDoc.startTime,
+        endTime: sessionDoc.endTime,
+      },
+    });
+  } catch (err) {
+    console.error("Payment verification error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Payment verification failed",
+    });
+  }
+};

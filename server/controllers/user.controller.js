@@ -19,7 +19,7 @@ const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "None",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 };
 
 const googleAuth = passport.authenticate("google", {
@@ -55,7 +55,7 @@ const handleGoogleCallback = async (req, res, next) => {
           "User found with the same email but without Google ID, redirecting to error page..."
         );
 
-        const errorURL = `https://advizy.in/auth-error?message=${encodeURIComponent(
+        const errorURL = `https://localhost:5173/auth-error?message=${encodeURIComponent(
           "An account with this email already exists. Please log in using your original method."
         )}`;
         return res.redirect(errorURL);
@@ -82,13 +82,13 @@ const handleGoogleCallback = async (req, res, next) => {
     const accessToken = jwt.sign(
       { id: user._id, email: user.email },
       "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     const refreshToken = jwt.sign(
       { id: user._id, email: user.email },
       "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-      { expiresIn: "7d" }
+      { expiresIn: "70d" }
     );
 
     console.log("Access & Refresh Tokens generated");
@@ -98,14 +98,14 @@ const handleGoogleCallback = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
-      maxAge: 60 * 60 * 1000, // 1 hour
+      maxAge: 24 * 60 * 60 * 1000, // 1 hour
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 70 * 24 * 60 * 60 * 1000, // 7 days
     });
 
     // Check if the user is an expert
@@ -141,9 +141,12 @@ const handleGoogleCallback = async (req, res, next) => {
     }
 
     // Redirect to frontend with tokens
-    const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
+    const frontendURL = `http://localhost:5173/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
       JSON.stringify(user)
     )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
+
+    console.log("Redirecting to:", frontendURL);
+
 
     return res.redirect(frontendURL);
     // return res.status(200).json({
@@ -564,8 +567,8 @@ const generateOtp = async (req, res, next) => {
     const normalizedNumber = number.startsWith("+")
       ? number.slice(3) // Remove '+91' or other codes
       : number.startsWith("91")
-      ? number.slice(2)
-      : number;
+        ? number.slice(2)
+        : number;
 
     user = await User.findOne({ number: normalizedNumber });
 

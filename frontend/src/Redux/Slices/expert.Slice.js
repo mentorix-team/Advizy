@@ -522,6 +522,7 @@ export const getAllExperts = createAsyncThunk(
   }
 );
 
+<<<<<<< HEAD
 export const getServiceWithExpertByServiceId = createAsyncThunk(
   "expert/getServiceWithExpertByServiceId",
   async (serviceId, thunkAPI) => {
@@ -544,6 +545,8 @@ export const getServiceWithExpertByServiceId = createAsyncThunk(
   }
 );
 
+=======
+>>>>>>> new-dev
 export const getExpertById = createAsyncThunk(
   "expert/getExpertById",
   async (id, { rejectWithValue }) => {
@@ -863,6 +866,30 @@ export const getmeasexpert = createAsyncThunk(
   }
 );
 
+
+export const getServiceWithExpertByServiceId = createAsyncThunk(
+  "expert/getServiceWithExpertByServiceId",
+  async (serviceId, thunkAPI) => {
+    try {
+      const response = await axiosInstance.get(`expert/${serviceId}`);
+      return response.data; // { service, expert }
+    } catch (error) {
+      const errorMessage =
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Something went wrong"
+      );
+    }
+  }
+);
+
 const expertSlice = createSlice({
   name: "expert",
   initialState,
@@ -1038,8 +1065,12 @@ const expertSlice = createSlice({
         }
         state.loading = false;
         state.error = null;
-        console.log("Updated state.experts:", state.experts);
+        // console.log("Updated state.experts:", state.experts);
       })
+<<<<<<< HEAD
+=======
+
+>>>>>>> new-dev
       .addCase(getAllExperts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Error fetching experts";
@@ -1095,7 +1126,10 @@ const expertSlice = createSlice({
         state.loading = false;
         state.error = action.payload.message || "Something went wrong";
       })
+<<<<<<< HEAD
 
+=======
+>>>>>>> new-dev
       .addCase(getServiceWithExpertByServiceId.fulfilled, (state, action) => {
         state.selectedExpert = action.payload.expert;
         state.selectedService = action.payload.service;

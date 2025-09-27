@@ -182,7 +182,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
   };
 
   const handleGoogleSignup = () => {
-    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
+    window.open("http://localhost:5030/api/v1/user/auth/google", "_self");
   };
 
   return (

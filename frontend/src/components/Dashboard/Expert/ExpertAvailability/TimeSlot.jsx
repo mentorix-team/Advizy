@@ -1,25 +1,25 @@
-import React from 'react';
-import TimeInput from './TimeInput';
-import { TrashIcon } from '@/icons/Icons';
-import { validateTimeSlot } from '@/utils/timeValidation';
+import React from "react";
+import TimeInput from "./TimeInput";
+import { TrashIcon } from "@/icons/Icons";
+import { validateTimeSlot } from "@/utils/timeValidation";
 
-function TimeSlot({ 
-  startTime, 
-  endTime, 
-  disabled, 
-  onStartChange, 
-  onEndChange, 
+function TimeSlot({
+  startTime,
+  endTime,
+  disabled,
+  onStartChange,
+  onEndChange,
   onRemove,
   minTime,
-  maxTime 
+  maxTime,
 }) {
   const handleTimeChange = (type, time) => {
-    const newStart = type === 'start' ? time : startTime;
-    const newEnd = type === 'end' ? time : endTime;
+    const newStart = type === "start" ? time : startTime;
+    const newEnd = type === "end" ? time : endTime;
 
     const error = validateTimeSlot(newStart, newEnd);
     if (!error) {
-      if (type === 'start') {
+      if (type === "start") {
         onStartChange(time);
       } else {
         onEndChange(time);
@@ -31,7 +31,7 @@ function TimeSlot({
     <div className="flex items-center space-x-2">
       <TimeInput
         value={startTime}
-        onChange={(time) => handleTimeChange('start', time)}
+        onChange={(time) => handleTimeChange("start", time)}
         disabled={disabled}
         minTime={minTime}
         maxTime={endTime}
@@ -39,7 +39,7 @@ function TimeSlot({
       <span className="text-gray-500 text-sm">to</span>
       <TimeInput
         value={endTime}
-        onChange={(time) => handleTimeChange('end', time)}
+        onChange={(time) => handleTimeChange("end", time)}
         disabled={disabled}
         minTime={startTime}
         maxTime={maxTime}

@@ -410,6 +410,7 @@ const adminapproved = async (req, res, next) => {
     const records = approvedExperts.map((expert) => ({
       objectID: expert._id.toString(),
       name: `${expert.firstName} ${expert.lastName}`,
+      username: expert.redirect_url,
       bio: expert.bio || "",
       profileImage: expert.profileImage?.secure_url || "",
       domain: expert.credentials?.domain || "",
@@ -1615,8 +1616,7 @@ const getAllExperts = async (req, res, next) => {
 
     // Apply filters
     if (req.query.admin_approved_expert) {
-      filters.admin_approved_expert =
-        req.query.admin_approved_expert === "true";
+      filters.admin_approved_expert = req.query.admin_approved_expert === "true";
     }
     if (req.query.gender) {
       filters.gender = req.query.gender;
@@ -1663,9 +1663,9 @@ const getAllExperts = async (req, res, next) => {
           $elemMatch: {
             $or: [
               { duration: durationValue },
-              { "one_on_one.duration": durationValue },
-            ],
-          },
+              { "one_on_one.duration": durationValue }
+            ]
+          }
         };
       }
     }
@@ -1679,9 +1679,9 @@ const getAllExperts = async (req, res, next) => {
         $elemMatch: {
           $or: [
             { price: { $gte: minPrice, $lte: maxPrice } },
-            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } },
-          ],
-        },
+            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } }
+          ]
+        }
       };
     }
 
@@ -1698,14 +1698,14 @@ const getAllExperts = async (req, res, next) => {
                   $cond: {
                     if: { $gt: [{ $size: "$reviews" }, 0] },
                     then: { $size: "$reviews" },
-                    else: 1,
-                  },
-                },
-              ],
-            },
+                    else: 1
+                  }
+                }
+              ]
+            }
           },
-          minRating,
-        ],
+          minRating
+        ]
       };
     }
 
@@ -1714,9 +1714,7 @@ const getAllExperts = async (req, res, next) => {
     const order = req.query.order === "asc" ? 1 : -1;
 
     // For complex sorting, we need to use aggregation
-    if (
-      ["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)
-    ) {
+    if (["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)) {
       const pipeline = [{ $match: filters }];
 
       // Add computed fields for sorting
@@ -1731,21 +1729,14 @@ const getAllExperts = async (req, res, next) => {
                     as: "service",
                     in: {
                       $min: [
-                        {
-                          $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER],
-                        },
-                        {
-                          $ifNull: [
-                            "$$service.one_on_one.price",
-                            Number.MAX_SAFE_INTEGER,
-                          ],
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
+                        { $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER] },
+                        { $ifNull: ["$$service.one_on_one.price", Number.MAX_SAFE_INTEGER] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           });
           pipeline.push({ $sort: { minPrice: 1, createdAt: -1 } });
           break;
@@ -1761,13 +1752,13 @@ const getAllExperts = async (req, res, next) => {
                     in: {
                       $max: [
                         { $ifNull: ["$$service.price", 0] },
-                        { $ifNull: ["$$service.one_on_one.price", 0] },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
+                        { $ifNull: ["$$service.one_on_one.price", 0] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           });
           pipeline.push({ $sort: { maxPrice: -1, createdAt: -1 } });
           break;
@@ -1782,12 +1773,12 @@ const getAllExperts = async (req, res, next) => {
                     $cond: {
                       if: { $gt: [{ $size: "$reviews" }, 0] },
                       then: { $size: "$reviews" },
-                      else: 1,
-                    },
-                  },
-                ],
-              },
-            },
+                      else: 1
+                    }
+                  }
+                ]
+              }
+            }
           });
           pipeline.push({ $sort: { avgRating: -1, createdAt: -1 } });
           break;

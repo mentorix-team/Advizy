@@ -37,8 +37,14 @@ const AuthPopup = ({ isOpen, onClose }) => {
   }, [isLoggedIn]);
 
   const handleClosePopup = () => {
+    console.log("AuthPopup: Closing popup");
     setView("LoginWithEmail");
     onClose();
+    
+    // Small delay to allow ProtectedRoute to detect the popup was closed
+    setTimeout(() => {
+      console.log("AuthPopup: Popup closed, ProtectedRoute should detect this");
+    }, 100);
   };
 
   const handleSwitchView = (newView) => {
@@ -51,11 +57,11 @@ const AuthPopup = ({ isOpen, onClose }) => {
   return (
     <Popup
       open={isOpen}
-      closeOnDocumentClick
+      closeOnDocumentClick={false} // Disable to prevent conflicts
       onClose={handleClosePopup}
       modal
       nested
-      key={view} // Re-render on view change
+      key={view}
     >
       <div className="auth-popup">
         {ActiveComponent && (

@@ -20,7 +20,11 @@ function Scheduling() {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const location = useLocation();
+<<<<<<< HEAD
   const { serviceId } = useParams();
+=======
+  const { serviceId } = useParams(); // ✅ grab serviceId from URL
+>>>>>>> new-dev
   const { duration, price } = location.state || {};
 
   const {
@@ -29,11 +33,13 @@ function Scheduling() {
     error: expertError,
     selectedService,
   } = useSelector((state) => state.expert);
+
   const {
     selectedAvailability,
     loading: availabilityLoading,
     error: availabilityError,
   } = useSelector((state) => state.availability);
+
   const { data } = useSelector((state) => state.auth);
 
   let userData;
@@ -42,6 +48,22 @@ function Scheduling() {
   } catch (error) {
     console.error("Error parsing data:", error);
   }
+
+  // 🧠 Fetch expert + service by serviceId
+  useEffect(() => {
+    if (!selectedExpert && serviceId) {
+      dispatch(getServiceWithExpertByServiceId(serviceId)).then((res) => {
+        console.log("Fetched expert + service:", res?.payload);
+      });
+    }
+  }, [dispatch, selectedExpert, serviceId]);
+
+  // 🎯 Fetch availability after expert is loaded
+  useEffect(() => {
+    if (selectedExpert?._id && !availabilityLoading) {
+      dispatch(getAvailabilitybyid(selectedExpert._id));
+    }
+  }, [dispatch, selectedExpert]);
 
   useEffect(() => {
     if (!selectedExpert && serviceId) {
@@ -67,19 +89,29 @@ function Scheduling() {
   //gurdev
   // const sessionDuration = duration || selectedService?.duration;
   // const sessionPrice = price || selectedService?.price;
+<<<<<<< HEAD
 
   const defaultSlot = selectedService?.one_on_one?.find((slot) => slot.enabled);
   const sessionDuration = duration || defaultSlot?.duration || 30;
   const sessionPrice = price || defaultSlot?.price || 100;
+=======
+
+  const defaultSlot = selectedService?.one_on_one?.find(slot => slot.enabled);
+  const sessionDuration = duration || defaultSlot?.duration || 30;
+  const sessionPrice = price || defaultSlot?.price || 100;
+
+>>>>>>> new-dev
 
   const handleToggle = () => {
     setIsExpertMode(!isExpertMode);
   };
 
+  // ⏳ Loading state
   if (expertLoading || availabilityLoading) {
     return <Spinner />;
   }
 
+  // ❌ Error state
   if (expertError || availabilityError) {
     return (
       <p className="text-red-500">Error: {expertError || availabilityError}</p>
@@ -87,11 +119,15 @@ function Scheduling() {
   }
 
   // ⚠️ Not ready yet
+<<<<<<< HEAD
   if (
     !selectedExpert ||
     !selectedService ||
     !selectedAvailability?.availability
   ) {
+=======
+  if (!selectedExpert || !selectedService || !selectedAvailability?.availability) {
+>>>>>>> new-dev
     return (
       <p className="text-yellow-600">
         Expert or service data not available. Please try again later.
@@ -101,16 +137,32 @@ function Scheduling() {
 
   // 🧩 Data mapping
   const expert = {
+<<<<<<< HEAD
     image:
       selectedExpert.profileImage?.secure_url ||
       "https://via.placeholder.com/100",
+=======
+    image: selectedExpert.profileImage?.secure_url || "https://via.placeholder.com/100",
+>>>>>>> new-dev
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
     title: selectedExpert.credentials?.professionalTitle || "No Title Provided",
     sessionDuration,
     price: sessionPrice,
+<<<<<<< HEAD
     description:
       selectedService.detailedDescription || "No description provided",
     includes: selectedService.features || [],
+=======
+    description: selectedService.detailedDescription || "No description provided",
+    includes: selectedService.features || [],
+  };
+
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+>>>>>>> new-dev
   };
 
   return (
@@ -121,8 +173,13 @@ function Scheduling() {
         onToggleExpertMode={handleToggle}
       />
 
+<<<<<<< HEAD
       <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-16">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+=======
+      <main className="flex-grow py-8 sm:py-12 lg:py-16 mt-2">
+        <div className="max-w-[1440px] mx-auto mt-0 px-4 sm:px-6 lg:px-8">
+>>>>>>> new-dev
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors mb-6 p-2 rounded-lg hover:bg-green-50"
@@ -132,7 +189,6 @@ function Scheduling() {
           </button>
 
           <div className="flex flex-col lg:grid lg:grid-cols-[minmax(300px,400px),1fr] gap-6 lg:gap-8">
-            {/* Schedule Section - Appears first on mobile */}
             <div className="order-1 lg:order-2">
               <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
                 <h2 className="text-xl sm:text-2xl font-semibold mb-6">
@@ -153,9 +209,19 @@ function Scheduling() {
                       selectedDate={selectedDate}
                       selectedAvailability={selectedAvailability}
                       expertName={
+<<<<<<< HEAD
                         selectedExpert.firstName + " " + selectedExpert.lastName
                       }
                       userName={userData?.firstName + " " + userData?.lastName}
+=======
+                        selectedExpert.firstName +
+                        " " +
+                        selectedExpert.lastName
+                      }
+                      userName={
+                        userData?.firstName + " " + userData?.lastName
+                      }
+>>>>>>> new-dev
                       serviceName={selectedService.title}
                       expertId={selectedExpert._id}
                       serviceId={selectedService.serviceId}
@@ -169,7 +235,6 @@ function Scheduling() {
               </div>
             </div>
 
-            {/* Expert Profile Section - Appears second on mobile */}
             <div className="order-2 lg:order-1">
               <ExpertProfileInSchedule expert={expert} />
             </div>
@@ -178,7 +243,11 @@ function Scheduling() {
       </main>
 
       <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 }

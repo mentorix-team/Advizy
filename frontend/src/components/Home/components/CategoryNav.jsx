@@ -9,7 +9,7 @@ const CategoryNav = ({ categories }) => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="fixed top-16 left-0 right-0 z-40 bg-white/50 backdrop-blur-md border-b border-gray-200 shadow-sm"
+      className="fixed top-16 left-0 right-0 z-40 bg-white border-b border-gray-200"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center gap-8 overflow-x-auto hide-scrollbar py-3">

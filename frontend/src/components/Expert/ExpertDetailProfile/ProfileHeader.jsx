@@ -137,7 +137,7 @@ const ProfileHeader = ({
                     <div className="relative">
                       {/* Share Button */}
                       <button
-                        className="border border-gray-300 p-2 rounded-full hover:bg-gray-100 transition"
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100 transition"
                         onClick={openShareModal}
                       >
                         <ShareIcon className="w-6 h-6" />

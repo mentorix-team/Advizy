@@ -64,7 +64,11 @@ function ExpertProfileInSchedule({ expert }) {
             </svg>
             <span className="ml-1">{expert.sessionDuration} min</span>
           </span>
+<<<<<<< HEAD
           <span className="ml-auto text-primary font-medium">
+=======
+          <span className="ml-auto text-green-600 font-medium">
+>>>>>>> new-dev
             ₹{expert.price}
           </span>
         </div>
@@ -83,6 +87,20 @@ function ExpertProfileInSchedule({ expert }) {
           <div>
             <h4 className="font-medium text-gray-900 mb-3">What's Included:</h4>
             <ul className="space-y-2">
+<<<<<<< HEAD
+              {expert.includes.map((item, index) => (
+                <li
+                  key={index}
+                  className="flex items-start text-gray-600 text-sm"
+                >
+=======
+              {/* {expert.includes.map((item, index) => (
+                <li key={index} className="flex items-start text-gray-600 text-sm">
+>>>>>>> new-dev
+                  <span className="text-green-500 mr-2 mt-1">•</span>
+                  <span>{typeof item === "string" ? item : item.title}</span>
+                </li>
+              ))} */}
               {expert.includes.map((item, index) => (
                 <li
                   key={index}

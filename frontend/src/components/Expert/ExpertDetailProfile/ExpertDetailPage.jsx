@@ -97,6 +97,14 @@ const ExpertDetailPage = () => {
     }
     return []; // Return an empty array for invalid formats
   };
+
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen top-[65px] bg-[#F5F5F5]">
       <Navbar
@@ -115,11 +123,11 @@ const ExpertDetailPage = () => {
           rating={
             expert?.reviews?.length > 0
               ? Math.round(
-                  expert.reviews.reduce(
-                    (acc, review) => acc + review.rating,
-                    0
-                  ) / expert.reviews.length
-                )
+                expert.reviews.reduce(
+                  (acc, review) => acc + review.rating,
+                  0
+                ) / expert.reviews.length
+              )
               : 0
           }
           reviewsCount={expert?.reviews?.length || 0}
@@ -171,7 +179,11 @@ const ExpertDetailPage = () => {
         </div>
       </main>
       <Footer />
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };

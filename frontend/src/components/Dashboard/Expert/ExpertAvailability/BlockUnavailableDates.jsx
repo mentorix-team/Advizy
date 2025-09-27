@@ -15,10 +15,28 @@ function BlockUnavailableDates() {
   const [disabledDates, setDisabledDates] = useState([]);
   const { blockedDates, setBlockedDates } = useBlockedDates();
 
-  useEffect(() => {
-    console.log("useEffect triggered. Availability:", availability);
+useEffect(() => {
+  console.log("useEffect triggered. Availability:", availability);
 
-    const expertAvailability = availability?.availability?.[0];
+  const expertAvailability = availability?.availability?.[0];
+
+  if (expertAvailability?.daySpecific) {
+    const nullSlotDays = expertAvailability.daySpecific
+      .filter((entry) => !entry.slots)
+      .map((entry) => {
+        const dayOfWeek = entry.day.toLowerCase();
+        const daysOfWeek = {
+          sunday: 0,
+          monday: 1,
+          tuesday: 2,
+          wednesday: 3,
+          thursday: 4,
+          friday: 5,
+          saturday: 6,
+        };
+        return daysOfWeek[dayOfWeek];
+      })
+      .filter((day) => day !== undefined);
 
     if (expertAvailability?.daySpecific) {
       const nullSlotDays = expertAvailability.daySpecific
@@ -38,17 +56,16 @@ function BlockUnavailableDates() {
         })
         .filter((day) => day !== undefined);
 
-      setDisabledDates(nullSlotDays);
-    }
+  if (expertAvailability?.blockedDates?.length > 0) {
+    const formattedBlockedDates = expertAvailability.blockedDates.map(
+      (dateObj) => new Date(dateObj.dates)
+    );
+    setBlockedDates(formattedBlockedDates);
+  }
+}, [availability]);
 
-    if (expertAvailability?.blockedDates?.length > 0) {
-      const formattedBlockedDates = expertAvailability.blockedDates.map(
-        (dateObj) => new Date(dateObj.dates)
-      );
-      setBlockedDates(formattedBlockedDates);
-    }
-  }, [availability]);
 
+    
   const handleDateSelect = (date) => {
     setSelectedDates((prev) =>
       prev.some((d) => d.getTime() === date.getTime())
@@ -116,7 +133,7 @@ function BlockUnavailableDates() {
       )}
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-0">
           <div className="bg-white rounded-lg p-6 max-w-md w-200">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900">

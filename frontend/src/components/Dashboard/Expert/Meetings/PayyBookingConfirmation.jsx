@@ -18,7 +18,7 @@ const PayyBookingConfirmation = () => {
   const [countdown, setCountdown] = useState(7);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -35,14 +35,14 @@ const PayyBookingConfirmation = () => {
         }
 
         const verification = await dispatch(success({ sessionId, token })).unwrap();
-        
+
         if (!verification.success) {
           throw new Error('Payment verification failed');
         }
 
         // Get booking data from verification response or location state
         const data = verification.bookingDetails || location.state;
-        
+
         if (!data) {
           throw new Error('Booking data not found');
         }
@@ -91,7 +91,7 @@ const PayyBookingConfirmation = () => {
         <div className="text-center">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold">Booking not found</h2>
-          <button 
+          <button
             onClick={() => navigate('/')}
             className="mt-6 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
           >
@@ -103,6 +103,13 @@ const PayyBookingConfirmation = () => {
   }
 
   const { image = '', name = '', title = '', sessionDuration = '', price = '', date = '', time = {} } = bookingData || {};
+
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -151,8 +158,8 @@ const PayyBookingConfirmation = () => {
             <div className="bg-white rounded-lg border-2 shadow-[#b8e7c9] shadow-lg p-8 w-full max-w-lg">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <img 
-                    src={image} 
+                  <img
+                    src={image}
                     alt={name}
                     className="w-12 h-12 rounded-full object-cover"
                   />
@@ -202,7 +209,7 @@ const PayyBookingConfirmation = () => {
             </div>
 
             {/* Manage Booking Section */}
-            <div 
+            <div
               className="bg-white rounded-lg shadow-lg border-2 shadow-[#b8e7c9] mt-6 p-6 w-full max-w-lg flex justify-between items-center hover:bg-gray-50 transition-colors cursor-pointer"
               onClick={() => navigate('/dashboard/user/meetings')}
             >
@@ -230,7 +237,11 @@ const PayyBookingConfirmation = () => {
       <Footer />
 
       {/* Search Modal */}
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };

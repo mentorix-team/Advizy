@@ -21,29 +21,6 @@ const DAYS = [
   { id: 7, name: "Sunday" },
 ];
 
-// Helper: Add offset to 12-hour time string (e.g., "09:00 AM")
-const addOffset = (timeStr, offsetMinutes) => {
-  if (!timeStr) return timeStr;
-
-  const [time, meridian] = timeStr.split(" ");
-  let [hours, minutes] = time.split(":").map(Number);
-
-  if (meridian === "PM" && hours !== 12) hours += 12;
-  if (meridian === "AM" && hours === 12) hours = 0;
-
-  const date = new Date();
-  date.setHours(hours);
-  date.setMinutes(minutes + offsetMinutes);
-
-  // Format back to 12-hour
-  let newHours = date.getHours();
-  const newMeridian = newHours >= 12 ? "PM" : "AM";
-  newHours = newHours % 12 || 12;
-  const newMinutes = String(date.getMinutes()).padStart(2, "0");
-
-  return `${newHours}:${newMinutes} ${newMeridian}`;
-};
-
 function WeeklyAvailability({ availability }) {
   const dispatch = useDispatch();
   const [days, setDays] = useState(() => {

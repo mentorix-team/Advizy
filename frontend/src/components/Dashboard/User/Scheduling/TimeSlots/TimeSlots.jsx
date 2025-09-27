@@ -24,6 +24,8 @@ function TimeSlots({
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
 
+
+
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
       console.warn("Missing availability data or selectedDate");

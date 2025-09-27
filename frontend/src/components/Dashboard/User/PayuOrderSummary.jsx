@@ -22,7 +22,6 @@ const PayuOrderSummary = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const [delayedPrice, setDelayedPrice] = useState(null);
   const { selectedMeeting, loading, error } = useSelector(
@@ -227,7 +226,7 @@ const PayuOrderSummary = () => {
       };
 
       const response = await dispatch(PayU(paymentData)).unwrap();
-      console.log('this is payu response',response)
+      console.log('this is payu response', response)
       const payuWindow = window.open("", "_blank");
       if (response) {
         payuWindow.document.write(response)
@@ -253,30 +252,28 @@ const PayuOrderSummary = () => {
     return <Spinner />;
   }
 
+  const handleModalCategorySelect = (category) => {
+    if (category.value) {
+      navigate(`/explore?category=${category.value}`);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4  py-8 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <Navbar
             onSearch={() => setIsModalOpen(true)}
             isExpertMode={isExpertMode}
             onToggleExpertMode={handleToggle}
           />
         </div>
-        <AnimatePresence>
-          {showCategoryNav && (
-            <div className="border-t">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <CategoryNav categories={categories} />
-              </div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
 
       <main className="flex-grow py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-6">
+          <div className="flex flex-col lg:flex-row  lg:gap-6">
             {/* Expert Profile - Hidden on mobile initially */}
             <div className="hidden lg:block lg:w-full lg:max-w-md">
               <div className="bg-white rounded-lg shadow-md p-6">
@@ -385,7 +382,11 @@ const PayuOrderSummary = () => {
         <Footer />
       </footer>
 
-      <SearchModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <SearchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCategorySelect={handleModalCategorySelect}
+      />
     </div>
   );
 };
