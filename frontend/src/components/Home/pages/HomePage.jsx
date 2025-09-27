@@ -137,12 +137,8 @@ function HomePage() {
           services: expert.credentials?.services || [], // Fallback to empty array if no services
           availability: expert.availability, // Include availability data
           reviews: expert.reviews || [],
-<<<<<<< HEAD
-          admin_approved_expert : expert?.admin_approved_expert || false,
-=======
           admin_approved_expert: expert?.admin_approved_expert || false,
           reviews: expert?.reviews || [], // Fallback to empty array if no reviews
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
         };
       })
     : [];

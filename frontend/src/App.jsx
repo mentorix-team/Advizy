@@ -1,7 +1,7 @@
 import ReactGA from "react-ga4";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import Spinner from "./components/LoadingSkeleton/Spinner";
 
@@ -60,6 +60,8 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isLoggedIn } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
 
   // Add this useEffect to App.js to monitor sessionStorage changes
 useEffect(() => {

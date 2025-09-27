@@ -192,10 +192,6 @@ const ExpertCard = ({
                     {skill}
                   </span>
                 ))}
-<<<<<<< HEAD
-=======
-
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
               </div>
               {/* <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                 {expertise.slice(2).map((skill, index) => (

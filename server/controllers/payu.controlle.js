@@ -1,17 +1,12 @@
 import PaymentSession from "../config/model/transaction/PayuModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
-<<<<<<< HEAD
 import axios from "axios"; // keep if you call other internal endpoints
 import { Meeting } from "../config/model/meeting/meeting.model.js";
 import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
-=======
-import axios from "axios";
-import AppError from "../utils/AppError.js";
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 
 const {
   PAYU_KEY,
@@ -38,11 +33,7 @@ function buildRequestHash(data) {
   const seq = [
     data.key,
     data.txnid,
-<<<<<<< HEAD
     data.amount, // EXACT string you’ll post in the form
-=======
-    data.amount,
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     data.productinfo,
     data.firstname,
     data.email,
@@ -82,10 +73,7 @@ function verifyResponseHash(data) {
   const udf9 = data.udf9 || "";
   const udf10 = data.udf10 || "";
 
-<<<<<<< HEAD
   // Build the sequence in the correct order for response verification
-=======
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
   const seq = [
     process.env.PAYU_SALT,
     status,
@@ -135,40 +123,21 @@ async function createPaymentSession(paymentData) {
     serviceId: String(paymentData.serviceId),
     expertId: new mongoose.Types.ObjectId(paymentData.expertId),
     userId: new mongoose.Types.ObjectId(paymentData.userId),
-<<<<<<< HEAD
     sessionId: paymentData.sessionId, // the one we also send in udf6 & udf10
     amount: paymentData.amount, // number/string is fine; schema coerces to Number
-=======
-    sessionId: paymentData.sessionId,
-    amount: paymentData.amount,
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     date: paymentData.date,
     startTime: paymentData.startTime,
     endTime: paymentData.endTime,
     message: paymentData.message,
     status: "pending",
     paymentGateway: "payu",
-<<<<<<< HEAD
     // Store txnid too — either add a field in schema, or at least keep it in metaData
     payuTransactionId: paymentData.txnid, // <— add this field to your schema if possible
-=======
-    payuTransactionId: paymentData.txnid,
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     metaData: { ...(paymentData.metaData || {}), txnid: paymentData.txnid },
   });
 }
 
-<<<<<<< HEAD
 /** ============ INITIATE PAYMENT: returns auto-submitting HTML form ============ */
-=======
-export const verifyPayUPayment = async (response) => {
-  const payuReturnedHash = response.hash;
-  const hashString = `${response.key}|${response.txnid}|${response.amount}|${response.productinfo}|${response.firstname}|${response.email}|||||||||||ihteCewpIbsofU10x6dc8F8gYJOnL2hz`;
-  const calculatedHash = crypto.createHash("sha512").update(hashString).digest("hex");
-  return calculatedHash === payuReturnedHash;
-};
-
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 export const payupay = async (req, res, next) => {
   try {
     if (!process.env.PAYU_KEY || !process.env.PAYU_SALT) {
@@ -228,20 +197,12 @@ export const payupay = async (req, res, next) => {
       udf3: userId || "",
       udf4: date || "",
       udf5: message || "",
-<<<<<<< HEAD
       udf6: sessionId, // <— filled now
       udf7: "",
       udf8: "",
       udf9: "",
       udf10: sessionId, // <— also filled
 
-=======
-      udf6: sessionId,
-      udf7: "",
-      udf8: "",
-      udf9: "",
-      udf10: sessionId,
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
       service_provider: "payu_paisa",
     };
 
@@ -347,7 +308,6 @@ export const success = async (req, res) => {
       sessionDoc.payuTransactionId = payuMoneyId;
       sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
       await sessionDoc.save();
-<<<<<<< HEAD
       
       // 4) Update the meeting record to mark as paid and create video call
       try {
@@ -493,9 +453,6 @@ export const success = async (req, res) => {
       }
       
       // 5) Short-lived success token you can validate on frontend
-=======
-
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
       const successToken = crypto.randomBytes(16).toString("hex");
       await PaymentSession.updateOne(
         { sessionId: sessionDoc.sessionId },
@@ -546,10 +503,7 @@ export const success = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 /** ============ FAILURE CALLBACK from PayU (POST) ============ */
-=======
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
 export const failure = async (req, res) => {
   try {
     const body = req.method === "GET" ? req.query : req.body;
@@ -576,18 +530,11 @@ export const verifyPayment = async (req, res) => {
     if (!sessionId || !token) {
       return res.status(400).json({
         success: false,
-<<<<<<< HEAD
         message: "Session ID and token are required",
       });
     }
 
     // Find the session by sessionId and token
-=======
-        message: "Session ID and token are required"
-      });
-    }
-
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     const sessionDoc = await PaymentSession.findOne({
       sessionId,
       successToken: token,
@@ -597,18 +544,11 @@ export const verifyPayment = async (req, res) => {
     if (!sessionDoc) {
       return res.status(404).json({
         success: false,
-<<<<<<< HEAD
         message: "Invalid session or token",
       });
     }
 
     // Return success response
-=======
-        message: "Invalid session or token"
-      });
-    }
-
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     return res.status(200).json({
       success: true,
       sessionId: sessionDoc.sessionId,
@@ -624,11 +564,7 @@ export const verifyPayment = async (req, res) => {
     console.error("Payment verification error:", err);
     return res.status(500).json({
       success: false,
-<<<<<<< HEAD
       message: "Payment verification failed",
-=======
-      message: "Payment verification failed"
->>>>>>> b61622e792afc776b2dffb9e27409caba2d9d482
     });
   }
 };
