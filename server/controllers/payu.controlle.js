@@ -12,8 +12,8 @@ const {
   PAYU_KEY,
   PAYU_SALT,
   PAYU_ENV = "prod",
-  BACKEND_URL = "http://localhost:5030",
-  FRONTEND_URL = "http://localhost:5173",
+  BACKEND_URL = "https://advizy.onrender.com",
+  FRONTEND_URL = "https://advizy.in",
 } = process.env;
 
 const PAYU_ACTION =
