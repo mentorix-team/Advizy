@@ -187,14 +187,13 @@ const ExpertCard = ({
                   Expertise:
                 </span>
                 {expertise.slice(0, 5).map((skill, index) => (
-  <span
-    key={`${skill}-${index}`}
-    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
-  >
-    {skill}
-  </span>
-))}
-
+                  <span
+                    key={`${skill}-${index}`}
+                    className="bg-[#f2f2f2] text-[#1d1f1d] font-normal text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
+                  >
+                    {skill}
+                  </span>
+                ))}
               </div>
               {/* <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                 {expertise.slice(2).map((skill, index) => (

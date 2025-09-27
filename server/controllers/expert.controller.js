@@ -1614,9 +1614,9 @@ const getAllExperts = async (req, res, next) => {
   try {
     const filters = {};
 
+    // Apply filters
     if (req.query.admin_approved_expert) {
-      filters.admin_approved_expert =
-        req.query.admin_approved_expert === "true";
+      filters.admin_approved_expert = req.query.admin_approved_expert === "true";
     }
     if (req.query.gender) {
       filters.gender = req.query.gender;
@@ -1656,34 +1656,21 @@ const getAllExperts = async (req, res, next) => {
         $in: req.query.professionalTitle.split(","),
       };
     }
-
     if (req.query.durations) {
-      const durationValue = parseInt(req.query.durations); // Extract numeric value (e.g., 15 from "15+mins")
+      const durationValue = parseInt(req.query.durations);
       if (!isNaN(durationValue)) {
-        filters["credentials.services"] = filters["credentials.services"] || {};
-        filters["credentials.services"].$elemMatch =
-          filters["credentials.services"].$elemMatch || {};
-        filters["credentials.services"].$elemMatch.$or =
-          filters["credentials.services"].$elemMatch.$or || [];
-
-        // Add duration filter for direct `duration` field under `services`
-        filters["credentials.services"].$elemMatch.$or.push({
-          duration: durationValue,
-        });
-
-        // Add duration filter for `one_on_one` duration where `enabled` is true
-        filters["credentials.services"].$elemMatch.$or.push({
-          one_on_one: {
-            $elemMatch: {
-              duration: durationValue,
-              enabled: true,
-            },
-          },
-        });
+        filters["credentials.services"] = {
+          $elemMatch: {
+            $or: [
+              { duration: durationValue },
+              { "one_on_one.duration": durationValue }
+            ]
+          }
+        };
       }
     }
 
-    // Validate and apply price range filters
+    // Price range filtering
     if (req.query.priceMin || req.query.priceMax) {
       const minPrice = Number(req.query.priceMin) || 0;
       const maxPrice = Number(req.query.priceMax) || Number.MAX_SAFE_INTEGER;
@@ -1692,47 +1679,129 @@ const getAllExperts = async (req, res, next) => {
         $elemMatch: {
           $or: [
             { price: { $gte: minPrice, $lte: maxPrice } },
-            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } },
-          ],
-        },
+            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } }
+          ]
+        }
       };
     }
 
     // Add Rating Filter
     if (req.query.ratings) {
-      const minRating = parseInt(req.query.ratings, 10); // Convert to integer
+      const minRating = parseInt(req.query.ratings, 10);
       filters.$expr = {
         $gte: [
           {
-            $toInt: {
-              $ifNull: [
+            $toDouble: {
+              $divide: [
+                { $sum: "$reviews.rating" },
                 {
-                  $divide: [
-                    { $sum: "$reviews.rating" },
-                    {
-                      $cond: {
-                        if: { $gt: [{ $size: "$reviews" }, 0] },
-                        then: { $size: "$reviews" },
-                        else: 1,
-                      },
-                    },
-                  ],
-                },
-                0,
-              ],
-            },
+                  $cond: {
+                    if: { $gt: [{ $size: "$reviews" }, 0] },
+                    then: { $size: "$reviews" },
+                    else: 1
+                  }
+                }
+              ]
+            }
           },
-          minRating,
-        ],
+          minRating
+        ]
       };
     }
 
-    // Sorting
+    // Sorting logic - fixed to use MongoDB aggregation for complex sorting
     const sortBy = req.query.sorting || "createdAt";
     const order = req.query.order === "asc" ? 1 : -1;
-    const sortCriteria = { [sortBy]: order, createdAt: -1 };
 
-    // Fetch experts with sorting and filtering
+    // For complex sorting, we need to use aggregation
+    if (["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)) {
+      const pipeline = [{ $match: filters }];
+
+      // Add computed fields for sorting
+      switch (sortBy) {
+        case "price-low-high":
+          pipeline.push({
+            $addFields: {
+              minPrice: {
+                $min: {
+                  $map: {
+                    input: "$credentials.services",
+                    as: "service",
+                    in: {
+                      $min: [
+                        { $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER] },
+                        { $ifNull: ["$$service.one_on_one.price", Number.MAX_SAFE_INTEGER] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          });
+          pipeline.push({ $sort: { minPrice: 1, createdAt: -1 } });
+          break;
+
+        case "price-high-low":
+          pipeline.push({
+            $addFields: {
+              maxPrice: {
+                $max: {
+                  $map: {
+                    input: "$credentials.services",
+                    as: "service",
+                    in: {
+                      $max: [
+                        { $ifNull: ["$$service.price", 0] },
+                        { $ifNull: ["$$service.one_on_one.price", 0] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          });
+          pipeline.push({ $sort: { maxPrice: -1, createdAt: -1 } });
+          break;
+
+        case "highest-rated":
+          pipeline.push({
+            $addFields: {
+              avgRating: {
+                $divide: [
+                  { $sum: "$reviews.rating" },
+                  {
+                    $cond: {
+                      if: { $gt: [{ $size: "$reviews" }, 0] },
+                      then: { $size: "$reviews" },
+                      else: 1
+                    }
+                  }
+                ]
+              }
+            }
+          });
+          pipeline.push({ $sort: { avgRating: -1, createdAt: -1 } });
+          break;
+      }
+
+      const experts = await ExpertBasics.aggregate(pipeline);
+      const totalExperts = await ExpertBasics.countDocuments(filters);
+
+      return res.status(200).json({
+        success: true,
+        message: "Filtered Experts",
+        totalExperts,
+        experts,
+      });
+    }
+
+    // For simple sorting, use the regular find method
+    let sortCriteria = {};
+    switch (sortBy) {
+      default:
+        sortCriteria = { [sortBy]: order, createdAt: -1 };
+    }
+
     const experts = await ExpertBasics.find(filters).sort(sortCriteria).lean();
     const totalExperts = await ExpertBasics.countDocuments(filters);
 

@@ -1,9 +1,9 @@
+import ReactGA from "react-ga4";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import Spinner from "./components/LoadingSkeleton/Spinner";
-import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
 
 // Regular Imports (Frequently Used Components)
 import AuthPopup from "./components/Auth/AuthPopup.auth";
@@ -19,8 +19,6 @@ import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
-import PayuPaymentSuccess from "./components/Dashboard/User/PayuPaymentSuccess";
-import PayuPaymentFailure from "./components/Dashboard/User/PayuPaymentFailure";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -60,51 +58,74 @@ const ReSchedulingUser = lazy(() =>
 const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const location = useLocation();
+  const { isLoggedIn } = useSelector((state) => state.auth);
 
-  const handleAuthPopupOpen = () => setShowAuthPopup(true);
+  // Add this useEffect to App.js to monitor sessionStorage changes
+useEffect(() => {
+  const originalSetItem = sessionStorage.setItem;
+  const originalRemoveItem = sessionStorage.removeItem;
+  const originalClear = sessionStorage.clear;
+
+  sessionStorage.setItem = function(key, value) {
+    console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
+    console.trace(); // This will show you exactly where setItem is called from
+    return originalSetItem.apply(this, arguments);
+  };
+
+  sessionStorage.removeItem = function(key) {
+    console.log(`🔴 SessionStorage REMOVE: ${key}`);
+    console.trace(); // This will show you exactly where removeItem is called from
+    return originalRemoveItem.apply(this, arguments);
+  };
+
+  sessionStorage.clear = function() {
+    console.log(`💥 SessionStorage CLEARED`);
+    console.trace(); // This will show you exactly where clear is called from
+    return originalClear.apply(this, arguments);
+  };
+
+  // Cleanup
+  return () => {
+    sessionStorage.setItem = originalSetItem;
+    sessionStorage.removeItem = originalRemoveItem;
+    sessionStorage.clear = originalClear;
+  };
+}, []);
+
+
+  // // Clean up redirectURL when user logs in successfully
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     // Small delay to ensure login process is complete
+  //     setTimeout(() => {
+  //       const redirectURL = sessionStorage.getItem("redirectURL");
+  //       if (redirectURL) {
+  //         console.log("User logged in, cleaning up redirectURL:", redirectURL);
+  //         sessionStorage.removeItem("redirectURL");
+  //       }
+  //     }, 1000);
+  //   }
+  // }, [isLoggedIn]);
+
+  const handleAuthPopupOpen = () => {
+    console.log("handleAuthPopupOpen called");
+    
+    // // For public pages that might need login redirect
+    // const currentURL = location.pathname + location.search;
+    // if (!sessionStorage.getItem("redirectURL")) {
+    //   console.log("Setting redirectURL from App.js:", currentURL);
+    //   sessionStorage.setItem("redirectURL", currentURL);
+    // }
+    
+    setShowAuthPopup(true);
+  };
+
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
-  useEffect(() => {
-    const excludedPathPatterns = [
-      /^\/$/,
-      /^\/auth-error$/,
-      /^\/about-us$/,
-      /^\/contact$/,
-      /^\/cookie-policy$/,
-      /^\/privacy-policy$/,
-      /^\/refund-policy$/,
-      /^\/terms-of-service$/,
-      /^\/explore/,
-      /^\/meeting$/,
-      /^\/expert\/[^/]+$/, // ← this makes /expert/:redirect_url public
-      /^\/expert\/scheduling\/[^/]+$/,
-      /^\/become-expert$/,
-    ];
-
-    const isExcluded = excludedPathPatterns.some((pattern) =>
-      pattern.test(location.pathname)
-    );
-
-    if (!isExcluded) {
-      const timeout = setTimeout(() => {
-        dispatch(validateToken()).then((response) => {
-          if (!response?.payload?.valid) {
-            localStorage.clear();
-            setShowAuthPopup(true);
-          }
-        });
-      }, 500); // ⏳ give cookies time to arrive
-
-      return () => clearTimeout(timeout); // cleanup
-    }
-  }, [dispatch, location.pathname]);
-
+  // Expert mode navigation
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";
-
-    // Allow access to /meeting route
     if (
       expertMode &&
       !location.pathname.startsWith("/dashboard/expert") &&
@@ -114,9 +135,14 @@ const App = () => {
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: location.pathname });
+  }, [location.pathname]);
+
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
+        {/* Public Routes - No wrapper needed */}
         <Route path="/" element={<HomePage />} />
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
@@ -126,68 +152,92 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-
+        <Route path="/explore" element={<Homees />} />
+        <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
+        <Route path="/meeting" element={<Meeting />} />
         <Route
           path="/google-auth-success"
           element={<GoogleRedirectHandler />}
         />
-        {/* Protected Routes */}
-        <Route
-          path="/expert-onboarding"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
-        >
-          <Route path="" element={<ProfileDetails />} />
-        </Route>
-        <Route path="/explore" element={<Homees />} />
-        <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
-        <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
-        <Route
-          path="/expert/rescheduling/:updatemeetingtoken"
-          element={<ReScheduling />}
-        />
-        <Route
-          path="/user/rescheduling/:serviceId"
-          element={<ReSchedulingUser />}
-        />
-        <Route path="/expert/order-summary/" element={<OrderSummary />} />
-        <Route
-          path="/expert/payu-order-summary/"
-          element={<PayuOrderSummary />}
-        />
-
         <Route
           path="/payu-payment-success"
-          element={<PayuPaymentSuccess />}
+          element={<PayyBookingConfirmation />}
         />
-        <Route
-          path="/payu-payment-failure"
-          element={<PayuPaymentFailure />}
-        />
-
-        {/*
         <Route path="/payment-success" element={<BookingConfirmation />} />
-        */}
-        {/* <Route path="/google-auth-success" element={<GoogleAuthSuccess />} /> */}
-        <Route path="/meeting" element={<Meeting />} />
 
-        {/* Dashboard Routes */}
+        {/* Protected Routes - All using consistent wrapper pattern */}
+        <Route
+          path="/expert-onboarding"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <ProfileDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expert/scheduling/:serviceId"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <Scheduling />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expert/rescheduling/:updatemeetingtoken"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <ReScheduling />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user/rescheduling/:serviceId"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <ReSchedulingUser />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expert/order-summary/"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <OrderSummary />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/expert/payu-order-summary/"
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <PayuOrderSummary />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/dashboard/user/*"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
-        >
-          <Route path="*" element={<UserDashboardRoutes />} />
-        </Route>
+          element={
+            <ProtectedRoute showAuth={handleAuthPopupOpen}>
+              <UserDashboardRoutes />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/dashboard/expert/*"
           element={
-            <ProtectedRoute
-              requireExpert={true}
-              showAuth={handleAuthPopupOpen}
-            />
+            <ProtectedRoute requireExpert={true} showAuth={handleAuthPopupOpen}>
+              <ExpertDashboardRoutes />
+            </ProtectedRoute>
           }
-        >
-          <Route path="*" element={<ExpertDashboardRoutes />} />
-        </Route>
+        />
+
         <Route path="*" element={<Error404 />} />
       </Routes>
       <AuthPopup isOpen={showAuthPopup} onClose={handleAuthPopupClose} />

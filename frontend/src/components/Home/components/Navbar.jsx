@@ -29,7 +29,7 @@ const Navbar = ({ onSearch }) => {
     if (expertData) {
       setHasExpertData(true);
     }
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     const expertMode = localStorage.getItem("expertMode") === "true";

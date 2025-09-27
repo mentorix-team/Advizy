@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 const initialState = {
   loading: false,
   error: null,
-  isLoggedIn: localStorage.getItem("isLoggedIn") || false,
+  isLoggedIn: localStorage.getItem("isLoggedIn") || false, 
   role: localStorage.getItem("role") || " ",
   data: localStorage.getItem("data") || {},
   expertData: localStorage.getItem("expertData") || {},

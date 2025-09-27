@@ -156,7 +156,6 @@ const VisionCard = ({ icon, title, description }) => {
 
 const AboutPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showCategoryNav, setShowCategoryNav] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
   const navigate = useNavigate();
 

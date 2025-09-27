@@ -2,7 +2,11 @@ import PaymentSession from "../config/model/transaction/PayuModel.js";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import axios from "axios"; // keep if you call other internal endpoints
-import AppError from "../utils/AppError.js"; // keep for your error style
+import { Meeting } from "../config/model/meeting/meeting.model.js";
+import User from "../config/model/user.model.js";
+import { Notification } from "../config/model/Notification/notification.model.js";
+import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
+import { Availability } from "../config/model/calendar/calendar.model.js";
 
 const {
   PAYU_KEY,
@@ -25,7 +29,7 @@ function buildRequestHash(data) {
   const seq = [
     data.key,
     data.txnid,
-    data.amount,            // EXACT string you’ll post in the form
+    data.amount, // EXACT string you’ll post in the form
     data.productinfo,
     data.firstname,
     data.email,
@@ -66,7 +70,7 @@ function verifyResponseHash(data) {
   const udf8 = data.udf8 || "";
   const udf9 = data.udf9 || "";
   const udf10 = data.udf10 || "";
-  
+
   // Build the sequence in the correct order for response verification
   const seq = [
     process.env.PAYU_SALT,
@@ -86,16 +90,20 @@ function verifyResponseHash(data) {
     productinfo,
     amount,
     txnid,
-    key
+    key,
   ].join("|");
-  
+
   console.log("PayU response seq:", seq);
-  const calc = crypto.createHash("sha512").update(seq).digest("hex").toLowerCase();
+  const calc = crypto
+    .createHash("sha512")
+    .update(seq)
+    .digest("hex")
+    .toLowerCase();
   const receivedHash = String(data.hash || "").toLowerCase();
-  
+
   console.log("Calculated hash:", calc);
   console.log("Received hash:", receivedHash);
-  
+
   return calc === receivedHash;
 }
 
@@ -115,8 +123,8 @@ async function createPaymentSession(paymentData) {
     serviceId: String(paymentData.serviceId),
     expertId: new mongoose.Types.ObjectId(paymentData.expertId),
     userId: new mongoose.Types.ObjectId(paymentData.userId),
-    sessionId: paymentData.sessionId,   // the one we also send in udf6 & udf10
-    amount: paymentData.amount,         // number/string is fine; schema coerces to Number
+    sessionId: paymentData.sessionId, // the one we also send in udf6 & udf10
+    amount: paymentData.amount, // number/string is fine; schema coerces to Number
     date: paymentData.date,
     startTime: paymentData.startTime,
     endTime: paymentData.endTime,
@@ -124,11 +132,10 @@ async function createPaymentSession(paymentData) {
     status: "pending",
     paymentGateway: "payu",
     // Store txnid too — either add a field in schema, or at least keep it in metaData
-    payuTransactionId: paymentData.txnid,           // <— add this field to your schema if possible
+    payuTransactionId: paymentData.txnid, // <— add this field to your schema if possible
     metaData: { ...(paymentData.metaData || {}), txnid: paymentData.txnid },
   });
 }
-
 
 /** ============ INITIATE PAYMENT: returns auto-submitting HTML form ============ */
 export const payupay = async (req, res, next) => {
@@ -199,11 +206,11 @@ export const payupay = async (req, res, next) => {
       udf3: userId || "",
       udf4: date || "",
       udf5: message || "",
-      udf6: sessionId,     // <— filled now
+      udf6: sessionId, // <— filled now
       udf7: "",
       udf8: "",
       udf9: "",
-      udf10: sessionId,    // <— also filled
+      udf10: sessionId, // <— also filled
 
       service_provider: "payu_paisa",
     };
@@ -258,7 +265,6 @@ export const payupay = async (req, res, next) => {
     return next(err);
   }
 };
-
 
 export const success = async (req, res) => {
   console.log("Raw PayU success body:", req.body);
@@ -321,7 +327,150 @@ export const success = async (req, res) => {
       sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
       await sessionDoc.save();
       
-      // 4) Short-lived success token you can validate on frontend
+      // 4) Update the meeting record to mark as paid and create video call
+      try {
+        // Find the meeting record using the serviceId, expertId, userId, and date
+        const meeting = await Meeting.findOne({
+          serviceId: sessionDoc.serviceId,
+          expertId: sessionDoc.expertId,
+          userId: sessionDoc.userId,
+          "daySpecific.date": sessionDoc.date,
+        });
+        
+        if (meeting) {
+          // Update meeting as paid
+          meeting.isPayed = true;
+          meeting.amount = sessionDoc.amount;
+          meeting.razorpay_payment_id = payuMoneyId;
+          
+          // Create video call using Dyte API
+          try {
+            const dyteResponse = await axios.post(
+              'https://api.dyte.io/v2/meetings',
+              {
+                title: `Meeting with ${meeting.expertName}`,
+                preferredRegion: 'ap-in-1',
+                recordOnStart: false,
+              },
+              {
+                auth: {
+                  username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', 
+                  password: '96f3307b8a180f089a90',
+                },
+                headers: { 'Content-Type': 'application/json' },
+              }
+            );
+            
+            const videoCallId = dyteResponse.data.data.id;
+            meeting.videoCallId = videoCallId;
+            console.log("Video call created with ID:", videoCallId);
+          } catch (videoCallError) {
+            console.error("Error creating video call:", videoCallError);
+            // Continue with payment processing even if video call creation fails
+          }
+          
+          await meeting.save();
+          console.log("Meeting updated successfully:", meeting._id);
+          
+          // Update expert's availability (similar to payedForMeeting function)
+          try {
+            const { expertId, daySpecific } = meeting;
+            const availability = await Availability.findOne({ expert_id: expertId });
+            
+            if (availability) {
+              // Convert meeting details to IST for accurate comparison
+              const meetingDateIST = moment.utc(daySpecific.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
+              const meetingStartTimeIST = moment(daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
+              const meetingEndTimeIST = moment(daySpecific.slot.endTime, "hh:mm A").format("HH:mm");
+              const meetingDay = moment.utc(daySpecific.date).tz(availability.timezone.value).format("dddd");
+              
+              // Find the availability entry for the meeting's day
+              const dayEntry = availability.daySpecific.find((day) => day.day === meetingDay);
+              
+              if (dayEntry && dayEntry.slots) {
+                // Find the matching time slot within that day
+                const matchingSlot = dayEntry.slots.find((slotEntry) => {
+                  const slotStartTimeIST = moment.utc(slotEntry.startTime, "HH:mm").tz("Asia/Kolkata").format("HH:mm");
+                  const slotEndTimeIST = moment.utc(slotEntry.endTime, "HH:mm").tz("Asia/Kolkata").format("HH:mm");
+                  return meetingStartTimeIST >= slotStartTimeIST && meetingEndTimeIST <= slotEndTimeIST;
+                });
+                
+                if (matchingSlot) {
+                  // Find the matching date entry in the slot
+                  const matchingDateEntry = matchingSlot.dates.find((dateEntry) => {
+                    const storedDateIST = moment.utc(dateEntry.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
+                    return storedDateIST === meetingDateIST;
+                  });
+                  
+                  if (matchingDateEntry) {
+                    // Update the matched slot with meeting ID
+                    matchingDateEntry.slots.push({
+                      startTime: meetingStartTimeIST,
+                      endTime: meetingEndTimeIST,
+                      meeting_id: meeting._id,
+                    });
+                    
+                    await availability.save();
+                    console.log("Expert availability updated successfully");
+                  }
+                }
+              }
+            }
+            
+            // Add meeting to expert's sessions
+            const expert = await ExpertBasics.findById(expertId);
+            if (expert) {
+              expert.sessions.push(meeting._id);
+              await expert.save();
+              console.log("Expert sessions updated successfully");
+            }
+            
+            // Create notification
+            const notification = new Notification({
+              expertId: meeting.expertId,
+              message: `Payment received for meeting on ${daySpecific.date} for ₹${meeting.amount}`,
+              amount: meeting.amount,
+            });
+            await notification.save();
+            console.log("Notification created successfully");
+            
+            // Send emails
+            const user = await User.findById(meeting.userId);
+            if (user && expert) {
+              const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
+              let emailTemplate = fs.readFileSync(templatePath, "utf8");
+              const fullDate = moment(meeting.daySpecific.date);
+              const month = fullDate.format("MMMM");
+              const datee = fullDate.format("DD");
+              const day = fullDate.format("dddd");
+              
+              emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+              emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+              emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
+              emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+              emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+              emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+              emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
+              emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
+              emailTemplate = emailTemplate.replace(/{DAY}/g, day);
+              
+              await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
+              await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
+              console.log("Emails sent successfully");
+            }
+          } catch (availabilityError) {
+            console.error("Error updating availability:", availabilityError);
+            // Continue with payment processing even if availability update fails
+          }
+        } else {
+          console.error("Meeting not found for update");
+        }
+      } catch (meetingError) {
+        console.error("Error updating meeting:", meetingError);
+        // Continue with payment processing even if meeting update fails
+      }
+      
+      // 5) Short-lived success token you can validate on frontend
       const successToken = crypto.randomBytes(16).toString("hex");
       await PaymentSession.updateOne(
         { sessionId: sessionDoc.sessionId },
@@ -376,7 +525,6 @@ export const success = async (req, res) => {
   }
 };
 
-
 /** ============ FAILURE CALLBACK from PayU (POST) ============ */
 export const failure = async (req, res) => {
   try {
@@ -401,45 +549,45 @@ export const failure = async (req, res) => {
 export const verifyPayment = async (req, res) => {
   try {
     const { sessionId, token } = req.body;
-    
+
     if (!sessionId || !token) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Session ID and token are required" 
+      return res.status(400).json({
+        success: false,
+        message: "Session ID and token are required",
       });
     }
-    
+
     // Find the session by sessionId and token
-    const sessionDoc = await PaymentSession.findOne({ 
-      sessionId, 
+    const sessionDoc = await PaymentSession.findOne({
+      sessionId,
       successToken: token,
-      processingCompleted: true
+      processingCompleted: true,
     });
-    
+
     if (!sessionDoc) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Invalid session or token" 
+      return res.status(404).json({
+        success: false,
+        message: "Invalid session or token",
       });
     }
-    
+
     // Return success response
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       sessionId: sessionDoc.sessionId,
       status: sessionDoc.status,
       paymentDetails: {
         amount: sessionDoc.amount,
         date: sessionDoc.date,
         startTime: sessionDoc.startTime,
-        endTime: sessionDoc.endTime
-      }
+        endTime: sessionDoc.endTime,
+      },
     });
   } catch (err) {
     console.error("Payment verification error:", err);
-    return res.status(500).json({ 
-      success: false, 
-      message: "Payment verification failed" 
+    return res.status(500).json({
+      success: false,
+      message: "Payment verification failed",
     });
   }
 };

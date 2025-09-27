@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loginaccount } from "../../Redux/Slices/authSlice";
-import SignupWithEmail from "./SignupWithEmail.auth";
-import LoginWithMobile from "./LoginWithMobile.auth";
-import ForgotPassword from "./ForgotPassword.auth";
 import PasswordInput from "@/utils/PasswordInput/InputPassword.util";
 
 const LoginWithEmail = ({ onClose, onSwitchView }) => {
@@ -26,7 +23,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
 
   const validateField = (name, value) => {
     switch (name) {
@@ -94,13 +90,26 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     }
 
     const response = await dispatch(loginaccount(logindata));
+    console.log("Login response:", response);
+
     if (response?.payload?.success) {
+      // Get redirectURL immediately before any other operations
       const redirectURL = sessionStorage.getItem("redirectURL");
-      if (redirectURL) {
-        navigate(redirectURL);
+      console.log("🎯 Login Success - Retrieved redirectURL:", redirectURL);
+      
+      // Close popup first
+      onClose();
+
+      // Handle navigation with corrected logic
+      if (redirectURL && redirectURL.trim() !== "") {
+        console.log("🚀 Navigating to:", redirectURL);
+        // Clear it before navigation
         sessionStorage.removeItem("redirectURL");
+        console.log("🧹 Cleaned up redirectURL from sessionStorage");
+        navigate(redirectURL);
       } else {
-        navigate("/"); // fallback
+        console.log("🏠 No redirectURL found, navigating to home");
+        navigate("/");
       }
     }
 
@@ -113,16 +122,21 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    window.open(`http://localhost:5030/api/v1/user/auth/google/`, "_self");
+    window.open(`https://advizy.onrender.com/api/v1/user/auth/google`, "_self");
   };
 
-  const isLoggedIn = localStorage.getItem("isLoggedIn");
+  const handleCloseClick = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("Close button clicked");
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md px-4 py-8 overflow-auto">
       <div className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-lg p-6 overflow-auto">
         <button
-          onClick={onClose}
+          onClick={handleCloseClick}
           className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"
           aria-label="Close"
         >
@@ -184,6 +198,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
           <div className="text-right mb-3">
             <button
+              type="button"
               className="text-black underline"
               onClick={() => onSwitchView("ForgotPassword")}
             >
@@ -217,21 +232,6 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
               />
               Login with Google
             </button>
-
-            {/* <button
-              className="w-full h-10 flex items-center justify-center gap-2 py-2 mb-4 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
-              onClick={() => onSwitchView("LoginWithMobile")}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-              >
-                <path d="M20 2c0-1.105-.896-2-2-2h-12c-1.105 0-2 .896-2 2v20c0 1.104.895 2 2 2h12c1.104 0 2-.896 2-2v-20zm-9.501 0h3.001c.276 0 .5.224.5.5s-.224.5-.5.5h-3.001c-.275 0-.499-.224-.499-.5s.224-.5.499-.5zm1.501 20c-.553 0-1-.448-1-1s.447-1 1-1c.552 0 .999.448.999 1s-.447 1-.999 1zm6-3h-12v-14.024h12v14.024z" />
-              </svg>
-              Login with Mobile
-            </button> */}
           </div>
         </form>
 
