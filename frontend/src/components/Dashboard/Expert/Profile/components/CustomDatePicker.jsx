@@ -189,7 +189,7 @@ const CustomDatePicker = ({ selectedDate, onChange, type = 'default', disabled =
                   </button>
                   <button 
                     onClick={() => setView('year')} 
-                    className="text-lg font-medium text-gray-700 hover:text-primary border-2 rounded-lg hover:text-primary px-2 py-1 hover:border-green-500"
+                    className="text-lg font-medium text-gray-700 border-2 rounded-lg hover:text-primary px-2 py-1 hover:border-green-500"
                   >
                     {displayDate.getFullYear()}
                   </button>
