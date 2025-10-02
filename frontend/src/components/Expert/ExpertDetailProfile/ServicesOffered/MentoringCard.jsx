@@ -9,8 +9,8 @@ const DurationOption = ({ duration, price, isSelected, onClick }) => (
   <button
     onClick={onClick}
     className={`w-full text-left px-3 py-2 rounded-md flex items-center justify-between gap-4 border transition-colors ${isSelected
-        ? "border-[#16A348] bg-[#E6F4EA] font-medium"
-        : "border-[#E5E7EB] hover:border-[#16A348]"
+      ? "border-[#16A348] bg-[#E6F4EA] font-medium"
+      : "border-[#E5E7EB] hover:border-[#16A348]"
       }`}
   >
     <span className="text-sm">{duration} min</span>
@@ -103,8 +103,8 @@ const MentoringCard = ({ mentoringService }) => {
             type="button"
             onClick={() => durations.length > 0 && setIsDropdownOpen((o) => !o)}
             className={`w-full flex items-center justify-between px-4 py-2.5 rounded-md border text-sm transition-colors ${isDropdownOpen
-                ? "border-[#16A348] bg-[#E6F4EA]"
-                : "border-[#D1D5DB] hover:border-[#16A348]"
+              ? "border-[#16A348] bg-[#E6F4EA]"
+              : "border-[#D1D5DB] hover:border-[#16A348]"
               }`}
             disabled={durations.length === 0}
           >
@@ -161,8 +161,8 @@ const MentoringCard = ({ mentoringService }) => {
                   key={option._id}
                   onClick={() => setSelectedDuration(option)}
                   className={`p-3 rounded-lg text-left border transition-colors ${selected
-                      ? "border-[#16A348] border-2 bg-[#E6F4EA]"
-                      : "border-[#E5E7EB] hover:border-[#16A348]"
+                    ? "border-[#16A348] border-2 bg-[#E6F4EA]"
+                    : "border-[#E5E7EB] hover:border-[#16A348]"
                     }`}
                 >
                   <div className="text-sm">{option.duration} min</div>
