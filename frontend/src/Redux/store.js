@@ -6,17 +6,19 @@ import meetingSliceReducer from './Slices/meetingSlice.js'
 import paymentSliceReducer from './Slices/paymentSlice.js'
 import supportQueriesSliceReducer from './Slices/supportQueriesSlice.js'
 import payuReducer from './Slices/Payu.slice.js'
+import favouritesReducer from "./Slices/favouritesSlice";
 
 const store = configureStore({
-    reducer:{
-        auth : authSliceReducer,
-        expert:expertSliceReducer,
-        availability:availabilitySliceReducer,
-        meeting:meetingSliceReducer,
-        payment:paymentSliceReducer,
+    reducer: {
+        auth: authSliceReducer,
+        expert: expertSliceReducer,
+        availability: availabilitySliceReducer,
+        meeting: meetingSliceReducer,
+        payment: paymentSliceReducer,
         supportQueries: supportQueriesSliceReducer,
         payu: payuReducer,
+        favourites: favouritesReducer
     },
-    devTools:true
+    devTools: true
 });
 export default store

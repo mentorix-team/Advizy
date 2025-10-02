@@ -29,6 +29,7 @@ import {
   Search,
   CircleHelp,
 } from "lucide-react";
+import Navbar from "@/components/Home/components/Navbar";
 
 const ExpertDashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -241,7 +242,7 @@ const ExpertDashboardLayout = () => {
 
   return (
     <div className="overflow-x-hidden">
-      {/* Navbar */}
+      {/* <Navbar /> */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
@@ -284,11 +285,10 @@ const ExpertDashboardLayout = () => {
                 {!isExpertMode && (
                   <a
                     href="/become-expert"
-                    className={`transition-colors duration-200 text-base font-medium ${
-                      isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
-                    }`}
+                    className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/become-expert")
+                      ? "text-primary underline underline-offset-4"
+                      : "text-gray-600 hover:text-primary"
+                      }`}
                   >
                     Share Your Expertise
                   </a>
@@ -344,9 +344,8 @@ const ExpertDashboardLayout = () => {
       {/* Sidebar */}
       <aside
         id="mobile-sidebar"
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
@@ -356,10 +355,9 @@ const ExpertDashboardLayout = () => {
                 to="/dashboard/expert"
                 end
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -372,10 +370,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/profile-detail"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -388,10 +385,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/service-pricing"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -404,10 +400,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/availability"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -415,17 +410,16 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Availability</span>
               </NavLink>
             </li>
-            
+
             <hr className="border-gray-300 dark:border-gray-600 my-2" />
-           
+
             <li>
               <NavLink
                 to="/dashboard/expert/meetings"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -437,10 +431,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/clients"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -452,10 +445,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/payments"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -467,10 +459,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/chats"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -482,10 +473,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/reviews"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -497,14 +487,13 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/help-center"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
-                <CircleHelp className="w-5 h-5"/>
+                <CircleHelp className="w-5 h-5" />
                 <span className="ms-3">Help Center</span>
               </NavLink>
             </li>

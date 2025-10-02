@@ -12,8 +12,10 @@ import {
   MapPinned,
   Youtube,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ContactUs = () => {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExpertMode, setIsExpertMode] = useState(false);
 

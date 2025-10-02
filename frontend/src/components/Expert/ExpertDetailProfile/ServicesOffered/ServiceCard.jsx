@@ -12,11 +12,13 @@ const ServiceCard = ({ service }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { selectedExpert } = useSelector((state) => state.expert);
+  // normalize in component (defensive)
+  const expertObj = selectedExpert?.expert || selectedExpert;
 
   const handleBook = async () => {
-    if (selectedExpert?.expert?._id && serviceId) {
+    if (expertObj?._id && serviceId) {
       console.log('Dispatching getServicebyid...');
-      const expertId = selectedExpert.expert._id;
+      const expertId = expertObj._id;
       try {
         await dispatch(getServicebyid({ serviceId, expertId })).unwrap();
         navigate(`/expert/scheduling/${serviceId}`);
@@ -77,7 +79,7 @@ const ServiceCard = ({ service }) => {
           price,
           serviceId
         }}
-        expertId ={selectedExpert.expert?._id}
+  expertId ={expertObj?._id}
       />
     </>
   );

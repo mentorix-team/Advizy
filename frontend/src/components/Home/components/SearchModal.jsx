@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Modal from "./Modal";
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
+// Algolia v5 removed the default export; use the named liteClient export instead
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import instantsearch from "instantsearch.js";
 import { hits, configure } from "instantsearch.js/es/widgets";
@@ -17,11 +18,8 @@ const categories = domainOptions.map((domain) => ({
 }));
 
 const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
-  // const navigate = useNavigate();
-
   const handleExplore = () => {
     onCategorySelect(category);
-    // navigate(`/explore?category=${category.value}`);
     onClose();
   };
   return (
@@ -37,13 +35,11 @@ const CategoryButton = memo(({ category, onCategorySelect, onClose }) => {
       </div>
       {category.hasArrow && <ArrowRight className="w-5 h-5 text-gray-400" />}
     </motion.button>
-
   );
 });
 
 CategoryButton.displayName = "CategoryButton";
 
-// Rest of the code remains exactly the same as in the previous artifact...
 const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
   const searchRef = useRef(null);
   const searchClient = useRef(null);
@@ -82,24 +78,24 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
         indexName: "experts_index",
         searchClient: searchClient.current,
         initialUiState: {
-          experts_index: {
-            query: "",
-          },
+          experts_index: { query: "" },
         },
       });
 
       const hitWidget = hits({
         container: "#hits",
+        transformItems: (items) => items.map(h => ({
+          ...h,
+          slug: h.redirect_url || h.username || h.objectID || null,
+        })),
         templates: {
           item: (hit) => {
-            console.log('hit', hit)
+            const safeSlug = hit.slug ? String(hit.slug).replace(/"/g, '&quot;') : '';
             return `
-              <div class="flex items-center justify-between w-full bg-white border rounded-full shadow-sm hover:shadow-md transition-shadow duration-300 mb-2 py-1 px-3">
+              <div class="flex items-center justify-between w-full bg-white border rounded-full shadow-sm hover:shadow-md transition-shadow duration-300 mb-2 py-1 px-3" data-slug="${safeSlug}">
                 <div class="flex items-center space-x-3">
                   <img
-                    src="${hit.profileImage ||
-              "https://randomuser.me/api/portraits/women/44.jpg"
-              }"
+                    src="${hit.profileImage || "https://randomuser.me/api/portraits/women/44.jpg"}"
                     alt="${hit.name}"
                     class="w-8 h-8 rounded-full object-cover"
                     loading="lazy"
@@ -107,17 +103,17 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
                   <span class="text-sm font-medium truncate">
                     ${instantsearch.highlight({ attribute: "name", hit })}
                   </span>
+                  
                 </div>
-                <button 
-                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300"
-                  onclick="window.location.href='/expert/${hit.username}'"
+                <button
+                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-300 ${safeSlug ? '' : 'opacity-40 cursor-not-allowed'}"
+                  ${safeSlug ? `onclick=\"window.location.href='/expert/${safeSlug}'\"` : 'disabled'}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
                   </svg>
                 </button>
-              </div>
-            `;
+              </div>`;
           },
           empty: () => {
             setSearchState((prev) => ({ ...prev, hasResults: false }));
@@ -128,15 +124,11 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
             `;
           },
         },
-        cssClasses: {
-          list: "space-y-2",
-        },
+        cssClasses: { list: "space-y-2" },
       });
 
       searchRef.current.addWidgets([
-        configure({
-          hitsPerPage: 3,
-        }),
+        configure({ hitsPerPage: 3 }),
         hitWidget,
       ]);
 
@@ -171,11 +163,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
   const clearSearchInput = useCallback(() => {
     if (searchInputRef.current) {
       searchInputRef.current.value = "";
-      setSearchState((prev) => ({
-        ...prev,
-        hasQuery: false,
-        hasResults: true,
-      }));
+      setSearchState({ hasQuery: false, showAll: false, hasResults: true });
       debouncedSearch("");
     }
   }, [debouncedSearch]);
@@ -183,9 +171,8 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
   const toggleShowAll = useCallback(() => {
     setSearchState((prev) => ({ ...prev, showAll: !prev.showAll }));
     navigate("/explore");
-  }, []);
+  }, [navigate]);
 
-  // Memoize the categories grid
   const categoriesGrid = useMemo(
     () => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -205,7 +192,11 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="relative w-full h-full md:h-auto">
-        <div className="relative bg-white w-full max-w-[800px] mx-auto p-3 sm:p-6 md:p-8 min-h-[100vh] md:min-h-0 md:rounded-2xl">
+        <motion.div
+          layout
+          transition={{ type: "spring", stiffness: 120, damping: 18, mass: 0.4 }}
+          className="relative bg-white w-full max-w-[800px] mx-auto p-3 sm:p-6 md:p-8 md:rounded-2xl"
+        >
           <button
             onClick={onClose}
             className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 focus:outline-none z-10"
@@ -238,38 +229,51 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
             )}
           </div>
 
-          <div
+          <motion.div
             id="hits"
             className={`mb-8 ${searchState.hasQuery ? "block" : "hidden"}`}
           >
-            <div
-              id="initial-hits"
-              className={`${searchState.showAll ? "hidden" : "block"}`}
-            ></div>
-
-            <div
-              id="all-hits"
-              className={`${searchState.showAll ? "block" : "hidden"}`}
-            ></div>
-
-            {searchState.hasQuery &&
-              !searchState.showAll &&
-              searchState.hasResults && (
-                <button
-                  onClick={toggleShowAll}
-                  className="w-full flex items-center rounded-full justify-center gap-4 text-center text-black border border-gray-300 focus:outline-none py-2 mt-2"
+            <AnimatePresence>
+              {searchState.hasQuery && (
+                <motion.div
+                  key="hits-content"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 18, mass: 0.4 }}
                 >
-                  see all results
-                  <ArrowRight className="w-5 h-5 text-gray-600" />
-                </button>
+                  <div
+                    id="initial-hits"
+                    className={`${searchState.showAll ? "hidden" : "block"}`}
+                  ></div>
+                  <div
+                    id="all-hits"
+                    className={`${searchState.showAll ? "block" : "hidden"}`}
+                  ></div>
+                  {searchState.hasQuery &&
+                    !searchState.showAll &&
+                    searchState.hasResults && (
+                      <button
+                        onClick={toggleShowAll}
+                        className="w-full flex items-center rounded-full justify-center gap-4 text-center text-black border border-gray-300 focus:outline-none py-2 mt-2"
+                      >
+                        see all results
+                        <ArrowRight className="w-5 h-5 text-gray-600" />
+                      </button>
+                    )}
+                </motion.div>
               )}
-          </div>
+            </AnimatePresence>
+          </motion.div>
 
-          <div>
+          <motion.div
+            layout
+            transition={{ type: "spring", stiffness: 120, damping: 18, mass: 0.4 }}
+          >
             <h3 className="text-lg font-semibold mb-2">Explore by Category</h3>
             {categoriesGrid}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </Modal>
   );

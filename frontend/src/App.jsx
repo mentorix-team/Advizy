@@ -1,9 +1,10 @@
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import Spinner from "./components/LoadingSkeleton/Spinner";
 import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
+import { fetchFavourites, clearFavourites } from "./Redux/Slices/favouritesSlice";
 
 // Regular Imports (Frequently Used Components)
 import AuthPopup from "./components/Auth/AuthPopup.auth";
@@ -62,9 +63,19 @@ const App = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const handleAuthPopupOpen = () => setShowAuthPopup(true);
   const handleAuthPopupClose = () => setShowAuthPopup(false);
+
+  useEffect(() => {
+    console.log('🔀 Navigation:', {
+      pathname: location.pathname,
+      search: location.search,
+      key: location.key,
+      historyLength: window.history.length
+    });
+  }, [location]);
 
   useEffect(() => {
     const excludedPathPatterns = [
@@ -116,6 +127,14 @@ const App = () => {
     }
   }, [location, navigate]);
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      dispatch(fetchFavourites());
+    } else {
+      dispatch(clearFavourites());
+    }
+  }, [isLoggedIn, dispatch]);
+
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
@@ -142,6 +161,7 @@ const App = () => {
         </Route>
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
+        {/* <Route path="/expert-detail/:redirect_url" element={<ExpertDetailPage />} /> */}
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
         <Route
           path="/expert/rescheduling/:updatemeetingtoken"

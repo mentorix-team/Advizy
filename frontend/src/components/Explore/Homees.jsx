@@ -46,7 +46,12 @@ const Homees = () => {
     const categoryFromUrl = searchParams.get("category");
     const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
     if (domain) {
-      updateDomain(domain);
+      setSelectedDomain(domain);
+      setFilters((prev) => ({
+        ...prev,
+        selectedDomain: domain,
+      }));
+      // DO NOT navigate here!
     }
   }, [searchParams]);
 

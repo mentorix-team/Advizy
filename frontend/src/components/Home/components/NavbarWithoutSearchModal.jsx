@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-import instantsearch from "instantsearch.js";
-import { configure } from "instantsearch.js/es/widgets";
 import debounce from "lodash/debounce";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
 import {
   ChevronDown,
@@ -26,7 +24,7 @@ const NavbarWithSearch = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-
+  const getRedirect = (hit) => hit.redirect_url || hit.username || hit.objectID;
   // State variables
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -34,14 +32,15 @@ const NavbarWithSearch = () => {
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const [hasExpertData, setHasExpertData] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isMobileSearchActive, setIsMobileSearchActive] = useState(false); // New state for mobile search
+  const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
 
   // Search functionality
   const searchClient = useRef(null);
-  const searchRef = useRef(null);
   const [hits, setHits] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const { redirect_url } = useParams();
 
   // Initialize expert mode and data from localStorage
   useEffect(() => {
@@ -51,17 +50,7 @@ const NavbarWithSearch = () => {
     setIsExpertMode(expertMode);
   }, []);
 
-  // Debounced search function
-  const handleNavbarSearch = useCallback(
-    debounce((query) => {
-      if (searchRef.current && searchRef.current.helper) {
-        searchRef.current.helper.setQuery(query).search();
-      }
-    }, 300),
-    []
-  );
-
-  // Initialize Algolia search
+  // Initialize Algolia search client
   useEffect(() => {
     if (!searchClient.current) {
       searchClient.current = algoliasearch(
@@ -69,50 +58,70 @@ const NavbarWithSearch = () => {
         "1d072ac04759ef34bc76e8216964c29e" // your Search API Key (public)
       );
     }
-    if (!searchRef.current) {
-      searchRef.current = instantsearch({
-        indexName: "experts_index",
-        searchClient: searchClient.current,
-      });
-      searchRef.current.addWidgets([configure({ hitsPerPage: 5 })]);
-      searchRef.current.on("render", () => {
-        const results = searchRef.current.helper.lastResults;
-        if (results && results.hits) {
-          console.log("Navbar Search Results:", results.hits); // Optional for debugging
-          setHits(results.hits);
-          // Only show dropdown if query is not empty
-          setShowDropdown(query.trim() !== "");
-        }
-      });
-      searchRef.current.start();
-    }
-    return () => {
-      if (searchRef.current) {
-        searchRef.current.dispose();
-        searchRef.current = null;
+  }, []);
+
+  // Debounced search function
+  const handleNavbarSearch = useCallback(
+    debounce((searchQuery) => {
+      if (searchClient.current && searchQuery.trim()) {
+        setIsSearching(true);
+        searchClient.current.search([
+          {
+            indexName: "experts_index", // Make sure this matches your actual index name
+            query: searchQuery.trim(),
+            params: {
+              hitsPerPage: 5,
+            }
+          }
+        ]).then(({ results }) => {
+          const searchHits = results[0]?.hits || [];
+          console.log("Search results:", searchHits); // Debug log
+          setHits(searchHits);
+          setShowDropdown(true);
+          setIsSearching(false);
+        }).catch(error => {
+          console.error("Search error:", error);
+          setHits([]);
+          setShowDropdown(false);
+          setIsSearching(false);
+        });
+      } else {
+        setHits([]);
+        setShowDropdown(false);
+        setIsSearching(false);
       }
-    };
-  }, [query]);
+    }, 300),
+    []
+  );
 
   // Input change handler
   const handleInputChange = (e) => {
     const value = e.target.value;
     setQuery(value);
+
     if (value.trim() === "") {
       setHits([]);
       setShowDropdown(false);
+      setIsSearching(false);
     } else {
+      setShowDropdown(true);
       handleNavbarSearch(value);
     }
   };
 
   // Navigation handlers
-  const openExpertProfile = (expertId) => {
-    // Navigate to expert profile
-    console.log(`Navigating to expert/${expertId}`);
-    setShowDropdown(false);
-    setIsMobileSearchActive(false); // Close mobile search after selection
+  const openExpertProfile = (redirect_url) => {
+    if (!redirect_url) return;
+    console.log("Navigating to expert:", redirect_url);
+    // close AFTER scheduling navigation so blur won't cancel click
+    navigate(`/expert/${redirect_url}`);
+    setTimeout(() => {
+      setShowDropdown(false);
+      setIsMobileSearchActive(false);
+      setQuery("");
+    }, 0);
   };
+
 
   // Authentication handlers
   const handleOpenAuthPopup = () => {
@@ -144,24 +153,6 @@ const NavbarWithSearch = () => {
     setIsDropdownOpen(false);
   };
 
-  // Search modal handlers
-  const handleOpenSearchModal = () => {
-    setIsSearchModalOpen(true);
-  };
-
-  const handleCloseSearchModal = () => {
-    setIsSearchModalOpen(false);
-  };
-
-  const handleSearchQueryChange = (value) => {
-    setQuery(value);
-    if (value.trim() === "") {
-      setHits([]);
-    } else {
-      handleNavbarSearch(value);
-    }
-  };
-
   // Mobile search handlers
   const handleOpenMobileSearch = () => {
     setIsMobileSearchActive(true);
@@ -174,12 +165,224 @@ const NavbarWithSearch = () => {
     setShowDropdown(false);
   };
 
+  // Domain matching function
+  const getDomainMatch = (searchQuery) => {
+    if (!searchQuery || searchQuery.trim() === "") return null;
+
+    const domainMap = {
+      // Existing mappings
+      'career': { label: 'Career & Education', value: 'career_and_education' },
+      'education': { label: 'Career & Education', value: 'career_and_education' },
+      'career & education': { label: 'Career & Education', value: 'career_and_education' },
+
+      'personal': { label: 'Personal Development', value: 'personal_development' },
+      'development': { label: 'Personal Development', value: 'personal_development' },
+      'personal development': { label: 'Personal Development', value: 'personal_development' },
+
+      'business': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'entrepreneur': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'startup': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'business entrepreneurship': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+
+      'technology': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'tech': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'digital skills': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'technology and digital skills': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+
+      'legal': { label: 'Legal Advice', value: 'legal_advice' },
+      'legal advice': { label: 'Legal Advice', value: 'legal_advice' },
+
+      'finance': { label: 'Financial Guidance', value: 'financial_guidance' },
+      'financial': { label: 'Financial Guidance', value: 'financial_guidance' },
+      'financial guidance': { label: 'Financial Guidance', value: 'financial_guidance' },
+
+      'arts': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'media': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'entertainment': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'arts media & entertainment': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+
+      'social impact': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+      'volunteering': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+      'social impact & volunteering': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+
+      'hobbies': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+      'personal interests': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+      'hobbies & personal interests': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+
+      // You can keep your previous keys for backward compatibility
+      'health': { label: 'Health & Wellness', value: 'health_and_wellness' },
+      'wellness': { label: 'Health & Wellness', value: 'health_and_wellness' },
+      'health & wellness': { label: 'Health & Wellness', value: 'health_and_wellness' },
+
+      'marketing': { label: 'Marketing', value: 'marketing' },
+      'design': { label: 'Design & Creative', value: 'design_and_creative' },
+      'creative': { label: 'Design & Creative', value: 'design_and_creative' },
+      'design & creative': { label: 'Design & Creative', value: 'design_and_creative' }
+    };
+
+    const lowerQuery = searchQuery.toLowerCase().trim();
+
+    // Check for exact matches first
+    if (domainMap[lowerQuery]) {
+      return domainMap[lowerQuery];
+    }
+
+    // Check for partial matches
+    for (const [key, value] of Object.entries(domainMap)) {
+      if (lowerQuery.includes(key) || value.label.toLowerCase().includes(lowerQuery)) {
+        return value;
+      }
+    }
+
+    return null;
+  };
+
+  // Search results rendering with requested changes
+  const renderSearchResults = () => {
+    const domainMatch = getDomainMatch(query);
+
+    // Filter experts by domain if a domain is matched
+    let domainExperts = [];
+    if (domainMatch && hits.length > 0) {
+      domainExperts = hits.filter(
+        (hit) =>
+          hit.domain === domainMatch.value ||
+          (hit.domains && hit.domains.includes(domainMatch.value))
+      );
+    }
+
+    return (
+      <div className="absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        {/* Domain browse button */}
+        {domainMatch && (
+          <div
+            className="flex items-center justify-between px-4 py-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              navigate(`/explore?category=${domainMatch.value}`);
+              setTimeout(() => {
+                setShowDropdown(false);
+                setIsMobileSearchActive(false);
+                setQuery("");
+              }, 0);
+            }}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Search className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-medium text-primary">
+                  Browse {domainMatch.label} Experts
+                </div>
+                <div className="text-sm text-gray-500">
+                  View all experts in this category
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-primary" />
+          </div>
+        )}
+
+        {/* Show experts for the matched domain below the browse button */}
+        {domainMatch && domainExperts.length > 0 && (
+          <>
+            <div className="px-4 py-2 text-xs text-gray-500 font-semibold">
+              {domainMatch.label} Experts
+            </div>
+            {domainExperts.map((hit) => (
+              <div
+                key={getRedirect(hit)}
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
+              >
+                <div className="flex items-center space-x-3">
+                  {hit.profileImage ? (
+                    <img
+                      src={hit.profileImage}
+                      alt={hit.name || 'Expert'}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="w-5 h-5 text-gray-500" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-medium flex items-center gap-2 flex-wrap">
+                      <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                      {hit.redirect_url && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                          @{hit.username}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-500 truncate max-w-[220px]">
+                      {hit.professionalTitle || hit.expertise || 'Expert'}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400" />
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* If no domain match, show regular expert results */}
+        {!domainMatch && hits.length > 0 && (
+          hits.map((hit) => (
+            <div
+              key={getRedirect(hit)}
+              className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+              onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
+            >
+              <div className="flex items-center space-x-3">
+                {hit.profileImage ? (
+                  <img
+                    src={hit.profileImage}
+                    alt={hit.name || 'Expert'}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <User className="w-5 h-5 text-gray-500" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="font-medium flex items-center gap-2 flex-wrap">
+                    <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                    {hit.redirect_url && (
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                        @{hit.username}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-500 truncate max-w-[220px]">
+                    {hit.professionalTitle || hit.expertise || 'Expert'}
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </div>
+          ))
+        )}
+
+        {/* No results message */}
+        {!isSearching && hits.length === 0 && query.trim() !== "" && (
+          <div className="px-4 py-3 text-gray-500 text-center">
+            No experts found matching "{query}"
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // User dropdown component
   const UserDropdown = () => (
     <div className="relative">
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200  focus:outline-none p-2 rounded-md"
+        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none p-2 rounded-md"
       >
         <span className="text-sm font-medium">
           <CircleUserRound className="w-5 h-5" />
@@ -216,7 +419,7 @@ const NavbarWithSearch = () => {
               <>
                 <a
                   href="/dashboard/user/meetings"
-                  className=" z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className="z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   User Dashboard
@@ -248,7 +451,7 @@ const NavbarWithSearch = () => {
   const handleModalCategorySelect = (category) => {
     if (category.value) {
       navigate(`/explore?category=${category.value}`);
-      setIsModalOpen(false);
+      setIsSearchModalOpen(false);
     }
   };
 
@@ -277,48 +480,24 @@ const NavbarWithSearch = () => {
                 placeholder="Search mentors by name or expertise..."
                 value={query}
                 onChange={handleInputChange}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)} // delay to allow click
-                onFocus={() => query.trim() !== "" && hits.length > 0 && setShowDropdown(true)}
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                onFocus={() => {
+                  if (query.trim() !== "") {
+                    setShowDropdown(true);
+                  }
+                }}
+                onBlur={(e) => {
+                  // capture element reference to avoid e.currentTarget becoming null in timeout
+                  const target = e.currentTarget;
+                  setTimeout(() => {
+                    if (target && !target.contains(document.activeElement)) {
+                      setShowDropdown(false);
+                    }
+                  }, 150);
+                }}
+
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
               />
-              {showDropdown && query.trim() !== "" && (
-                <div className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {hits.length > 0 ? (
-                    hits.map((hit) => (
-                      <div
-                        key={hit.objectID}
-                        className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => openExpertProfile(hit.objectID)}
-                      >
-                        <div className="flex items-center space-x-3">
-                          {hit.profileImage ? (
-                            <img
-                              src={hit.profileImage}
-                              alt={hit.name}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <User className="w-5 h-5 text-gray-500" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="font-medium">{hit.name}</div>
-                            <div className="text-sm text-gray-500">
-                              {hit.professionalTitle || hit.expertise || "Expert"}
-                            </div>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                      </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-gray-500">
-                      No experts found matching your search
-                    </div>
-                  )}
-                </div>
-              )}
+              {showDropdown && query.trim() !== "" && renderSearchResults()}
             </motion.div>
           </div>
 
@@ -373,49 +552,23 @@ const NavbarWithSearch = () => {
                     placeholder="Search mentors..."
                     value={query}
                     onChange={handleInputChange}
-                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                    onFocus={() => query.trim() !== "" && hits.length > 0 && setShowDropdown(true)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                    onFocus={() => {
+                      if (query.trim() !== "") {
+                        setShowDropdown(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const target = e.currentTarget;
+                      setTimeout(() => {
+                        if (target && !target.contains(document.activeElement)) {
+                          setShowDropdown(false);
+                        }
+                      }, 150);
+                    }}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
                     autoFocus
                   />
-                  {showDropdown && query.trim() !== "" && (
-                    <div className="absolute z-10 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                      {hits.length > 0 ? (
-                        hits.map((hit) => (
-                          <div
-                            key={hit.objectID}
-                            className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => openExpertProfile(hit.objectID)}
-                          >
-                            <div className="flex items-center space-x-3">
-                              {hit.profileImage ? (
-                                <img
-                                  src={hit.profileImage}
-                                  alt={hit.name}
-                                  className="w-10 h-10 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                  <User className="w-5 h-5 text-gray-500" />
-                                </div>
-                              )}
-                              <div>
-                                <div className="font-medium">{hit.name}</div>
-                                <div className="text-sm text-gray-500">
-                                  {hit.professionalTitle || hit.expertise || "Expert"}
-                                </div>
-                              </div>
-                            </div>
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-gray-500">
-                          No experts found matching your search
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {showDropdown && query.trim() !== "" && renderSearchResults()}
                 </div>
                 <button
                   onClick={handleCloseMobileSearch}
@@ -552,12 +705,8 @@ const NavbarWithSearch = () => {
       {/* Search Modal */}
       <SearchModal
         isOpen={isSearchModalOpen}
-        onClose={handleCloseSearchModal}
+        onClose={() => setIsSearchModalOpen(false)}
         onCategorySelect={handleModalCategorySelect}
-        query={query}
-        onQueryChange={handleSearchQueryChange}
-        hits={hits}
-        onExpertSelect={openExpertProfile}
       />
 
       {/* Auth Popup */}
@@ -566,4 +715,4 @@ const NavbarWithSearch = () => {
   );
 };
 
-export default NavbarWithSearch;
+export default NavbarWithSearch;  

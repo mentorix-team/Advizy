@@ -137,7 +137,11 @@ export const verifyPayUPayment = async (response) => {
 export const payupay = async (req, res, next) => {
   try {
     if (!process.env.PAYU_KEY || !process.env.PAYU_SALT) {
-      throw new Error("PayU credentials missing (PAYU_KEY/PAYU_SALT).");
+      // throw new Error("PayU credentials missing (PAYU_KEY/PAYU_SALT).");
+      return res.status(500).json({
+        success: false,
+        message: "PayU credentials missing"
+      });
     }
 
     const {
@@ -248,7 +252,10 @@ export const payupay = async (req, res, next) => {
     return res.status(200).send(html);
   } catch (err) {
     console.error("PayU init error:", err);
-    return next(err);
+    return res.status(500).json({
+      success: false,
+      message: "Payment initialization failed"
+    });
   }
 };
 
@@ -279,7 +286,7 @@ export const success = async (req, res) => {
       if (!ok) {
         console.error("PayU hash verification failed");
         sessionId = body.udf10 || body.udf6 || "";
-        return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=hash&sessionId=${encodeURIComponent(sessionId)}`);
+        return res.status(302).redirect(`${FRONTEND_URL}/payu-payment-failure?reason=hash&sessionId=${encodeURIComponent(sessionId)}`);
       }
 
       sessionId = body.udf10 || body.udf6 || "";
@@ -311,7 +318,7 @@ export const success = async (req, res) => {
         { strict: false }
       );
 
-      return res.redirect(
+      return res.status(302).redirect(
         `${FRONTEND_URL}/payu-payment-success?sessionId=${encodeURIComponent(
           sessionDoc.sessionId
         )}&token=${encodeURIComponent(successToken)}`
@@ -339,7 +346,7 @@ export const success = async (req, res) => {
       });
     } else {
       console.error("Unknown request format");
-      return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_request`);
+      return res.status(302).redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_request`);
     }
   } catch (err) {
     console.error("PayU success handler error:", err);
@@ -350,7 +357,7 @@ export const success = async (req, res) => {
         { strict: false }
       );
     }
-    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+    return res.status(500).redirect(`${FRONTEND_URL}/payu-payment-failure`);
   }
 };
 
@@ -366,10 +373,10 @@ export const failure = async (req, res) => {
         { strict: false }
       );
     }
-    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+    return res.status(302).redirect(`${FRONTEND_URL}/payu-payment-failure`);
   } catch (err) {
     console.error("PayU failure handler error:", err);
-    return res.redirect(`${FRONTEND_URL}/payu-payment-failure`);
+    return res.status(302).redirect(`${FRONTEND_URL}/payu-payment-failure`);
   }
 };
 

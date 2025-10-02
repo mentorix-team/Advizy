@@ -27,7 +27,7 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, replace } from "react-router-dom";
 
 // Sample categories remain unchanged
 const categories = [
@@ -161,6 +161,7 @@ function HomePage() {
 
   // Handler for HomePage grid/buttons (uses domain mapping)
   const handleHomeCategorySelect = (category) => {
+
     const domainValue = categoryToDomainMap[category.title];
     if (domainValue) {
       navigate(`/explore?category=${domainValue}`);
