@@ -47,7 +47,6 @@ const meetingSchema = new Schema({
 
     videoCallId:{
         type:String,
-
     },
 
     

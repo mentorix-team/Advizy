@@ -32,6 +32,20 @@ const Navbar = ({ onSearch }) => {
         setIsExpertMode(true);
       }
     }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode") === "true";
+    setIsExpertMode(expertMode);
+  }, []);
+
+  useEffect(() => {
+    const expertMode = localStorage.getItem("expertMode");
+    if (expertMode === "true") {
+      setIsExpertMode(true);
+    } else {
+      setIsExpertMode(false);
+    }
   }, []);
 
   const handleOpenAuthPopup = () => {
