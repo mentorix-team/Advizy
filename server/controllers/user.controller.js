@@ -1192,22 +1192,24 @@ const forgot_with_otp_mobile = async (res, req, next) => {
 };
 
 const validateToken = async (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return next(new AppError("token not found", 401));
-  }
-  jwt.verify(
-    token,
-    "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-    (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ message: "Invalid or expired token" });
-      }
-
-      res.json({ valid: true, userId: decoded.userId, role: decoded.role });
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ success: false, valid: false, message: 'Token not found' });
     }
-  );
+    jwt.verify(
+      token,
+      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
+      (err, decoded) => {
+        if (err) {
+          return res.status(401).json({ success: false, valid: false, message: 'Invalid or expired token' });
+        }
+        return res.json({ success: true, valid: true, userId: decoded.userId, role: decoded.role });
+      }
+    );
+  } catch (e) {
+    next(e);
+  }
 };
 
 const refresh_token = async (req, res, next) => {

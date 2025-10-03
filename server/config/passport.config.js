@@ -48,13 +48,16 @@ passport.use(
 // });
 
 passport.serializeUser((user, done) => {
-  done(null, { id: user._id, returnUrl: user.returnUrl });
+  // Persist only minimal identifying data
+  done(null, { id: user._id, returnUrl: user.returnUrl || '/' });
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (payload, done) => {
   try {
+    const { id, returnUrl } = payload || {};
     const usergoogle = await UserGoogle.findById(id);
-    done(null, {...usergoogle.toObject(), returnUrl: returnUrl});
+    if (!usergoogle) return done(null, false);
+    done(null, { ...usergoogle.toObject(), returnUrl: returnUrl || '/' });
   } catch (error) {
     done(error, null);
   }

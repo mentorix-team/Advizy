@@ -114,14 +114,19 @@ const App = () => {
 
   const handleAuthPopupOpen = () => {
     console.log("handleAuthPopupOpen called");
-
-    // // For public pages that might need login redirect
-    // const currentURL = location.pathname + location.search;
-    // if (!sessionStorage.getItem("redirectURL")) {
-    //   console.log("Setting redirectURL from App.js:", currentURL);
-    //   sessionStorage.setItem("redirectURL", currentURL);
-    // }
-
+    try {
+      const currentURL = location.pathname + location.search;
+      const existing = sessionStorage.getItem("redirectURL");
+      // Only set if not already set by ProtectedRoute (avoid overwriting more specific target)
+      if (!existing) {
+        console.log("🔑 Setting redirectURL (user-initiated login):", currentURL);
+        sessionStorage.setItem("redirectURL", currentURL);
+      } else {
+        console.log("redirectURL already set (keeping existing):", existing);
+      }
+    } catch (e) {
+      console.warn("Failed to set redirectURL:", e);
+    }
     setShowAuthPopup(true);
   };
 

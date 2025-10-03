@@ -96,7 +96,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
       // Get redirectURL immediately before any other operations
       const redirectURL = sessionStorage.getItem("redirectURL");
       console.log("🎯 Login Success - Retrieved redirectURL:", redirectURL);
-      
+
       // Close popup first
       onClose();
 
@@ -122,7 +122,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    window.open(`https://advizy.onrender.com/api/v1/user/auth/google`, "_self");
+    window.open(`http://localhost:5030/api/v1/user/auth/google`, "_self");
   };
 
   const handleCloseClick = (event) => {
@@ -169,11 +169,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
               value={logindata.email}
               onChange={handleUserInput}
               onBlur={handleBlur}
-              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 autofill:bg-gray-50 autofill:text-gray-900 ${
-                touched.email && errors.email
+              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 autofill:bg-gray-50 autofill:text-gray-900 ${touched.email && errors.email
                   ? "border-red-500 bg-red-50"
                   : "border-gray-300"
-              }`}
+                }`}
             />
             {touched.email && errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>

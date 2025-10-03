@@ -8,7 +8,7 @@ export const fetchSupportQueries = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "https://advizy.onrender.com/api/v1/expert/support-requests",
+        "http://localhost:5030/api/v1/expert/support-requests",
         { withCredentials: true }  // important for sending cookies
       );
       return response.data.data; // assuming { data: [array of support queries] }
