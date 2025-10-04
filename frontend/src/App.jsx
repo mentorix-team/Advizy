@@ -214,12 +214,7 @@ const App = () => {
           element={<GoogleRedirectHandler />}
         />
         {/* Protected Routes */}
-        <Route
-          path="/expert-onboarding"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
-        >
-          <Route path="" element={<ProfileDetails />} />
-        </Route>
+        {/* Removed duplicate expert-onboarding route - using the one below */}
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
         {/* <Route path="/expert-detail/:redirect_url" element={<ExpertDetailPage />} /> */}

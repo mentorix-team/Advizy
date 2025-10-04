@@ -100,17 +100,26 @@ const ExpertDashboardLayout = () => {
     return location.pathname === path;
   };
 
+  // Add this helper function before the UserDropdown component
+  const isCurrentlyInExpertDashboard = () => {
+    return location.pathname.startsWith('/dashboard/expert');
+  };
+
+  // Update the useEffect to also check current route
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     const expertMode = localStorage.getItem("expertMode");
+    const isInExpertDashboard = isCurrentlyInExpertDashboard();
 
     if (expertData) {
       setHasExpertData(true);
     }
-    if (expertMode === "true") {
+
+    // Set expert mode if either localStorage says so OR we're in expert dashboard
+    if (expertMode === "true" || isInExpertDashboard) {
       setIsExpertMode(true);
     }
-  }, []);
+  }, [location.pathname]); // Add location.pathname as dependency
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
@@ -152,93 +161,91 @@ const ExpertDashboardLayout = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const UserDropdown = () => (
-    <div className="relative user-dropdown">
-      <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
-      >
-        <div className="flex items-center gap-2">
-          <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
-          <ChevronDown className="w-4 h-4" />
-        </div>
-      </button>
+  // Update the UserDropdown component condition
+  const UserDropdown = () => {
+    const shouldShowExpertMode = isExpertMode || isCurrentlyInExpertDashboard();
+    
+    return (
+      <div className="relative user-dropdown">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
+        >
+          <div className="flex items-center gap-2">
+            <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
+            <ChevronDown className="w-4 h-4" />
+          </div>
+        </button>
 
-      <AnimatePresence>
-        {isDropdownOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
-          >
-            <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">
-                {parsedData?.firstName} {parsedData?.lastName}
-              </p>
-              <p className="text-xs text-gray-500">Expert Account</p>
-            </div>
-            {isExpertMode ? (
-              <>
-                <a
-                  href="/"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <Home className="w-4 h-4" />
-                  Back to Home
-                </a>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <User className="w-4 h-4" />
-                  Switch to User Mode
-                </button>
-                <div className="border-t border-gray-100 mt-1">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <a
-                  href="/dashboard/user/meetings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  User Dashboard
-                </a>
-                {isLoggedIn && hasExpertData && (
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            >
+              <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-900">
+                  {parsedData?.firstName} {parsedData?.lastName}
+                </p>
+                <p className="text-xs text-gray-500">Expert Account</p>
+              </div>
+              {shouldShowExpertMode ? (
+                <>
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                   >
-                    <UserCheck className="w-4 h-4" />
-                    Switch to Expert Mode
+                    <User className="w-4 h-4" />
+                    Switch to User Mode
                   </button>
-                )}
-                <div className="border-t border-gray-100 mt-1">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                  <div className="border-t border-gray-100 mt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/dashboard/user/meetings"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+                    <LayoutDashboard className="w-4 h-4" />
+                    User Dashboard
+                  </a>
+                  {isLoggedIn && hasExpertData && (
+                    <button
+                      onClick={handleToggleExpertMode}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      Switch to Expert Mode
+                    </button>
+                  )}
+                  <div className="border-t border-gray-100 mt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   return (
     <div className="overflow-x-hidden">
@@ -256,44 +263,11 @@ const ExpertDashboardLayout = () => {
                 />
               </a>
 
-              {!isExpertMode && (
-                <div className="hidden lg:flex items-center relative flex-1 max-w-2xl">
-                  <Search className="absolute left-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search mentors by name or expertise..."
-                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              )}
+
             </div>
 
             {/* Right section */}
             <div className="flex items-center lg:pr-10">
-              <div className="hidden lg:flex items-center gap-8 mr-8">
-                {/* <a
-                  href="/about-us"
-                  className={`transition-colors duration-200 text-base font-medium ${
-                    isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                  }`}
-                >
-                  About Us
-                </a> */}
-
-                {!isExpertMode && (
-                  <a
-                    href="/become-expert"
-                    className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/become-expert")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                      }`}
-                  >
-                    Share Your Expertise
-                  </a>
-                )}
-              </div>
 
               {/* User Profile & Mobile Menu */}
               <div className="flex items-center gap-3 lg:pr-10">

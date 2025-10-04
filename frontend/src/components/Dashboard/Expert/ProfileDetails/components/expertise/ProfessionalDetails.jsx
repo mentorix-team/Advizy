@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Briefcase, Info, Lightbulb } from "lucide-react";
+import { ArrowBigDown, ArrowBigDownDash, Briefcase, ChevronDown, Info, Lightbulb } from "lucide-react";
+import { domainOptions, nicheOptions } from "@/utils/Options";
 
 const Tooltip = ({ text, children }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  
+
   return (
     <div className="relative inline-flex items-center">
       {children}
@@ -27,29 +28,6 @@ const Tooltip = ({ text, children }) => {
   );
 };
 
-// Mock domain options for demonstration
-const domainOptions = [
-  { value: "technology", label: "Technology" },
-  { value: "finance", label: "Finance" },
-  { value: "healthcare", label: "Healthcare" }
-];
-
-// Mock niche options for demonstration
-const nicheOptions = {
-  "technology": [
-    { value: "webdev", label: "Web Development" },
-    { value: "mobile", label: "Mobile Development" },
-    { value: "ai", label: "Artificial Intelligence" }
-  ],
-  "finance": [
-    { value: "accounting", label: "Accounting" },
-    { value: "investment", label: "Investment" }
-  ],
-  "healthcare": [
-    { value: "nursing", label: "Nursing" },
-    { value: "pharmacy", label: "Pharmacy" }
-  ]
-};
 
 export default function ProfessionalDetails({ formData, setFormData }) {
   const [showNicheDropdown, setShowNicheDropdown] = useState(false);
@@ -103,14 +81,17 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             type="button"
             onClick={() => setShowNicheDropdown(!showNicheDropdown)}
             disabled={!formData.domain}
-            className="w-full text-left p-2 border rounded-lg focus:ring-primary focus:border-primary bg-white"
+            className="w-full flex justify-between items-center text-left p-2 border rounded-lg focus:ring-primary focus:border-primary bg-white"
           >
             {formData.niche?.length
               ? nicheOptions[formData.domain]
-                  ?.filter((n) => formData.niche.includes(n.value))
-                  .map((n) => n.label)
-                  .join(", ")
+                ?.filter((n) => formData.niche.includes(n.value))
+                .map((n) => n.label)
+                .join(", ")
               : "Select your specific niche"}
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <ChevronDown size={16} className="inline-block ml-1" />
+            </label>
           </button>
 
           {showNicheDropdown && formData.domain && (

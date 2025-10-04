@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
@@ -15,6 +15,12 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Update editedService when service prop changes
+  useEffect(() => {
+    console.log('ServiceCard: service prop changed, updating editedService:', service);
+    setEditedService(service);
+  }, [service]);
 
   const handleToggleConfirm = () => {
     if (isEnabled) {
@@ -129,6 +135,8 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
           )}
           <button
             onClick={() => {
+              console.log('ServiceCard edit button clicked, service:', service);
+              console.log('Service type:', typeof service, 'Service keys:', Object.keys(service || {}));
               onEdit(service);
             }}
             className={`rounded-full transition-colors ${

@@ -14,6 +14,8 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   };
 
   const getInitialState = (serviceData) => {
+    console.log('Processing service data for default modal:', serviceData);
+    
     if (!serviceData) {
       return {
         id: "",
@@ -30,41 +32,60 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
       };
     }
 
-    // Initialize timeSlots with enabled status and calculated prices based on duration
-    const sixtyMinSlot = serviceData.timeSlots?.find(
-      (slot) => slot.duration === 60
-    );
+    // For "One-on-One Mentoring" service, timeSlots might be in 'one_on_one' field
+    let timeSlots;
+    if (serviceData.one_on_one && Array.isArray(serviceData.one_on_one)) {
+      // Backend stores mentoring timeSlots in 'one_on_one' field
+      timeSlots = serviceData.one_on_one;
+    } else if (serviceData.timeSlots && Array.isArray(serviceData.timeSlots)) {
+      // Fallback to timeSlots if one_on_one doesn't exist
+      timeSlots = serviceData.timeSlots;
+    } else {
+      // Default timeSlots if none exist
+      timeSlots = [15, 30, 45, 60, 90].map((duration) => ({
+        duration,
+        price: calculatePrice(DEFAULT_HOURLY_RATE, duration),
+        enabled: true,
+      }));
+    }
+
+    // Calculate hourly rate from 60-minute slot
+    const sixtyMinSlot = timeSlots.find((slot) => slot.duration === 60);
     const hourlyRate = sixtyMinSlot
       ? Math.round(sixtyMinSlot.price).toString()
-      : serviceData.hourlyRate;
+      : serviceData.hourlyRate || DEFAULT_HOURLY_RATE;
 
-    const timeSlots = [15, 30, 45, 60, 90].map((duration) => {
-      const existingSlot = serviceData.timeSlots?.find(
-        (slot) => slot.duration === duration
-      );
+    // Create complete timeSlots array with all durations
+    const completeTimeSlots = [15, 30, 45, 60, 90].map((duration) => {
+      const existingSlot = timeSlots.find((slot) => slot.duration === duration);
       return {
         duration,
-        price: calculatePrice(hourlyRate, duration),
+        price: existingSlot ? existingSlot.price : calculatePrice(hourlyRate, duration),
         enabled: existingSlot?.enabled ?? true,
       };
     });
 
     return {
-      id: serviceData.serviceId,
-      serviceName: serviceData.title || "",
+      id: serviceData.serviceId || serviceData._id,
+      serviceName: serviceData.title || serviceData.serviceName || "",
       shortDescription: serviceData.shortDescription || "",
       detailedDescription: serviceData.detailedDescription || "",
       hourlyRate,
-      timeSlots,
-      features: serviceData.features || [""],
+      timeSlots: completeTimeSlots,
+      features: serviceData.features && serviceData.features.length > 0 ? serviceData.features : [""],
     };
   };
 
   const [formData, setFormData] = useState(getInitialState(service));
 
   useEffect(() => {
+    console.log('EditDefaultServiceModal useEffect triggered, service:', service);
     if (service) {
+      console.log('Setting form data with service:', service);
       setFormData(getInitialState(service));
+    } else {
+      console.log('No service provided, using default state');
+      setFormData(getInitialState(null));
     }
   }, [service]);
 
@@ -96,7 +117,24 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Map form data to the structure expected by the backend API
+    const updatedService = {
+      id: formData.id,
+      serviceName: "One-on-One Mentoring", // Fixed service name for default service
+      shortDescription: formData.shortDescription,
+      detailedDescription: formData.detailedDescription,
+      hourlyRate: formData.hourlyRate,
+      timeSlots: formData.timeSlots.map(slot => ({
+        duration: slot.duration,
+        price: slot.price,
+        enabled: slot.enabled
+      })),
+      features: formData.features.filter(feature => feature.trim() !== '') // Remove empty features
+    };
+    
+    console.log('Sending updated default service data:', updatedService);
+    onSave(updatedService);
 
     toast.success("Service updated successfully", {
       position: "top-right",
@@ -106,7 +144,9 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
       pauseOnHover: true,
       draggable: true,
     });
-    onClose();
+    
+    // Don't close immediately - let parent handle closing after API success
+    // onClose();
   };
 
   const netEarnings = formData.hourlyRate

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import Modal from './Modal'
 import { SingleTimeSlot } from './SingleTimeSlot'
 import { FeatureList } from './FeatureList'
-import toast from 'react-hot-toast'
 
 function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const [formData, setFormData] = useState({
@@ -15,34 +14,58 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   })
 
   useEffect(() => {
+    console.log('EditNonDefaultServiceModal useEffect triggered, service:', service)
     if (service) {
+      console.log('Loading non-default service data:', service)
+      console.log('Service timeSlots:', service.timeSlots)
+      console.log('Service duration/price fallback:', service.duration, service.price)
+      
+      const timeSlot = service.timeSlots?.[0] || {
+        duration: service.duration || 15,
+        price: service.price || 25
+      };
+      
+      console.log('Selected timeSlot:', timeSlot)
+      
       setFormData({
-        id: service.serviceId,
-        serviceName: service.serviceName || '',
+        id: service.serviceId || service._id,
+        serviceName: service.serviceName || service.title || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',
-        timeSlot: service.timeSlots?.[0] || { duration: 15, price: 25 },
-        features: service.features || ['']
-      })
+        timeSlot: timeSlot,
+        features: service.features && service.features.length > 0 ? service.features : ['']
+      });
+    } else {
+      console.log('No service provided to EditNonDefaultServiceModal')
     }
-  }, [service])
+  }, [service]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    
+    // Map form data to the structure expected by the backend API
     const updatedService = {
-      ...formData,
-      timeSlots: [formData.timeSlot]
+      id: formData.id,
+      serviceName: formData.serviceName, // Backend maps this to 'title' field for storage
+      shortDescription: formData.shortDescription,
+      detailedDescription: formData.detailedDescription,
+      timeSlots: [{
+        duration: parseInt(formData.timeSlot.duration),
+        price: parseFloat(formData.timeSlot.price),
+        enabled: formData.timeSlot.enabled ?? true
+      }],
+      features: formData.features.filter(feature => feature.trim() !== '') // Remove empty features
     }
+    
+    console.log('Sending updated non-default service data:', updatedService)
+    console.log('FormData timeSlot before mapping:', formData.timeSlot)
+    
+    // Call the parent's onSave function
     onSave(updatedService)
-    toast.success('Service updated successfully',  {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
-    onClose()
+    
+    // Don't show toast here - let parent handle success/error feedback
+    // Don't close modal here - let parent handle modal closing after API response
   }
 
   return (

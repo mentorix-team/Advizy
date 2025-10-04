@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { validateToken } from "../Redux/Slices/authSlice";
+import { Loader } from "lucide-react";
+import Spinner from "@/components/LoadingSkeleton/Spinner";
 
 const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
   const dispatch = useDispatch();
@@ -86,10 +88,10 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
         if (!hasTriggeredAuth) {
           console.log("🚨 Triggering auth popup - user not authenticated");
           setHasTriggeredAuth(true);
-          
+
           // Don't set redirectURL here - let handleAuthPopupOpen do it
           // This prevents conflicts between ProtectedRoute and manual login triggers
-          
+
           setTimeout(() => {
             console.log("📢 Calling showAuth()");
             showAuth();
@@ -115,10 +117,10 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
 
           if (!hasTriggeredAuth) {
             setHasTriggeredAuth(true);
-            
+
             // Don't set redirectURL here - let handleAuthPopupOpen do it
             // This prevents conflicts and ensures simpler flow
-            
+
             setTimeout(() => {
               showAuth();
             }, 100);
@@ -143,7 +145,7 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
 
   // Show loading spinner while checking authentication
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   if (!isAuthenticated) {
