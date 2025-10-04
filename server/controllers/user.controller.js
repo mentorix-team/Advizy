@@ -209,6 +209,7 @@ const register_with_email = async (req, res, next) => {
       return next(new AppError("all fields are required", 500));
     }
     const userExists = await User.findOne({ email });
+    
     if (userExists) {
       return next(new AppError("try again", 500));
     }
@@ -698,7 +699,7 @@ const generate_otp_for_Signup = async (req, res, next) => {
       return next(new AppError("All fields are required", 400));
     }
 
-    // Check if user already exists
+    // Check if user already exists in User model (form signups)
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -709,6 +710,9 @@ const generate_otp_for_Signup = async (req, res, next) => {
       }
       return next(new AppError("User already exists. Please log in.", 400));
     }
+
+    // For form signups, we allow creating accounts even if Google account exists
+    // The Google account and form account will be separate
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -902,7 +906,7 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
   try {
     const { firstName, lastName, phoneNumber, password } = req.body;
     console.log("Request Body:", req.body);
-    if (!firstName || !lastName || !number || !password) {
+    if (!firstName || !lastName || !phoneNumber || !password) {
       return next(new AppError("All fields are required", 400));
     }
 
@@ -911,8 +915,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
     console.log("Extracted countryCode:", countryCode);
     console.log("Extracted number:", number);
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
+    // Check if user already exists in User model (form signups)
+    const userExists = await User.findOne({ number });
 
     if (userExists) {
       if (userExists.googleId) {
@@ -922,6 +926,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
       }
       return next(new AppError("User already exists. Please log in.", 400));
     }
+
+    // For form signups, we allow creating accounts even if Google account exists
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpToken = bcrypt.hashSync(otp, 10);

@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 const CategoryNav = ({ categories }) => {
   const navigate = useNavigate();
+
+  console.log("Rendering CategoryNav with categories:", categories);
   return (
-    <motion.div 
-    
+    <motion.div
+
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
@@ -16,9 +18,9 @@ const CategoryNav = ({ categories }) => {
           {categories.map((category) => (
             <motion.button
               key={category.title}
-              onClick={() => navigate('/explore')}
+              onClick={() => navigate(`/explore?category=${category.value}`)}
               initial={{ scale: 1 }}
-              whileHover={{ 
+              whileHover={{
                 scale: 1.1,
                 color: "#169544",
                 transition: {

@@ -93,23 +93,29 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     console.log("Login response:", response);
 
     if (response?.payload?.success) {
-      // Get redirectURL immediately before any other operations
+      // Get redirectURL from sessionStorage
       const redirectURL = sessionStorage.getItem("redirectURL");
       console.log("🎯 Login Success - Retrieved redirectURL:", redirectURL);
 
       // Close popup first
       onClose();
 
-      // Handle navigation with corrected logic
+      // Always redirect to stored URL, never to home page
       if (redirectURL && redirectURL.trim() !== "") {
-        console.log("🚀 Navigating to:", redirectURL);
-        // Clear it before navigation
+        console.log("🚀 Navigating to stored redirectURL:", redirectURL);
+        // Clear it after use
         sessionStorage.removeItem("redirectURL");
         console.log("🧹 Cleaned up redirectURL from sessionStorage");
         navigate(redirectURL);
       } else {
-        console.log("🏠 No redirectURL found, navigating to home");
-        navigate("/");
+        // Fallback: if no redirectURL stored, stay on current page or go to user dashboard
+        console.log("⚠️ No redirectURL found, staying on current page");
+        const currentPath = location.pathname;
+        if (currentPath === "/" || currentPath.includes("auth")) {
+          // Only redirect to dashboard if we're on home or auth pages
+          navigate("/dashboard/user/meetings");
+        }
+        // Otherwise, stay on current page (don't navigate)
       }
     }
 
@@ -122,6 +128,17 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
+    
+    // Store current redirectURL if it exists, or store current page as backup
+    const existingRedirectURL = sessionStorage.getItem("redirectURL");
+    if (!existingRedirectURL) {
+      const currentPage = window.location.pathname + window.location.search;
+      console.log("🔗 Storing preOAuthPath for Google login:", currentPage);
+      sessionStorage.setItem("preOAuthPath", currentPage);
+    } else {
+      console.log("📌 redirectURL already exists:", existingRedirectURL);
+    }
+    
     window.open(`http://localhost:5030/api/v1/user/auth/google`, "_self");
   };
 

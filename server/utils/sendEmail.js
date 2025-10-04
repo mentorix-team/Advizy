@@ -5,10 +5,13 @@ const sendEmail = async function(email, subject, message) {
         let transporter = nodemailer.createTransport({
             host: process.env.smtphost,
             port: process.env.smtppport,
-            secure: true, // true for 465, false for other ports
+            secure: false, // false for 587, true for 465
             auth: {
                 user: process.env.emailuser , // Your Gmail address
                 pass: process.env.emailpass, // Your app-specific password
+            },
+            tls: {
+                rejectUnauthorized: false // Allow self-signed certificates
             }
         });
 

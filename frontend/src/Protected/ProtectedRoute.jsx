@@ -19,6 +19,7 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
     try {
       console.log(`🔧 ProtectedRoute: Setting redirectURL to: ${url}`);
       sessionStorage.setItem("redirectURL", url);
+      console.log(`✅ SessionStorage SET successful`);
 
       // Verify it was set
       setTimeout(() => {
@@ -38,6 +39,12 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
   };
 
   useEffect(() => {
+    console.log("ProtectedRoute useEffect triggered");
+    console.log("Current path:", location.pathname);
+    console.log("isLoggedIn:", isLoggedIn);
+    console.log("expertData:", !!expertData);
+    console.log("requireExpert:", requireExpert);
+
     const checkAuth = async () => {
       console.log("ProtectedRoute useEffect triggered");
       console.log("Current path:", location.pathname);
@@ -69,6 +76,7 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
 
       // Validate token for logged-in users
       const response = await dispatch(validateToken());
+      console.log("🔍 Token validation response:", response?.payload);
       if (!response?.payload?.valid) {
         console.log("Token invalid, clearing localStorage");
         localStorage.clear();
@@ -76,12 +84,18 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
         setIsLoading(false);
 
         if (!hasTriggeredAuth) {
+          console.log("🚨 Triggering auth popup - user not authenticated");
           setHasTriggeredAuth(true);
-          const redirectURL = location.pathname + location.search;
-          setRedirectURL(redirectURL);
+          
+          // Don't set redirectURL here - let handleAuthPopupOpen do it
+          // This prevents conflicts between ProtectedRoute and manual login triggers
+          
           setTimeout(() => {
+            console.log("📢 Calling showAuth()");
             showAuth();
           }, 100);
+        } else {
+          console.log("⚠️ Auth already triggered, skipping");
         }
         return;
       }
@@ -101,8 +115,10 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
 
           if (!hasTriggeredAuth) {
             setHasTriggeredAuth(true);
-            const redirectURL = location.pathname + location.search;
-            setRedirectURL(redirectURL);
+            
+            // Don't set redirectURL here - let handleAuthPopupOpen do it
+            // This prevents conflicts and ensures simpler flow
+            
             setTimeout(() => {
               showAuth();
             }, 100);

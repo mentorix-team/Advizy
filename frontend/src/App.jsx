@@ -116,14 +116,10 @@ const App = () => {
     console.log("handleAuthPopupOpen called");
     try {
       const currentURL = location.pathname + location.search;
-      const existing = sessionStorage.getItem("redirectURL");
-      // Only set if not already set by ProtectedRoute (avoid overwriting more specific target)
-      if (!existing) {
-        console.log("🔑 Setting redirectURL (user-initiated login):", currentURL);
-        sessionStorage.setItem("redirectURL", currentURL);
-      } else {
-        console.log("redirectURL already set (keeping existing):", existing);
-      }
+      console.log("💾 Storing current URL for redirect:", currentURL);
+      // Always store the current URL when login is triggered
+      sessionStorage.setItem("redirectURL", currentURL);
+      console.log("✅ redirectURL stored successfully");
     } catch (e) {
       console.warn("Failed to set redirectURL:", e);
     }

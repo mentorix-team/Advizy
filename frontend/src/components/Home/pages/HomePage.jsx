@@ -38,6 +38,7 @@ const categories = [
       </div>
     ),
     title: "Carrer growth",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -46,6 +47,7 @@ const categories = [
       </div>
     ),
     title: "Startup",
+    value: "business_and_entrepreneurship",
   },
   {
     icon: (
@@ -54,6 +56,7 @@ const categories = [
       </div>
     ),
     title: "Freelancing",
+    value: "business_and_entrepreneurship",
   },
   {
     icon: (
@@ -62,6 +65,7 @@ const categories = [
       </div>
     ),
     title: "Upskilling",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -70,6 +74,7 @@ const categories = [
       </div>
     ),
     title: "Job Hunting",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -78,6 +83,7 @@ const categories = [
       </div>
     ),
     title: "Education",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -86,6 +92,7 @@ const categories = [
       </div>
     ),
     title: "Personal Branding",
+    value: "personal_development",
   },
   {
     icon: (
@@ -94,6 +101,7 @@ const categories = [
       </div>
     ),
     title: "Work Life Balance",
+    value: "personal_development",
   },
 ];
 
@@ -175,6 +183,7 @@ function HomePage() {
   const handleModalCategorySelect = (category) => {
     if (category.value) {
       navigate(`/explore?category=${category.value}`);
+      console.log("Navigating to category:", category.value);
       setIsModalOpen(false);
     } else {
       console.warn(`No value found for category:`, category);
