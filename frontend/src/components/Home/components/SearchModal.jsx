@@ -93,7 +93,7 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
             const safeSlug = hit.slug ? String(hit.slug).replace(/"/g, '&quot;') : '';
             return `
               <div class="flex items-center justify-between w-full bg-white border rounded-full shadow-sm hover:shadow-md transition-shadow duration-300 mb-2 py-1 px-3" data-slug="${safeSlug}">
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 cursor-pointer " ${safeSlug ? `onclick=\"window.location.href='/expert/${safeSlug}'\"` : 'disabled'} >
                   <img
                     src="${hit.profileImage || "https://randomuser.me/api/portraits/women/44.jpg"}"
                     alt="${hit.name}"

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { User, Star, Heart } from "lucide-react";
+import { User, Star } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import { optimisticAdd, optimisticRemove, toggleFavourite, selectFavouriteIds, selectIsUpdatingFavourite } from "@/Redux/Slices/favouritesSlice";
 import toast from "react-hot-toast";
@@ -95,66 +95,81 @@ const ExpertCard = (props) => {
   const profilePath = `/expert/${redirect_url || expertId}`;
 
   return (
-    <div
-      className="w-full h-full sm:max-w-[502px] bg-[#fdfdfd] rounded-[9.81px] p-3 sm:p-5 border-[1.23px] border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] mx-auto"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      whileHover={{ 
+        y: -2, 
+        boxShadow: "0px 8px 25px rgba(22, 149, 68, 0.15)",
+        transition: { duration: 0.2 } 
+      }}
+      className="w-full h-full sm:max-w-screen-md bg-[#fdfdfd] rounded-xl p-3 sm:p-5 border-2 border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] cursor-pointer"
     >
       <div className="flex flex-col h-full">
         {/* Content Section */}
         <div className="flex-1 flex flex-col gap-3">
           {/* Top Section */}
           <div className="flex items-start gap-3 sm:gap-4 relative">
-            <div className="py-1 sm:py-2">
+            <motion.div 
+              className="py-1 sm:py-2"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
               <img
+                onClick={() => navigate(profilePath)}
                 src={image}
                 alt={name}
                 className="w-[80px] h-[80px] sm:w-[110px] sm:h-[110px] rounded-full object-cover"
                 loading="lazy"
               />
-            </div>
+            </motion.div>
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] leading-[1.4] sm:leading-[29.8px] break-words">
+                    <h2 
+                    onClick={() => navigate(profilePath)}
+                    className="text-base sm:text-lg md:text-lg lg:text-xl font-semibold text-gray-900 leading-tight break-words">
                       {name}
                     </h2>
                     {verified === true && (
                       <img src="/svg-image-65.svg" alt="verified tick" className="w-5 h-5" />
                     )}
                   </div>
-                  <p className="text-[14px] sm:text-[15.5px] text-[#1d1f1d] opacity-80 mb-2">
-                    {truncateByChar(title, 36)}
+                  <p className="text-sm sm:text-sm md:text-base lg:text-base text-gray-700 opacity-90 mb-2 line-clamp-1">
+                    {title}
                   </p>
 
                   <div className="flex items-center gap-2 sm:gap-3 mb-2">
                     <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-yellow-400 fill-yellow-400" />
-                      <span className="font-medium text-[13px] sm:text-[14.5px] text-[#1d1f1d]">
+                      <Star className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 text-yellow-400 fill-yellow-400" />
+                      <span className="font-medium text-xs sm:text-sm md:text-sm lg:text-sm text-gray-800">
                         {rating}/5
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="flex gap-1 sm:gap-2 items-center bg-[#c4f3d34c] text-[#1d1f1d] rounded-[24.16px] px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[10.6px] font-medium">
-                        <User className="w-3 h-3 sm:w-[12.57px] sm:h-[12.57px]" />
+                      <span className="flex gap-1 sm:gap-2 items-center bg-emerald-50 text-gray-800 rounded-full px-2 sm:px-2 py-1 text-xs sm:text-xs md:text-sm font-medium">
+                        <User className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />
                         {totalRatings} Sessions done
                       </span>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-0.5 sm:gap-1 z-0">
-                    <p className="text-[14px] sm:text-[15.5px]">
-                      <span className="text-[#1d1d1d]">Experience: </span>
-                      <span className="font-medium text-[#1d1d1d]">
+                    <p className="text-sm sm:text-sm md:text-base lg:text-base">
+                      <span className="text-gray-800">Experience: </span>
+                      <span className="font-medium text-gray-900">
                         {experience} years in industry
                       </span>
                     </p>
-                    <p className="text-[14px] sm:text-[15.5px]">
-                      <span className="text-[#000000e6]">Starts at </span>
-                      <span className="font-medium text-[#0049b3]">
+                    <p className="text-sm sm:text-sm md:text-base lg:text-base">
+                      <span className="text-gray-700">Starts at </span>
+                      <span className="font-semibold text-blue-600">
                         Rs. {startingPrice}
                       </span>
-                      <span className="text-[#000000e6]"> for </span>
-                      <span className="font-medium text-[#0049b3]">
+                      <span className="text-gray-700"> for </span>
+                      <span className="font-semibold text-blue-600">
                         {duration} min
                       </span>
                     </p>
@@ -189,59 +204,61 @@ const ExpertCard = (props) => {
             </div>
           </div>
 
-          {/* Expertise Tags */}
+          {/* Expertise */}
           <div className="w-full">
-            <div className="flex flex-col">
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
-                <span className="text-[14px] sm:text-[15px] text-[#1d1f1d]">
-                  Expertise:
+            <div className="line-clamp-2 min-h-[3rem]">
+              <span className="text-sm sm:text-sm md:text-base lg:text-base text-gray-800 mr-2 ">Expertise:</span>
+              {expertise.map((skill, index) => (
+                <span
+                  key={`${skill}-${index}`}
+                  className="inline-flex bg-gray-100 text-gray-800 text-xs sm:text-xs md:text-sm lg:text-sm rounded-lg px-2 sm:px-2 md:px-3 py-1 mr-1.5 mb-1.5"
+                >
+                  {skill}
                 </span>
-                {expertise.slice(0, 5).map((skill, index) => (
-                  <span
-                    key={`${skill}-${index}`}
-                    className="bg-[#f2f2f2] text-[#1d1f1d] text-[13px] sm:text-[15px] rounded-[8.03px] px-2 sm:px-[11px] py-[1px]"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
-        </div>
+          </div>
 
         {/* Bottom Section */}
-        <div className="mt-3 sm:mt-4 pt-3 border-t border-gray-100">
+        <div className="mt-3 sm:mt-3 pt-3 border-t border-gray-100">
           <div className="flex flex-row items-center justify-between w-full gap-3">
             <div className="flex flex-col flex-shrink-0">
-              <span className="font-medium text-[13px] sm:text-[14.5px] text-[#1d1f1d]">
+              <span className="font-medium text-xs sm:text-sm md:text-sm lg:text-sm text-gray-800">
                 Next Available Slot:
               </span>
-              <span className="text-[13px] sm:text-[14.5px] text-[#1f409b]">
+              <span className="text-xs sm:text-sm md:text-sm lg:text-sm text-blue-700 font-medium">
                 {firstAvailableDay && firstAvailableTime
                   ? `${firstAvailableDay.day}, ${firstAvailableTime}`
                   : "No slots available"}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <button
+              <motion.button
                 onClick={() => navigate(profilePath)}
-                className="h-[32px] sm:h-[35px] rounded-[11.04px] px-3 sm:px-4 bg-white border border-gray-200 shadow text-[13px] sm:text-[14.5px] hover:bg-gray-50 whitespace-nowrap"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.1 }}
+                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-white border border-gray-300 shadow-sm font-semibold tracking-tight rounded-lg text-xs sm:text-sm md:text-base hover:bg-gray-50"
               >
                 View Profile
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() =>
                   navigate(`${profilePath}?scrollTo=services-offered`)
                 }
-                className="h-[32px] sm:h-[34px] rounded-[11.04px] px-3 sm:px-4 bg-[#edfbf1] text-[#169544] font-semibold text-[13px] sm:text-[14.5px] shadow hover:bg-[#ddf9e5] whitespace-nowrap"
+                whileHover={{ scale: 1.05, backgroundColor: "rgb(209 250 229)" }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.1 }}
+                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-emerald-50 text-emerald-600 font-semibold tracking-tight text-xs sm:text-sm md:text-base shadow-sm rounded-lg hover:bg-emerald-100"
               >
-                BOOK
-              </button>
+                Book
+              </motion.button>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
