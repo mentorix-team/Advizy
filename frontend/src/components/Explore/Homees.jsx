@@ -111,7 +111,7 @@ const Homees = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex pt-28 md:pt-32">
+      <div className="flex pt-28">
         {" "}
         {/* Reduced padding-top for mobile */}
         {/* Mobile Filter Button (visible only on small screens) */}

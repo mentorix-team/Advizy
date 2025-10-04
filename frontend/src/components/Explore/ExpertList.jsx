@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
+import NoExpertsFound from "./NoExpertsFound";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -78,17 +79,17 @@ const ExpertList = ({ filters, sorting }) => {
   };
 
   return (
-    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <div className="w-full max-w-[1440px] mx-auto py-4 px-4 sm:px-6 sm:py-4">
       {/* Available Experts Header */}
-      <div className="mb-4 sm:mb-6">
-        <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold">
+      <div className="mb-4">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-medium italic tracking-tighter">
           Available Experts -{" "}
           <span className="text-green-600 underline">{totalExperts}</span>
         </h2>
       </div>
 
       {/* Expert Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6">
         {loading && (
           <>
             {[...Array(ITEMS_PER_PAGE)].map((_, index) => (
@@ -108,11 +109,8 @@ const ExpertList = ({ filters, sorting }) => {
         )}
 
         {!loading && !error && paginatedExperts.length === 0 && (
-          <div className="col-span-1 md:col-span-2 2xl:col-span-2 flex flex-col items-center justify-center py-8 px-4 text-center">
-            <SearchX className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" />
-            <p className="text-base sm:text-lg text-gray-600 mt-2">
-              No experts found
-            </p>
+          <div className=" col-span-2 max-h-full flex items-center justify-center">
+            <NoExpertsFound />
           </div>
         )}
 
