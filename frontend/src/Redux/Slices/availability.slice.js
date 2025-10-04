@@ -17,7 +17,9 @@ export const addAvailability = createAsyncThunk(
   "availability/addavailability",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[addAvailability] Request data:", data);
       const res = await axiosInstance.post("calendar/add", data);
+      console.log("[addAvailability] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -38,7 +40,9 @@ export const editAvailability = createAsyncThunk(
   "availability/editavailability",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[editAvailability] Request data:", data);
       const res = await axiosInstance.post("calendar/edit", data);
+      console.log("[editAvailability] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -59,7 +63,9 @@ export const saveAvailability = createAsyncThunk(
   "availability/saveavailability",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[saveAvailability] Request data:", data);
       const res = await axiosInstance.post("calendar/save", data);
+      console.log("[saveAvailability] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -80,7 +86,9 @@ export const addBlockedDates = createAsyncThunk(
   "availability/addblockeddates",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[addBlockedDates] Request data:", data);
       const res = await axiosInstance.post("calendar/addblockeddates", data);
+      console.log("[addBlockedDates] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -104,11 +112,13 @@ export const addSpecificDates = createAsyncThunk(
       const requestData = {
         specific_dates: data,
       };
+      console.log("[addSpecificDates] Request data:", requestData);
 
       const res = await axiosInstance.post(
         "calendar/addspecificdates",
         requestData
       );
+      console.log("[addSpecificDates] Response:", res.data);
 
       return res.data;
     } catch (error) {
@@ -131,7 +141,9 @@ export const setSettings = createAsyncThunk(
   "availability/setSettings",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[setSettings] Request data:", data);
       const res = await axiosInstance.post("calendar/set", data);
+      console.log("[setSettings] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -153,7 +165,9 @@ export const setTimezone = createAsyncThunk(
   "availability/ssettimezone",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[setTimezone] Request data:", data);
       const res = await axiosInstance.post("calendar/settimezone", data);
+      console.log("[setTimezone] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -175,7 +189,9 @@ export const reschedulePolicy = createAsyncThunk(
   "availability/setPolicy",
   async (data, { rejectWithValue }) => {
     try {
+      console.log("[reschedulePolicy] Request data:", data);
       const res = await axiosInstance.post("calendar/setpolicy", data);
+      console.log("[reschedulePolicy] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -197,7 +213,9 @@ export const getAvailabilitybyid = createAsyncThunk(
   "availability/getavailability",
   async (id, { rejectWithValue }) => {
     try {
+      console.log("[getAvailabilitybyid] Request ID:", id);
       const res = await axiosInstance.get(`calendar/get/${id}`);
+      console.log("[getAvailabilitybyid] Response:", res.data);
       return res.data;
     } catch (error) {
       const errorMessage =
@@ -212,8 +230,9 @@ export const viewAvailability = createAsyncThunk(
   "availability/viewAvailability",
   async (_, { rejectWithValue }) => {
     try {
+      console.log("[viewAvailability] Fetching availability data...");
       const response = await axiosInstance.get("calendar/view");
-      console.log(response.data);
+      console.log("[viewAvailability] Response:", response.data);
       return await response.data;
     } catch (error) {
       const errorMessage =
@@ -239,6 +258,7 @@ const availabilitySlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addAvailability.fulfilled, (state, action) => {
+        console.log("[Redux] addAvailability.fulfilled - payload:", action.payload);
         state.availability = action.payload;
         saveToLocalStorage(state.availability);
         toast.success("Availability added successfully!", {
@@ -335,6 +355,7 @@ const availabilitySlice = createSlice({
         state.loading = false;
       })
       .addCase(viewAvailability.fulfilled, (state, action) => {
+        console.log("[Redux] viewAvailability.fulfilled - payload:", action.payload);
         state.availability = action.payload;
         state.loading = false;
       })

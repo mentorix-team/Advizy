@@ -8,13 +8,13 @@ import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
-import dotenv from "dotenv";
+import dotenv from 'dotenv'
 
 dotenv.config();
 
 const {
-  PAYU_KEY = process.env.PAYU_KEY,
-  PAYU_SALT = process.env.PAYU_SALT,
+  PAYU_KEY = "BbfPbe",
+  PAYU_SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz",
   PAYU_ENV = "prod",
   BACKEND_URL = "http://localhost:5030",
   FRONTEND_URL = "http://localhost:5173",
@@ -538,10 +538,39 @@ export const success = async (req, res) => {
         return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_token`);
       }
 
+      // Fetch the meeting details
+      let meeting = null;
+      if (sessionDoc.serviceId && sessionDoc.expertId && sessionDoc.userId) {
+        meeting = await Meeting.findOne({
+          serviceId: sessionDoc.serviceId,
+          expertId: sessionDoc.expertId,
+          userId: sessionDoc.userId,
+          "daySpecific.date": sessionDoc.date,
+        });
+      }
+
+      // Format booking details for the frontend
+      let bookingDetails = null;
+      if (meeting) {
+        bookingDetails = {
+          image: meeting.expertImage || '', // Adjust field names as needed
+          name: meeting.expertName || '',
+          title: meeting.serviceName || '',
+          sessionDuration: meeting.duration || '', // Adjust field names as needed
+          price: meeting.amount || '',
+          date: meeting.daySpecific.date || '',
+          time: {
+            startTime: meeting.daySpecific.slot.startTime || '',
+            endTime: meeting.daySpecific.slot.endTime || ''
+          }
+        };
+      }
+
       return res.status(200).json({
         success: true,
         sessionId: sessionDoc.sessionId,
-        status: sessionDoc.status
+        status: sessionDoc.status,
+        bookingDetails
       });
     } else {
       console.error("Unknown request format");
