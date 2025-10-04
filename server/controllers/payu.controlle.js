@@ -51,7 +51,7 @@ function buildRequestHash(data) {
     data.udf8 || "",
     data.udf9 || "",
     data.udf10 || "",
-    process.env.PAYU_SALT,
+    PAYU_SALT,
   ].join("|");
 
   const hash = crypto.createHash("sha512").update(seq).digest("hex");
@@ -79,7 +79,7 @@ function verifyResponseHash(data) {
 
   // Build the sequence in the correct order for response verification
   const seq = [
-    process.env.PAYU_SALT,
+    PAYU_SALT,
     status,
     udf10,
     udf9,
@@ -319,7 +319,7 @@ export const success = async (req, res) => {
       sessionDoc.payuTransactionId = payuMoneyId;
       sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
       await sessionDoc.save();
-      
+
       // 4) Update the meeting record to mark as paid and create video call
       try {
         // Find the meeting record using the serviceId, expertId, userId, and date
@@ -329,7 +329,7 @@ export const success = async (req, res) => {
           userId: sessionDoc.userId,
           date: sessionDoc.date,
         });
-        
+
         // Try to find meeting with multiple date format approaches
         let meeting = await Meeting.findOne({
           serviceId: sessionDoc.serviceId,
@@ -337,13 +337,13 @@ export const success = async (req, res) => {
           userId: sessionDoc.userId,
           "daySpecific.date": sessionDoc.date,
         });
-        
+
         // If not found, try with string date format
         if (!meeting) {
-          const dateString = sessionDoc.date instanceof Date 
-            ? sessionDoc.date.toISOString().split('T')[0] 
+          const dateString = sessionDoc.date instanceof Date
+            ? sessionDoc.date.toISOString().split('T')[0]
             : sessionDoc.date;
-          
+
           console.log("Trying with string date format:", dateString);
           meeting = await Meeting.findOne({
             serviceId: sessionDoc.serviceId,
@@ -352,69 +352,69 @@ export const success = async (req, res) => {
             "daySpecific.date": dateString,
           });
         }
-        
+
         if (meeting) {
           // Update meeting as paid
           meeting.isPayed = true;
           meeting.amount = sessionDoc.amount;
           meeting.razorpay_payment_id = payuMoneyId;
-          
+
           // Create video call using Dyte API
-// Create video call using Dyte API
-// Create video call using Dyte API
-try {
-  const dyteResponse = await axios.post(
-    'https://api.dyte.io/v2/meetings',
-    {
-      title: `Meeting with ${meeting.expertName}`,
-      // Remove organization_id since it's not allowed in the body
-      // The organization ID is already included in your auth credentials
-      preferred_region: 'ap-south-1',
-      record_on_start: false,
-      // Only include parameters that are accepted by the API
-    },
-    {
-      auth: {
-        username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', // This is your organization ID
-        password: '96f3307b8a180f089a90',
-      },
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    }
-  );
-  
-  const videoCallId = dyteResponse.data.data.id;
-  meeting.videoCallId = videoCallId;
-  console.log("Video call created with ID:", videoCallId);
-} catch (videoCallError) {
-  // Log detailed error response
-  if (videoCallError.response) {
-    console.error("Dyte API Error Response:", videoCallError.response.data);
-    console.error("Dyte API Error Status:", videoCallError.response.status);
-  }
-  console.error("Error creating video call:", videoCallError);
-  // Continue with payment processing even if video call creation fails
-}
-          
+          // Create video call using Dyte API
+          // Create video call using Dyte API
+          try {
+            const dyteResponse = await axios.post(
+              'https://api.dyte.io/v2/meetings',
+              {
+                title: `Meeting with ${meeting.expertName}`,
+                // Remove organization_id since it's not allowed in the body
+                // The organization ID is already included in your auth credentials
+                preferred_region: 'ap-south-1',
+                record_on_start: false,
+                // Only include parameters that are accepted by the API
+              },
+              {
+                auth: {
+                  username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', // This is your organization ID
+                  password: '96f3307b8a180f089a90',
+                },
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+              }
+            );
+
+            const videoCallId = dyteResponse.data.data.id;
+            meeting.videoCallId = videoCallId;
+            console.log("Video call created with ID:", videoCallId);
+          } catch (videoCallError) {
+            // Log detailed error response
+            if (videoCallError.response) {
+              console.error("Dyte API Error Response:", videoCallError.response.data);
+              console.error("Dyte API Error Status:", videoCallError.response.status);
+            }
+            console.error("Error creating video call:", videoCallError);
+            // Continue with payment processing even if video call creation fails
+          }
+
           await meeting.save();
           console.log("Meeting updated successfully:", meeting._id);
-          
+
           // Update expert's availability (similar to payedForMeeting function)
           try {
             const { expertId, daySpecific } = meeting;
             const availability = await Availability.findOne({ expert_id: expertId });
-            
+
             if (availability) {
               // Convert meeting details to IST for accurate comparison
               const meetingDateIST = moment.utc(daySpecific.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
               const meetingStartTimeIST = moment(daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
               const meetingEndTimeIST = moment(daySpecific.slot.endTime, "hh:mm A").format("HH:mm");
               const meetingDay = moment.utc(daySpecific.date).tz(availability.timezone.value).format("dddd");
-              
+
               // Find the availability entry for the meeting's day
               const dayEntry = availability.daySpecific.find((day) => day.day === meetingDay);
-              
+
               if (dayEntry && dayEntry.slots) {
                 // Find the matching time slot within that day
                 const matchingSlot = dayEntry.slots.find((slotEntry) => {
@@ -422,14 +422,14 @@ try {
                   const slotEndTimeIST = moment.utc(slotEntry.endTime, "HH:mm").tz("Asia/Kolkata").format("HH:mm");
                   return meetingStartTimeIST >= slotStartTimeIST && meetingEndTimeIST <= slotEndTimeIST;
                 });
-                
+
                 if (matchingSlot) {
                   // Find the matching date entry in the slot
                   const matchingDateEntry = matchingSlot.dates.find((dateEntry) => {
                     const storedDateIST = moment.utc(dateEntry.date).tz("Asia/Kolkata").format("YYYY-MM-DD");
                     return storedDateIST === meetingDateIST;
                   });
-                  
+
                   if (matchingDateEntry) {
                     // Update the matched slot with meeting ID
                     matchingDateEntry.slots.push({
@@ -437,14 +437,14 @@ try {
                       endTime: meetingEndTimeIST,
                       meeting_id: meeting._id,
                     });
-                    
+
                     await availability.save();
                     console.log("Expert availability updated successfully");
                   }
                 }
               }
             }
-            
+
             // Add meeting to expert's sessions
             const expert = await ExpertBasics.findById(expertId);
             if (expert) {
@@ -452,7 +452,7 @@ try {
               await expert.save();
               console.log("Expert sessions updated successfully");
             }
-            
+
             // Create notification
             const notification = new Notification({
               expertId: meeting.expertId,
@@ -461,7 +461,7 @@ try {
             });
             await notification.save();
             console.log("Notification created successfully");
-            
+
             // Send emails
             const user = await User.findById(meeting.userId);
             // if (user && expert) {
@@ -471,7 +471,7 @@ try {
             //   const month = fullDate.format("MMMM");
             //   const datee = fullDate.format("DD");
             //   const day = fullDate.format("dddd");
-              
+
             //   emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
             //   emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
             //   emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
@@ -481,7 +481,7 @@ try {
             //   emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
             //   emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
             //   emailTemplate = emailTemplate.replace(/{DAY}/g, day);
-              
+
             //   await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
             //   await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
             //   console.log("Emails sent successfully");
@@ -492,7 +492,7 @@ try {
           }
         } else {
           console.error("Meeting not found for update");
-          
+
           // Debug: Check what meetings exist for this user
           const userMeetings = await Meeting.find({ userId: sessionDoc.userId });
           console.log("All meetings for user:", userMeetings.map(m => ({
@@ -508,7 +508,7 @@ try {
         console.error("Error updating meeting:", meetingError);
         // Continue with payment processing even if meeting update fails
       }
-      
+
       // 5) Short-lived success token you can validate on frontend
       const successToken = crypto.randomBytes(16).toString("hex");
       await PaymentSession.updateOne(
@@ -538,10 +538,39 @@ try {
         return res.redirect(`${FRONTEND_URL}/payu-payment-failure?reason=invalid_token`);
       }
 
+      // Fetch the meeting details
+      let meeting = null;
+      if (sessionDoc.serviceId && sessionDoc.expertId && sessionDoc.userId) {
+        meeting = await Meeting.findOne({
+          serviceId: sessionDoc.serviceId,
+          expertId: sessionDoc.expertId,
+          userId: sessionDoc.userId,
+          "daySpecific.date": sessionDoc.date,
+        });
+      }
+
+      // Format booking details for the frontend
+      let bookingDetails = null;
+      if (meeting) {
+        bookingDetails = {
+          image: meeting.expertImage || '', // Adjust field names as needed
+          name: meeting.expertName || '',
+          title: meeting.serviceName || '',
+          sessionDuration: meeting.duration || '', // Adjust field names as needed
+          price: meeting.amount || '',
+          date: meeting.daySpecific.date || '',
+          time: {
+            startTime: meeting.daySpecific.slot.startTime || '',
+            endTime: meeting.daySpecific.slot.endTime || ''
+          }
+        };
+      }
+
       return res.status(200).json({
         success: true,
         sessionId: sessionDoc.sessionId,
-        status: sessionDoc.status
+        status: sessionDoc.status,
+        bookingDetails
       });
     } else {
       console.error("Unknown request format");
