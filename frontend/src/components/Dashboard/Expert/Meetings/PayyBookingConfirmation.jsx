@@ -40,14 +40,30 @@ const PayyBookingConfirmation = () => {
           throw new Error('Payment verification failed');
         }
 
-        // Get booking data from verification response or location state
-        const data = verification.bookingDetails || location.state;
+        // Get booking data from verification response
+        const data = verification.bookingDetails;
 
-        if (!data) {
-          throw new Error('Booking data not found');
+        // If booking details are not available, try to get them from location state
+        if (!data && location.state) {
+          setBookingData(location.state);
+        } else if (data) {
+          setBookingData(data);
+        } else {
+          // If no booking data is available, create a minimal booking data object
+          setBookingData({
+            image: '',
+            name: 'Expert',
+            title: 'Service',
+            sessionDuration: '',
+            price: verification.sessionDoc?.amount || '',
+            date: verification.sessionDoc?.date || '',
+            time: {
+              startTime: verification.sessionDoc?.startTime || '',
+              endTime: verification.sessionDoc?.endTime || ''
+            }
+          });
         }
 
-        setBookingData(data);
         setShowConfetti(true);
         setLoading(false);
 
