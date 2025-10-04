@@ -1,4 +1,5 @@
 import PaymentSession from "../config/model/transaction/PayuModel.js";
+import moment from "moment-timezone";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import axios from "axios"; // keep if you call other internal endpoints
@@ -319,12 +320,35 @@ export const success = async (req, res) => {
       // 4) Update the meeting record to mark as paid and create video call
       try {
         // Find the meeting record using the serviceId, expertId, userId, and date
-        const meeting = await Meeting.findOne({
+        console.log("Searching for meeting with criteria:", {
+          serviceId: sessionDoc.serviceId,
+          expertId: sessionDoc.expertId,
+          userId: sessionDoc.userId,
+          date: sessionDoc.date,
+        });
+        
+        // Try to find meeting with multiple date format approaches
+        let meeting = await Meeting.findOne({
           serviceId: sessionDoc.serviceId,
           expertId: sessionDoc.expertId,
           userId: sessionDoc.userId,
           "daySpecific.date": sessionDoc.date,
         });
+        
+        // If not found, try with string date format
+        if (!meeting) {
+          const dateString = sessionDoc.date instanceof Date 
+            ? sessionDoc.date.toISOString().split('T')[0] 
+            : sessionDoc.date;
+          
+          console.log("Trying with string date format:", dateString);
+          meeting = await Meeting.findOne({
+            serviceId: sessionDoc.serviceId,
+            expertId: sessionDoc.expertId,
+            userId: sessionDoc.userId,
+            "daySpecific.date": dateString,
+          });
+        }
         
         if (meeting) {
           // Update meeting as paid
@@ -333,30 +357,42 @@ export const success = async (req, res) => {
           meeting.razorpay_payment_id = payuMoneyId;
           
           // Create video call using Dyte API
-          try {
-            const dyteResponse = await axios.post(
-              'https://api.dyte.io/v2/meetings',
-              {
-                title: `Meeting with ${meeting.expertName}`,
-                preferredRegion: 'ap-in-1',
-                recordOnStart: false,
-              },
-              {
-                auth: {
-                  username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', 
-                  password: '96f3307b8a180f089a90',
-                },
-                headers: { 'Content-Type': 'application/json' },
-              }
-            );
-            
-            const videoCallId = dyteResponse.data.data.id;
-            meeting.videoCallId = videoCallId;
-            console.log("Video call created with ID:", videoCallId);
-          } catch (videoCallError) {
-            console.error("Error creating video call:", videoCallError);
-            // Continue with payment processing even if video call creation fails
-          }
+// Create video call using Dyte API
+// Create video call using Dyte API
+try {
+  const dyteResponse = await axios.post(
+    'https://api.dyte.io/v2/meetings',
+    {
+      title: `Meeting with ${meeting.expertName}`,
+      // Remove organization_id since it's not allowed in the body
+      // The organization ID is already included in your auth credentials
+      preferred_region: 'ap-south-1',
+      record_on_start: false,
+      // Only include parameters that are accepted by the API
+    },
+    {
+      auth: {
+        username: 'a34d79f4-e39a-4eba-8966-0c4c14b53339', // This is your organization ID
+        password: '96f3307b8a180f089a90',
+      },
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }
+  );
+  
+  const videoCallId = dyteResponse.data.data.id;
+  meeting.videoCallId = videoCallId;
+  console.log("Video call created with ID:", videoCallId);
+} catch (videoCallError) {
+  // Log detailed error response
+  if (videoCallError.response) {
+    console.error("Dyte API Error Response:", videoCallError.response.data);
+    console.error("Dyte API Error Status:", videoCallError.response.status);
+  }
+  console.error("Error creating video call:", videoCallError);
+  // Continue with payment processing even if video call creation fails
+}
           
           await meeting.save();
           console.log("Meeting updated successfully:", meeting._id);
@@ -425,34 +461,45 @@ export const success = async (req, res) => {
             
             // Send emails
             const user = await User.findById(meeting.userId);
-            if (user && expert) {
-              const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
-              let emailTemplate = fs.readFileSync(templatePath, "utf8");
-              const fullDate = moment(meeting.daySpecific.date);
-              const month = fullDate.format("MMMM");
-              const datee = fullDate.format("DD");
-              const day = fullDate.format("dddd");
+            // if (user && expert) {
+            //   const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
+            //   let emailTemplate = fs.readFileSync(templatePath, "utf8");
+            //   const fullDate = moment(meeting.daySpecific.date);
+            //   const month = fullDate.format("MMMM");
+            //   const datee = fullDate.format("DD");
+            //   const day = fullDate.format("dddd");
               
-              emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
-              emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
-              emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
-              emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
-              emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
-              emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
-              emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
-              emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
-              emailTemplate = emailTemplate.replace(/{DAY}/g, day);
+            //   emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+            //   emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+            //   emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
+            //   emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+            //   emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+            //   emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+            //   emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
+            //   emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
+            //   emailTemplate = emailTemplate.replace(/{DAY}/g, day);
               
-              await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
-              await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
-              console.log("Emails sent successfully");
-            }
+            //   await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
+            //   await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
+            //   console.log("Emails sent successfully");
+            // }
           } catch (availabilityError) {
             console.error("Error updating availability:", availabilityError);
             // Continue with payment processing even if availability update fails
           }
         } else {
           console.error("Meeting not found for update");
+          
+          // Debug: Check what meetings exist for this user
+          const userMeetings = await Meeting.find({ userId: sessionDoc.userId });
+          console.log("All meetings for user:", userMeetings.map(m => ({
+            id: m._id,
+            serviceId: m.serviceId,
+            expertId: m.expertId,
+            userId: m.userId,
+            date: m.daySpecific?.date,
+            isPayed: m.isPayed
+          })));
         }
       } catch (meetingError) {
         console.error("Error updating meeting:", meetingError);

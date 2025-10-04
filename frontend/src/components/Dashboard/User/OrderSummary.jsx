@@ -216,7 +216,7 @@ const OrderSummary = () => {
           if (payedResponse.payload.success) {
             const videoCallData = {
               title: selectedExpert.credentials?.domain || 'No Title Provided',
-              preferred_region: "ap-southeast-1",
+              preferred_region: "ap-south-1",
             };
             await dispatch(createVideoCall(videoCallData));
           }
