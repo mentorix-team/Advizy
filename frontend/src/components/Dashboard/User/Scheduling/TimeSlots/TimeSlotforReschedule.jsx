@@ -3,18 +3,64 @@ import TimeButton from './TimeButton';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createMeet, updateMeet } from '@/Redux/Slices/meetingSlice';
+import { updateMeet } from '@/Redux/Slices/meetingSlice';
 import { CalendarX } from 'lucide-react';
 
 function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
+  const [latestAvailableSlot, setLatestAvailableSlot] = useState(null);
+
+  // Helper function to parse time string and convert to minutes
+  const parseTime = (timeString) => {
+    const [time, period] = timeString.split(/(\s?[AP]M)/i);
+    const [hours, minutes] = time.split(':').map(Number);
+    let hour24 = hours;
+    
+    if (period && period.toUpperCase().includes('PM') && hours !== 12) {
+      hour24 += 12;
+    } else if (period && period.toUpperCase().includes('AM') && hours === 12) {
+      hour24 = 0;
+    }
+    
+    return hour24 * 60 + minutes;
+  };
+
+  // Function to get the latest (most recent) available slot
+  const getLatestAvailableSlot = (slots) => {
+    if (!slots || slots.length === 0) return null;
+
+    // Get current time in minutes for today's filtering
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    const bufferMinutes = 30; // 30-minute buffer for booking
+
+    let availableSlots = slots;
+
+    // Filter out past slots if today
+    if (isToday) {
+      availableSlots = slots.filter(slot => {
+        const slotStartMinutes = parseTime(slot.startTime);
+        return slotStartMinutes > (currentTimeMinutes + bufferMinutes);
+      });
+    }
+
+    if (availableSlots.length === 0) return null;
+
+    // Sort by start time and return the latest (last) available slot
+    const sortedSlots = availableSlots.sort((a, b) => {
+      return parseTime(b.startTime) - parseTime(a.startTime);
+    });
+
+    return sortedSlots[0]; // Latest slot (highest time)
+  };
 
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
-      console.warn("Missing availability data or selectedDate");
-      setTimeSlots([]); // Reset slots when no data
+      setTimeSlots([]);
+      setLatestAvailableSlot(null);
       return;
     }
   
@@ -26,21 +72,22 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
     );
   
     if (!dayData || !dayData.slots || dayData.slots.length === 0) {
-      console.warn(`No slots available for ${dayName}`);
-      setTimeSlots([]); // Clear slots if no data found
+      setTimeSlots([]);
+      setLatestAvailableSlot(null);
       return;
     }
+
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+    const bufferMinutes = 30;
   
     const generatedSlots = [];
   
     dayData.slots.forEach(slot => {
-      console.log("Processing Slot:", slot);
-  
-      // Parse the time from slot
       const [startHour, startMinute] = slot.startTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
       const [endHour, endMinute] = slot.endTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
   
-      // Convert to 24-hour format if AM/PM exists
       const isStartPM = slot.startTime.includes("PM");
       const isEndPM = slot.endTime.includes("PM");
   
@@ -57,22 +104,42 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
         nextTime.setMinutes(nextTime.getMinutes() + sessionDuration);
   
         if (nextTime <= end) {
-          generatedSlots.push({
-            startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          });
+          const slotStartTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const slotEndTime = nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          
+          const slotStartMinutes = parseTime(slotStartTime);
+          const isSlotAvailable = !isToday || slotStartMinutes > (currentTimeMinutes + bufferMinutes);
+          
+          if (isSlotAvailable) {
+            generatedSlots.push({
+              startTime: slotStartTime,
+              endTime: slotEndTime,
+            });
+          }
         }
   
         currentTime = nextTime;
       }
     });
-  
-    console.log("Generated Slots:", generatedSlots);
-  
-    // Set the generated slots to state
+    
     setTimeSlots(generatedSlots);
+    setLatestAvailableSlot(getLatestAvailableSlot(generatedSlots));
   
   }, [selectedDate, selectedAvailability, sessionDuration]);
+
+  // Real-time update effect for today's slots
+  useEffect(() => {
+    const isToday = selectedDate.toDateString() === new Date().toDateString();
+    
+    if (isToday && timeSlots.length > 0) {
+      const intervalId = setInterval(() => {
+        const updatedLatestSlot = getLatestAvailableSlot(timeSlots);
+        setLatestAvailableSlot(updatedLatestSlot);
+      }, 60000); // Update every minute
+
+      return () => clearInterval(intervalId);
+    }
+  }, [timeSlots, selectedDate]);
   
   const handleBooking = async (time) => {
     try {
@@ -93,11 +160,8 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
         serviceName,
         expertName,
       };
-  
-      console.log("This is meetData", meetData);
-      const result = await dispatch(updateMeet(meetData)).unwrap();
-  
-      if (result) {
+
+      const result = await dispatch(updateMeet(meetData)).unwrap();      if (result) {
         navigate(`/`);
       }
     } catch (error) {
@@ -118,18 +182,43 @@ function TimeSlotsforReschedule({ token,selectedDate, sessionDuration, selectedA
 
   return (
     <div className="mt-6">
-      <h3 className="text-[15px] text-gray-900 mb-4">
-        Available Time Slots for {selectedDate.toLocaleDateString('en-US')}
-      </h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-[15px] text-gray-900">
+          Available Time Slots for {selectedDate.toLocaleDateString('en-US')}
+        </h3>
+        {latestAvailableSlot && (
+          <div className="text-sm text-green-600 font-medium">
+            Latest: {latestAvailableSlot.startTime} - {latestAvailableSlot.endTime}
+          </div>
+        )}
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
         {timeSlots.map((slot, index) => (
           <TimeButton
             key={index}
             time={slot}
             onClick={() => handleBooking(slot)}
+            isLatest={latestAvailableSlot && 
+              slot.startTime === latestAvailableSlot.startTime && 
+              slot.endTime === latestAvailableSlot.endTime}
           />
         ))}
       </div>
+      {latestAvailableSlot && (
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-green-700">
+              💡 Latest available slot: {latestAvailableSlot.startTime} - {latestAvailableSlot.endTime}
+            </span>
+            <button
+              onClick={() => handleBooking(latestAvailableSlot)}
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors"
+            >
+              Book Latest
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

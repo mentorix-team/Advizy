@@ -8,10 +8,13 @@ import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
+import dotenv from 'dotenv'
+
+dotenv.config();
 
 const {
-  PAYU_KEY,
-  PAYU_SALT,
+  PAYU_KEY = "BbfPbe",
+  PAYU_SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz",
   PAYU_ENV = "prod",
   BACKEND_URL = "http://localhost:5030",
   FRONTEND_URL = "http://localhost:5173",
@@ -141,7 +144,7 @@ async function createPaymentSession(paymentData) {
 /** ============ INITIATE PAYMENT: returns auto-submitting HTML form ============ */
 export const payupay = async (req, res, next) => {
   try {
-    if (!process.env.PAYU_KEY || !process.env.PAYU_SALT) {
+    if (!PAYU_KEY || !PAYU_SALT) {
       // throw new Error("PayU credentials missing (PAYU_KEY/PAYU_SALT).");
       return res.status(500).json({
         success: false,
@@ -188,7 +191,7 @@ export const payupay = async (req, res, next) => {
     });
 
     const payuData = {
-      key: process.env.PAYU_KEY,
+      key: PAYU_KEY,
       txnid,
       amount: amountString,
       firstname: firstname || "",
