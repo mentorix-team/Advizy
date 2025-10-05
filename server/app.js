@@ -22,23 +22,34 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? [
+        "https://advizy.in",              // frontend (main domain)
+        "https://www.advizy.in",          // (optional www)
+        "https://advizy.onrender.com",    // server
+      ]
+    : [
+        "http://localhost:5173",
+        "http://localhost:8001",
+        "http://localhost:5030",
+      ];
+
 app.use(
   cors({
-    origin: [
-      process.env.frontendurl,
-      // "https://www.admin.advizy.in",
-      "http://localhost:5173",
-      "http://localhost:8001",
-      "http://localhost:5030",
-      // "http://advizy-adminpanel.onrender.com",
-      // "http://localhost:5030",
-      "*",
-    ], // Allow frontend
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow non-browser requests like Postman
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 app.use(
   session({
