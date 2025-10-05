@@ -5,6 +5,10 @@ import clsx from "clsx";
 import MeetingCard from "../Component/MeetingCard";
 import { getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
 import NoData2 from "@/NoData2";
+import dayjs from "dayjs";
+import toast from "react-hot-toast";
+import { RefreshCw } from "lucide-react";
+import MeetingDetail from "./MeetingDetail";
 
 // Helper function to format dates
 const formatDate = (date) => {
@@ -40,11 +44,11 @@ export default function Meetings() {
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "upcoming";
   const [activeTab, setActiveTab] = useState(defaultTab);
+  const [selectedMeeting, setSelectedMeeting] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   const { meetings } = useSelector((state) => state.meeting);
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
-
-  console.log("All paid meetings:", paidMeetings);
 
   useEffect(() => {
     try {
@@ -55,103 +59,56 @@ export default function Meetings() {
   }, [dispatch]);
 
   // Group meetings into today, tomorrow, next week, upcoming, and past
-  // Group meetings into today, tomorrow, next week, upcoming, and past
-  // Group meetings into today, tomorrow, next week, upcoming, and past
-const groupedMeetings = paidMeetings.reduce(
-  (acc, meeting) => {
-    try {
-      if (!meeting.daySpecific || !meeting.daySpecific.date || !meeting.daySpecific.slot) {
-        console.warn("Invalid meeting format:", meeting);
-        return acc;
-      }
+  const groupedMeetings = paidMeetings.reduce(
+    (acc, meeting) => {
+      try {
+        if (!meeting.daySpecific || !meeting.daySpecific.date || !meeting.daySpecific.slot) {
+          console.warn("Invalid meeting format:", meeting);
+          return acc;
+        }
 
-      const now = new Date();
-      const todayStart = new Date(now);
-      todayStart.setHours(0, 0, 0, 0); // Start of today
-      
-      const meetingDate = new Date(meeting.daySpecific.date);
-      const meetingEnd = new Date(`${meeting.daySpecific.date}T${meeting.daySpecific.slot.endTime}`);
-      
-      // Reset seconds and milliseconds for accurate comparison
-      now.setSeconds(0, 0);
-      meetingDate.setHours(0, 0, 0, 0); // Normalize to start of day
-      meetingEnd.setSeconds(0, 0);
+        const now = dayjs();
+        const meetingDate = dayjs(meeting.daySpecific.date).startOf('day');
+        const meetingEnd = dayjs(`${meeting.daySpecific.date} ${meeting.daySpecific.slot.endTime}`, 'YYYY-MM-DD hh:mm A');
 
-      // Log current time and meeting details for debugging
-      console.log(`\nProcessing meeting: ${meeting._id}`);
-      console.log(`Now: ${now.toString()}`);
-      console.log(`Today start: ${todayStart.toString()}`);
-      console.log(`Meeting date: ${meetingDate.toString()}`);
-      console.log(`Meeting end time: ${meetingEnd.toString()}`);
+        // Check if meeting is in the past
+        if (meetingEnd.isBefore(now)) {
+          acc.past.push(meeting);
+          return acc;
+        }
 
-      // Check if meeting is in the past (either date is before today OR end time has passed if today)
-      if (meetingDate < todayStart) {
-        // Meeting date is before today
-        console.log(`--> PAST (date before today)`);
-        acc.past.push(meeting);
-        return acc;
-      } else if (meetingDate.toDateString() === now.toDateString() && meetingEnd < now) {
-        // Meeting is today but end time has passed
-        console.log(`--> PAST (today's meeting that ended)`);
-        acc.past.push(meeting);
-        return acc;
-      }
+        // Check if meeting is today
+        const isToday = meetingDate.isSame(now, 'day');
+        if (isToday) {
+          acc.today.push(meeting);
+          return acc;
+        }
 
-      // Rest of your code remains the same...
-      // Check if meeting is today (and not in past)
-      const isToday = meetingDate.toDateString() === now.toDateString();
-      if (isToday) {
-        console.log(`--> TODAY (upcoming/ongoing)`);
-        acc.today.push(meeting);
-        return acc;
-      }
+        // Check if meeting is tomorrow
+        const tomorrow = now.add(1, 'day').startOf('day');
+        const isTomorrow = meetingDate.isSame(tomorrow, 'day');
+        if (isTomorrow) {
+          acc.tomorrow.push(meeting);
+          return acc;
+        }
 
-      // Check if meeting is tomorrow
-      const tomorrow = new Date();
-      tomorrow.setDate(now.getDate() + 1);
-      tomorrow.setHours(0, 0, 0, 0);
-      const isTomorrow = meetingDate.toDateString() === tomorrow.toDateString();
-      if (isTomorrow) {
-        console.log(`--> TOMORROW`);
-        acc.tomorrow.push(meeting);
-        return acc;
-      }
+        // Check if meeting is in the next 7 days
+        const nextWeek = now.add(7, 'day').startOf('day');
+        if (meetingDate.isAfter(tomorrow) && meetingDate.isSameOrBefore(nextWeek)) {
+          acc.nextWeek.push(meeting);
+          return acc;
+        }
 
-      // Check if meeting is in the next 7 days (next week)
-      const nextWeek = new Date();
-      nextWeek.setDate(now.getDate() + 7);
-      nextWeek.setHours(0, 0, 0, 0);
-      if (meetingDate > tomorrow && meetingDate <= nextWeek) {
-        console.log(`--> NEXT WEEK`);
-        acc.nextWeek.push(meeting);
-        return acc;
-      }
-
-      // All other future meetings
-      if (meetingDate > now) {
-        console.log(`--> UPCOMING (beyond next week)`);
+        // All other future meetings
         acc.upcoming.push(meeting);
         return acc;
+      } catch (error) {
+        console.error("Error processing meeting:", error, meeting);
+        return acc;
       }
-
-      console.warn(`--> UNCATEGORIZED`);
-      return acc;
-    } catch (error) {
-      console.error("Error processing meeting:", error, meeting);
-      return acc;
-    }
-  },
-  { today: [], tomorrow: [], nextWeek: [], upcoming: [], past: [] }
-);
-  // Detailed logging of grouped meetings
-  // console.log("\n=== GROUPED MEETINGS ===");
-  // console.log("Today's meetings:", groupedMeetings.today);
-  // console.log("Tomorrow's meetings:", groupedMeetings.tomorrow);
-  // console.log("Next week's meetings:", groupedMeetings.nextWeek);
-  // console.log("Upcoming meetings:", groupedMeetings.upcoming);
-  // console.log("Past meetings:", groupedMeetings.past);
-  // console.log("=======================\n");
-  // console.log("Grouped meetings:", groupedMeetings);
+    },
+    { today: [], tomorrow: [], nextWeek: [], upcoming: [], past: [] }
+  );
 
   // Check if there are any upcoming meetings
   const hasUpcomingMeetings =
@@ -160,10 +117,66 @@ const groupedMeetings = paidMeetings.reduce(
     groupedMeetings.nextWeek.length > 0 ||
     groupedMeetings.upcoming.length > 0;
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const refreshMeetings = async () => {
+    setRefreshing(true);
+    try {
+      await dispatch(getMeetingByUserId());
+      toast.success("Meetings refreshed successfully");
+    } catch (error) {
+      toast.error("Failed to refresh meetings");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial fetch
+    dispatch(getMeetingByUserId());
+
+    // Set up periodic refresh
+    const intervalId = setInterval(() => {
+      dispatch(getMeetingByUserId());
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(intervalId);
+  }, [dispatch]);
+
+  const handleViewDetails = (meeting) => {
+    setSelectedMeeting(meeting);
+    setShowDetails(true);
+  };
+
+  const handleBackToList = () => {
+    setShowDetails(false);
+    setSelectedMeeting(null);
+  };
+
+  // If we're showing details, render the MeetingDetail component
+  if (showDetails && selectedMeeting) {
+    return (
+      <MeetingDetail 
+        meeting={selectedMeeting} 
+        isPast={activeTab === "past"} 
+        onBack={handleBackToList} 
+      />
+    );
+  }
+
+  // Otherwise, render the meetings list
   return (
     <div className="p-8">
-      <div className="mb-8">
+      <div className="flex w-fit items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Meetings</h1>
+        <button
+          onClick={refreshMeetings}
+          disabled={refreshing}
+          className="flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors"
+          title="refresh meeting details"
+        >
+          {refreshing ? "..." : <RefreshCw className="w-4 h-4 text-black" />}
+        </button>
       </div>
 
       <div className="mb-8">
@@ -194,7 +207,6 @@ const groupedMeetings = paidMeetings.reduce(
       </div>
 
       {activeTab === "upcoming" ? (
-        // Show NoMeetingData for upcoming tab if no meetings
         !hasUpcomingMeetings ? (
           <NoData2 />
         ) : (
@@ -210,6 +222,7 @@ const groupedMeetings = paidMeetings.reduce(
                       key={meeting._id}
                       meeting={meeting}
                       isPast={false}
+                      onViewDetails={handleViewDetails}
                     />
                   ))}
                 </div>
@@ -227,6 +240,7 @@ const groupedMeetings = paidMeetings.reduce(
                       key={meeting._id}
                       meeting={meeting}
                       isPast={false}
+                      onViewDetails={handleViewDetails}
                     />
                   ))}
                 </div>
@@ -242,6 +256,7 @@ const groupedMeetings = paidMeetings.reduce(
                       key={meeting._id}
                       meeting={meeting}
                       isPast={false}
+                      onViewDetails={handleViewDetails}
                     />
                   ))}
                 </div>
@@ -257,6 +272,7 @@ const groupedMeetings = paidMeetings.reduce(
                       key={meeting._id}
                       meeting={meeting}
                       isPast={false}
+                      onViewDetails={handleViewDetails}
                     />
                   ))}
                 </div>
@@ -265,13 +281,17 @@ const groupedMeetings = paidMeetings.reduce(
           </div>
         )
       ) : (
-        // Show NoMeetingData for past tab if no meetings
         groupedMeetings.past.length === 0 ? (
           <NoData2 />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedMeetings.past.map((meeting) => (
-              <MeetingCard key={meeting._id} meeting={meeting} isPast={true} />
+              <MeetingCard 
+                key={meeting._id} 
+                meeting={meeting} 
+                isPast={true} 
+                onViewDetails={handleViewDetails}
+              />
             ))}
           </div>
         )

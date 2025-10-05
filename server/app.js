@@ -10,8 +10,11 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import morgan from "morgan";
 import cors from "cors";
 import passport from "passport";
+import cron from 'node-cron';
+import { updateMeetingStatus } from "./controllers/meeting.controller.js";
 import session from "express-session";
 import "./config/passport.config.js";
+
 const app = express();
 
 app.use(morgan("dev"));
@@ -61,6 +64,26 @@ app.use("/api/v1/meeting", meetingRoutes);
 app.use("/api/v1/payu", payURoutes);
 
 // app.use('/api/v1/admin', adminRoutes);
+
+// Run every 5 minutes
+cron.schedule('*/5 * * * *', async () => {
+  console.log('Running meeting status update');
+  try {
+    // Create mock req, res, next objects
+    const req = {};
+    const res = {
+      status: (code) => ({
+        json: (data) => console.log(`Response: ${code}`, data)
+      })
+    };
+    const next = (error) => console.error('Error:', error);
+    
+    // Call your update function
+    await updateMeetingStatus(req, res, next);
+  } catch (error) {
+    console.error('Error in scheduled task:', error);
+  }
+});
 
 app.use("*", (req, res) => {
   res.status(404).send("404 invalid response");

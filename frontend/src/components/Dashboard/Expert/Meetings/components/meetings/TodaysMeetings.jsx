@@ -71,7 +71,7 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
                     <td className="px-3 md:px-6 py-4">
                       <span
                         className={`inline-flex px-2 py-1 text-xs md:text-sm rounded-full font-medium ${
-                          meeting.sessionStatus === "Confirmed"
+                          meeting.sessionStatus === "Completed"
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
