@@ -38,11 +38,35 @@ export const success = createAsyncThunk(
     'payu/success',
     async (data, { rejectWithValue }) => {
         try {
-            const response = await axiosInstance.post('payu/success', data)
-            return response.data
+            const response = await axiosInstance.post('payu/success', data);
+            
+            // Check if the response is a redirect
+            if (response.status === 302 || response.status === 307) {
+                // Extract the redirect URL from the Location header
+                const redirectUrl = response.headers.location;
+                if (redirectUrl) {
+                    // Return the redirect URL to be handled in the component
+                    return { redirectUrl };
+                }
+            }
+            
+            // If the server returns JSON with a redirectUrl (if you implement the server changes)
+            if (response.data && response.data.redirectUrl) {
+                return { redirectUrl: response.data.redirectUrl };
+            }
+            
+            return response.data;
         } catch (error) {
+            // Check if the error is a redirect (some versions of Axios handle redirects as errors)
+            if (error.response && (error.response.status === 302 || error.response.status === 307)) {
+                const redirectUrl = error.response.headers.location;
+                if (redirectUrl) {
+                    return { redirectUrl };
+                }
+            }
+            
             const errorMessage = error?.response?.data?.message || 'something went wrong';
-            return rejectWithValue(errorMessage)
+            return rejectWithValue(errorMessage);
         }
     }
 )

@@ -410,6 +410,7 @@ const adminapproved = async (req, res, next) => {
     const records = approvedExperts.map((expert) => ({
       objectID: expert._id.toString(),
       name: `${expert.firstName} ${expert.lastName}`,
+      redirect_url: expert.redirect_url,
       username: expert.redirect_url,
       bio: expert.bio || "",
       profileImage: expert.profileImage?.secure_url || "",
@@ -1954,6 +1955,8 @@ const pushExpertsToAlgolia = async (req, res) => {
     const records = experts.map((expert) => ({
       objectID: expert._id.toString(), // Required field in Algolia
       name: `${expert.firstName} ${expert.lastName}`,
+      redirect_url: expert.redirect_url,
+      username: expert.redirect_url,
       bio: expert.bio || "", // Ensure empty string if missing
       profileImage: expert.profileImage?.secure_url || "", // Ensure valid URL or empty string
       domain: expert.credentials?.domain || "", // Handle missing credentials object
@@ -1967,10 +1970,11 @@ const pushExpertsToAlgolia = async (req, res) => {
     }));
 
     // Push records to Algolia using saveObjects method
-    // const index = client.initIndex('experts_index');
+    const index = client.initIndex('experts_index');
+    await index.replaceAllObjects(records); // atomic replace
     // await index.saveObjects(records);
     await client.saveObjects({
-      indexName: "experts_index",
+      indexName: index,
       objects: records,
     });
 

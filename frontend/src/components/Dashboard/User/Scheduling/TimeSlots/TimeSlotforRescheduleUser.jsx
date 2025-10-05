@@ -10,8 +10,22 @@ function TimeSlotforRescheduleUser({ selectedDate, sessionDuration, selectedAvai
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [timeSlots, setTimeSlots] = useState([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const location = useLocation();
   const { meeting_id } = location.state || {};
+
+  // Update current time every minute for today's slots
+  useEffect(() => {
+    const isToday = selectedDate && selectedDate.toDateString() === new Date().toDateString();
+    
+    if (!isToday) return;
+
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, [selectedDate]);
   useEffect(() => {
     if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
       console.warn("Missing availability data or selectedDate");
@@ -33,23 +47,40 @@ function TimeSlotforRescheduleUser({ selectedDate, sessionDuration, selectedAvai
     }
   
     const generatedSlots = [];
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
+    
+    // Add buffer time (e.g., 30 minutes from now for today's slots)
+    const bufferMinutes = 30;
+    const earliestBookableTime = isToday ? new Date(now.getTime() + bufferMinutes * 60000) : null;
   
     dayData.slots.forEach(slot => {
       console.log("Processing Slot:", slot);
   
-      // Parse the time from slot
-      const [startHour, startMinute] = slot.startTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
-      const [endHour, endMinute] = slot.endTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
-  
-      // Convert to 24-hour format if AM/PM exists
-      const isStartPM = slot.startTime.includes("PM");
-      const isEndPM = slot.endTime.includes("PM");
+      // Parse time with proper AM/PM handling
+      const parseTime = (timeStr) => {
+        const parts = timeStr.trim().split(/[\s:]+/);
+        let hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        const ampm = parts[2]?.toUpperCase();
+        
+        if (ampm === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (ampm === 'AM' && hours === 12) {
+          hours = 0;
+        }
+        
+        return { hours, minutes };
+      };
+      
+      const startTime = parseTime(slot.startTime);
+      const endTime = parseTime(slot.endTime);
   
       const start = new Date(selectedDate);
-      start.setHours(isStartPM && startHour !== 12 ? startHour + 12 : startHour, startMinute, 0, 0);
+      start.setHours(startTime.hours, startTime.minutes, 0, 0);
   
       const end = new Date(selectedDate);
-      end.setHours(isEndPM && endHour !== 12 ? endHour + 12 : endHour, endMinute, 0, 0);
+      end.setHours(endTime.hours, endTime.minutes, 0, 0);
   
       let currentTime = new Date(start);
   
@@ -58,22 +89,30 @@ function TimeSlotforRescheduleUser({ selectedDate, sessionDuration, selectedAvai
         nextTime.setMinutes(nextTime.getMinutes() + sessionDuration);
   
         if (nextTime <= end) {
-          generatedSlots.push({
-            startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          });
+          // Filter out past slots for today
+          if (!isToday || currentTime >= earliestBookableTime) {
+            generatedSlots.push({
+              startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              startDateTime: new Date(currentTime), // Add for sorting
+            });
+          }
         }
   
         currentTime = nextTime;
       }
     });
+    
+    // Sort slots by start time to show latest available slots
+    generatedSlots.sort((a, b) => a.startDateTime - b.startDateTime);
   
     console.log("Generated Slots:", generatedSlots);
+    console.log(`${isToday ? 'Today' : 'Selected date'} slots after ${isToday ? earliestBookableTime.toLocaleTimeString() : 'N/A'}`);
   
     // Set the generated slots to state
     setTimeSlots(generatedSlots);
   
-  }, [selectedDate, selectedAvailability, sessionDuration]);
+  }, [selectedDate, selectedAvailability, sessionDuration, currentTime]);
   
   const handleBooking = async (time) => {
     try {

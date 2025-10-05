@@ -27,7 +27,7 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, replace } from "react-router-dom";
 
 // Sample categories remain unchanged
 const categories = [
@@ -38,6 +38,7 @@ const categories = [
       </div>
     ),
     title: "Carrer growth",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -46,6 +47,7 @@ const categories = [
       </div>
     ),
     title: "Startup",
+    value: "business_and_entrepreneurship",
   },
   {
     icon: (
@@ -54,6 +56,7 @@ const categories = [
       </div>
     ),
     title: "Freelancing",
+    value: "business_and_entrepreneurship",
   },
   {
     icon: (
@@ -62,6 +65,7 @@ const categories = [
       </div>
     ),
     title: "Upskilling",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -70,6 +74,7 @@ const categories = [
       </div>
     ),
     title: "Job Hunting",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -78,6 +83,7 @@ const categories = [
       </div>
     ),
     title: "Education",
+    value: "career_and_education",
   },
   {
     icon: (
@@ -86,6 +92,7 @@ const categories = [
       </div>
     ),
     title: "Personal Branding",
+    value: "personal_development",
   },
   {
     icon: (
@@ -94,6 +101,7 @@ const categories = [
       </div>
     ),
     title: "Work Life Balance",
+    value: "personal_development",
   },
 ];
 
@@ -162,6 +170,7 @@ function HomePage() {
 
   // Handler for HomePage grid/buttons (uses domain mapping)
   const handleHomeCategorySelect = (category) => {
+
     const domainValue = categoryToDomainMap[category.title];
     if (domainValue) {
       navigate(`/explore?category=${domainValue}`);
@@ -175,6 +184,7 @@ function HomePage() {
   const handleModalCategorySelect = (category) => {
     if (category.value) {
       navigate(`/explore?category=${category.value}`);
+      console.log("Navigating to category:", category.value);
       setIsModalOpen(false);
     } else {
       console.warn(`No value found for category:`, category);

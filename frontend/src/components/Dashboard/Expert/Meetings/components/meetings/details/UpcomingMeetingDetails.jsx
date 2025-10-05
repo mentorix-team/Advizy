@@ -235,14 +235,18 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
             </div>
             <div>
               <h3 className="text-sm text-gray-500 mb-1">Time</h3>
-              <div className="flex items-center gap-2">
+              <div className="flex justify-between items-center gap-2">
+                <div className="flex items-center gap-2">
                 <BsClock className="text-[#16A348]" />
                 <p className="text-gray-900">{meeting.daySpecific.slot.startTime}</p>
+                <p className="text-gray-900">{" - "}</p>
+                <p className="text-gray-900">{meeting.daySpecific.slot.endTime}</p>
+                </div>
                 <span
-                  className={`text-sm ${
-                    meeting.sessionStatus === "Confirmed"
-                      ? "text-green-600"
-                      : "text-orange-600"
+                  className={`text-sm font-bold ${
+                    meeting.sessionStatus === "Completed"
+                      ? "text-green-600 bg-green-200 py-1 px-2 rounded-full"
+                      : "text-orange-600 bg-orange-200 py-1 px-2 rounded-full"
                   }`}
                 >
                   {meeting.sessionStatus}

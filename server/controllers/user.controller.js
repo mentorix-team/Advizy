@@ -15,6 +15,7 @@ import {
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
 const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
   httpOnly: true,
@@ -208,6 +209,7 @@ const register_with_email = async (req, res, next) => {
       return next(new AppError("all fields are required", 500));
     }
     const userExists = await User.findOne({ email });
+    
     if (userExists) {
       return next(new AppError("try again", 500));
     }
@@ -402,19 +404,22 @@ const logout = async (req, res, next) => {
 };
 
 const myprofile = async (req, res, next) => {
-  const { id } = req.user.id;
-
-  const user = await User.findById(id);
-  if (!user) {
-    return next(new AppError("user not found", 500));
+  try {
+    const id = req.user.id; // fixed
+    const user = await User.findById(id).populate("favourites");
+    if (!user) {
+      return next(new AppError("user not found", 404));
+    }
+    return res.status(200).json({
+      success: true,
+      message: "user profile",
+      user,
+    });
+  } catch (e) {
+    return next(new AppError(e.message, 500));
   }
-
-  return res.status(200).json({
-    success: true,
-    message: "user profile",
-    user,
-  });
 };
+
 const forgot = async (req, res, next) => {
   const { email } = req.body;
 
@@ -694,7 +699,7 @@ const generate_otp_for_Signup = async (req, res, next) => {
       return next(new AppError("All fields are required", 400));
     }
 
-    // Check if user already exists
+    // Check if user already exists in User model (form signups)
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -705,6 +710,9 @@ const generate_otp_for_Signup = async (req, res, next) => {
       }
       return next(new AppError("User already exists. Please log in.", 400));
     }
+
+    // For form signups, we allow creating accounts even if Google account exists
+    // The Google account and form account will be separate
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -898,7 +906,7 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
   try {
     const { firstName, lastName, phoneNumber, password } = req.body;
     console.log("Request Body:", req.body);
-    if (!firstName || !lastName || !number || !password) {
+    if (!firstName || !lastName || !phoneNumber || !password) {
       return next(new AppError("All fields are required", 400));
     }
 
@@ -907,8 +915,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
     console.log("Extracted countryCode:", countryCode);
     console.log("Extracted number:", number);
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email });
+    // Check if user already exists in User model (form signups)
+    const userExists = await User.findOne({ number });
 
     if (userExists) {
       if (userExists.googleId) {
@@ -918,6 +926,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
       }
       return next(new AppError("User already exists. Please log in.", 400));
     }
+
+    // For form signups, we allow creating accounts even if Google account exists
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpToken = bcrypt.hashSync(otp, 10);
@@ -1188,22 +1198,24 @@ const forgot_with_otp_mobile = async (res, req, next) => {
 };
 
 const validateToken = async (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return next(new AppError("token not found", 401));
-  }
-  jwt.verify(
-    token,
-    "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
-    (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ message: "Invalid or expired token" });
-      }
-
-      res.json({ valid: true, userId: decoded.userId, role: decoded.role });
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ success: false, valid: false, message: 'Token not found' });
     }
-  );
+    jwt.verify(
+      token,
+      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=",
+      (err, decoded) => {
+        if (err) {
+          return res.status(401).json({ success: false, valid: false, message: 'Invalid or expired token' });
+        }
+        return res.json({ success: true, valid: true, userId: decoded.userId, role: decoded.role });
+      }
+    );
+  } catch (e) {
+    next(e);
+  }
 };
 
 const refresh_token = async (req, res, next) => {
@@ -1268,97 +1280,178 @@ const refresh_token = async (req, res, next) => {
   }
 };
 
-const addFavouriteExpert = async (req, res) => {
+// const addFavouriteExpert = async (req, res) => {
+//   try {
+//     const { expertId } = req.body;
+//     if (!expertId) {
+//       return res.status(400).json({ success: false, message: "expertId is required" });
+//     }
+
+//     // Fetch user WITHOUT populate first
+//     const user = await User.findById(req.user.id);
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+
+//     // Validate expert exists
+//     const expert = await ExpertBasics.findById(expertId);
+//     if (!expert) {
+//       return res.status(404).json({ success: false, message: "Expert not found" });
+//     }
+
+//     // Normalize favourites array to ObjectId strings only
+//     user.favourites = user.favourites.map(id => id.toString());
+
+//     const isAlready = user.favourites.some(id => id === expertId);
+//     let action;
+
+//     if (isAlready) {
+//       user.favourites = user.favourites.filter(id => id !== expertId);
+//       action = "removed";
+//     } else {
+//       user.favourites.push(expertId);
+//       action = "added";
+//     }
+
+//     await user.save();
+
+//     // Re-fetch populated for response
+//     const populatedUser = await User.findById(req.user.id).populate("favourites");
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Expert ${action} to favourites`,
+//       action,
+//       favourites: populatedUser.favourites.map(exp => exp._id),
+//       user: populatedUser
+//     });
+//   } catch (error) {
+//     console.log("Error updating favourites:", error);
+//     return res.status(500).json({ success: false, message: "Server error", error: error.message });
+//   }
+// };
+
+const normalizeToObjectIds = (arr = []) => {
+  return arr
+    .filter(v => v !== null && v !== undefined)
+    .map(v => {
+      if (typeof v === "string") {
+        if (mongoose.Types.ObjectId.isValid(v)) return new mongoose.Types.ObjectId(v);
+      } else if (v instanceof mongoose.Types.ObjectId) {
+        return v;
+      }
+      // Fallback: try toString then cast
+      const asStr = v?.toString?.();
+      if (asStr && mongoose.Types.ObjectId.isValid(asStr)) {
+        return new mongoose.Types.ObjectId(asStr);
+      }
+      return null;
+    })
+    .filter(Boolean);
+};
+
+const toggleFavouriteExpert = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("favourites");
-    const { expertId } = req.body;
+    let { expertId } = req.body;
+    if (!expertId) {
+      return res.status(400).json({ success: false, message: "expertId is required" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(expertId)) {
+      return res.status(400).json({ success: false, message: "Invalid expertId" });
+    }
+    const expertObjId = new mongoose.Types.ObjectId(expertId);
 
+    const expertExists = await ExpertBasics.exists({ _id: expertObjId });
+    if (!expertExists) {
+      return res.status(404).json({ success: false, message: "Expert not found" });
+    }
+
+    // Load user raw
+    const user = await User.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const expert = await ExpertBasics.findById(expertId);
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
+    // Normalize current favourites
+    let favourites = normalizeToObjectIds(user.favourites || []);
+
+    const already = favourites.some(f => f.equals(expertObjId));
+    let action;
+    if (already) {
+      favourites = favourites.filter(f => !f.equals(expertObjId));
+      action = "removed";
+    } else {
+      favourites.push(expertObjId);
+      action = "added";
     }
 
-    // Toggle favorite (add/remove)
-    user.favourites = user.favourites.some(
-      (exp) => exp._id.toString() === expertId
-    )
-      ? user.favourites.filter((exp) => exp._id.toString() !== expertId)
-      : [...user.favourites, expertId];
+    // De-duplicate just in case
+    const seen = new Set();
+    favourites = favourites.filter(f => {
+      const key = f.toString();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
+    user.favourites = favourites;
     await user.save();
 
-    // Populate favourites before sending response
-    const updatedUser = await User.findById(req.user.id).populate("favourites");
+    // Populate (optional, keep lightweight)
+    const populated = await User.findById(user._id)
+      .populate({
+        path: "favourites",
+        select: "firstName lastName credentials profileImage redirect_url" // keep narrow
+      })
+      .lean();
 
-    res.status(200).json({
-      message: "Expert added to favorites",
-      user,
+    const favEntities = (populated?.favourites || []).filter(e => e && e._id);
+    const favouriteIds = favEntities.map(e => e._id.toString());
+
+    return res.status(200).json({
+      success: true,
+      action,
+      favourites: favouriteIds,
+      favouritesPopulated: favEntities
     });
-  } catch (error) {
-    console.log("Error updating favorites:", error);
-    res.status(500).json({ message: "Server Error", error });
+  } catch (e) {
+    console.error("toggleFavouriteExpert error:", e);
+    return res.status(500).json({ success: false, message: "Server error", error: e.message });
+  }
+};
+
+const getFavourites = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate("favourites");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    const uniqueMap = new Map();
+    (user.favourites || []).forEach(e => {
+      if (e?._id) uniqueMap.set(e._id.toString(), e);
+    });
+    const entities = Array.from(uniqueMap.values());
+    return res.status(200).json({
+      success: true,
+      favourites: entities,
+      favouriteIds: entities.map(e => e._id)
+    });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: "Server error", error: e.message });
   }
 };
 
 const getUserProfile = async (req, res) => {
   try {
-    // Find user and populate the favourites array with expert details
     const user = await User.findById(req.user.id).populate("favourites");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json(user);
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).json({ message: "Internal server error" });
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    return res.status(200).json({ success: true, user });
+  } catch (e) {
+    return res.status(500).json({ success: false, message: e.message });
   }
 };
 
-// const removeFavouriteExpert = async (req, res) => {
-//   try {
-//     const user = await User.findById(req.user.id);
-//     const expertId = req.params.expertId;
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     user.favourites = user.favourites.filter(
-//       (id) => id.toString() !== expertId
-//     );
-//     await user.save();
-
-//     res
-//       .status(200)
-//       .json({
-//         message: "Expert removed from favourites",
-//         favourites: user.favourites,
-//       });
-//   } catch (error) {
-//     res.status(500).json({ message: "Server Error", error });
-//   }
-// };
-
-// const getFavourites = async (req, res) => {
-//   try {
-//     const user = await User.findById(req.user.id).populate("favourites");
-
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json(user.favourites);
-//   } catch (error) {
-//     res.status(500).json({ message: "Server Error", error });
-//   }
-// };
-
+// Ensure these are exported
 export {
   refresh_token,
   register_with_email,
@@ -1387,8 +1480,8 @@ export {
   regenerate_otp,
   updateUser,
   validateToken,
-  addFavouriteExpert,
-  getUserProfile,
-  // getFavourites,
-  // removeFavouriteExpert,
+  // addFavouriteExpert,
+  toggleFavouriteExpert,
+  getFavourites,
+  getUserProfile, // add this back
 };

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 const STATUS_STYLES = {
   session: {
-    confirmed: 'bg-green-100 text-green-800',
+    Completed: 'bg-green-100 text-green-800',
     'reschedule requested': 'bg-yellow-100 text-yellow-800',
     rescheduled: 'bg-yellow-100 text-yellow-800',
     'cancellation requested': 'bg-red-100 text-red-800',

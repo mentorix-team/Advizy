@@ -11,7 +11,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { addvideoparticipant } from "@/Redux/Slices/meetingSlice";
 
-export default function MeetingCard({ meeting, isPast, onRate }) {
+export default function MeetingCard({ meeting, isPast, onViewDetails, onRate }) {
   const navigate = useNavigate();
   const dispatch = useDispatch()
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
@@ -20,18 +20,19 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
   const [submittedRating, setSubmittedRating] = useState(null);
   const [submittedFeedback, setSubmittedFeedback] = useState("");
-  const {data} = useSelector((state)=>state.auth)
+  const { data } = useSelector((state) => state.auth)
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    userData = null; 
+    userData = null;
   }
 
-  console.log("This is my user data:", userData);
   const handleSubmitRating = () => {
-    onRate(meeting._id, { rating, feedback });
+    if (onRate) {
+      onRate(meeting._id, { rating, feedback });
+    }
     setSubmittedRating(rating);
     setSubmittedFeedback(feedback);
     setIsRatingSubmitted(true);
@@ -40,8 +41,6 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
 
   const handleJoinCall = async (meeting) => {
     try {
-      console.log(meeting);
-      console.log("This is user videocall id ",meeting.videoCallId);
       const meetingId = meeting.videoCallId;
       const startTime = meeting.daySpecific.slot.startTime
       const endTime = meeting.daySpecific.slot.endTime
@@ -51,25 +50,18 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
       const expertName = meeting.expertName
       const serviceName = meeting.serviceName
       const id = meeting._id
-      
+
       const joinCallData = {
         meeting_id: meeting.videoCallId,
         custom_participant_id: meeting.userId,
         name: `${userData.firstName} ${userData.lastName}`,
         preset_name: "group_call_participant",
       };
-  
-      console.log("Preset Name being sent:", joinCallData.preset_name);
-  
+
       const response = await dispatch(addvideoparticipant(joinCallData));
-      console.log("this is response",response.payload)
       if (response?.payload?.data?.data?.token) {
         const authToken = response.payload.data.data.token;
-  
-        console.log("Auth Token received:", authToken);
-  
-        // Navigate to meeting page with authToken
-        navigate("/meeting", { state: {authToken,meetingId ,startTime,endTime,id,serviceName,expertName,userName,expert_id,user_id} });
+        navigate("/meeting", { state: { authToken, meetingId, startTime, endTime, id, serviceName, expertName, userName, expert_id, user_id } });
       } else {
         console.error("Failed to retrieve authToken.");
       }
@@ -78,10 +70,18 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
     }
   };
 
+  // Use the onViewDetails prop if provided, otherwise navigate to the URL
   const handleViewDetails = () => {
-    const path = isPast?`/dashboard/user/meetings/past/${meeting._id}`:`/dashboard/user/meetings/upcoming/${meeting._id}`
-    navigate(path)
-  }
+    if (onViewDetails) {
+      onViewDetails(meeting);
+    } else {
+      const path = isPast
+        ? `/dashboard/user/meetings/past/${meeting._id}`
+        : `/dashboard/user/meetings/upcoming/${meeting._id}`;
+      navigate(path);
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200">
       <div className="flex justify-between items-start mb-4">
@@ -90,13 +90,12 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
           <p className="text-gray-600">{`With: ${meeting.expertName}`}</p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-sm ${
-            isPast
+          className={`px-3 py-1 rounded-full text-sm font-bold ${isPast
               ? "bg-gray-100 text-gray-600"
               : meeting.status === "Starting Soon"
-              ? "bg-green-50 text-green-600"
-              : "bg-blue-50 text-blue-600"
-          }`}
+                ? "bg-green-50 text-green-600"
+                : "bg-blue-50 text-blue-600"
+            }`}
         >
           {isPast ? "Completed" : meeting.status || "Upcoming"}
         </span>
@@ -105,8 +104,11 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
       <div className="space-y-2 text-gray-600">
         <div className="flex items-center">
           <AiOutlineCalendar className="w-5 h-5 mr-2 text-green-600" />
-          {new Date(meeting.daySpecific.date).toLocaleDateString()}
+          {new Date(meeting.daySpecific.date).getDate()}/
+          {new Date(meeting.daySpecific.date).getMonth() + 1}/
+          {new Date(meeting.daySpecific.date).getFullYear()}
         </div>
+
         <div className="flex items-center">
           <AiOutlineClockCircle className="w-5 h-5 mr-2 text-green-600" />
           {`${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`}
@@ -146,7 +148,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
           </>
         ) : (
           <>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onClick={()=>handleJoinCall(meeting)}>
+            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onClick={() => handleJoinCall(meeting)}>
               Join Meeting
             </button>
             <button

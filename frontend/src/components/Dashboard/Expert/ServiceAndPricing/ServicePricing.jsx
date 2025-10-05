@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Joyride, { ACTIONS, EVENTS, STATUS } from 'react-joyride';
 import ServiceCard from './ServiceCard';
 import AddServiceModal from './modals/AddServiceModal';
@@ -18,11 +19,24 @@ function ServicePricing() {
   const [steps, setSteps] = useState([]);
   const [runTour, setRunTour] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
+  const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when services update
 
   const expertData = useSelector((state) => state.expert.expertData);
   const services = expertData?.credentials?.services || [];
   const mentoringService = services.find(service => service.title === "One-on-One Mentoring");
   const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
+
+  // Debug logging for services
+  console.log('=== SERVICES DEBUG ===');
+  console.log('All services:', services);
+  console.log('Number of services:', services.length);
+  if (services.length > 0) {
+    console.log('First service structure:', services[0]);
+    console.log('First service keys:', Object.keys(services[0] || {}));
+  }
+  console.log('Mentoring service:', mentoringService);
+  console.log('Filtered services:', filteredServices);
+  console.log('=== END SERVICES DEBUG ===');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -37,24 +51,75 @@ function ServicePricing() {
   }, []);
 
   useEffect(() => {
-    console.log('Expert Data:', expertData);
+    console.log('Expert Data changed:', expertData);
     console.log('Services:', services);
-  }, [expertData, services]);
+    console.log('Mentoring Service:', mentoringService);
+    console.log('Filtered Services:', filteredServices);
+  }, [expertData, services, mentoringService, filteredServices]);
 
   const handleEditService = (service) => {
-    console.log('this is the service', service);
+    console.log('=== DEBUGGING handleEditService ===');
+    console.log('Received service object:', service);
+    console.log('Service type:', typeof service);
+    console.log('Service keys:', Object.keys(service || {}));
+    console.log('Service values:', Object.values(service || {}));
+    console.log('service.title:', service?.title);
+    console.log('service.serviceName:', service?.serviceName);
+    console.log('service.name:', service?.name);
+    console.log('=== END DEBUG ===');
+    
     setEditingService(service);
     if (service.title === 'One-on-One Mentoring') {
+      console.log('Opening default service modal for:', service);
       setIsEditDefaultModalOpen(true);
     } else {
+      console.log('Opening non-default service modal for:', service);
       setIsEditNonDefaultModalOpen(true);
     }
   };
 
-  const handleUpdateService = (updatedService) => {
-    console.log('this is updated service ', updatedService);
-    dispatch(updateServicebyId(updatedService));
-    setEditingService(null);
+  const handleUpdateService = async (updatedService) => {
+    console.log('=== handleUpdateService called ===');
+    console.log('Updated service data being sent:', updatedService);
+    
+    try {
+      const result = await dispatch(updateServicebyId(updatedService));
+      console.log('Update result:', result);
+      console.log('Result payload (new expert data):', result.payload);
+      
+      if (result.meta.requestStatus === 'fulfilled') {
+        console.log('Service updated successfully, new expert data:', result.payload);
+        console.log('New services from updated expert data:', result.payload.expert?.credentials?.services);
+        
+        // Show success toast
+        toast.success('Service updated successfully', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        // Force re-render of components
+        setForceUpdate(prev => prev + 1);
+        
+        // Don't close modal immediately - let the success toast show first
+        setTimeout(() => {
+          setEditingService(null);
+          setIsEditDefaultModalOpen(false);
+          setIsEditNonDefaultModalOpen(false);
+        }, 1000); // Give time for the user to see the success message
+      } else {
+        console.error('Failed to update service:', result.error);
+        toast.error('Failed to update service. Please try again.', {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating service:', error);
+    }
   };
 
   const handleJoyrideCallback = (data) => {
@@ -137,18 +202,25 @@ function ServicePricing() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mentoringService && (
             <MentoringCard 
+              key={`mentoring-${mentoringService.serviceId || mentoringService._id}-${forceUpdate}-${JSON.stringify(mentoringService.one_on_one || [])}`}
               service={mentoringService} 
-              onEdit={handleEditService}
+              onEdit={(service) => {
+                console.log('MentoringCard onEdit called with:', service);
+                handleEditService(service || mentoringService);
+              }}
               setSteps={setSteps}
             />
           )}
           {filteredServices.length > 0 ? (
             filteredServices.map((service, index) => (
               <ServiceCard
-                key={index}
+                key={`service-${service.serviceId || service._id || index}-${forceUpdate}-${service.title || 'untitled'}-${JSON.stringify(service.timeSlots || [])}`}
                 service={service}
                 isDefault={service.id === "default"}
-                onEdit={handleEditService}
+                onEdit={(serviceToEdit) => {
+                  console.log('ServiceCard onEdit called with:', serviceToEdit);
+                  handleEditService(serviceToEdit || service);
+                }}
               />
             ))
           ) : (
@@ -166,8 +238,10 @@ function ServicePricing() {
       />
 
       <EditNonDefaultServiceModal
+        key={`non-default-${editingService?.serviceId || editingService?._id || 'new'}`}
         isOpen={isEditNonDefaultModalOpen}
         onClose={() => {
+          console.log('Closing non-default service modal');
           setIsEditNonDefaultModalOpen(false);
           setEditingService(null);
         }}
@@ -176,8 +250,10 @@ function ServicePricing() {
       />
 
       <EditDefaultServiceModal
+        key={`default-${editingService?.serviceId || editingService?._id || 'new'}`}
         isOpen={isEditDefaultModalOpen}
         onClose={() => {
+          console.log('Closing default service modal');
           setIsEditDefaultModalOpen(false);
           setEditingService(null);
         }}

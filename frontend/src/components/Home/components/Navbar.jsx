@@ -25,9 +25,12 @@ const Navbar = ({ onSearch }) => {
 
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
-    setIsExpertMode(true);
     if (expertData) {
       setHasExpertData(true);
+      const parsedData = JSON.parse(expertData);
+      if (parsedData?.admin_approved_expert === true) {
+        setIsExpertMode(true);
+      }
     }
   }, [location.pathname]);
 
@@ -61,24 +64,18 @@ const Navbar = ({ onSearch }) => {
 
   const handleToggleExpertMode = () => {
     const newMode = !isExpertMode;
-  
+    setIsExpertMode(newMode);
+
     if (newMode) {
       localStorage.setItem("expertMode", "true");
-    } else {
-      localStorage.removeItem("expertMode");
-    }
-  
-    setIsExpertMode(newMode);
-  
-    if (newMode) {
-      console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
-      console.log("Navigating to User Dashboard");
+      localStorage.removeItem("expertMode");
       navigate("/dashboard/user/meetings");
     }
-    
+
     setIsMenuOpen(false);
+    setIsDropdownOpen(false);
   };
 
   const UserDropdown = () => (
@@ -236,11 +233,10 @@ const Navbar = ({ onSearch }) => {
           <div className="hidden lg:flex items-center gap-6">
             <a
               href="/about-us"
-              className={`transition-colors duration-200 text-base font-medium ${
-                isLinkActive("/about-us")
-                  ? "text-primary underline underline-offset-4"
-                  : "text-gray-600 hover:text-primary"
-              }`}
+              className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/about-us")
+                ? "text-primary underline underline-offset-4"
+                : "text-gray-600 hover:text-primary"
+                }`}
             >
               About Us
             </a>
@@ -248,11 +244,10 @@ const Navbar = ({ onSearch }) => {
             {!isExpertMode && (
               <a
                 href="/become-expert"
-                className={`transition-colors duration-200 text-base font-medium ${
-                  isLinkActive("/become-expert")
-                    ? "text-primary underline underline-offset-4"
-                    : "text-gray-600 hover:text-primary"
-                }`}
+                className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/become-expert")
+                  ? "text-primary underline underline-offset-4"
+                  : "text-gray-600 hover:text-primary"
+                  }`}
               >
                 Share Your Expertise
               </a>
@@ -316,22 +311,20 @@ const Navbar = ({ onSearch }) => {
                 </div>
                 <a
                   href="/about-us"
-                  className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                    isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                  }`}
+                  className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${isLinkActive("/about-us")
+                    ? "text-primary underline underline-offset-4"
+                    : "text-gray-600 hover:text-primary"
+                    }`}
                 >
                   About Us
                 </a>
                 {!isExpertMode && (
                   <a
                     href="/become-expert"
-                    className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${
-                      isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
-                    }`}
+                    className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${isLinkActive("/become-expert")
+                      ? "text-primary underline underline-offset-4"
+                      : "text-gray-600 hover:text-primary"
+                      }`}
                   >
                     Share Your Expertise
                   </a>

@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getExpertById,
-  getExpertByRedirectUrl,
-} from "@/Redux/Slices/expert.Slice";
+import { getExpertById, getExpertByRedirectUrl } from "@/Redux/Slices/expert.Slice";
 import ProfileHeader from "./ProfileHeader";
 import ProfileInfo from "./ProfileInfo";
 import Expertise from "./Expertise";
@@ -18,8 +15,17 @@ import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
 import SearchModal from "@/components/Home/components/SearchModal";
+import {
+  optimisticAdd,
+  optimisticRemove,
+  toggleFavourite,
+  selectFavouriteIds,
+  selectIsUpdatingFavourite,
+} from "@/Redux/Slices/favouritesSlice";
+import toast from "react-hot-toast";
 
 const ExpertDetailPage = () => {
+  const navigate = useNavigate();
   // const { id } = useParams(); // Get the ID from URL params
   const { feedbackofexpert } = useSelector((state) => state.meeting);
 
@@ -42,8 +48,13 @@ const ExpertDetailPage = () => {
   //   }
   // }, [id, dispatch]);
 
+  // Heuristic: 24-char hex => ObjectId -> fetch by ID; else treat as redirect slug
   useEffect(() => {
-    if (redirect_url) {
+    if (!redirect_url) return;
+    const isMongoId = /^[a-fA-F0-9]{24}$/.test(redirect_url);
+    if (isMongoId) {
+      dispatch(getExpertById(redirect_url));
+    } else {
       dispatch(getExpertByRedirectUrl(redirect_url));
     }
   }, [redirect_url, dispatch]);
@@ -61,29 +72,61 @@ const ExpertDetailPage = () => {
     }
   }, [location.search]);
 
-  const { selectedExpert, loading, error } = useSelector(
-    (state) => state.expert
-  );
-  console.log("This is selected expert", selectedExpert);
+  const { selectedExpert: rawSelectedExpert, loading, error } = useSelector((state) => state.expert);
+
+  // Normalized expert object whether slice stored wrapper {expert: {...}} or expert directly
+  const expert = useMemo(() => {
+    if (!rawSelectedExpert) return null;
+    if (rawSelectedExpert.expert) return rawSelectedExpert.expert; // wrapper
+    return rawSelectedExpert; // assume already expert object
+  }, [rawSelectedExpert]);
+
+  console.log("Normalized expert", expert);
   useEffect(() => {
-    if (selectedExpert?.expert?._id) {
-      dispatch(getfeedbackbyexpertid({ id: selectedExpert.expert._id }));
+    if (expert?._id) {
+      dispatch(getfeedbackbyexpertid({ id: expert._id }));
     }
-  }, [dispatch, selectedExpert?.expert?._id]); // Add `selectedExpert.expert._id` as a dependency
+  }, [dispatch, expert?._id]);
+
+  const expertId = expert?._id;
+
+  const favIds = useSelector(selectFavouriteIds);
+  const isFav = expertId ? favIds.includes(expertId) : false;
+  const isUpdating = useSelector(s => selectIsUpdatingFavourite(s, expertId));
+
+  const handleFavorite = () => {
+    if (!expertId || isUpdating) return;
+    if (isFav) dispatch(optimisticRemove(expertId));
+    else dispatch(optimisticAdd(expertId));
+
+    dispatch(toggleFavourite(expertId)).then(r => {
+      if (r.meta.requestStatus === "fulfilled") {
+        toast.success(
+          r.payload.action === "added" ? "Added to favourites" : "Removed from favourites",
+          { position: "top-right" }
+        );
+      } else {
+        // rollback
+        if (isFav) dispatch(optimisticAdd(expertId));
+        else dispatch(optimisticRemove(expertId));
+        toast.error("Failed to update favourite", { position: "top-right" });
+      }
+    });
+  };
 
   if (loading) {
     return <Spinner />;
   }
 
   if (error) {
-    return <p className="text-red-500">Error: {error}</p>;
+    const msg = typeof error === "string" ? error : error?.message || "Unexpected error";
+    return <p className="text-red-500">Error: {msg}</p>;
   }
 
-  if (!selectedExpert) {
-    return <p>No expert found.</p>;
+  if (!expert) {
+    return <p className="text-gray-500">No expert found.</p>;
   }
 
-  const expert = selectedExpert?.expert; // Shorten the chain for readability
   const parseLanguages = (languages) => {
     if (typeof languages === "string") {
       try {
@@ -116,24 +159,24 @@ const ExpertDetailPage = () => {
         <ProfileHeader
           coverImage={expert?.coverImage?.secure_url}
           name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
-          title={
-            expert?.credentials?.professionalTitle[0] || "No Title Provided"
-          }
+          title={expert?.credentials?.professionalTitle?.[0] || "No Title Provided"}
           location={expert?.city || "Unknown"}
           rating={
-            expert?.reviews?.length > 0
+            expert?.reviews?.length
               ? Math.round(
-                expert.reviews.reduce(
-                  (acc, review) => acc + review.rating,
-                  0
-                ) / expert.reviews.length
+                expert.reviews.reduce((acc, r) => acc + r.rating, 0) /
+                expert.reviews.length
               )
               : 0
           }
           reviewsCount={expert?.reviews?.length || 0}
           image={expert?.profileImage?.secure_url}
-          redirect_uri={redirect_url}
+          redirect_uri={expert?.redirect_url || redirect_url}
           isAdminApproved={expert?.admin_approved_expert}
+          // NEW PROPS:
+          isFavourite={isFav}
+          onToggleFavourite={handleFavorite}
+          favUpdating={isUpdating}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

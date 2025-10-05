@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ServiceDetailsModal from "./ServiceDetailsModal";
 import { InformationIcon } from "@/icons/Icons";
 import { useNavigate } from "react-router-dom";
@@ -8,12 +8,13 @@ import { getServicebyid } from "@/Redux/Slices/expert.Slice";
 const DurationOption = ({ duration, price, isSelected, onClick }) => (
   <button
     onClick={onClick}
-    className={`p-3 rounded-lg text-left border ${
-      isSelected ? "border-[#16A348] border-2 bg-[#E6F4EA]" : "border-[#E5E7EB]"
-    } hover:border-[#16A348] transition-colors`}
+    className={`w-full text-left px-3 py-2 rounded-md flex items-center justify-between gap-4 border transition-colors ${isSelected
+      ? "border-[#16A348] bg-[#E6F4EA] font-medium"
+      : "border-[#E5E7EB] hover:border-[#16A348]"
+      }`}
   >
-    <div className="text-sm">{duration} min</div>
-    <div className="text-[#16A348] font-semibold">₹{price}</div>
+    <span className="text-sm">{duration} min</span>
+    <span className="text-[#16A348] font-semibold whitespace-nowrap">₹{price}</span>
   </button>
 );
 
@@ -23,9 +24,13 @@ const MentoringCard = ({ mentoringService }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { selectedExpert } = useSelector((state) => state.expert);
+  const expertObj = selectedExpert?.expert || selectedExpert; // normalized
 
   const [selectedDuration, setSelectedDuration] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
 
   if (!mentoringService) return null; // Prevent rendering if no data
 
@@ -43,9 +48,9 @@ const MentoringCard = ({ mentoringService }) => {
   const serviceId = mentoringService.serviceId;
 
   const handleBook = async () => {
-    if (selectedExpert?.expert?._id && serviceId && selectedDuration) {
+    if (expertObj?._id && serviceId && selectedDuration) {
       console.log("Dispatching getServicebyid...");
-      const expertId = selectedExpert.expert._id;
+      const expertId = expertObj._id;
       console.log("Expert ID:", expertId);
       console.log("Selected Duration:", selectedDuration);
 
@@ -64,6 +69,21 @@ const MentoringCard = ({ mentoringService }) => {
     }
   };
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    if (isDropdownOpen) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
+
+  const selectedLabel = selectedDuration
+    ? `${selectedDuration.duration} min  •  ₹${selectedDuration.price}`
+    : "Select slot";
+
   return (
     <>
       <div className="border border-[#16A348] rounded-2xl p-4 bg-white">
@@ -76,27 +96,82 @@ const MentoringCard = ({ mentoringService }) => {
             <p className="text-sm text-gray-600">{mentoringService.shortDescription}</p>
           </div>
         </div>
-
         <div className="mb-2 text-sm font-medium">Select Duration:</div>
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          {durations.length > 0 ? (
-            durations.map((option) => (
-              <DurationOption
-                key={option._id}
-                duration={option.duration}
-                price={option.price}
-                isSelected={
-                  selectedDuration?.duration === option.duration &&
-                  selectedDuration?.price === option.price
-                }
-                onClick={() => {
-                  setSelectedDuration(option);
-                  console.log("Selected Duration Changed:", option);
-                }}
+        {/* Mobile Dropdown */}
+        <div className="mb-4 md:hidden" ref={dropdownRef}>
+          <button
+            type="button"
+            onClick={() => durations.length > 0 && setIsDropdownOpen((o) => !o)}
+            className={`w-full flex items-center justify-between px-4 py-2.5 rounded-md border text-sm transition-colors ${isDropdownOpen
+              ? "border-[#16A348] bg-[#E6F4EA]"
+              : "border-[#D1D5DB] hover:border-[#16A348]"
+              }`}
+            disabled={durations.length === 0}
+          >
+            <span className={selectedDuration ? "text-[#101828]" : "text-gray-500"}>{selectedLabel}</span>
+            <svg
+              className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.126l3.71-3.896a.75.75 0 111.08 1.04l-4.24 4.46a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                fill="#101828"
               />
-            ))
+            </svg>
+          </button>
+          {isDropdownOpen && (
+            <div className="mt-2 border border-[#E5E7EB] rounded-md p-2 bg-white max-h-60 overflow-auto shadow-sm">
+              {durations.length > 0 ? (
+                <div className="flex flex-col gap-2">
+                  {durations.map((option) => {
+                    const selected =
+                      selectedDuration?.duration === option.duration &&
+                      selectedDuration?.price === option.price;
+                    return (
+                      <DurationOption
+                        key={option._id}
+                        duration={option.duration}
+                        price={option.price}
+                        isSelected={selected}
+                        onClick={() => {
+                          setSelectedDuration(option);
+                          setIsDropdownOpen(false); // collapse after choosing
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-sm px-2 py-1">No available durations.</p>
+              )}
+            </div>
+          )}
+        </div>
+        {/* Desktop Grid */}
+        <div className="hidden md:grid grid-cols-4 gap-3 mb-4">
+          {durations.length > 0 ? (
+            durations.map((option) => {
+              const selected =
+                selectedDuration?.duration === option.duration &&
+                selectedDuration?.price === option.price;
+              return (
+                <button
+                  key={option._id}
+                  onClick={() => setSelectedDuration(option)}
+                  className={`p-3 rounded-lg text-left border transition-colors ${selected
+                    ? "border-[#16A348] border-2 bg-[#E6F4EA]"
+                    : "border-[#E5E7EB] hover:border-[#16A348]"
+                    }`}
+                >
+                  <div className="text-sm">{option.duration} min</div>
+                  <div className="text-[#16A348] font-semibold">₹{option.price}</div>
+                </button>
+              );
+            })
           ) : (
-            <p className="text-gray-500 text-sm">No available durations.</p>
+            <p className="text-gray-500 text-sm col-span-4">No available durations.</p>
           )}
         </div>
 
@@ -126,9 +201,9 @@ const MentoringCard = ({ mentoringService }) => {
           detailedDescription: mentoringService.detailedDescription,
           shortDescription: mentoringService.shortDescription,
           features: mentoringService.features,
-          one_on_one :mentoringService.one_on_one,
-          serviceId:mentoringService.serviceId,
-          hourlyRate:mentoringService.hourlyRate
+          one_on_one: mentoringService.one_on_one,
+          serviceId: mentoringService.serviceId,
+          hourlyRate: mentoringService.hourlyRate
         }}
       />
     </>

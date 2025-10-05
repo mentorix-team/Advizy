@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { User, Star, Heart, BadgeCheck, Clock } from "lucide-react";
 import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
+import { optimisticAdd, optimisticRemove, toggleFavourite, selectFavouriteIds, selectIsUpdatingFavourite } from "@/Redux/Slices/favouritesSlice";
 import toast from "react-hot-toast";
 
 const ExpertCard = ({ expert }) => {
-  const [isFavorite, setIsFavorite] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [pulse, setPulse] = useState(false); // one-shot animation trigger
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [availability, setAvailability] = useState(null);
 
+  // Get favorites from Redux store
+  const favIds = useSelector(selectFavouriteIds);
+  const isFav = favIds.includes(expert._id);
+  const isUpdating = useSelector(s => selectIsUpdatingFavourite(s, expert._id));
+
+  // Update favorite state based on Redux store
   useEffect(() => {
-    if (expert?.isFavorite) {
-      setIsFavorite(true);
-    }
-  }, [expert]);
+    setIsAnimating(isFav);
+  }, [isFav]);
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -54,38 +61,35 @@ const ExpertCard = ({ expert }) => {
   const rating =
     expert.reviews?.length > 0
       ? Math.round(
-          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-            expert.reviews.length
-        )
+        expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
+        expert.reviews.length
+      )
       : 0;
 
   // Get total sessions/ratings
   const totalSessions = expert.sessions?.length || 0;
 
-  const handleFavoriteClick = async () => {
-    try {
-      await dispatch(addFavourites({ expertId: expert._id }));
-      await dispatch(fetchUserProfile());
+  // Updated favorite handler with optimistic updates
+  const handleFavourite = () => {
+    if (isUpdating) return;
+    setPulse(true);
+    const wasFav = isFav;
+    if (wasFav) dispatch(optimisticRemove(expert._id));
+    else dispatch(optimisticAdd(expert._id));
 
-      setIsFavorite((prev) => !prev);
-
-      toast.success(
-        isFavorite ? "Removed from favorites!" : "Added to favorites!",
-        {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        }
-      );
-    } catch (error) {
-      console.error("Error updating favorite", error);
-      toast.error("Something went wrong!", {
-        position: "top-right",
-      });
-    }
+    dispatch(toggleFavourite(expert._id)).then(r => {
+      if (r.meta.requestStatus === "fulfilled") {
+        toast.success(
+          r.payload.action === "added" ? "Added to favourites" : "Removed from favourites",
+          { position: "top-right" }
+        );
+      } else {
+        // rollback using snapshot
+        if (wasFav) dispatch(optimisticAdd(expert._id));
+        else dispatch(optimisticRemove(expert._id));
+        toast.error("Failed to update favourite", { position: "top-right" });
+      }
+    });
   };
 
   return (
@@ -112,7 +116,6 @@ const ExpertCard = ({ expert }) => {
                     <h2 className="text-[18px] sm:text-[21.3px] font-semibold text-[#1d1d1d] font-['Figtree',Helvetica] leading-[1.4] sm:leading-[29.8px] truncate">
                       {expert.firstName} {expert.lastName}
                     </h2>
-                    <img src="" alt="" />
                     {expert.admin_approved_expert && (
                       <img src="/svg-image-65.svg" alt="verified tick" />
                     )}
@@ -160,20 +163,32 @@ const ExpertCard = ({ expert }) => {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleFavoriteClick}
-                  className={`absolute right-0 top-0 ${
-                    isAnimating ? "animate-ping" : ""
-                  }`}
-                >
-                  <Heart
-                    className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 ${
-                      isAnimating ? "scale-125" : ""
-                    }`}
-                    fill={isFavorite ? "#EF4444" : "none"}
-                    stroke={isFavorite ? "#EF4444" : "currentColor"}
-                  />
-                </button>
+                <div>
+                  <button
+                    onClick={handleFavourite}
+                    disabled={isUpdating}
+                    aria-pressed={isFav}
+                    className={`relative flex items-center justify-center w-9 h-9 rounded-full transition ${isUpdating ? "opacity-60" : "hover:bg-gray-50"}`}
+                    aria-label="toggle favourite"
+                  >
+                    <motion.span
+                      initial={false}
+                      animate={pulse ? { scale: [1, 1.35, 0.85, 1.15, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.55, ease: "easeInOut" }}
+                      onAnimationComplete={() => setPulse(false)}
+                      className="flex"
+                    >
+                      {isFav ? (
+                        <FaHeart className="w-6 h-6 text-red-500 drop-shadow-sm" />
+                      ) : (
+                        <FaRegHeart className="w-6 h-6 text-gray-600" />
+                      )}
+                    </motion.span>
+                    {isUpdating && (
+                      <span className="absolute inset-0 rounded-full animate-ping bg-red-200/40" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -223,7 +238,7 @@ const ExpertCard = ({ expert }) => {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate(`/expert/${expert.redirect_url}`)}
+                onClick={() => navigate(`/expert/${expert.redirect_url || expert._id}`)}
                 className="h-[32px] sm:h-[35px] rounded-[11.04px] px-3 sm:px-4 bg-white border border-gray-200 shadow-[0px_2.45px_6.13px_2.15px_#0000001a] font-medium text-[13px] sm:text-[14.5px] text-[#000000cc] hover:bg-gray-50 whitespace-nowrap"
               >
                 View Profile
@@ -231,7 +246,7 @@ const ExpertCard = ({ expert }) => {
               <button
                 onClick={() => {
                   navigate(
-                    `/expert/${expert.redirect_url}?scrollTo=services-offered`
+                    `/expert/${expert.redirect_url || expert._id}?scrollTo=services-offered`
                   );
                 }}
                 className="h-[32px] sm:h-[34px] rounded-[11.04px] px-3 sm:px-4 bg-[#edfbf1] text-[#169544] font-semibold text-[13px] sm:text-[14.5px] shadow-[0px_2.45px_6.13px_2.15px_#0000001a] hover:bg-[#ddf9e5] whitespace-nowrap"

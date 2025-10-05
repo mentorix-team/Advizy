@@ -1,9 +1,10 @@
-import ReactGA from "react-ga4";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState, Suspense, lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ProtectedRoute from "./Protected/ProtectedRoute";
 import Spinner from "./components/LoadingSkeleton/Spinner";
+import { getUser, logout, validateToken } from "./Redux/Slices/authSlice";
+import { fetchFavourites, clearFavourites } from "./Redux/Slices/favouritesSlice";
 
 // Regular Imports (Frequently Used Components)
 import AuthPopup from "./components/Auth/AuthPopup.auth";
@@ -59,41 +60,42 @@ const App = () => {
   const [showAuthPopup, setShowAuthPopup] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn } = useSelector((state) => state.auth);
+  // Single selector for login state (removed duplicate to avoid redeclare error)
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const dispatch = useDispatch();
 
   // Add this useEffect to App.js to monitor sessionStorage changes
-useEffect(() => {
-  const originalSetItem = sessionStorage.setItem;
-  const originalRemoveItem = sessionStorage.removeItem;
-  const originalClear = sessionStorage.clear;
+  useEffect(() => {
+    const originalSetItem = sessionStorage.setItem;
+    const originalRemoveItem = sessionStorage.removeItem;
+    const originalClear = sessionStorage.clear;
 
-  sessionStorage.setItem = function(key, value) {
-    console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
-    console.trace(); // This will show you exactly where setItem is called from
-    return originalSetItem.apply(this, arguments);
-  };
+    sessionStorage.setItem = function (key, value) {
+      console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
+      console.trace(); // This will show you exactly where setItem is called from
+      return originalSetItem.apply(this, arguments);
+    };
 
-  sessionStorage.removeItem = function(key) {
-    console.log(`🔴 SessionStorage REMOVE: ${key}`);
-    console.trace(); // This will show you exactly where removeItem is called from
-    return originalRemoveItem.apply(this, arguments);
-  };
+    sessionStorage.removeItem = function (key) {
+      console.log(`🔴 SessionStorage REMOVE: ${key}`);
+      console.trace(); // This will show you exactly where removeItem is called from
+      return originalRemoveItem.apply(this, arguments);
+    };
 
-  sessionStorage.clear = function() {
-    console.log(`💥 SessionStorage CLEARED`);
-    console.trace(); // This will show you exactly where clear is called from
-    return originalClear.apply(this, arguments);
-  };
+    sessionStorage.clear = function () {
+      console.log(`💥 SessionStorage CLEARED`);
+      console.trace(); // This will show you exactly where clear is called from
+      return originalClear.apply(this, arguments);
+    };
 
-  // Cleanup
-  return () => {
-    sessionStorage.setItem = originalSetItem;
-    sessionStorage.removeItem = originalRemoveItem;
-    sessionStorage.clear = originalClear;
-  };
-}, []);
+    // Cleanup
+    return () => {
+      sessionStorage.setItem = originalSetItem;
+      sessionStorage.removeItem = originalRemoveItem;
+      sessionStorage.clear = originalClear;
+    };
+  }, []);
 
 
   // // Clean up redirectURL when user logs in successfully
@@ -112,18 +114,28 @@ useEffect(() => {
 
   const handleAuthPopupOpen = () => {
     console.log("handleAuthPopupOpen called");
-    
-    // // For public pages that might need login redirect
-    // const currentURL = location.pathname + location.search;
-    // if (!sessionStorage.getItem("redirectURL")) {
-    //   console.log("Setting redirectURL from App.js:", currentURL);
-    //   sessionStorage.setItem("redirectURL", currentURL);
-    // }
-    
+    try {
+      const currentURL = location.pathname + location.search;
+      console.log("💾 Storing current URL for redirect:", currentURL);
+      // Always store the current URL when login is triggered
+      sessionStorage.setItem("redirectURL", currentURL);
+      console.log("✅ redirectURL stored successfully");
+    } catch (e) {
+      console.warn("Failed to set redirectURL:", e);
+    }
     setShowAuthPopup(true);
   };
 
   const handleAuthPopupClose = () => setShowAuthPopup(false);
+
+  useEffect(() => {
+    console.log('🔀 Navigation:', {
+      pathname: location.pathname,
+      search: location.search,
+      key: location.key,
+      historyLength: window.history.length
+    });
+  }, [location]);
 
   useEffect(() => {
     const excludedPathPatterns = [
@@ -171,11 +183,15 @@ useEffect(() => {
     ) {
       navigate("/dashboard/expert/");
     }
-  }, [location, navigate]);
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
-    ReactGA.send({ hitType: "pageview", page: location.pathname });
-  }, [location.pathname]);
+    if (isLoggedIn) {
+      dispatch(fetchFavourites());
+    } else {
+      dispatch(clearFavourites());
+    }
+  }, [isLoggedIn, dispatch]);
 
   return (
     <Suspense fallback={<Spinner />}>
@@ -198,14 +214,10 @@ useEffect(() => {
           element={<GoogleRedirectHandler />}
         />
         {/* Protected Routes */}
-        <Route
-          path="/expert-onboarding"
-          element={<ProtectedRoute showAuth={handleAuthPopupOpen} />}
-        >
-          <Route path="" element={<ProfileDetails />} />
-        </Route>
+        {/* Removed duplicate expert-onboarding route - using the one below */}
         <Route path="/explore" element={<Homees />} />
         <Route path="/expert/:redirect_url" element={<ExpertDetailPage />} />
+        {/* <Route path="/expert-detail/:redirect_url" element={<ExpertDetailPage />} /> */}
         <Route path="/expert/scheduling/:serviceId" element={<Scheduling />} />
         <Route
           path="/expert/rescheduling/:updatemeetingtoken"

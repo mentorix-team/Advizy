@@ -7,6 +7,11 @@ const BASE_URL = "https://advizy.onrender.com/api/v1";
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
     withCredentials: true, // Allows sending cookies
+    // Add this to handle redirects
+    maxRedirects: 5,
+    validateStatus: function (status) {
+        return status >= 200 && status < 400; // Treat 302 as success
+    }
 });
 
 // Response Interceptor to handle expired tokens

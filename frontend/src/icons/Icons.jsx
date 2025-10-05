@@ -236,9 +236,9 @@ export function CopyIcon({ className = "w-6 h-6 " }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="#16A348"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       class="lucide lucide-copy "
     >
       <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
@@ -307,7 +307,7 @@ export function ColorCalendarIcon({ className = "w-6 h-6 " }) {
         stroke="#16A348"
         stroke-width="2"
         stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -346,7 +346,7 @@ export function TwoPersonIcon({ className = "w-6 h-6 ", stroke = "#388544" }) {
       stroke={stroke}
       stroke-width="2"
       stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeLinejoin="round"
       class="lucide lucide-users h-6 w-6 text-muted-foreground"
     >
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>

@@ -4,7 +4,9 @@ import {
   ShareIcon,
   VerifiedTickIcon,
 } from "@/icons/Icons";
+import { IoShareSocialOutline } from "react-icons/io5";
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import Share from "@/utils/ShareButton/Share";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 
@@ -20,10 +22,18 @@ const ProfileHeader = ({
   toggleTopRated,
   redirect_uri,
   isAdminApproved,
+  onToggleFavourite = () => { },
+  favUpdating = false,
+  isFavourite,
 }) => {
-  console.log("this is redirecturl", redirect_uri);
-  const [isFavorited, setIsFavorited] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [pulse, setPulse] = useState(false); // controls one-shot heart animation
+
+  const handleFavouriteClick = () => {
+    if (favUpdating) return;
+    onToggleFavourite();
+    setPulse(true); // trigger animation
+  };
 
   // Function to open the share modal
   const openShareModal = () => {
@@ -33,10 +43,6 @@ const ProfileHeader = ({
   // Function to close the share modal
   const closeShareModal = () => {
     setIsShareOpen(false);
-  };
-
-  const toggleFavorite = () => {
-    setIsFavorited(!isFavorited);
   };
 
   return (
@@ -54,7 +60,7 @@ const ProfileHeader = ({
       ></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative -mt-24 bg-white rounded-lg p-6 shadow-lg">
-          <div className="flex flex-col md:flex-row items-start gap-6">
+          <div className=" relative flex flex-col md:flex-row items-start gap-6">
             {/* Profile Image */}
             <div
               className="flex-shrink-0"
@@ -62,7 +68,7 @@ const ProfileHeader = ({
                 width: "172px",
                 height: "189px",
                 borderRadius: "20px",
-                background: `url(${image}) lightgray 50% / cover no-repeat`,
+                background: `url(${image}) lightgray 50% / cover no-repeat`, // Corrected background image syntax
               }}
             ></div>
             <div className="flex-1">
@@ -117,22 +123,32 @@ const ProfileHeader = ({
                   </div>
                 </div>
                 <div className="flex gap-6">
-                  {/* <div
-                    onClick={toggleFavorite}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <div
-                      className={`p-2 rounded-full shadow ${
-                        isFavorited ? "bg-red-100" : "border border-gray-300"
-                      }`}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleFavouriteClick}
+                      disabled={favUpdating}
+                      className={`relative flex items-center justify-center border w-10 h-10 border-gray-300 rounded-full text-2xl transition bg-white hover:bg-gray-50 ${favUpdating ? "opacity-60" : ""}`}
+                      aria-label="toggle favourite"
+                      aria-pressed={isFavourite}
                     >
-                      {isFavorited ? (
-                        <FaHeart className="text-xl transition-all duration-300 ease-out text-red-500 scale-110" />
-                      ) : (
-                        <FaRegHeart className="text-xl transition-all duration-300 ease-out text-black" />
+                      <motion.span
+                        initial={false}
+                        animate={pulse ? { scale: [1, 1.35, 0.85, 1.15, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.6, ease: "easeInOut" }}
+                        onAnimationComplete={() => setPulse(false)}
+                        className="flex"
+                      >
+                        {isFavourite ? (
+                          <FaHeart className="text-red-500 drop-shadow-sm" />
+                        ) : (
+                          <FaRegHeart className="text-gray-600" />
+                        )}
+                      </motion.span>
+                      {favUpdating && (
+                        <span className="absolute inset-0 rounded-full animate-ping bg-red-200/40" />
                       )}
-                    </div>
-                  </div> */}
+                    </button>
+                  </div>
                   <div className="flex items-center gap-2 cursor-pointer">
                     <div className="relative">
                       {/* Share Button */}
@@ -140,7 +156,7 @@ const ProfileHeader = ({
                         className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100 transition"
                         onClick={openShareModal}
                       >
-                        <ShareIcon className="w-6 h-6" />
+                        <IoShareSocialOutline className="w-6 h-6" />
                       </button>
 
                       {/* Share Modal */}
@@ -152,13 +168,6 @@ const ProfileHeader = ({
                       )}
                     </div>
                   </div>
-                  {/* Button to toggle Top Rated badge */}
-                  {/* <button
-                    className="px-3 py-1 text-sm bg-gray-200 rounded-full"
-                    onClick={toggleTopRated}
-                  >
-                    Toggle Top Rated
-                  </button> */}
                 </div>
               </div>
               <div className="mt-4 text-right">
@@ -167,10 +176,32 @@ const ProfileHeader = ({
               </div>
             </div>
           </div>
+
+          {/* Favorite Button */}
+          {/* <button
+            onClick={onToggleFavourite}
+            disabled={favUpdating}
+            className={`absolute bottom-4 right-4 flex items-center gap-1 px-3 py-1 rounded text-sm transition ${favUpdating ? " text-red-600" :
+              onToggleFavourite ? " text-red-600" :
+                "bg-gray-100 text-gray-600 border-gray-300"
+              } ${favUpdating ? "opacity-60 animate-pulse" : ""}`}
+            aria-label="toggle favourite"
+          >
+            {isFavourite ? (
+              <>
+                <FaHeart className="text-red-500" />
+              </>
+            ) : (
+              <>
+                <FaRegHeart />
+              </>
+            )}
+          </button> */}
+
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
-export default ProfileHeader;
+export default ProfileHeader; 

@@ -7,26 +7,26 @@ const meetingSchema = new Schema({
         ref: 'User',
         required: true,
     },
-    userName:{
-        type:String,
+    userName: {
+        type: String,
     },
     expertId: {
         type: Schema.Types.ObjectId,
         ref: 'ExpertBasics',
         required: true,
     },
-    expertName:{
-        type:String,
+    expertName: {
+        type: String,
     },
     serviceId: {
         type: String, // This will store the unique serviceId from the ExpertBasics schema
         required: true,
     },
-    serviceName:{
-        type:String,
+    serviceName: {
+        type: String,
     },
-    amount:{
-        type:String,
+    amount: {
+        type: String,
     },
     daySpecific: {
         date: {
@@ -38,43 +38,52 @@ const meetingSchema = new Schema({
                 type: String,
                 required: true,
             },
-            endTime: {              
+            endTime: {
                 type: String,
                 required: true,
             },
         },
     },
 
-    videoCallId:{
-        type:String,
+    videoCallId: {
+        type: String,
     },
 
-    
-    razorpay_payment_id:{
-        type:String,
+    status: {
+        type: String,
+        enum: ['scheduled', 'active', 'ended', 'cancelled'],
+        default: 'scheduled'
     },
-    razorpay_order_id:{
-        type:String,
+    sessionStatus: {
+        type: String,
+        enum: ['Completed', 'Not Completed'],
+        default: 'Not Completed'
     },
-    razorpay_signature:{
-        type:String,
+    razorpay_payment_id: {
+        type: String,
     },
-    isPayed:{
-        type:Boolean,
-        default:false,
+    razorpay_order_id: {
+        type: String,
+    },
+    razorpay_signature: {
+        type: String,
+    },
+    isPayed: {
+        type: Boolean,
+        default: false,
     }
 });
 
 meetingSchema.methods = {
-    generateToken : function () {
+    generateToken: function () {
         const payload = {
-            id:this._id,
+            id: this._id,
             userId: this.userId,
             expertId: this.expertId,
             serviceId: this.serviceId,
             daySpecific: this.daySpecific,
-            isPayed:this.isPayed,
-            razorpay_payment_id:this.razorpay_payment_id
+            isPayed: this.isPayed,
+            razorpay_payment_id: this.razorpay_payment_id
         };
 
         return jwt.sign(payload, 'sVu4ObGbmS3krUCfW+1wJRzNGnt1LtMy6+oWtO/DJmQ=', { expiresIn: '2d' });

@@ -29,6 +29,7 @@ import {
   Search,
   CircleHelp,
 } from "lucide-react";
+import Navbar from "@/components/Home/components/Navbar";
 
 const ExpertDashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -99,17 +100,26 @@ const ExpertDashboardLayout = () => {
     return location.pathname === path;
   };
 
+  // Add this helper function before the UserDropdown component
+  const isCurrentlyInExpertDashboard = () => {
+    return location.pathname.startsWith('/dashboard/expert');
+  };
+
+  // Update the useEffect to also check current route
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
     const expertMode = localStorage.getItem("expertMode");
+    const isInExpertDashboard = isCurrentlyInExpertDashboard();
 
     if (expertData) {
       setHasExpertData(true);
     }
-    if (expertMode === "true") {
+
+    // Set expert mode if either localStorage says so OR we're in expert dashboard
+    if (expertMode === "true" || isInExpertDashboard) {
       setIsExpertMode(true);
     }
-  }, []);
+  }, [location.pathname]); // Add location.pathname as dependency
 
   const handleOpenAuthPopup = () => {
     setAuthPopupOpen(true);
@@ -151,97 +161,95 @@ const ExpertDashboardLayout = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const UserDropdown = () => (
-    <div className="relative user-dropdown">
-      <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
-      >
-        <div className="flex items-center gap-2">
-          <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
-          <ChevronDown className="w-4 h-4" />
-        </div>
-      </button>
+  // Update the UserDropdown component condition
+  const UserDropdown = () => {
+    const shouldShowExpertMode = isExpertMode || isCurrentlyInExpertDashboard();
+    
+    return (
+      <div className="relative user-dropdown">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
+        >
+          <div className="flex items-center gap-2">
+            <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
+            <ChevronDown className="w-4 h-4" />
+          </div>
+        </button>
 
-      <AnimatePresence>
-        {isDropdownOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
-          >
-            <div className="px-4 py-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">
-                {parsedData?.firstName} {parsedData?.lastName}
-              </p>
-              <p className="text-xs text-gray-500">Expert Account</p>
-            </div>
-            {isExpertMode ? (
-              <>
-                <a
-                  href="/"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <Home className="w-4 h-4" />
-                  Back to Home
-                </a>
-                <button
-                  onClick={handleToggleExpertMode}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                >
-                  <User className="w-4 h-4" />
-                  Switch to User Mode
-                </button>
-                <div className="border-t border-gray-100 mt-1">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <a
-                  href="/dashboard/user/meetings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  User Dashboard
-                </a>
-                {isLoggedIn && hasExpertData && (
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            >
+              <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-900">
+                  {parsedData?.firstName} {parsedData?.lastName}
+                </p>
+                <p className="text-xs text-gray-500">Expert Account</p>
+              </div>
+              {shouldShowExpertMode ? (
+                <>
                   <button
                     onClick={handleToggleExpertMode}
                     className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
                   >
-                    <UserCheck className="w-4 h-4" />
-                    Switch to Expert Mode
+                    <User className="w-4 h-4" />
+                    Switch to User Mode
                   </button>
-                )}
-                <div className="border-t border-gray-100 mt-1">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                  <div className="border-t border-gray-100 mt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <a
+                    href="/dashboard/user/meetings"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </div>
-              </>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+                    <LayoutDashboard className="w-4 h-4" />
+                    User Dashboard
+                  </a>
+                  {isLoggedIn && hasExpertData && (
+                    <button
+                      onClick={handleToggleExpertMode}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <UserCheck className="w-4 h-4" />
+                      Switch to Expert Mode
+                    </button>
+                  )}
+                  <div className="border-t border-gray-100 mt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors duration-200 w-full text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   return (
     <div className="overflow-x-hidden">
-      {/* Navbar */}
+      {/* <Navbar /> */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center h-16">
@@ -255,45 +263,11 @@ const ExpertDashboardLayout = () => {
                 />
               </a>
 
-              {!isExpertMode && (
-                <div className="hidden lg:flex items-center relative flex-1 max-w-2xl">
-                  <Search className="absolute left-3 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search mentors by name or expertise..."
-                    className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-              )}
+
             </div>
 
             {/* Right section */}
             <div className="flex items-center lg:pr-10">
-              <div className="hidden lg:flex items-center gap-8 mr-8">
-                {/* <a
-                  href="/about-us"
-                  className={`transition-colors duration-200 text-base font-medium ${
-                    isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
-                  }`}
-                >
-                  About Us
-                </a> */}
-
-                {!isExpertMode && (
-                  <a
-                    href="/become-expert"
-                    className={`transition-colors duration-200 text-base font-medium ${
-                      isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
-                    }`}
-                  >
-                    Share Your Expertise
-                  </a>
-                )}
-              </div>
 
               {/* User Profile & Mobile Menu */}
               <div className="flex items-center gap-3 lg:pr-10">
@@ -344,9 +318,8 @@ const ExpertDashboardLayout = () => {
       {/* Sidebar */}
       <aside
         id="mobile-sidebar"
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
@@ -356,10 +329,9 @@ const ExpertDashboardLayout = () => {
                 to="/dashboard/expert"
                 end
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -372,10 +344,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/profile-detail"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -388,10 +359,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/service-pricing"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -404,10 +374,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/availability"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -415,17 +384,16 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Availability</span>
               </NavLink>
             </li>
-            
+
             <hr className="border-gray-300 dark:border-gray-600 my-2" />
-           
+
             <li>
               <NavLink
                 to="/dashboard/expert/meetings"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -437,10 +405,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/clients"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -452,10 +419,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/payments"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -467,10 +433,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/chats"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -482,10 +447,9 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/reviews"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -497,14 +461,13 @@ const ExpertDashboardLayout = () => {
               <NavLink
                 to="/dashboard/expert/help-center"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
-                <CircleHelp className="w-5 h-5"/>
+                <CircleHelp className="w-5 h-5" />
                 <span className="ms-3">Help Center</span>
               </NavLink>
             </li>

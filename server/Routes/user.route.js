@@ -22,7 +22,9 @@ import {
   validateToken,
   validate_otp_email,
   validate_otp_mobile,
-  addFavouriteExpert,
+  getFavourites,
+  // addFavouriteExpert,
+  toggleFavouriteExpert,
   getUserProfile,
   generate_otp_for_Signup_mobile,
   generate_otp_with_mobile,
@@ -72,9 +74,10 @@ router.get("/validate_token", validateToken);
 
 router.post("/refresh-token", refresh_token);
 
-// router.get('/favourites', isLoggedIn, getFavourites);
-router.post("/favourites", isLoggedIn, addFavouriteExpert);
+router.get('/favourites', isLoggedIn, getFavourites);
+// router.post("/favourites", isLoggedIn, addFavouriteExpert);
 router.get("/favprofile", isLoggedIn, getUserProfile);
+router.post("/favourites", isLoggedIn, toggleFavouriteExpert);
 // router.delete('/favourites/:expertId', isLoggedIn, removeFavouriteExpert)
 
 router.get("/profile", isLoggedIn, getUserProfile);

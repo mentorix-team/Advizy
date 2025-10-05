@@ -45,11 +45,15 @@ function Meetings() {
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
 
   // Assign sessionStatus dynamically
-  const categorizedMeetings = paidMeetings.map((meeting) => ({
-    ...meeting,
-    sessionStatus:
-      meeting.daySpecific.date < today ? "Completed" : "Not Completed",
-  }));
+  // In your Meetings component
+  const categorizedMeetings = paidMeetings.map((meeting) => {
+    const meetingEndDateTime = dayjs(`${meeting.daySpecific.date} ${meeting.daySpecific.slot.endTime}`, 'YYYY-MM-DD hh:mm A');
+    const now = dayjs();
+    return {
+      ...meeting,
+      sessionStatus: meetingEndDateTime.isBefore(now) ? "Completed" : "Not Completed",
+    };
+  });
 
   const todaysMeetings = categorizedMeetings.filter(
     (meeting) => meeting.daySpecific.date === today
@@ -114,7 +118,7 @@ function Meetings() {
         setIsInMeeting(true);
 
         // Navigate to meeting page with authToken
-        navigate("/meeting", { state: { authToken,meetingId ,startTime,endTime} });
+        navigate("/meeting", { state: { authToken, meetingId, startTime, endTime } });
       } else {
         console.error("Failed to retrieve authToken.");
         toast.error("Failed to join the meeting", {
