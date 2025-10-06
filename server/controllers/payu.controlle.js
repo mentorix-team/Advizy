@@ -271,6 +271,7 @@ export const payupay = async (req, res, next) => {
 export const success = async (req, res) => {
   console.log("Raw PayU success body:", req.body);
   console.log("Request method:", req.method);
+  console.log("Request headers:", req.headers);
   let sessionId;
 
   try {
@@ -390,10 +391,12 @@ export const success = async (req, res) => {
           } catch (videoCallError) {
             // Log detailed error response
             if (videoCallError.response) {
-              console.error("Dyte API Error Response:", videoCallError.response.data);
-              console.error("Dyte API Error Status:", videoCallError.response.status);
+              console.error("Dyte API Error Response:", videoCallError.response?.data);
+              console.error("Dyte API Error Status:", videoCallError.response?.status);
+              console.error("Error creating video call:", videoCallError);
             }
             console.error("Error creating video call:", videoCallError);
+
             // Continue with payment processing even if video call creation fails
           }
 
@@ -578,6 +581,7 @@ export const success = async (req, res) => {
     }
   } catch (err) {
     console.error("PayU success handler error:", err);
+    console.error("Error stack:", err.stack);
     if (sessionId) {
       await PaymentSession.updateOne(
         { sessionId },
