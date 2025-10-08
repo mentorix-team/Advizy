@@ -51,7 +51,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="What's your main field? Select the one that defines your work best.">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Domain of Expertise
+              Domain of Expertise<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <select
@@ -73,7 +73,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left relative">
           <Tooltip text="Pick or add at least two skills that highlight your expertise. (The more relevant, the better!)">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Niche & Skills
+              Niche & Skills<span className="text-red-500">*</span>
             </label>
           </Tooltip>
 
@@ -123,7 +123,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="This is how clients will see you. Keep it clear and professional. (e.g., Career Strategist | Startup Mentor)">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Professional Title
+              Professional Title<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <input
@@ -140,7 +140,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="Showcase your journey—how long have you been in this field?">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Years of Work Experience
+              Years of Work Experience<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <input

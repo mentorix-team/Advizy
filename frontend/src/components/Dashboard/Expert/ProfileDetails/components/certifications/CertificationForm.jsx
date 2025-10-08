@@ -80,7 +80,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Certification Name
+            Certification Name<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -94,7 +94,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Issuing Organization
+            Issuing Organization<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -108,7 +108,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Issue Date
+            Issue Date<span className="text-red-500">*</span>
           </label>
           <CustomDatePicker
             selectedDate={formData.year}
@@ -119,13 +119,13 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-          Certificate (Optional) – Upload for faster verification and added credibility
+            Certificate (Optional) – Upload for faster verification and added credibility
           </label>
-          
+
           {formData.certificates?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.certificates.map((file, index) => (
-                <div 
+                <div
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
@@ -176,12 +176,12 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
-           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
-                                        <FaLightbulb className="mt-1 flex-shrink-0" />
-                                        <p className="text-sm">
-                                        Note: Uploading your certificate is optional, but it helps us verify your profile faster. Your documents are 100% safe and NOT shared or displayed on your profile or anywhere.
-                                        </p>
-                                      </div>
+          <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+            <FaLightbulb className="mt-1 flex-shrink-0" />
+            <p className="text-sm">
+              Note: Uploading your certificate is optional, but it helps us verify your profile faster. Your documents are 100% safe and NOT shared or displayed on your profile or anywhere.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">

@@ -4,7 +4,7 @@ import ImageUploadModal from "./ImageUploadModal";
 import Modal from "./Modal";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { basicFormSubmit, expertImages } from "@/Redux/Slices/expert.Slice";
+import { expertImages } from "@/Redux/Slices/expert.Slice";
 const ProfileHeader = ({
   onProfileImageChange,
   onCoverImageChange,
@@ -17,15 +17,89 @@ const ProfileHeader = ({
   const [coverPreview, setCoverPreview] = useState("");
   const [profilePreview, setprofilePreview] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [profileImagePosition, setProfileImagePosition] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const [profileZoom, setProfileZoom] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const imageRef = useRef(null);
+  const profileImageRef = useRef(null);
   const containerRef = useRef(null);
+  const profileContainerRef = useRef(null);
   const dispatch = useDispatch();
   // let coverPreview = '';
   // let profilePreview = '';
+
+  const handleEditCoverImage = () => {
+    if (coverImage) {
+      setCoverPreview(coverImage); // Set preview to current image
+      setShowEditModal(true);
+      setZoom(1);
+      setImagePosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleEditProfileImage = () => {
+    const currentSource =
+      profilePreview || (typeof profileImage === "string" ? profileImage : "");
+
+    if (currentSource) {
+      setShowProfileModal(false);
+      setprofilePreview(currentSource);
+      setShowEditProfileModal(true);
+      setProfileZoom(1);
+      setProfileImagePosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleRemoveProfileImage = async () => {
+    try {
+      setShowProfileModal(false);
+      setShowEditProfileModal(false);
+
+      const profileData = new FormData();
+      profileData.append("removeProfileImage", "true");
+
+      const response = await dispatch(expertImages(profileData)).unwrap();
+
+      if (response.success) {
+        setprofilePreview("");
+        setProfileZoom(1);
+        setProfileImagePosition({ x: 0, y: 0 });
+        onProfileImageChange("");
+
+        toast.success("Profile image removed successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.error("Failed to remove profile image", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error removing profile image:", error);
+      toast.error("An error occurred while removing the profile image", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
+  };
 
   const handleCoverUpload = async (e) => {
     const file = e.target.files[0];
@@ -90,6 +164,9 @@ const ProfileHeader = ({
       reader.onloadend = async () => {
         setprofilePreview(reader.result);
         setShowProfileModal(false);
+        setShowEditProfileModal(true);
+        setProfileZoom(1);
+        setProfileImagePosition({ x: 0, y: 0 });
 
         // Create FormData and Dispatch Action to Update Profile Image
         const profileData = new FormData();
@@ -149,6 +226,14 @@ const ProfileHeader = ({
     }));
   };
 
+  const handleMoveProfileImage = (direction) => {
+    const step = 10;
+    setProfileImagePosition((prev) => ({
+      ...prev,
+      y: direction === "up" ? prev.y - step : prev.y + step,
+    }));
+  };
+
   const handleMouseDown = (e) => {
     if (e.target === imageRef.current) {
       e.preventDefault();
@@ -157,24 +242,47 @@ const ProfileHeader = ({
         x: e.clientX - imagePosition.x,
         y: e.clientY - imagePosition.y,
       });
+    } else if (e.target === profileImageRef.current) {
+      e.preventDefault();
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - profileImagePosition.x,
+        y: e.clientY - profileImagePosition.y,
+      });
     }
   };
 
   const handleMouseMove = (e) => {
-    if (isDragging && imageRef.current && containerRef.current) {
-      const newX = e.clientX - dragStart.x;
-      const newY = e.clientY - dragStart.y;
+    if (isDragging) {
+      if (imageRef.current && containerRef.current && showEditModal) {
+        const newX = e.clientX - dragStart.x;
+        const newY = e.clientY - dragStart.y;
 
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const imageRect = imageRef.current.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const imageRect = imageRef.current.getBoundingClientRect();
 
-      const maxX = (imageRect.width * zoom - containerRect.width) / 2;
-      const maxY = (imageRect.height * zoom - containerRect.height) / 2;
+        const maxX = (imageRect.width * zoom - containerRect.width) / 2;
+        const maxY = (imageRect.height * zoom - containerRect.height) / 2;
 
-      setImagePosition({
-        x: Math.max(-maxX, Math.min(maxX, newX)),
-        y: Math.max(-maxY, Math.min(maxY, newY)),
-      });
+        setImagePosition({
+          x: Math.max(-maxX, Math.min(maxX, newX)),
+          y: Math.max(-maxY, Math.min(maxY, newY)),
+        });
+      } else if (profileImageRef.current && profileContainerRef.current && showEditProfileModal) {
+        const newX = e.clientX - dragStart.x;
+        const newY = e.clientY - dragStart.y;
+
+        const containerRect = profileContainerRef.current.getBoundingClientRect();
+        const imageRect = profileImageRef.current.getBoundingClientRect();
+
+        const maxX = (imageRect.width * profileZoom - containerRect.width) / 2;
+        const maxY = (imageRect.height * profileZoom - containerRect.height) / 2;
+
+        setProfileImagePosition({
+          x: Math.max(-maxX, Math.min(maxX, newX)),
+          y: Math.max(-maxY, Math.min(maxY, newY)),
+        });
+      }
     }
   };
 
@@ -201,8 +309,45 @@ const ProfileHeader = ({
     }
   };
 
+  const handleProfileZoomChange = (e) => {
+    const newZoom = parseFloat(e.target.value);
+    setProfileZoom(newZoom);
+
+    // Adjust position when zooming to maintain center
+    if (profileImageRef.current && profileContainerRef.current) {
+      const containerRect = profileContainerRef.current.getBoundingClientRect();
+      const imageRect = profileImageRef.current.getBoundingClientRect();
+
+      const maxX = (imageRect.width * newZoom - containerRect.width) / 2;
+      const maxY = (imageRect.height * newZoom - containerRect.height) / 2;
+
+      setProfileImagePosition((prev) => ({
+        x: Math.max(-maxX, Math.min(maxX, prev.x)),
+        y: Math.max(-maxY, Math.min(maxY, prev.y)),
+      }));
+    }
+  };
+
+  const handleSaveChanges = () => {
+    // Apply the transformations and save
+    setShowEditModal(false);
+    toast.success("Cover image changes saved!", {
+      position: "top-right",
+      autoClose: 2000,
+    });
+  };
+
+  const handleSaveProfileImageChanges = () => {
+    // Apply the transformations and save
+    setShowEditProfileModal(false);
+    toast.success("Profile image changes saved!", {
+      position: "top-right",
+      autoClose: 2000,
+    });
+  };
+
   useEffect(() => {
-    if (showEditModal) {
+    if (showEditModal || showEditProfileModal) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
       return () => {
@@ -210,7 +355,15 @@ const ProfileHeader = ({
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [showEditModal, isDragging, dragStart]);
+  }, [showEditModal, showEditProfileModal, isDragging, dragStart]);
+
+  useEffect(() => {
+    if (!profileImage) {
+      setprofilePreview("");
+      setProfileZoom(1);
+      setProfileImagePosition({ x: 0, y: 0 });
+    }
+  }, [profileImage]);
 
   // Generate initials avatar if no profile image
   const getInitialsAvatar = () => {
@@ -240,14 +393,19 @@ const ProfileHeader = ({
       onClose={() => setShowEditModal(false)}
       title="Edit Cover Image"
     >
-      <div className="space-y-6">
+      <div
+        className="space-y-6"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         <div
           ref={containerRef}
-          className="relative h-64 overflow-hidden bg-gray-100 rounded-lg"
+          className="relative h-64 overflow-hidden bg-gray-100 rounded-lg cursor-move"
         >
           <img
             ref={imageRef}
-            src={coverPreview}
+            src={coverPreview || coverImage}
             alt="Cover"
             className="w-full h-full object-cover select-none cursor-move"
             style={{
@@ -276,9 +434,8 @@ const ProfileHeader = ({
               onChange={handleZoomChange}
               className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, #34A853 0%, #34A853 ${
-                  (zoom - 1) * 50
-                }%, #E5E7EB ${(zoom - 1) * 50}%, #E5E7EB 100%)`,
+                background: `linear-gradient(to right, #34A853 0%, #34A853 ${(zoom - 1) * 50
+                  }%, #E5E7EB ${(zoom - 1) * 50}%, #E5E7EB 100%)`,
               }}
             />
             <span className="text-sm text-gray-600 min-w-[40px]">
@@ -324,7 +481,112 @@ const ProfileHeader = ({
               Reset
             </button>
             <button
-              onClick={() => setShowEditModal(false)}
+              onClick={handleSaveChanges}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+
+  const EditProfileImageModal = () => (
+    <Modal
+      isOpen={showEditProfileModal}
+      onClose={() => setShowEditProfileModal(false)}
+      title="Edit Profile Image"
+    >
+      <div
+        className="space-y-6"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        <div
+          ref={profileContainerRef}
+          className="relative w-64 h-64 bg-gray-100 rounded-full overflow-hidden border cursor-move mx-auto"
+        >
+          <img
+            ref={profileImageRef}
+            src={profilePreview || profileImage}
+            alt="Profile"
+            className="w-full h-full object-cover select-none cursor-move"
+            style={{
+              transform: `translate(${profileImagePosition.x}px, ${profileImagePosition.y}px) scale(${profileZoom})`,
+              transformOrigin: "center",
+              willChange: "transform",
+              transition: isDragging ? "none" : "transform 0.1s ease-out",
+            }}
+            draggable="false"
+            onMouseDown={handleMouseDown}
+          />
+        </div>
+
+        <div className="space-y-4">
+          {/* Zoom Control */}
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-medium text-gray-700 min-w-[60px]">
+              Zoom:
+            </label>
+            <input
+              type="range"
+              min="1"
+              max="3"
+              step="0.01"
+              value={profileZoom}
+              onChange={handleProfileZoomChange}
+              className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              style={{
+                background: `linear-gradient(to right, #34A853 0%, #34A853 ${(profileZoom - 1) * 50
+                  }%, #E5E7EB ${(profileZoom - 1) * 50}%, #E5E7EB 100%)`,
+              }}
+            />
+            <span className="text-sm text-gray-600 min-w-[40px]">
+              {(profileZoom * 100).toFixed(0)}%
+            </span>
+          </div>
+
+          {/* Position Controls */}
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => handleMoveProfileImage("up")}
+              className="p-2 text-gray-600 hover:text-primary border rounded-lg transition-colors"
+            >
+              <FaArrowUp className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => handleMoveProfileImage("down")}
+              className="p-2 text-gray-600 hover:text-primary border rounded-lg transition-colors"
+            >
+              <FaArrowDown className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex justify-between">
+          <button
+            onClick={() => {
+              setShowEditProfileModal(false);
+              setShowProfileModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 text-primary border border-primary rounded-lg hover:bg-primary/5 transition-colors"
+          >
+            <FaCamera /> Change Image
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setProfileZoom(1);
+                setProfileImagePosition({ x: 0, y: 0 });
+              }}
+              className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Reset
+            </button>
+            <button
+              onClick={handleSaveProfileImageChanges}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors"
             >
               Save Changes
@@ -357,7 +619,7 @@ const ProfileHeader = ({
         <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex gap-2">
           {coverImage && (
             <button
-              onClick={() => setShowEditModal(true)}
+              onClick={handleEditCoverImage}
               className="bg-white rounded-lg px-2 py-1 sm:px-4 sm:py-2 flex items-center gap-1 sm:gap-2 hover:bg-gray-50 text-sm sm:text-base transition-colors"
             >
               <FaEdit className="text-primary" />
@@ -382,17 +644,24 @@ const ProfileHeader = ({
                 src={profilePreview || profileImage}
                 alt="Profile"
                 className="w-full h-full object-cover"
+                style={{
+                  transform: `translate(${profileImagePosition.x}px, ${profileImagePosition.y}px) scale(${profileZoom})`,
+                  transformOrigin: "center",
+                  transition: "transform 0.1s ease-out",
+                }}
               />
             ) : (
               getInitialsAvatar()
             )}
           </div>
-          <button
-            onClick={() => setShowProfileModal(true)}
-            className="absolute bottom-0 right-0 bg-primary rounded-full p-1.5 sm:p-2 cursor-pointer hover:bg-green-600 transition-colors"
-          >
-            <FaCamera className="text-white text-sm sm:text-base" />
-          </button>
+          <div className="absolute bottom-0 right-0">
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="bg-primary rounded-full p-1.5 sm:p-2 cursor-pointer hover:bg-green-600 transition-colors shadow-sm"
+            >
+              <FaCamera className="text-white text-xs sm:text-sm" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -408,9 +677,14 @@ const ProfileHeader = ({
         onClose={() => setShowProfileModal(false)}
         type="profile"
         onUpload={handleProfileUpload}
+        onEdit={profileImage ? handleEditProfileImage : undefined}
+        onRemove={profileImage ? handleRemoveProfileImage : undefined}
+        canEdit={Boolean(profileImage)}
+        canRemove={Boolean(profileImage)}
       />
 
       <EditImageModal />
+      <EditProfileImageModal />
     </div>
   );
 };

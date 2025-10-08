@@ -198,7 +198,7 @@ const expertBasicDetails = async (req, res, next) => {
 
     res.cookie("expertToken", expertToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "development",
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -223,10 +223,46 @@ const expertImages = async (req, res, next) => {
   try {
     let expertbasic = await ExpertBasics.findOne({ user_id });
 
-    if (req.files) {
+    if (!expertbasic) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    const { removeProfileImage, removeCoverImage } = req.body || {};
+
+    if (removeProfileImage === "true") {
+      try {
+        if (expertbasic.profileImage?.public_id) {
+          await cloudinary.v2.uploader.destroy(expertbasic.profileImage.public_id);
+        }
+      } catch (err) {
+        console.error("Error removing profile image from Cloudinary:", err);
+      }
+
+      expertbasic.profileImage = {
+        public_id: null,
+        secure_url: null,
+      };
+    }
+
+    if (removeCoverImage === "true") {
+      try {
+        if (expertbasic.coverImage?.public_id) {
+          await cloudinary.v2.uploader.destroy(expertbasic.coverImage.public_id);
+        }
+      } catch (err) {
+        console.error("Error removing cover image from Cloudinary:", err);
+      }
+
+      expertbasic.coverImage = {
+        public_id: null,
+        secure_url: null,
+      };
+    }
+
+    if (req.files && Object.keys(req.files).length > 0) {
       console.log("Image incoming...", req.files);
 
-      if (req.files.profileImage) {
+      if (req.files.profileImage && req.files.profileImage.length > 0) {
         console.log("Uploading profile image...");
         const profileResult = await cloudinary.v2.uploader.upload(
           req.files.profileImage[0].path,
@@ -242,7 +278,7 @@ const expertImages = async (req, res, next) => {
         }
       }
 
-      if (req.files.coverImage) {
+      if (req.files.coverImage && req.files.coverImage.length > 0) {
         console.log("Uploading cover image...");
         const coverResult = await cloudinary.v2.uploader.upload(
           req.files.coverImage[0].path,
@@ -1248,7 +1284,7 @@ const createService = async (req, res, next) => {
     // Set the updated token in the cookie
     res.cookie("expertToken", updatedExpertToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "development",
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -1405,7 +1441,7 @@ const updateService = async (req, res, next) => {
     timeSlots,
     features,
   } = req.body;
-  const serviceId = id; // Ensure correct ID mapping
+  const serviceId = id?.toString(); // Ensure correct ID mapping
   const expertId = req.expert.id;
 
   console.log("This is req.body", req.body);
@@ -1420,14 +1456,19 @@ const updateService = async (req, res, next) => {
       return next(new AppError("No services found", 406));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service.serviceId === serviceId
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const storedId = service?.serviceId?.toString();
+      const mongoId = service?._id?.toString();
+      return storedId === serviceId || mongoId === serviceId;
+    });
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 401));
     }
 
     const service = expert.credentials.services[serviceIndex];
+    if (!service.serviceId && service?._id) {
+      service.serviceId = service._id.toString();
+    }
 
     // Check if the service is "One-on-One Mentoring"
     if (serviceName === "One-on-One Mentoring") {
@@ -1448,12 +1489,26 @@ const updateService = async (req, res, next) => {
       }
     } else {
       // Default behavior for other services
-      if (serviceName) service.title = serviceName;
+      if (serviceName) {
+        service.title = serviceName;
+      }
       if (shortDescription) service.shortDescription = shortDescription;
       if (detailedDescription)
         service.detailedDescription = detailedDescription;
       if (Array.isArray(features)) service.features = features;
-      if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
+
+      if (Array.isArray(timeSlots) && timeSlots.length > 0) {
+        const primarySlot = timeSlots[0];
+        if (typeof primarySlot.duration !== "undefined") {
+          service.duration = primarySlot.duration;
+        }
+        if (typeof primarySlot.price !== "undefined") {
+          service.price = primarySlot.price;
+        }
+
+        // Persist full slot list for front-end consumption (non-schema field retained in response)
+        service.timeSlots = timeSlots;
+      }
     }
 
     await expert.save();
@@ -1613,204 +1668,227 @@ const updateProfileStatus = async (req, res) => {
 
 const getAllExperts = async (req, res, next) => {
   try {
+    const {
+      admin_approved_expert,
+      gender,
+      nationality,
+      country_living,
+      city,
+      languages,
+      skills,
+      domain,
+      niches,
+      professionalTitle,
+      priceMin,
+      priceMax,
+      durations,
+      ratings,
+      sorting = "createdAt",
+      order = "desc",
+    } = req.query;
+
     const filters = {};
 
-    // Apply filters
-    if (req.query.admin_approved_expert) {
-      filters.admin_approved_expert = req.query.admin_approved_expert === "true";
+    if (admin_approved_expert) {
+      filters.admin_approved_expert = admin_approved_expert === "true";
     }
-    if (req.query.gender) {
-      filters.gender = req.query.gender;
+    if (gender) {
+      filters.gender = gender;
     }
-    if (req.query.nationality) {
-      filters.nationality = req.query.nationality;
+    if (nationality) {
+      filters.nationality = nationality;
     }
-    if (req.query.country_living) {
-      filters.country_living = req.query.country_living;
+    if (country_living) {
+      filters.country_living = country_living;
     }
-    if (req.query.city) {
-      filters.city = req.query.city;
+    if (city) {
+      filters.city = city;
     }
-    if (req.query.languages) {
-      const languagesArray = req.query.languages.split(",");
+    if (languages) {
+      const languagesArray = languages.split(",").map((item) => item.trim());
       filters.languages = { $elemMatch: { value: { $in: languagesArray } } };
     }
-    if (req.query.skills) {
-      filters["credentials.skills"] = { $in: req.query.skills.split(",") };
+    if (skills) {
+      filters["credentials.skills"] = { $in: skills.split(",") };
     }
-    if (req.query.domain) {
-      filters["credentials.domain"] = req.query.domain;
+    if (domain) {
+      filters["credentials.domain"] = domain;
     }
-    if (req.query.niches) {
-      const nichesArray = req.query.niches.split(",");
-      filters["$or"] = [
+    if (niches) {
+      const nichesArray = niches.split(",").map((item) => item.trim());
+      filters.$or = [
         { "credentials.niche": { $in: nichesArray } },
         {
           "credentials.niche": {
-            $in: nichesArray.map((n) => new RegExp(`^${n}$`, "i")),
+            $in: nichesArray.map((value) => new RegExp(`^${value}$`, "i")),
           },
         },
       ];
     }
-    if (req.query.professionalTitle) {
+    if (professionalTitle) {
       filters["credentials.professionalTitle"] = {
-        $in: req.query.professionalTitle.split(","),
+        $in: professionalTitle.split(",").map((item) => item.trim()),
       };
     }
-    if (req.query.durations) {
-      const durationValue = parseInt(req.query.durations);
-      if (!isNaN(durationValue)) {
-        filters["credentials.services"] = {
-          $elemMatch: {
-            $or: [
-              { duration: durationValue },
-              { "one_on_one.duration": durationValue }
-            ]
-          }
-        };
-      }
+
+    const needsCustomSorting = [
+      "price-low-high",
+      "price-high-low",
+      "highest-rated",
+    ].includes(sorting);
+
+    const baseQuery = ExpertBasics.find(filters);
+
+    if (!needsCustomSorting) {
+      const sortDirection = order === "asc" ? 1 : -1;
+      baseQuery.sort({ [sorting]: sortDirection, createdAt: -1 });
     }
 
-    // Price range filtering
-    if (req.query.priceMin || req.query.priceMax) {
-      const minPrice = Number(req.query.priceMin) || 0;
-      const maxPrice = Number(req.query.priceMax) || Number.MAX_SAFE_INTEGER;
+    let experts = await baseQuery.lean();
+    const totalExpertsBeforeFilters = experts.length;
 
-      filters["credentials.services"] = {
-        $elemMatch: {
-          $or: [
-            { price: { $gte: minPrice, $lte: maxPrice } },
-            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } }
-          ]
+    const toNumber = (value, fallback) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    };
+
+    const enrichExpert = (expert) => {
+      const services = expert?.credentials?.services || [];
+      const serviceOptions = [];
+
+      services.forEach((service) => {
+        if (Number.isFinite(Number(service?.price))) {
+          serviceOptions.push({
+            price: Number(service.price),
+            duration: Number.isFinite(Number(service?.duration))
+              ? Number(service.duration)
+              : null,
+          });
         }
-      };
-    }
 
-    // Add Rating Filter
-    if (req.query.ratings) {
-      const minRating = parseInt(req.query.ratings, 10);
-      filters.$expr = {
-        $gte: [
-          {
-            $toDouble: {
-              $divide: [
-                { $sum: "$reviews.rating" },
-                {
-                  $cond: {
-                    if: { $gt: [{ $size: "$reviews" }, 0] },
-                    then: { $size: "$reviews" },
-                    else: 1
-                  }
-                }
-              ]
+        if (Array.isArray(service?.one_on_one)) {
+          service.one_on_one.forEach((slot) => {
+            if (!slot) return;
+            const normalizedPrice = Number(slot.price);
+            if (Number.isFinite(normalizedPrice)) {
+              serviceOptions.push({
+                price: normalizedPrice,
+                duration: Number.isFinite(Number(slot.duration))
+                  ? Number(slot.duration)
+                  : null,
+              });
             }
-          },
-          minRating
-        ]
+          });
+        }
+      });
+
+      const prices = serviceOptions
+        .map((option) => option.price)
+        .filter((value) => Number.isFinite(value));
+      const durationsList = serviceOptions
+        .map((option) => option.duration)
+        .filter((value) => Number.isFinite(value));
+
+      const ratingValues = Array.isArray(expert?.reviews)
+        ? expert.reviews
+          .map((review) => Number(review?.rating))
+          .filter((rating) => Number.isFinite(rating))
+        : [];
+
+      const avgRating = ratingValues.length
+        ? ratingValues.reduce((sum, rating) => sum + rating, 0) /
+        ratingValues.length
+        : null;
+
+      return {
+        ...expert,
+        _serviceOptions: serviceOptions,
+        _minPrice: prices.length ? Math.min(...prices) : null,
+        _maxPrice: prices.length ? Math.max(...prices) : null,
+        _durations: durationsList,
+        _avgRating: avgRating,
       };
+    };
+
+    experts = experts.map(enrichExpert);
+
+    if (durations) {
+      const desiredDuration = toNumber(durations, null);
+      if (desiredDuration !== null) {
+        experts = experts.filter((expert) =>
+          expert._durations.includes(desiredDuration)
+        );
+      }
     }
 
-    // Sorting logic - fixed to use MongoDB aggregation for complex sorting
-    const sortBy = req.query.sorting || "createdAt";
-    const order = req.query.order === "asc" ? 1 : -1;
+    if (priceMin || priceMax) {
+      const minPrice = toNumber(priceMin, 0);
+      const maxPrice = toNumber(priceMax, Number.MAX_SAFE_INTEGER);
 
-    // For complex sorting, we need to use aggregation
-    if (["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)) {
-      const pipeline = [{ $match: filters }];
+      experts = experts.filter((expert) =>
+        expert._serviceOptions.some(
+          (option) =>
+            Number.isFinite(option.price) &&
+            option.price >= minPrice &&
+            option.price <= maxPrice
+        )
+      );
+    }
 
-      // Add computed fields for sorting
-      switch (sortBy) {
+    if (ratings) {
+      const minRating = toNumber(ratings, null);
+      if (minRating !== null) {
+        experts = experts.filter((expert) =>
+          expert._avgRating !== null && expert._avgRating >= minRating
+        );
+      }
+    }
+
+    if (needsCustomSorting) {
+      switch (sorting) {
         case "price-low-high":
-          pipeline.push({
-            $addFields: {
-              minPrice: {
-                $min: {
-                  $map: {
-                    input: "$credentials.services",
-                    as: "service",
-                    in: {
-                      $min: [
-                        { $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER] },
-                        { $ifNull: ["$$service.one_on_one.price", Number.MAX_SAFE_INTEGER] }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
+          experts.sort((a, b) => {
+            const aPrice = a._minPrice ?? Number.MAX_SAFE_INTEGER;
+            const bPrice = b._minPrice ?? Number.MAX_SAFE_INTEGER;
+            return aPrice - bPrice || new Date(b.createdAt) - new Date(a.createdAt);
           });
-          pipeline.push({ $sort: { minPrice: 1, createdAt: -1 } });
           break;
-
         case "price-high-low":
-          pipeline.push({
-            $addFields: {
-              maxPrice: {
-                $max: {
-                  $map: {
-                    input: "$credentials.services",
-                    as: "service",
-                    in: {
-                      $max: [
-                        { $ifNull: ["$$service.price", 0] },
-                        { $ifNull: ["$$service.one_on_one.price", 0] }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
+          experts.sort((a, b) => {
+            const aPrice = a._maxPrice ?? -1;
+            const bPrice = b._maxPrice ?? -1;
+            return bPrice - aPrice || new Date(b.createdAt) - new Date(a.createdAt);
           });
-          pipeline.push({ $sort: { maxPrice: -1, createdAt: -1 } });
           break;
-
         case "highest-rated":
-          pipeline.push({
-            $addFields: {
-              avgRating: {
-                $divide: [
-                  { $sum: "$reviews.rating" },
-                  {
-                    $cond: {
-                      if: { $gt: [{ $size: "$reviews" }, 0] },
-                      then: { $size: "$reviews" },
-                      else: 1
-                    }
-                  }
-                ]
-              }
-            }
+          experts.sort((a, b) => {
+            const aRating = a._avgRating ?? 0;
+            const bRating = b._avgRating ?? 0;
+            return bRating - aRating || new Date(b.createdAt) - new Date(a.createdAt);
           });
-          pipeline.push({ $sort: { avgRating: -1, createdAt: -1 } });
+          break;
+        default:
           break;
       }
-
-      const experts = await ExpertBasics.aggregate(pipeline);
-      const totalExperts = await ExpertBasics.countDocuments(filters);
-
-      return res.status(200).json({
-        success: true,
-        message: "Filtered Experts",
-        totalExperts,
-        experts,
-      });
     }
 
-    // For simple sorting, use the regular find method
-    let sortCriteria = {};
-    switch (sortBy) {
-      default:
-        sortCriteria = { [sortBy]: order, createdAt: -1 };
-    }
+    const totalExperts = experts.length;
 
-    const experts = await ExpertBasics.find(filters).sort(sortCriteria).lean();
-    const totalExperts = await ExpertBasics.countDocuments(filters);
+    const sanitizedExperts = experts.map(({
+      _serviceOptions,
+      _minPrice,
+      _maxPrice,
+      _durations,
+      _avgRating,
+      ...rest
+    }) => rest);
 
     return res.status(200).json({
       success: true,
       message: "Filtered Experts",
       totalExperts,
-      experts,
+      totalExpertsBeforeFilters,
+      experts: sanitizedExperts,
     });
   } catch (error) {
     next(error);
@@ -2013,7 +2091,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       res.cookie("otpToken", otpToken, {
         httpOnly: true,
         maxAge: 10 * 60 * 1000,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "development",
         sameSite: "None",
       });
 
@@ -2035,7 +2113,7 @@ const generateOtpForVerifying = async (req, res, next) => {
 
       res.cookie("otpToken", otpToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env.NODE_ENV === "development",
         sameSite: "None",
         maxAge: 10 * 60 * 1000,
       });

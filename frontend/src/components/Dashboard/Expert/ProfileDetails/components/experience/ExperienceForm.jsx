@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
 import ImageUploadModal from '../ImageUploadModal';
-import { FaEye, FaTrash,FaLightbulb} from 'react-icons/fa';
+import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { ExperienceFormSubmit } from '@/Redux/Slices/expert.Slice';
 import DocumentUploadModal from '../services/DocumentUploadModal';
@@ -44,7 +44,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const formDataToSend = {
       _id: formData._id,
       companyName: formData.companyName,
@@ -54,10 +54,10 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
       startDate: formData.startDate,
       documents: formData.documents
     };
-  
+
     console.log('submitting FormData', formDataToSend);
     onSubmit(formDataToSend);
-  };  
+  };
 
   const handleDateChange = (field, date) => {
     // Ensure we're working with valid Date objects
@@ -109,7 +109,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Company Name
+            Company Name<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -123,7 +123,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Job Title
+            Job Title<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -178,11 +178,11 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Supporting Documents (Optional)
           </label>
-          
+
           {formData.documents?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.documents.map((file, index) => (
-                <div 
+                <div
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
@@ -234,11 +234,11 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
             </button>
           </div>
           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
-                              <FaLightbulb className="mt-1 flex-shrink-0" />
-                              <p className="text-sm">
-                              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
-                              </p>
-                            </div>
+            <FaLightbulb className="mt-1 flex-shrink-0" />
+            <p className="text-sm">
+              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
@@ -262,7 +262,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
-      /> 
+      />
     </div>
   );
 }

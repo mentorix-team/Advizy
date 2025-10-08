@@ -15,8 +15,54 @@ export default function Payments() {
   const { meetings } = useSelector((state) => state.meeting);
   const { data } = useSelector((state) => state.auth);
 
-  // Filter meetings where isPayed is true
-  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
+  // Filter meetings where isPayed is true and sort by payment time (most recent first)
+  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed)
+    .sort((a, b) => {
+      // Try to get payment timestamp - check multiple possible fields
+      let timestampA, timestampB;
+      
+      // Option 1: Check for explicit payment timestamp fields
+      if (a.paymentDate && b.paymentDate) {
+        timestampA = new Date(a.paymentDate);
+        timestampB = new Date(b.paymentDate);
+      }
+      // Option 2: Check for updatedAt (likely when payment was processed)
+      else if (a.updatedAt && b.updatedAt) {
+        timestampA = new Date(a.updatedAt);
+        timestampB = new Date(b.updatedAt);
+      }
+      // Option 3: Check for createdAt 
+      else if (a.createdAt && b.createdAt) {
+        timestampA = new Date(a.createdAt);
+        timestampB = new Date(b.createdAt);
+      }
+      // Option 4: Extract timestamp from MongoDB ObjectId
+      else if (a._id && b._id) {
+        // MongoDB ObjectId contains timestamp in first 4 bytes
+        timestampA = new Date(parseInt(a._id.substring(0, 8), 16) * 1000);
+        timestampB = new Date(parseInt(b._id.substring(0, 8), 16) * 1000);
+      }
+      // Fallback: use meeting date
+      else {
+        timestampA = new Date(a.daySpecific?.date || 0);
+        timestampB = new Date(b.daySpecific?.date || 0);
+      }
+      
+      // Sort in descending order (most recent payments first)
+      return timestampB - timestampA;
+    }) || [];
+
+  // Debug: Log the first few meetings to see available timestamp fields
+  if (meetings && meetings.length > 0) {
+    console.log("Sample meeting data for timestamp debugging:", {
+      firstMeeting: meetings[0],
+      availableFields: Object.keys(meetings[0] || {}),
+      hasCreatedAt: !!meetings[0]?.createdAt,
+      hasUpdatedAt: !!meetings[0]?.updatedAt,
+      hasPaymentDate: !!meetings[0]?.paymentDate,
+      _id: meetings[0]?._id
+    });
+  }
 
   const payments = paidMeetings.map((meeting) => ({
     id: meeting.razorpay_payment_id, // Use actual transaction ID

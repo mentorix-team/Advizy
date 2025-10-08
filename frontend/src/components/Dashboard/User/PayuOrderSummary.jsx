@@ -152,13 +152,13 @@ const PayuOrderSummary = () => {
       "https://via.placeholder.com/100",
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
     title:
-      selectedExpert.credentials?.professionalTitle ||
+      selectedExpert?.credentials?.professionalTitle ||
       title ||
       "No Title Provided",
-    sessionDuration: selectedService.duration || durationforstate,
-    price: selectedService.price || Price,
-    description: selectedService.detailedDescription || serviceDescription,
-    includes: selectedService.features || includes,
+    sessionDuration: selectedService?.duration || durationforstate,
+    price: selectedService?.price || Price,
+    description: selectedService?.detailedDescription || serviceDescription,
+    includes: selectedService?.features || includes,
   };
 
   const formatSelectedDate = (date) => {
@@ -315,7 +315,7 @@ const PayuOrderSummary = () => {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <p className="text-gray-700 truncate max-w-[70%]">
-                      {selectedService.title}
+                      {selectedService?.title || title || "Service"}
                     </p>
                     {isPriceLoading ? (
                       <SmallSpinner />

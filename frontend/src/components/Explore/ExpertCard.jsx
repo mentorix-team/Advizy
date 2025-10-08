@@ -48,29 +48,80 @@ const ExpertCard = (props) => {
     fetchAvailability();
   }, [dispatch, expertId]);
 
-  const firstAvailableDay = availability?.daySpecific?.find(
-    (day) => day.slots?.length > 0
-  );
-  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
-
-  const truncateByChar = (text = "", maxChars) => {
-    if (!text) return "";
-    if (text.length <= maxChars) return text;
-    let truncated = text.slice(0, maxChars);
-    if (text[maxChars] !== " ") {
-      truncated = truncated.slice(0, truncated.lastIndexOf(" "));
+  const getFirstAvailableSlot = () => {
+    if (!availability?.daySpecific) {
+      return { day: null, time: null };
     }
-    return truncated + "...";
+
+    const now = new Date();
+    const currentDay = now.toLocaleString("en-US", { weekday: "long" });
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const parseTime = (timeString) => {
+      const [time, period] = timeString.split(/(\s?[AP]M)/i);
+      const [hours, minutes] = time.split(':').map(Number);
+      let hour24 = hours;
+      
+      if (period && period.toUpperCase().includes('PM') && hours !== 12) {
+        hour24 += 12;
+      } else if (period && period.toUpperCase().includes('AM') && hours === 12) {
+        hour24 = 0;
+      }
+      
+      return hour24 * 60 + minutes;
+    };
+
+    // Check today's slots first
+    const todayData = availability.daySpecific.find(day => day.day === currentDay);
+    
+    if (todayData && todayData.slots && todayData.slots.length > 0) {
+      for (const slot of todayData.slots) {
+        if (!slot.startTime || !slot.endTime) continue;
+
+        const slotStartMinutes = parseTime(slot.startTime);
+        const slotEndMinutes = parseTime(slot.endTime);
+        const sessionDuration = duration || 30;
+        
+        let currentSlotTime = slotStartMinutes;
+        
+        while (currentSlotTime + sessionDuration <= slotEndMinutes) {
+          if (currentSlotTime > currentTimeMinutes + 30) {
+            const nextAvailableHour = Math.floor(currentSlotTime / 60);
+            const nextAvailableMinute = currentSlotTime % 60;
+            const nextAvailableTime = `${nextAvailableHour > 12 ? nextAvailableHour - 12 : nextAvailableHour === 0 ? 12 : nextAvailableHour}:${nextAvailableMinute.toString().padStart(2, '0')} ${nextAvailableHour >= 12 ? 'PM' : 'AM'}`;
+            
+            return { day: "Today", time: nextAvailableTime };
+          }
+          currentSlotTime += 15;
+        }
+      }
+    }
+
+    // Check future days if no today slots
+    for (const dayData of availability.daySpecific) {
+      if (dayData.day === currentDay) continue;
+      
+      if (!dayData.slots || dayData.slots.length === 0) continue;
+
+      for (const slot of dayData.slots) {
+        if (!slot.startTime) continue;
+        return { day: dayData.day, time: slot.startTime };
+      }
+    }
+
+    return { day: null, time: null };
   };
 
-  const [pulse, setPulse] = useState(false); // trigger one-shot animation
+  const { day: firstAvailableDay, time: firstAvailableTime } = getFirstAvailableSlot();
+
+  const [pulse, setPulse] = useState(false);
 
   const handleFav = (e) => {
     e.stopPropagation();
     if (!expertId || isUpdating) return;
     setPulse(true);
 
-    const wasFav = isFav; // snapshot the value at click time
+    const wasFav = isFav;
 
     if (wasFav) dispatch(optimisticRemove(expertId));
     else dispatch(optimisticAdd(expertId));
@@ -83,7 +134,7 @@ const ExpertCard = (props) => {
           { position: "top-right" }
         );
       } else {
-        // rollback using snapshot, not current isFav
+        // rollback using snapshot
         if (wasFav) dispatch(optimisticAdd(expertId));
         else dispatch(optimisticRemove(expertId));
         toast.error("Failed to update favourite", { position: "top-right" });
@@ -229,7 +280,12 @@ const ExpertCard = (props) => {
               </span>
               <span className="text-xs sm:text-sm md:text-sm lg:text-sm text-blue-700 font-medium">
                 {firstAvailableDay && firstAvailableTime
-                  ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                  ? (() => {
+                      const now = new Date();
+                      const currentDay = now.toLocaleString("en-US", { weekday: "long" });
+                      const isToday = firstAvailableDay === currentDay;
+                      return `${isToday ? "Today" : firstAvailableDay}, ${firstAvailableTime}`;
+                    })()
                   : "No slots available"}
               </span>
             </div>

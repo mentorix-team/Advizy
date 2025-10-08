@@ -50,7 +50,7 @@ const createMeetingToken = async (req, res, next) => {
     // Store the token in a cookie
     res.cookie('meetingToken', token, {
       httpOnly:true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "development",
       sameSite:"None",
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
     });
@@ -299,10 +299,22 @@ const getMeetingById = async (req, res, next) => {
       return next(new AppError('Meeting not found', 404)); // meeting not found
     }
 
+    // Fetch associated feedback for this meeting
+    const feedback = await Feedback.findOne({ meeting_id: id });
+
+    // Add feedback data to meeting object
+    const meetingWithFeedback = {
+      ...meeting.toObject(),
+      feedback: feedback ? {
+        rating: feedback.rating,
+        feedback: feedback.feedback
+      } : null
+    };
+
     res.status(200).json({
       status: true,
       message: 'Meeting fetched successfully',
-      meeting,
+      meeting: meetingWithFeedback,
     });
   } catch (error) {
     console.error('Error fetching meeting by ID:', error);
@@ -315,15 +327,38 @@ const getMeetingByUserId = async(req,res,next) =>{
   if(!userId){
     return next(new AppError('user not registered',500))
   }
-  const meeting = await Meeting.find({userId}).lean()
-  if(!meeting){
-    return next(new AppError('this user doesn have any meeting',500));
+  
+  try {
+    // Get all meetings for the user
+    const meetings = await Meeting.find({userId}).lean();
+    
+    if(!meetings || meetings.length === 0){
+      return next(new AppError('this user doesn have any meeting',500));
+    }
+    
+    // Get feedback for all meetings
+    const meetingsWithFeedback = await Promise.all(
+      meetings.map(async (meeting) => {
+        const feedback = await Feedback.findOne({ meeting_id: meeting._id });
+        return {
+          ...meeting,
+          feedback: feedback ? {
+            rating: feedback.rating,
+            feedback: feedback.feedback
+          } : null
+        };
+      })
+    );
+    
+    return res.status(200).json({
+      success:true,
+      message:`All meetings of user with ${userId}`,
+      meeting: meetingsWithFeedback
+    })
+  } catch (error) {
+    console.error('Error fetching meetings by user ID:', error);
+    return next(new AppError(error.message || 'Server error', 500));
   }
-  return res.status(200).json({
-    success:true,
-    message:`Alll meetings of user with ${userId}`,
-    meeting
-  })
 }
 
 const getMeetingByExpertId = async(req,res,next) =>{
@@ -331,15 +366,38 @@ const getMeetingByExpertId = async(req,res,next) =>{
     if(!expertId){
       return next(new AppError('expert not registered',500))
     }
-    const meeting = await Meeting.find({expertId}).lean()
-    if(!meeting){
-      return next(new AppError('this user doesn have any meeting',500));
+    
+    try {
+      // Get all meetings for the expert
+      const meetings = await Meeting.find({expertId}).lean();
+      
+      if(!meetings || meetings.length === 0){
+        return next(new AppError('this expert doesn have any meeting',500));
+      }
+      
+      // Get feedback for all meetings
+      const meetingsWithFeedback = await Promise.all(
+        meetings.map(async (meeting) => {
+          const feedback = await Feedback.findOne({ meeting_id: meeting._id });
+          return {
+            ...meeting,
+            feedback: feedback ? {
+              rating: feedback.rating,
+              feedback: feedback.feedback
+            } : null
+          };
+        })
+      );
+      
+      return res.status(200).json({
+        success:true,
+        message:`All meetings of expert with ${expertId}`,
+        meeting: meetingsWithFeedback
+      })
+    } catch (error) {
+      console.error('Error fetching meetings by expert ID:', error);
+      return next(new AppError(error.message || 'Server error', 500));
     }
-    return res.status(200).json({
-      success:true,
-      message:`Alll meetings of expert with ${expertId}`,
-      meeting
-    })
 }
 
 const createVideocall = async (req, res, next) => {

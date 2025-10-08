@@ -15,7 +15,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
     passingYear: initialData?.passingYear || '',
     certificate: initialData?.certificate || []
   });
-  
+
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -27,7 +27,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const formDataToSend = {
       _id: formData._id,
       degree: formData.degree,
@@ -35,11 +35,11 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
       passingYear: formData.passingYear,
       certificate: formData.certificate
     };
-  
+
     console.log("Submitting Form Data:", formDataToSend);
     onSubmit(formDataToSend);
   };
-  
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -65,29 +65,29 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
   const validatePassingYear = () => {
     const year = parseInt(formData.passingYear);
     const currentYear = new Date().getFullYear();
-    
+
     if (!formData.passingYear) {
       setErrors({ ...errors, passingYear: 'Passing year is required' });
       return false;
     }
-    
+
     if (year < 1900 || year > currentYear + 10) {
       setErrors({ ...errors, passingYear: 'Please enter a valid year between 1900 and ' + (currentYear + 10) });
       return false;
     }
-    
+
     setErrors({ ...errors, passingYear: '' });
     return true;
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0]; // Get the first file only
-    
+
     if (file) {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
       if (!validTypes.includes(file.type)) {
-        toast.error('Please upload a PDF, JPEG, or PNG file',{
+        toast.error('Please upload a PDF, JPEG, or PNG file', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -97,7 +97,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
         });
         return;
       }
-  
+
       // Validate file size (e.g., 5MB max)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
@@ -111,13 +111,13 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
         });
         return;
       }
-  
+
       setFormData(prev => ({
         ...prev,
         certificate: file // Store single file
       }));
       setShowUploadModal(false);
-      toast.success('File uploaded successfully',{
+      toast.success('File uploaded successfully', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -151,7 +151,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Degree/Qualification
+            Degree/Qualification<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -165,7 +165,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Institution Name
+            Institution Name<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -179,16 +179,15 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Passing Year
+            Passing Year<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={formData.passingYear}
             onChange={handlePassingYearChange}
             onBlur={validatePassingYear}
-            className={`w-full p-2 border rounded-lg focus:ring-primary focus:border-primary ${
-              errors.passingYear ? 'border-red-500' : ''
-            }`}
+            className={`w-full p-2 border rounded-lg focus:ring-primary focus:border-primary ${errors.passingYear ? 'border-red-500' : ''
+              }`}
             placeholder="2020"
             required
           />
@@ -199,14 +198,14 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-          Certificates (Optional) - for verification purpose only
+            Certificates (Optional) - for verification purpose only
           </label>
-          
+
           {/* File List */}
           {formData.certificate?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.certificate.map((file, index) => (
-                <div 
+                <div
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
@@ -258,11 +257,11 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
             </button>
           </div>
           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
-                    <FaLightbulb className="mt-1 flex-shrink-0" />
-                    <p className="text-sm">
-                    Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
-                    </p>
-                  </div>
+            <FaLightbulb className="mt-1 flex-shrink-0" />
+            <p className="text-sm">
+              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
@@ -281,11 +280,11 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
           </button>
         </div>
       </form>
-      <DocumentUploadModal 
+      <DocumentUploadModal
         isOpen={showUploadModal}
-        onClose={()=>setShowUploadModal(false)}
+        onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
-      />    
+      />
       {/* <ImageUploadModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}

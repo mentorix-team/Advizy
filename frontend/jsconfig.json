@@ -2,7 +2,7 @@
     "compilerOptions": {
       // ...
       "baseUrl": ".",
-      "ignoreDeprecations": "6.0",
+      "ignoreDeprecations": "6.0",//remove this line if not needed
       "paths": {
         "@/*": [
           "./src/*"

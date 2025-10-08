@@ -21,6 +21,13 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const [submittedRating, setSubmittedRating] = useState(null);
   const [submittedFeedback, setSubmittedFeedback] = useState("");
   const {data} = useSelector((state)=>state.auth)
+  
+  // Debug: Log meeting data to see if rating is included
+  console.log("Meeting data in MeetingCard:", meeting);
+  console.log("Meeting rating field:", meeting?.rating);
+  console.log("Meeting feedback field:", meeting?.feedback);
+  console.log("All meeting keys:", Object.keys(meeting || {}));
+  
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
@@ -31,7 +38,9 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
 
   console.log("This is my user data:", userData);
   const handleSubmitRating = () => {
-    onRate(meeting._id, { rating, feedback });
+    if (onRate) {
+      onRate(meeting._id, { rating, feedback });
+    }
     setSubmittedRating(rating);
     setSubmittedFeedback(feedback);
     setIsRatingSubmitted(true);
@@ -120,7 +129,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
       <div className="mt-4 flex space-x-4">
         {isPast ? (
           <>
-            {!isRatingSubmitted && !meeting.rating ? (
+            {isPast && onRate && !isRatingSubmitted && !meeting.feedback?.rating ? (
               <button
                 onClick={() => setIsRatingModalOpen(true)}
                 className="flex items-center border bgcolor-grey-400 space-x-2 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
@@ -128,15 +137,15 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
                 <AiOutlineStar className="w-5 h-5" />
                 <span>Add Rating</span>
               </button>
-            ) : (
+            ) : isPast && (isRatingSubmitted || meeting.feedback?.rating) ? (
               <button
                 disabled
                 className="flex items-center space-x-2 text-green-600 px-4 py-2 rounded-lg bg-green-50 cursor-default"
               >
                 <AiFillStar className="w-5 h-5" />
-                <span>{meeting.rating || submittedRating}/5</span>
+                <span>{meeting.feedback?.rating || submittedRating}/5</span>
               </button>
-            )}
+            ) : null}
             <button
               onClick={handleViewDetails}
               className="text-gray-600 px-4 py-2 rounded-lg border bgcolor-grey-400 hover:bg-gray-50 transition-colors"

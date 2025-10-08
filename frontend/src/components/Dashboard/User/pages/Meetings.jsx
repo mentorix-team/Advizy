@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import clsx from "clsx";
 import MeetingCard from "../Component/MeetingCard";
-import { getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
+import { getMeetingByUserId, givefeedback } from "@/Redux/Slices/meetingSlice";
 import NoData2 from "@/NoData2";
 
 // Helper function to format dates
@@ -42,9 +42,54 @@ export default function Meetings() {
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   const { meetings } = useSelector((state) => state.meeting);
+  const { data: userData } = useSelector((state) => state.auth);
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
 
   console.log("All paid meetings:", paidMeetings);
+
+  // Handle rating submission
+  const handleRate = async (meetingId, { rating, feedback }) => {
+    try {
+      // Parse user data if it's a string
+      const user = typeof userData === "string" ? JSON.parse(userData) : userData;
+      
+      if (!user || !user._id) {
+        alert("User information not available. Please try logging in again.");
+        return;
+      }
+
+      // Find the meeting to get expert and service details
+      const meeting = meetings.find(m => m._id === meetingId);
+      if (!meeting) {
+        alert("Meeting not found.");
+        return;
+      }
+
+      const response = await dispatch(
+        givefeedback({
+          feedback,
+          rating,
+          user_id: user._id,
+          expert_id: meeting.expertId,
+          meeting_id: meetingId,
+          userName: user.userName || user.name,
+          expertName: meeting.expertName,
+          serviceName: meeting.serviceName,
+        })
+      );
+
+      if (response.payload && response.payload.success) {
+        // Refresh meetings to get updated data with feedback
+        dispatch(getMeetingByUserId());
+        alert("Thank you for your feedback!");
+      } else {
+        alert("Failed to submit feedback. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      alert("An error occurred while submitting feedback.");
+    }
+  };
 
   useEffect(() => {
     try {
@@ -271,7 +316,12 @@ const groupedMeetings = paidMeetings.reduce(
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupedMeetings.past.map((meeting) => (
-              <MeetingCard key={meeting._id} meeting={meeting} isPast={true} />
+              <MeetingCard 
+                key={meeting._id} 
+                meeting={meeting} 
+                isPast={true} 
+                onRate={handleRate}
+              />
             ))}
           </div>
         )

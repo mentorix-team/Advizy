@@ -77,11 +77,10 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
 
   return (
     <div
-      className={`rounded-xl shadow-md p-5 transition-opacity border ${
-        isEnabled
+      className={`rounded-xl shadow-md p-5 transition-opacity border ${isEnabled
           ? "bg-white border-gray-200 hover:shadow-lg"
           : "bg-gray-50 text-gray-500"
-      }`}
+        }`}
     >
       {/* Confirmation Dialogs */}
       <ConfirmDialog
@@ -101,9 +100,8 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
           <h3
-            className={`text-xl font-semibold ${
-              isEnabled ? "text-gray-900" : "text-gray-500"
-            }`}
+            className={`text-xl font-semibold ${isEnabled ? "text-gray-900" : "text-gray-500"
+              }`}
             title={title}
           >
             {title.length > 15 ? `${title.slice(0, 15)}...` : title}
@@ -116,14 +114,12 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
                 onClick={handleToggleConfirm}
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
-                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
-                  isEnabled ? "bg-[#16A348] text-white" : "bg-gray-300 text-gray-500"
-                }`}
+                className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${isEnabled ? "bg-[#16A348] text-white" : "bg-gray-300 text-gray-500"
+                  }`}
               >
                 <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                    isEnabled ? "translate-x-6" : "translate-x-1"
-                  }`}
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
                 />
               </button>
               {showTooltip && isEnabled && (
@@ -139,9 +135,8 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
               console.log('Service type:', typeof service, 'Service keys:', Object.keys(service || {}));
               onEdit(service);
             }}
-            className={`rounded-full transition-colors ${
-              isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
-            }`}
+            className={`rounded-full transition-colors ${isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
+              }`}
             disabled={!isEnabled}
           >
             <EditIcon className="w-5 h-4.5 text-gray-600" />
@@ -149,9 +144,8 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
           {!isDefault && service.title !== "One-on-One Mentoring" && (
             <button
               onClick={handleDeleteConfirm}
-              className={`rounded-full transition-colors ${
-                isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
-              }`}
+              className={`rounded-full transition-colors ${isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"
+                }`}
               disabled={!isEnabled}
             >
               <DeleteIcon className="w-5 h-5 text-gray-600" />
