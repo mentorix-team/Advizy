@@ -336,9 +336,54 @@ const getMeetingByUserId = async(req,res,next) =>{
       return next(new AppError('this user doesn have any meeting',500));
     }
     
+    // Update meeting statuses based on current time
+    const now = new Date();
+    const updatedMeetings = await Promise.all(
+      meetings.map(async (meeting) => {
+        try {
+          // Parse meeting date and end time
+          const meetingDate = new Date(meeting.daySpecific.date);
+          const endTimeString = meeting.daySpecific.slot.endTime;
+          
+          // Convert 12-hour format to 24-hour if needed
+          let endTime24;
+          if (endTimeString.includes('PM') || endTimeString.includes('AM')) {
+            const [time, period] = endTimeString.split(' ');
+            const [hours, minutes] = time.split(':');
+            let hour24 = parseInt(hours);
+            
+            if (period === 'PM' && hour24 !== 12) {
+              hour24 += 12;
+            } else if (period === 'AM' && hour24 === 12) {
+              hour24 = 0;
+            }
+            
+            endTime24 = `${hour24.toString().padStart(2, '0')}:${minutes}`;
+          } else {
+            endTime24 = endTimeString;
+          }
+          
+          // Create meeting end datetime
+          const meetingDateStr = meetingDate.toISOString().split('T')[0];
+          const meetingEnd = new Date(`${meetingDateStr}T${endTime24}:00`);
+          
+          // Update status if meeting has ended and status is still scheduled
+          if (meetingEnd < now && meeting.status === 'scheduled') {
+            await Meeting.findByIdAndUpdate(meeting._id, { status: 'completed' });
+            return { ...meeting, status: 'completed' };
+          }
+          
+          return meeting;
+        } catch (error) {
+          console.error('Error updating meeting status:', error);
+          return meeting;
+        }
+      })
+    );
+    
     // Get feedback for all meetings
     const meetingsWithFeedback = await Promise.all(
-      meetings.map(async (meeting) => {
+      updatedMeetings.map(async (meeting) => {
         const feedback = await Feedback.findOne({ meeting_id: meeting._id });
         return {
           ...meeting,
@@ -375,9 +420,54 @@ const getMeetingByExpertId = async(req,res,next) =>{
         return next(new AppError('this expert doesn have any meeting',500));
       }
       
+      // Update meeting statuses based on current time
+      const now = new Date();
+      const updatedMeetings = await Promise.all(
+        meetings.map(async (meeting) => {
+          try {
+            // Parse meeting date and end time
+            const meetingDate = new Date(meeting.daySpecific.date);
+            const endTimeString = meeting.daySpecific.slot.endTime;
+            
+            // Convert 12-hour format to 24-hour if needed
+            let endTime24;
+            if (endTimeString.includes('PM') || endTimeString.includes('AM')) {
+              const [time, period] = endTimeString.split(' ');
+              const [hours, minutes] = time.split(':');
+              let hour24 = parseInt(hours);
+              
+              if (period === 'PM' && hour24 !== 12) {
+                hour24 += 12;
+              } else if (period === 'AM' && hour24 === 12) {
+                hour24 = 0;
+              }
+              
+              endTime24 = `${hour24.toString().padStart(2, '0')}:${minutes}`;
+            } else {
+              endTime24 = endTimeString;
+            }
+            
+            // Create meeting end datetime
+            const meetingDateStr = meetingDate.toISOString().split('T')[0];
+            const meetingEnd = new Date(`${meetingDateStr}T${endTime24}:00`);
+            
+            // Update status if meeting has ended and status is still scheduled
+            if (meetingEnd < now && meeting.status === 'scheduled') {
+              await Meeting.findByIdAndUpdate(meeting._id, { status: 'completed' });
+              return { ...meeting, status: 'completed' };
+            }
+            
+            return meeting;
+          } catch (error) {
+            console.error('Error updating meeting status:', error);
+            return meeting;
+          }
+        })
+      );
+      
       // Get feedback for all meetings
       const meetingsWithFeedback = await Promise.all(
-        meetings.map(async (meeting) => {
+        updatedMeetings.map(async (meeting) => {
           const feedback = await Feedback.findOne({ meeting_id: meeting._id });
           return {
             ...meeting,

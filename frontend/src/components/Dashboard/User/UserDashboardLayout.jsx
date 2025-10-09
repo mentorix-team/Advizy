@@ -211,7 +211,7 @@ const UserDashboardLayout = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -219,9 +219,9 @@ const UserDashboardLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-green-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } sm:translate-x-0`}
+        } lg:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
@@ -306,7 +306,7 @@ const UserDashboardLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
+      <main className="lg:ml-64 pt-20 bg-[#f6f7f7]">
         <div className="mx-auto px-4">
           <Outlet />
         </div>

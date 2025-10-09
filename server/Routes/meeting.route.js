@@ -5,7 +5,11 @@ const router = Router()
 
 router.post('/meet',isLoggedIn,createMeetingToken)
 router.get('/meet',isLoggedIn,isMeeting,getMeetingById)
-router.get('/getmeetingbyid/:id',isLoggedIn,getmeet)
+router.get('/getmeetingbyid/:id',isLoggedIn, (req, res, next) => {
+  // Set the meeting ID in req.meeting for getMeetingById
+  req.meeting = { id: req.params.id };
+  next();
+}, getMeetingById)
 router.get('/meetbyuser',isLoggedIn,getMeetingByUserId)
 router.get('/meetbyexpert',isLoggedIn,isExpert,getMeetingByExpertId)
 router.post('/payedformeeting',isLoggedIn,isMeeting,payedForMeeting)
@@ -26,7 +30,7 @@ router.post('/verifyrescheduleToken',isLoggedIn,verifyRescheduleToken)
 
 router.post('/getclientdetails',isLoggedIn,isExpert,getClientDetails)
 router.post('/givefeedback',giveFeedback)
-router.post('/getfeedbackbyexpertid',getFeedbackbyexpertId)
+router.post('/getfeedbackbyexpertid', isLoggedIn, getFeedbackbyexpertId)
 router.post('/getthemeet',getthemeet)
 
 export default router;

@@ -19,116 +19,113 @@ export default function PastMeetingDetails() {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const { selectedMeeting, loading, error, meetings } = useSelector((state) => state.meeting);
+  const { meetings, loading, selectedMeeting, error: meetingError } = useSelector((state) => state.meeting);
   const { data: userData } = useSelector((state) => state.auth);
 
+  console.log('PastMeetingDetails rendered with:', { id, isLoading, loading, selectedMeeting, meetingError, meeting });
+  console.log('About to render main content...');
+
   useEffect(() => {
-    console.log('Available meetings in Redux store:', meetings);
     console.log('Target meeting ID:', id);
     
-    const fetchMeeting = async () => {
-      if (!id) return;
-      
-      // First, try to find the meeting in the existing meetings array
-      if (meetings && meetings.length > 0) {
-        const foundMeeting = meetings.find(m => m._id === id);
-        if (foundMeeting) {
-          console.log('Found meeting in existing data:', foundMeeting);
-          setMeeting(foundMeeting);
+    if (id) {
+      console.log('Fetching meeting with ID:', id);
+      setError(null);
+      dispatch(getMeetingbyid(id))
+        .unwrap()
+        .then(() => {
+          console.log('Meeting fetch successful');
+        })
+        .catch((err) => {
+          console.error('Error fetching meeting:', err);
+          setError('Failed to load meeting details. Please try again.');
           setIsLoading(false);
-          
-          // Check if rating exists in the meeting data from backend
-          if (foundMeeting.feedback && foundMeeting.feedback.rating) {
-            console.log('Found existing rating in meeting data:', foundMeeting.feedback.rating);
-            setRating(parseInt(foundMeeting.feedback.rating));
-            setFeedback(foundMeeting.feedback.feedback || '');
-          } else {
-            // Fallback to localStorage for ratings
-            const savedMeetings = JSON.parse(localStorage.getItem('pastMeetings') || '[]');
-            const savedMeeting = savedMeetings.find(m => m.id === id);
-            if (savedMeeting) {
-              setRating(savedMeeting.rating || 0);
-              setFeedback(savedMeeting.feedback || '');
-            }
-          }
-          return;
-        }
-      }
+        });
+    } else {
+      console.log('No meeting ID provided');
+      setError('No meeting ID provided');
+      setIsLoading(false);
+    }
+  }, [id, dispatch]);
 
-      // If not found in existing data or meetings array is empty, fetch it from API
-      setIsLoading(true);
-      try {
-        console.log('Fetching meeting with ID:', id);
-        const response = await dispatch(getMeetingbyid(id));
-        console.log('Full response from getMeetingbyid:', response);
-        
-        // Check different possible response structures
-        let meetingData = null;
-        if (response?.payload?.meeting) {
-          meetingData = response.payload.meeting;
-        } else if (response?.payload?.data?.meeting) {
-          meetingData = response.payload.data.meeting;
-        } else if (response?.payload?.data) {
-          meetingData = response.payload.data;
-        } else if (response?.payload) {
-          meetingData = response.payload;
-        } else if (response?.data) {
-          meetingData = response.data;
-        }
-        
-        console.log('Extracted meeting data:', meetingData);
-        
-        if (meetingData) {
-          console.log('Setting meeting data:', meetingData);
-          console.log('Meeting data keys:', Object.keys(meetingData));
-          console.log('Meeting serviceName:', meetingData.serviceName);
-          console.log('Meeting expertName:', meetingData.expertName);
-          console.log('Meeting daySpecific:', meetingData.daySpecific);
-          console.log('Meeting amount:', meetingData.amount);
-          console.log('Meeting rating:', meetingData.rating);
-          console.log('Meeting feedback:', meetingData.feedback);
-          setMeeting(meetingData);
-          
-          // Check if rating exists in the meeting data from backend
-          if (meetingData.feedback && meetingData.feedback.rating) {
-            console.log('Found existing rating in API response:', meetingData.feedback.rating);
-            setRating(parseInt(meetingData.feedback.rating));
-            setFeedback(meetingData.feedback.feedback || '');
-          } else {
-            // Fallback to localStorage for ratings
-            const savedMeetings = JSON.parse(localStorage.getItem('pastMeetings') || '[]');
-            const savedMeeting = savedMeetings.find(m => m.id === id);
-            if (savedMeeting) {
-              setRating(savedMeeting.rating || 0);
-              setFeedback(savedMeeting.feedback || '');
-            }
-          }
+  useEffect(() => {
+    if (selectedMeeting) {
+      console.log('Selected meeting from Redux:', selectedMeeting);
+      console.log('Meeting feedback object:', selectedMeeting.feedback);
+      
+      if (selectedMeeting.feedback) {
+        console.log('Feedback rating:', selectedMeeting.feedback.rating);
+        console.log('Feedback text:', selectedMeeting.feedback.feedback);
+      }
+      
+      setMeeting(selectedMeeting);
+      setIsLoading(false);
+      
+      // Check if rating exists in the meeting data from backend
+      if (selectedMeeting.feedback && selectedMeeting.feedback.rating) {
+        console.log('Found existing rating in selected meeting:', selectedMeeting.feedback.rating);
+        setRating(parseInt(selectedMeeting.feedback.rating));
+        setFeedback(selectedMeeting.feedback.feedback || '');
+        console.log('Set rating state to:', parseInt(selectedMeeting.feedback.rating));
+        console.log('Set feedback state to:', selectedMeeting.feedback.feedback || '');
+      } else {
+        console.log('No feedback found in backend data, checking localStorage...');
+        // Fallback to localStorage for ratings
+        const savedMeetings = JSON.parse(localStorage.getItem('pastMeetings') || '[]');
+        const savedMeeting = savedMeetings.find(m => m.id === id);
+        if (savedMeeting) {
+          console.log('Found saved meeting in localStorage:', savedMeeting);
+          setRating(savedMeeting.rating || 0);
+          setFeedback(savedMeeting.feedback || '');
         } else {
-          console.error('Meeting not found - no data in response');
-          navigate('/dashboard/user/meetings');
+          console.log('No rating data found in localStorage either');
+          setRating(0);
+          setFeedback('');
         }
-      } catch (error) {
-        console.error('Error fetching meeting:', error);
-        navigate('/dashboard/user/meetings');
-      } finally {
-        setIsLoading(false);
       }
-    };
+    }
+  }, [selectedMeeting, id]);
 
-    fetchMeeting();
-  }, [id, dispatch, navigate, meetings]);
+  // Cleanup selectedMeeting when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clear selectedMeeting from Redux state when leaving the component
+      // This prevents stale data from affecting other components
+    };
+  }, []);
 
   if (isLoading || loading) {
+    console.log('Showing spinner - isLoading:', isLoading, 'loading:', loading);
     return <Spinner />;
   }
 
-  if (error) {
+  if (error || meetingError) {
+    console.log('Showing error state - error:', error, 'meetingError:', meetingError);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Meeting</h2>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{error || meetingError}</p>
+          <button
+            onClick={() => navigate('/dashboard/user/meetings')}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+          >
+            Back to Meetings
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!meeting) {
+    console.log('No meeting data available');
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Meeting Not Found</h2>
+          <p className="text-gray-600 mb-4">The meeting you're looking for could not be found.</p>
           <button
             onClick={() => navigate('/dashboard/user/meetings')}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"

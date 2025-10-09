@@ -18,17 +18,18 @@ const ExpertDashboardRoutes = () => {
     <Routes>
       <Route path="/" element={<ExpertDashboardLayout />}>
         <Route index element={<Home />} />
-        <Route path="/chats" element={<Chats />} />
-        <Route path="/availability" element={<Availability />} />
-        <Route path="/meetings" element={<Meetings />} />
-        <Route path="/meetings/receipt/:id" element={<MeetingInvoice />} />
-        <Route path="/service-pricing" element={<ServicePricing />} />
-        <Route path="/profile-detail" element={<ProfileDetails />} />
-        <Route path="/payments" element={<Payments />} />
-        <Route path="/reviews" element={<Testimonials />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/clients/:id" element={<ClientDetails />} />
-        <Route path="//help-center" element={<HelpCenter />} />
+        <Route path="home" element={<Home />} />
+        <Route path="chats" element={<Chats />} />
+        <Route path="availability" element={<Availability />} />
+        <Route path="meetings" element={<Meetings />} />
+        <Route path="meetings/receipt/:id" element={<MeetingInvoice />} />
+        <Route path="service-pricing" element={<ServicePricing />} />
+        <Route path="profile-detail" element={<ProfileDetails />} />
+        <Route path="payments" element={<Payments />} />
+        <Route path="reviews" element={<Testimonials />} />
+        <Route path="clients" element={<Clients />} />
+        <Route path="clients/:id" element={<ClientDetails />} />
+        <Route path="help-center" element={<HelpCenter />} />
       </Route>
     </Routes>
   );

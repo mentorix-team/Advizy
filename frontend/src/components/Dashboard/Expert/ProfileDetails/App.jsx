@@ -18,6 +18,58 @@ import ExperienceTab from "./components/experience/ExperienceTab";
 // import Spinner from '@/LoadingSkeleton/Spinner';
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 
+const normalizeSocialLinks = (rawLinks) => {
+  if (!rawLinks) return [];
+
+  const collected = new Set();
+
+  const processValue = (value) => {
+    if (!value) return;
+
+    if (Array.isArray(value)) {
+      value.forEach(processValue);
+      return;
+    }
+
+    if (typeof value !== "string") {
+      return;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const looksJsonArray =
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"));
+
+    if (looksJsonArray) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // treat as raw string when parsing fails
+      }
+    }
+
+    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // Fallback to trimmed literal value
+      }
+    }
+
+    collected.add(trimmed);
+  };
+
+  processValue(rawLinks);
+
+  return Array.from(collected);
+};
+
 function App() {
   const tabs = [
     "basic",
@@ -228,10 +280,10 @@ function App() {
           typeof lang === "string" ? JSON.parse(lang) : lang
         )
         : [],
-      socialLinks:
-        expert?.socialLinks?.length && typeof expert.socialLinks[0] === "string"
-          ? JSON.parse(expert.socialLinks[0])
-          : expert?.socialLinks || [""],
+      socialLinks: (() => {
+        const normalizedLinks = normalizeSocialLinks(expert?.socialLinks);
+        return normalizedLinks.length > 0 ? normalizedLinks : [];
+      })(),
       coverImage: expert?.coverImage?.secure_url || coverImage || "",
       profileImage: expert?.profileImage?.secure_url || profileImage || "",
     },
@@ -368,9 +420,12 @@ function App() {
         basicData.append("mobile", formData.basic.mobile);
         basicData.append("nationality", formData.basic.nationality);
         basicData.append("languages", JSON.stringify(formData.basic.languages));
+        const sanitizedSocialLinks = normalizeSocialLinks(
+          formData.basic.socialLinks
+        );
         basicData.append(
           "socialLinks",
-          JSON.stringify(formData.basic.socialLinks)
+          JSON.stringify(sanitizedSocialLinks)
         );
         basicData.append("coverImage", formData.basic.coverImage);
         basicData.append("profileImage", formData.basic.profileImage);
@@ -551,7 +606,10 @@ function App() {
       basicData.append("mobile", formData.basic.mobile);
       basicData.append("nationality", formData.basic.nationality);
       basicData.append("languages", JSON.stringify(formData.basic.languages));
-      basicData.append("socialLinks", JSON.stringify(formData.basic.socialLinks));
+      const sanitizedSocialLinks = normalizeSocialLinks(
+        formData.basic.socialLinks
+      );
+      basicData.append("socialLinks", JSON.stringify(sanitizedSocialLinks));
 
       // Handle images properly
       if (formData.basic.coverImage instanceof File) {

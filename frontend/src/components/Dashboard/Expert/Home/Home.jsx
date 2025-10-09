@@ -25,6 +25,7 @@ function Home() {
   const { meetings, feedbackofexpert } = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
+  console.log("🏠 Expert Home component rendered");
   console.log("availabilty", selectedAvailability);
   const availability = selectedAvailability?.availability;
 
@@ -303,7 +304,8 @@ function Home() {
               totalEarnings={totalEarnings}
               earnings={paidMeetings}
             />
-            <ClientFeedback feedback={feedbackofexpert} />
+            {console.log("🔍 Feedback data being passed:", feedbackofexpert)}
+            <ClientFeedback feedback={feedbackofexpert || []} />
             <RecommendedResources
               resources={resourcesData}
               onViewResource={handleViewResource}

@@ -181,7 +181,7 @@ const App = () => {
       !location.pathname.startsWith("/dashboard/expert") &&
       location.pathname !== "/meeting"
     ) {
-      navigate("/dashboard/expert/");
+      navigate("/dashboard/expert/home");
     }
   }, [location.pathname, navigate]);
 

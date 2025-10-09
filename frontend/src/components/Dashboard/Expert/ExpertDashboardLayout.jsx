@@ -154,7 +154,7 @@ const ExpertDashboardLayout = () => {
     }
 
     if (newMode) {
-      navigate("/dashboard/expert/");
+      navigate("/dashboard/expert/home");
     } else {
       navigate("/");
     }
@@ -319,15 +319,14 @@ const ExpertDashboardLayout = () => {
       <aside
         id="mobile-sidebar"
         className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
+          } bg-green-50 border-r border-gray-200 :translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
               <NavLink
-                to="/dashboard/expert"
-                end
+                to="/dashboard/expert/home"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${isActive
                     ? "bg-[#d6fae2] font-semibold text-green-900"
@@ -401,7 +400,7 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Meetings</span>
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink
                 to="/dashboard/expert/clients"
                 className={({ isActive }) =>
@@ -414,7 +413,7 @@ const ExpertDashboardLayout = () => {
                 <Users className="w-5 h-5" />
                 <span className="ms-3">Client-session</span>
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to="/dashboard/expert/payments"
@@ -475,7 +474,7 @@ const ExpertDashboardLayout = () => {
         </div>
       </aside>
 
-      <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
+      <main className="lg:ml-64 pt-20 bg-[#f6f7f7]">
         <div className="mx-auto px-4">
           <Outlet />
         </div>

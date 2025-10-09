@@ -62,7 +62,21 @@ const meetingSchema = new Schema({
     isPayed:{
         type:Boolean,
         default:false,
+    },
+    status: {
+        type: String,
+        enum: [
+            'scheduled',    // Meeting is booked and confirmed
+            'ongoing',      // Meeting is currently happening
+            'completed',    // Meeting has finished successfully
+            'cancelled',    // Meeting was cancelled
+            'no-show',      // User didn't show up
+            'rescheduled'   // Meeting was rescheduled
+        ],
+        default: 'scheduled'
     }
+}, {
+    timestamps: true // This will add createdAt and updatedAt fields automatically
 });
 
 meetingSchema.methods = {
@@ -74,7 +88,8 @@ meetingSchema.methods = {
             serviceId: this.serviceId,
             daySpecific: this.daySpecific,
             isPayed:this.isPayed,
-            razorpay_payment_id:this.razorpay_payment_id
+            razorpay_payment_id:this.razorpay_payment_id,
+            status: this.status
         };
 
         return jwt.sign(payload, 'sVu4ObGbmS3krUCfW+1wJRzNGnt1LtMy6+oWtO/DJmQ=', { expiresIn: '2d' });

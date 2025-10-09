@@ -148,9 +148,9 @@ const PayuOrderSummary = () => {
 
   const expert = {
     image:
-      selectedExpert.profileImage?.secure_url ||
-      "https://via.placeholder.com/100",
-    name: selectedExpert.firstName + " " + selectedExpert.lastName,
+      selectedExpert?.profileImage?.secure_url ||
+      "https://img.freepik.com/premium-vector/character-avatar-isolated_729149-194801.jpg?semt=ais_hybrid&w=740&q=80",
+    name: selectedExpert?.firstName + " " + selectedExpert?.lastName,
     title:
       selectedExpert?.credentials?.professionalTitle ||
       title ||

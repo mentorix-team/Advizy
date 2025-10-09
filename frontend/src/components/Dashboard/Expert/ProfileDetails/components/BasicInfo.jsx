@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-import PhoneInput from "react-phone-input-2";
-import { FaPlus } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
 import CustomDatePicker from "./CustomDatePicker";
-import { CircleCheckBig,Info } from "lucide-react";
+import { CircleCheckBig, Info, Trash2 } from "lucide-react";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
@@ -12,12 +10,16 @@ import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import Tooltip from "../../ToolTip";
+import toast from "react-hot-toast";
+
+const MAX_SOCIAL_LINKS = 4;
 
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
+  const initialSocialSanitized = useRef(false);
 
   // Add verification status state
   const [verificationStatus, setVerificationStatus] = useState({
@@ -51,6 +53,24 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       setVerificationStatus(JSON.parse(savedVerification));
     }
   }, []);
+
+  useEffect(() => {
+    if (initialSocialSanitized.current) return;
+    initialSocialSanitized.current = true;
+
+    const links = Array.isArray(formData.socialLinks)
+      ? formData.socialLinks
+      : [];
+    const sanitized = links.filter((link) => link && link.trim() !== "");
+    const limited = sanitized.slice(0, MAX_SOCIAL_LINKS);
+
+    if (limited.length !== links.length) {
+      onUpdate({
+        ...formData,
+        socialLinks: limited,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const languageOptions = [
     { value: "hindi", label: "Hindi" },
@@ -142,10 +162,68 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   // };
 
   const handleAddSocialLink = () => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? formData.socialLinks
+      : [];
+
+    if (existingLinks.length >= MAX_SOCIAL_LINKS) {
+      toast.error(`You can add up to ${MAX_SOCIAL_LINKS} links.`);
+      return;
+    }
+
+    if (
+      existingLinks.length > 0 &&
+      !existingLinks[existingLinks.length - 1]?.trim()
+    ) {
+      toast.error("Please fill the current link before adding another.");
+      return;
+    }
+
     onUpdate({
       ...formData,
-      socialLinks: [...formData.socialLinks, ""],
+      socialLinks: [...existingLinks, ""],
     });
+  };
+
+  const handleRemoveSocialLink = (index) => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    existingLinks.splice(index, 1);
+    const limitedLinks = existingLinks.slice(0, MAX_SOCIAL_LINKS);
+    onUpdate({
+      ...formData,
+      socialLinks: limitedLinks,
+    });
+  };
+
+  const handleSocialLinkChange = (index, value) => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    existingLinks[index] = value;
+    onUpdate({
+      ...formData,
+      socialLinks: existingLinks,
+    });
+  };
+
+  const handleSocialLinkBlur = (index) => {
+    onBlur("socialLinks");
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    if (!existingLinks[index] || !existingLinks[index].trim()) {
+      existingLinks.splice(index, 1);
+      const limitedLinks = existingLinks.slice(0, MAX_SOCIAL_LINKS);
+      onUpdate({
+        ...formData,
+        socialLinks: limitedLinks,
+      });
+    }
   };
 
   const handleVerifyClick = async (type) => {
@@ -181,6 +259,13 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     );
   };
 
+  const socialLinks = Array.isArray(formData.socialLinks)
+    ? formData.socialLinks.slice(0, MAX_SOCIAL_LINKS)
+    : [];
+  const canAddSocialLink =
+    socialLinks.length < MAX_SOCIAL_LINKS &&
+    socialLinks.every((link) => link && link.trim() !== "");
+
   return (
     <div className="py-6">
       {/* Bio Description */}
@@ -196,13 +281,12 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         <textarea
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
-          
+
           onBlur={() => onBlur("bio")}
           placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
-          className={`w-full p-2.5 border ${
-            errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
+          className={`w-full p-2.5 border ${errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary`}
         />
         <p className="text-sm text-gray-500 mt-1">
           Your bio is your chance to showcase your expertise and personality.
@@ -226,11 +310,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange("firstName", e.target.value)}
             onBlur={() => onBlur("firstName")}
             placeholder="John"
-            className={`w-full p-2.5 border ${
-              errors.firstName && touched.firstName
+            className={`w-full p-2.5 border ${errors.firstName && touched.firstName
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.firstName && touched.firstName && (
             <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
@@ -248,11 +331,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange("lastName", e.target.value)}
             onBlur={() => onBlur("lastName")}
             placeholder="Doe"
-            className={`w-full p-2.5 border ${
-              errors.lastName && touched.lastName
+            className={`w-full p-2.5 border ${errors.lastName && touched.lastName
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.lastName && touched.lastName && (
             <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
@@ -268,11 +350,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             value={formData.gender}
             onChange={(e) => handleChange("gender", e.target.value)}
             onBlur={() => onBlur("gender")}
-            className={`w-full p-2.5 border ${
-              errors.gender && touched.gender
+            className={`w-full p-2.5 border ${errors.gender && touched.gender
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -313,11 +394,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             value={formData.nationality}
             onChange={(e) => handleChange("nationality", e.target.value)}
             onBlur={() => onBlur("nationality")}
-            className={`w-full p-2.5 border ${
-              errors.nationality && touched.nationality
+            className={`w-full p-2.5 border ${errors.nationality && touched.nationality
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select nationality</option>
             <option value="in">Indian</option>
@@ -385,9 +465,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange("city", e.target.value)}
             onBlur={() => onBlur("city")}
             placeholder="New Delhi"
-            className={`w-full p-2.5 border ${
-              errors.city && touched.city ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            className={`w-full p-2.5 border ${errors.city && touched.city ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.city && touched.city && (
             <p className="text-red-500 text-sm mt-1">{errors.city}</p>
@@ -406,9 +485,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
                 value={formData.mobile}
                 onChange={handlePhoneChange}
                 onBlur={() => onBlur("mobile")}
-                className={`w-full p-2.5 border ${
-                  errors.mobile && touched.mobile ? "border-red-500" : "border-gray-300"
-                } rounded-lg focus:ring-1 focus:ring-primary`}
+                className={`w-full p-2.5 border ${errors.mobile && touched.mobile ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:ring-1 focus:ring-primary`}
                 placeholder="Enter 10-digit phone number"
                 maxLength={10}
               />
@@ -435,11 +513,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
               placeholder="john@example.com"
-              className={`flex-1 p-2.5 border ${
-                errors.email && touched.email
+              className={`flex-1 p-2.5 border ${errors.email && touched.email
                   ? "border-red-500"
                   : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
+                } rounded-lg focus:ring-1 focus:ring-primary`}
             />
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
@@ -481,7 +558,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <button
             type="button"
             onClick={handleAddSocialLink}
-            className="flex items-center px-4 py-2 gap-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
+            disabled={!canAddSocialLink}
+            className={`flex items-center px-4 py-2 gap-2 rounded-lg transition-colors duration-200 ${canAddSocialLink
+                ? "bg-primary text-white hover:bg-green-600"
+                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
           >
             <span>Add More Link</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -490,19 +571,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           </button>
         </div>
         <div className="space-y-4">
-          {formData.socialLinks.map((link, index) => (
-            <input
-              key={index}
-              type="url"
-              value={link}
-              onChange={(e) => {
-                const newLinks = [...formData.socialLinks];
-                newLinks[index] = e.target.value;
-                handleChange("socialLinks", newLinks);
-              }}
-              placeholder="https://linkedin.com/in/username"
-              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary transition-all duration-200"
-            />
+          {socialLinks.map((link, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <input
+                type="url"
+                value={link}
+                onChange={(e) => handleSocialLinkChange(index, e.target.value)}
+                onBlur={() => handleSocialLinkBlur(index)}
+                placeholder="https://linkedin.com/in/username"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary transition-all duration-200"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveSocialLink(index)}
+                className="inline-flex items-center justify-center p-2 rounded-md border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 transition-colors"
+                aria-label="Remove social link"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           ))}
         </div>
       </div>

@@ -24,6 +24,56 @@ import {
 } from "@/Redux/Slices/favouritesSlice";
 import toast from "react-hot-toast";
 
+const MAX_SOCIAL_LINKS = 4;
+
+const parseSocialLinks = (rawLinks) => {
+  if (!rawLinks) return [];
+
+  const collected = new Set();
+
+  const processValue = (value) => {
+    if (!value) return;
+    if (Array.isArray(value)) {
+      value.forEach(processValue);
+      return;
+    }
+    if (typeof value !== "string") return;
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const looksJson =
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"));
+
+    if (looksJson) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // treat as literal when parsing fails
+      }
+    }
+
+    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // fallback to trimmed literal value
+      }
+    }
+
+    collected.add(trimmed);
+  };
+
+  processValue(rawLinks);
+
+  return Array.from(collected).slice(0, MAX_SOCIAL_LINKS);
+};
+
 const ExpertDetailPage = () => {
   const navigate = useNavigate();
   // const { id } = useParams(); // Get the ID from URL params
@@ -80,6 +130,11 @@ const ExpertDetailPage = () => {
     if (rawSelectedExpert.expert) return rawSelectedExpert.expert; // wrapper
     return rawSelectedExpert; // assume already expert object
   }, [rawSelectedExpert]);
+
+  const socialLinks = useMemo(
+    () => parseSocialLinks(expert?.socialLinks),
+    [expert?.socialLinks]
+  );
 
   console.log("Normalized expert", expert);
   useEffect(() => {
@@ -177,6 +232,7 @@ const ExpertDetailPage = () => {
           isFavourite={isFav}
           onToggleFavourite={handleFavorite}
           favUpdating={isUpdating}
+          socialLinks={socialLinks}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -187,6 +243,7 @@ const ExpertDetailPage = () => {
                   (lang) => lang.label
                 )}
                 about={expert?.bio || "No details provided"}
+                socialLinks={socialLinks}
               />
               <Expertise skills={expert?.credentials?.skills || []} />
               <ServicesOffered

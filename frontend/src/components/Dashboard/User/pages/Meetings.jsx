@@ -114,20 +114,63 @@ const groupedMeetings = paidMeetings.reduce(
       const todayStart = new Date(now);
       todayStart.setHours(0, 0, 0, 0); // Start of today
       
-      const meetingDate = new Date(meeting.daySpecific.date);
-      const meetingEnd = new Date(`${meeting.daySpecific.date}T${meeting.daySpecific.slot.endTime}`);
+      // Better date parsing to handle different formats
+      let meetingDate;
+      let meetingEnd;
+      
+      try {
+        // Try parsing the date (could be MM/DD/YYYY, YYYY-MM-DD, etc.)
+        meetingDate = new Date(meeting.daySpecific.date);
+        
+        // Create meeting end time by combining date and end time
+        const endTimeString = meeting.daySpecific.slot.endTime;
+        
+        // Convert 12-hour format to 24-hour if needed
+        let endTime24;
+        if (endTimeString.includes('PM') || endTimeString.includes('AM')) {
+          const [time, period] = endTimeString.split(' ');
+          const [hours, minutes] = time.split(':');
+          let hour24 = parseInt(hours);
+          
+          if (period === 'PM' && hour24 !== 12) {
+            hour24 += 12;
+          } else if (period === 'AM' && hour24 === 12) {
+            hour24 = 0;
+          }
+          
+          endTime24 = `${hour24.toString().padStart(2, '0')}:${minutes}`;
+        } else {
+          endTime24 = endTimeString;
+        }
+        
+        // Create meeting end datetime
+        const meetingDateStr = meetingDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+        meetingEnd = new Date(`${meetingDateStr}T${endTime24}:00`);
+        
+      } catch (error) {
+        console.error('Error parsing meeting date/time:', error, meeting.daySpecific);
+        return acc;
+      }
       
       // Reset seconds and milliseconds for accurate comparison
       now.setSeconds(0, 0);
       meetingDate.setHours(0, 0, 0, 0); // Normalize to start of day
-      meetingEnd.setSeconds(0, 0);
 
       // Log current time and meeting details for debugging
       console.log(`\nProcessing meeting: ${meeting._id}`);
+      console.log(`Meeting status: ${meeting.status}`);
       console.log(`Now: ${now.toString()}`);
       console.log(`Today start: ${todayStart.toString()}`);
       console.log(`Meeting date: ${meetingDate.toString()}`);
       console.log(`Meeting end time: ${meetingEnd.toString()}`);
+      console.log(`Is past? Date check: ${meetingDate < todayStart}, Time check: ${meetingDate.toDateString() === now.toDateString() && meetingEnd < now}`);
+
+      // Check meeting status first - if it's completed, cancelled, or no-show, it's past
+      if (meeting.status === 'completed' || meeting.status === 'cancelled' || meeting.status === 'no-show') {
+        console.log(`--> PAST (status: ${meeting.status})`);
+        acc.past.push(meeting);
+        return acc;
+      }
 
       // Check if meeting is in the past (either date is before today OR end time has passed if today)
       if (meetingDate < todayStart) {

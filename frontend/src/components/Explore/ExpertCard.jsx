@@ -295,7 +295,7 @@ const ExpertCard = (props) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.1 }}
-                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-white border border-gray-300 shadow-sm font-semibold tracking-tight rounded-lg text-xs sm:text-sm md:text-base hover:bg-gray-50"
+                className=" h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-white border border-gray-300 shadow-sm font-semibold tracking-tight rounded-lg text-xs sm:text-sm md:text-base hover:bg-gray-50"
               >
                 View Profile
               </motion.button>
@@ -306,7 +306,7 @@ const ExpertCard = (props) => {
                 whileHover={{ scale: 1.05, backgroundColor: "rgb(209 250 229)" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.1 }}
-                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-emerald-50 text-emerald-600 font-semibold tracking-tight text-xs sm:text-sm md:text-base shadow-sm rounded-lg hover:bg-emerald-100"
+                className=" h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-emerald-50 text-emerald-600 font-semibold tracking-tight text-xs sm:text-sm md:text-base shadow-sm rounded-lg hover:bg-emerald-100"
               >
                 Book
               </motion.button>
