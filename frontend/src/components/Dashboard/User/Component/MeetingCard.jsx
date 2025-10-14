@@ -10,6 +10,10 @@ import {
 } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { addvideoparticipant } from "@/Redux/Slices/meetingSlice";
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from "@/utils/meetingStatus";
 
 export default function MeetingCard({ meeting, isPast, onRate }) {
   const navigate = useNavigate();
@@ -20,20 +24,20 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
   const [submittedRating, setSubmittedRating] = useState(null);
   const [submittedFeedback, setSubmittedFeedback] = useState("");
-  const {data} = useSelector((state)=>state.auth)
-  
+  const { data } = useSelector((state) => state.auth)
+
   // Debug: Log meeting data to see if rating is included
   console.log("Meeting data in MeetingCard:", meeting);
   console.log("Meeting rating field:", meeting?.rating);
   console.log("Meeting feedback field:", meeting?.feedback);
   console.log("All meeting keys:", Object.keys(meeting || {}));
-  
+
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    userData = null; 
+    userData = null;
   }
 
   console.log("This is my user data:", userData);
@@ -50,7 +54,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const handleJoinCall = async (meeting) => {
     try {
       console.log(meeting);
-      console.log("This is user videocall id ",meeting.videoCallId);
+      console.log("This is user videocall id ", meeting.videoCallId);
       const meetingId = meeting.videoCallId;
       const startTime = meeting.daySpecific.slot.startTime
       const endTime = meeting.daySpecific.slot.endTime
@@ -60,25 +64,25 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
       const expertName = meeting.expertName
       const serviceName = meeting.serviceName
       const id = meeting._id
-      
+
       const joinCallData = {
         meeting_id: meeting.videoCallId,
         custom_participant_id: meeting.userId,
         name: `${userData.firstName} ${userData.lastName}`,
         preset_name: "group_call_participant",
       };
-  
+
       console.log("Preset Name being sent:", joinCallData.preset_name);
-  
+
       const response = await dispatch(addvideoparticipant(joinCallData));
-      console.log("this is response",response.payload)
+      console.log("this is response", response.payload)
       if (response?.payload?.data?.data?.token) {
         const authToken = response.payload.data.data.token;
-  
+
         console.log("Auth Token received:", authToken);
-  
+
         // Navigate to meeting page with authToken
-        navigate("/meeting", { state: {authToken,meetingId ,startTime,endTime,id,serviceName,expertName,userName,expert_id,user_id} });
+        navigate("/meeting", { state: { authToken, meetingId, startTime, endTime, id, serviceName, expertName, userName, expert_id, user_id } });
       } else {
         console.error("Failed to retrieve authToken.");
       }
@@ -88,9 +92,12 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   };
 
   const handleViewDetails = () => {
-    const path = isPast?`/dashboard/user/meetings/past/${meeting._id}`:`/dashboard/user/meetings/upcoming/${meeting._id}`
+    const path = isPast ? `/dashboard/user/meetings/past/${meeting._id}` : `/dashboard/user/meetings/upcoming/${meeting._id}`
     navigate(path)
   }
+  const statusLabel = getMeetingStatusLabel(meeting);
+  const statusToneClass = getMeetingStatusPillTone(meeting);
+
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200">
       <div className="flex justify-between items-start mb-4">
@@ -99,15 +106,9 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
           <p className="text-gray-600">{`With: ${meeting.expertName}`}</p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-sm ${
-            isPast
-              ? "bg-gray-100 text-gray-600"
-              : meeting.status === "Starting Soon"
-              ? "bg-green-50 text-green-600"
-              : "bg-blue-50 text-blue-600"
-          }`}
+          className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${statusToneClass}`}
         >
-          {isPast ? "Completed" : meeting.status || "Upcoming"}
+          {statusLabel}
         </span>
       </div>
 
@@ -155,7 +156,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
           </>
         ) : (
           <>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onClick={()=>handleJoinCall(meeting)}>
+            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onClick={() => handleJoinCall(meeting)}>
               Join Meeting
             </button>
             <button

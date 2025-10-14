@@ -10,6 +10,10 @@ import { useState } from "react";
 import PriceBreakdownModal from "../../modals/PriceBreakdownModal";
 import { ArrowRightIcon, CheckIcon, ColorCalendarIcon } from "@/icons/Icons";
 import { useNavigate } from "react-router-dom";
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from "@/utils/meetingStatus";
 
 const PastMeetingDetails = ({ meeting, onBack }) => {
   const [showPriceBreakdown, setShowPriceBreakdown] = useState(false);
@@ -23,9 +27,12 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
 
   if (!meeting) return null;
 
+  const statusLabel = getMeetingStatusLabel(meeting);
+  const statusToneClass = getMeetingStatusPillTone(meeting);
+
   const handlePrintNavigate = () => {
     navigate(`/dashboard/expert/meetings/receipt/${meeting._id}`, {
-      state: {meeting},
+      state: { meeting },
     });
   };
 
@@ -101,13 +108,9 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
                   {startTime && endTime ? `${startTime} - ${endTime}` : "-"}
                 </p>
                 <span
-                  className={`text-sm ${
-                    meeting.sessionStatus === "Completed"
-                      ? "text-[#169544] bg-green-100 w-fit p-1 rounded-full"
-                      : "text-red-600"
-                  }`}
+                  className={`text-sm font-medium capitalize ${statusToneClass} px-2 py-0.5 rounded-full`}
                 >
-                  {meeting.sessionStatus}
+                  {statusLabel}
                 </span>
               </div>
             </div>
@@ -127,11 +130,10 @@ const PastMeetingDetails = ({ meeting, onBack }) => {
                   <ArrowRightIcon className="w-3 h-2" />
                 </button>
                 <span
-                  className={`text-sm ${
-                    meeting.paymentStatus === "Paid"
-                      ? "text-green-600"
-                      : "text-orange-600"
-                  }`}
+                  className={`text-sm ${meeting.paymentStatus === "Paid"
+                    ? "text-green-600"
+                    : "text-orange-600"
+                    }`}
                 >
                   {meeting.paymentStatus}
                 </span>

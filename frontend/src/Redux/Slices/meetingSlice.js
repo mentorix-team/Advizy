@@ -11,6 +11,7 @@ const initialState = {
   currentMeeting: "",
   rescheduleData: [],
   feedbackofexpert: "",
+  bookedSlots: [],
 };
 
 export const createMeet = createAsyncThunk(
@@ -533,6 +534,24 @@ export const getfeedbackbyexpertid = createAsyncThunk(
   }
 );
 
+// Get booked slots for a specific expert and date
+export const getBookedSlots = createAsyncThunk(
+  "meeting/getBookedSlots",
+  async ({ expertId, date }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `meeting/booked-slots?expertId=${expertId}&date=${date}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching booked slots:", error.response);
+      const errorMessage =
+        error?.response?.data?.message || "Failed to fetch booked slots.";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 const meetingSlice = createSlice({
   name: "meeting",
   initialState,
@@ -653,6 +672,18 @@ const meetingSlice = createSlice({
       .addCase(getfeedbackbyexpertid.rejected, (state, action) => {
         state.error = action.payload.error;
         state.loading = false;
+      })
+      .addCase(getBookedSlots.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBookedSlots.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bookedSlots = action.payload.bookedSlots;
+      })
+      .addCase(getBookedSlots.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

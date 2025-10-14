@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
+// import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { BsHeartFill, BsHeart } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { User, Star } from "lucide-react";
@@ -61,19 +62,19 @@ const ExpertCard = (props) => {
       const [time, period] = timeString.split(/(\s?[AP]M)/i);
       const [hours, minutes] = time.split(':').map(Number);
       let hour24 = hours;
-      
+
       if (period && period.toUpperCase().includes('PM') && hours !== 12) {
         hour24 += 12;
       } else if (period && period.toUpperCase().includes('AM') && hours === 12) {
         hour24 = 0;
       }
-      
+
       return hour24 * 60 + minutes;
     };
 
     // Check today's slots first
     const todayData = availability.daySpecific.find(day => day.day === currentDay);
-    
+
     if (todayData && todayData.slots && todayData.slots.length > 0) {
       for (const slot of todayData.slots) {
         if (!slot.startTime || !slot.endTime) continue;
@@ -81,15 +82,15 @@ const ExpertCard = (props) => {
         const slotStartMinutes = parseTime(slot.startTime);
         const slotEndMinutes = parseTime(slot.endTime);
         const sessionDuration = duration || 30;
-        
+
         let currentSlotTime = slotStartMinutes;
-        
+
         while (currentSlotTime + sessionDuration <= slotEndMinutes) {
           if (currentSlotTime > currentTimeMinutes + 30) {
             const nextAvailableHour = Math.floor(currentSlotTime / 60);
             const nextAvailableMinute = currentSlotTime % 60;
             const nextAvailableTime = `${nextAvailableHour > 12 ? nextAvailableHour - 12 : nextAvailableHour === 0 ? 12 : nextAvailableHour}:${nextAvailableMinute.toString().padStart(2, '0')} ${nextAvailableHour >= 12 ? 'PM' : 'AM'}`;
-            
+
             return { day: "Today", time: nextAvailableTime };
           }
           currentSlotTime += 15;
@@ -100,7 +101,7 @@ const ExpertCard = (props) => {
     // Check future days if no today slots
     for (const dayData of availability.daySpecific) {
       if (dayData.day === currentDay) continue;
-      
+
       if (!dayData.slots || dayData.slots.length === 0) continue;
 
       for (const slot of dayData.slots) {
@@ -150,10 +151,10 @@ const ExpertCard = (props) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      whileHover={{ 
-        y: -2, 
+      whileHover={{
+        y: -2,
         boxShadow: "0px 8px 25px rgba(22, 149, 68, 0.15)",
-        transition: { duration: 0.2 } 
+        transition: { duration: 0.2 }
       }}
       className="w-full h-full sm:max-w-screen-md bg-[#fdfdfd] rounded-xl p-3 sm:p-5 border-2 border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] cursor-pointer"
     >
@@ -162,7 +163,7 @@ const ExpertCard = (props) => {
         <div className="flex-1 flex flex-col gap-3">
           {/* Top Section */}
           <div className="flex items-start gap-3 sm:gap-4 relative">
-            <motion.div 
+            <motion.div
               className="py-1 sm:py-2"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
@@ -179,9 +180,9 @@ const ExpertCard = (props) => {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 
-                    onClick={() => navigate(profilePath)}
-                    className="text-base sm:text-lg md:text-lg lg:text-xl font-semibold text-gray-900 leading-tight break-words">
+                    <h2
+                      onClick={() => navigate(profilePath)}
+                      className="text-base sm:text-lg md:text-lg lg:text-xl font-semibold text-gray-900 leading-tight break-words">
                       {name}
                     </h2>
                     {verified === true && (
@@ -242,9 +243,9 @@ const ExpertCard = (props) => {
                     className="flex"
                   >
                     {isFav ? (
-                      <FaHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-red-500 ${isUpdating ? "animate-pulse" : ""}`} />
+                      <BsHeartFill className={`w-5 h-5 sm:w-6 sm:h-6 text-red-500 ${isUpdating ? "animate-pulse" : ""}`} />
                     ) : (
-                      <FaRegHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-600 ${isUpdating ? "animate-pulse" : ""}`} />
+                      <BsHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-600 ${isUpdating ? "animate-pulse" : ""}`} />
                     )}
                   </motion.span>
                   {isUpdating && (
@@ -269,7 +270,7 @@ const ExpertCard = (props) => {
               ))}
             </div>
           </div>
-          </div>
+        </div>
 
         {/* Bottom Section */}
         <div className="mt-3 sm:mt-3 pt-3 border-t border-gray-100">
@@ -281,11 +282,11 @@ const ExpertCard = (props) => {
               <span className="text-xs sm:text-sm md:text-sm lg:text-sm text-blue-700 font-medium">
                 {firstAvailableDay && firstAvailableTime
                   ? (() => {
-                      const now = new Date();
-                      const currentDay = now.toLocaleString("en-US", { weekday: "long" });
-                      const isToday = firstAvailableDay === currentDay;
-                      return `${isToday ? "Today" : firstAvailableDay}, ${firstAvailableTime}`;
-                    })()
+                    const now = new Date();
+                    const currentDay = now.toLocaleString("en-US", { weekday: "long" });
+                    const isToday = firstAvailableDay === currentDay;
+                    return `${isToday ? "Today" : firstAvailableDay}, ${firstAvailableTime}`;
+                  })()
                   : "No slots available"}
               </span>
             </div>

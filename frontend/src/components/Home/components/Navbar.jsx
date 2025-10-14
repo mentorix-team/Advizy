@@ -1,10 +1,12 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from 'lucide-react';
 import { logout } from '@/Redux/Slices/authSlice';
+import { FaUser } from "react-icons/fa";
+import { FaUserTie } from "react-icons/fa6";
 import AuthPopup from '@/components/Auth/AuthPopup.auth';
 
 const Navbar = ({ onSearch }) => {
@@ -18,6 +20,7 @@ const Navbar = ({ onSearch }) => {
   const [hasExpertData, setHasExpertData] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
+  const dropdownTimeoutRef = useRef(null);
 
   const isLinkActive = (path) => {
     return location.pathname === path;
@@ -78,16 +81,39 @@ const Navbar = ({ onSearch }) => {
     setIsDropdownOpen(false);
   };
 
+  const handleMouseEnter = () => {
+    // Clear any existing timeout to prevent conflicts
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a timeout before closing the dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // 200ms delay before closing
+  };
+
   const UserDropdown = () => (
-    <div className="relative">
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
+        className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none p-2 rounded-md"
       >
         <span className="text-sm font-medium">
-          <CircleUserRound className="w-5 h-5" />
+          {/* Conditional icon based on expert mode */}
+          {isExpertMode ? (
+            <FaUserTie className="w-5 h-5" />
+          ) : (
+            <FaUser className="w-5 h-5" />
+          )}
         </span>
-        <ChevronDown className="w-4 h-4" />
+        {/* <ChevronDown className="w-4 h-4" /> */}
       </button>
 
       <AnimatePresence>
@@ -98,6 +124,8 @@ const Navbar = ({ onSearch }) => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            onMouseEnter={handleMouseEnter} // Keep dropdown open when hovering over it
+            onMouseLeave={handleMouseLeave} // Close when leaving dropdown
           >
             {isExpertMode ? (
               <>

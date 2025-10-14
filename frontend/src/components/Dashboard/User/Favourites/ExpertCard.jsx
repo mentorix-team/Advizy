@@ -8,6 +8,7 @@ import { addFavourites, fetchUserProfile } from "@/Redux/Slices/authSlice";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 import { optimisticAdd, optimisticRemove, toggleFavourite, selectFavouriteIds, selectIsUpdatingFavourite } from "@/Redux/Slices/favouritesSlice";
 import toast from "react-hot-toast";
+import { BsHeartFill, BsHeart } from "react-icons/bs";
 
 const ExpertCard = ({ expert }) => {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -179,9 +180,9 @@ const ExpertCard = ({ expert }) => {
                       className="flex"
                     >
                       {isFav ? (
-                        <FaHeart className="w-6 h-6 text-red-500 drop-shadow-sm" />
+                        <BsHeartFill className="w-6 h-6 text-red-500 drop-shadow-sm" />
                       ) : (
-                        <FaRegHeart className="w-6 h-6 text-gray-600" />
+                        <BsHeart className="w-6 h-6 text-gray-600" />
                       )}
                     </motion.span>
                     {isUpdating && (

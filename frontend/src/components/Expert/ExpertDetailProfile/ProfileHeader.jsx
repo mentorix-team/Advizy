@@ -13,6 +13,7 @@ import {
   FaFacebook,
 } from "react-icons/fa";
 import { Link as LinkIcon } from "lucide-react";
+import { BsHeartFill, BsHeart } from "react-icons/bs";
 
 const MAX_SOCIAL_LINKS = 4;
 
@@ -207,35 +208,12 @@ const ProfileHeader = ({
                   </div>
                 </div>
 
-                {socialLinkMeta.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
-                      Connect with me
-                    </h3>
-                    <ul className="mt-3 space-y-2">
-                      {socialLinkMeta.map(({ href, label, Icon, iconClassName }, index) => (
-                        <li key={`${href}-${index}`} className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${iconClassName}`} aria-hidden />
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline break-all"
-                            aria-label={`Visit ${label}`}
-                          >
-                            {label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleFavouriteClick}
                       disabled={favUpdating}
-                      className={`relative flex items-center justify-center border w-10 h-10 border-gray-300 rounded-full text-2xl transition bg-white hover:bg-gray-50 ${favUpdating ? "opacity-60" : ""}`}
+                      className={`relative flex items-center justify-center w-10 h-10 border-gray-300 rounded-full text-2xl transition bg-white hover:bg-gray-50 ${favUpdating ? "opacity-60" : ""}`}
                       aria-label="toggle favourite"
                       aria-pressed={isFavourite}
                     >
@@ -247,9 +225,9 @@ const ProfileHeader = ({
                         className="flex"
                       >
                         {isFavourite ? (
-                          <FaHeart className="text-red-500 drop-shadow-sm" />
+                          <BsHeartFill className="text-red-500 drop-shadow-sm" />
                         ) : (
-                          <FaRegHeart className="text-gray-600" />
+                          <BsHeart className="text-gray-600" />
                         )}
                       </motion.span>
                       {favUpdating && (
@@ -261,7 +239,7 @@ const ProfileHeader = ({
                     <div className="relative">
                       {/* Share Button */}
                       <button
-                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100 transition"
+                        className="w-10 h-10 flex items-center justify-center border-gray-300 rounded-full hover:bg-gray-100 transition"
                         onClick={openShareModal}
                       >
                         <IoShareSocialOutline className="w-6 h-6" />
@@ -284,10 +262,45 @@ const ProfileHeader = ({
               </div>
             </div>
           </div>
+
+          {/* Social Links Icons */}
+          {socialLinkMeta.length > 0 && (
+            <div className="absolute right-6 bottom-6 flex items-center gap-3">
+              {socialLinkMeta.map(({ href, label, Icon, iconClassName }, index) => (
+                <motion.a
+                  key={`${href}-${index}`}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit ${label}`}
+                  className="inline-flex items-center justify-center w-9 h-9 text-primary hover:rounded-lg transition-shadow"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 10
+                  }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.2 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 15
+                    }}
+                  >
+                    <Icon className={`w-8 h-8 ${iconClassName}`} aria-hidden />
+                  </motion.div>
+                  <span className="sr-only">{label}</span>
+                </motion.a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div >
   );
 };
 
-export default ProfileHeader; 
+export default ProfileHeader;

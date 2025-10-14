@@ -71,21 +71,28 @@ const App = () => {
     const originalRemoveItem = sessionStorage.removeItem;
     const originalClear = sessionStorage.clear;
 
+    const shouldLog = (key) =>
+      typeof key === "string" && !key.startsWith("React::DevTools");
+
     sessionStorage.setItem = function (key, value) {
-      console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
-      console.trace(); // This will show you exactly where setItem is called from
+      if (shouldLog(key)) {
+        console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
+        console.trace();
+      }
       return originalSetItem.apply(this, arguments);
     };
 
     sessionStorage.removeItem = function (key) {
-      console.log(`🔴 SessionStorage REMOVE: ${key}`);
-      console.trace(); // This will show you exactly where removeItem is called from
+      if (shouldLog(key)) {
+        console.log(`🔴 SessionStorage REMOVE: ${key}`);
+        console.trace();
+      }
       return originalRemoveItem.apply(this, arguments);
     };
 
     sessionStorage.clear = function () {
       console.log(`💥 SessionStorage CLEARED`);
-      console.trace(); // This will show you exactly where clear is called from
+      console.trace();
       return originalClear.apply(this, arguments);
     };
 

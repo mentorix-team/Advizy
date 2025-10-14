@@ -229,17 +229,17 @@ export function VerifiedTickIcon({ className = "w-6 h-6 " }) {
 }
 
 export function CopyIcon({ className = "w-6 h-6 " }) {
+  const combinedClassName = `${className} lucide lucide-copy`;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={combinedClassName}
       viewBox="0 0 24 24"
       fill="none"
       stroke="#16A348"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-copy "
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
       <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
@@ -305,9 +305,9 @@ export function ColorCalendarIcon({ className = "w-6 h-6 " }) {
       <path
         d="M3 10H21M7 3V5M17 3V5M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z"
         stroke="#16A348"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -329,25 +329,25 @@ export function ShareArrowIcon({ className = "w-6 h-6 " }) {
     <svg
       className={className}
       xmlns="http://www.w3.org/2000/svg"
-      fill-rule="evenodd"
-      clip-rule="evenodd"
+      fillRule="evenodd"
+      clipRule="evenodd"
     >
       <path d="M14 4h-13v18h20v-11h1v12h-22v-20h14v1zm10 5h-1v-6.293l-11.646 11.647-.708-.708 11.647-11.646h-6.293v-1h8v8z" />
     </svg>
   );
 }
 export function TwoPersonIcon({ className = "w-6 h-6 ", stroke = "#388544" }) {
+  const combinedClassName = `${className} lucide lucide-users h-6 w-6 text-muted-foreground`;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
+      className={combinedClassName}
       viewBox="0 0 24 24"
       fill="none"
       stroke={stroke}
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-users h-6 w-6 text-muted-foreground"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
       <circle cx="9" cy="7" r="4"></circle>

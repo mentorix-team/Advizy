@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import clsx from "clsx";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { createRoot } from "react-dom/client";
 import { getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { getInvoiceOrderId, getInvoiceTransactionId } from "@/utils/invoice";
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from "@/utils/meetingStatus";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -12,6 +21,7 @@ export default function Payments() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { meetings } = useSelector((state) => state.meeting);
   const { data } = useSelector((state) => state.auth);
 
@@ -20,7 +30,7 @@ export default function Payments() {
     .sort((a, b) => {
       // Try to get payment timestamp - check multiple possible fields
       let timestampA, timestampB;
-      
+
       // Option 1: Check for explicit payment timestamp fields
       if (a.paymentDate && b.paymentDate) {
         timestampA = new Date(a.paymentDate);
@@ -47,7 +57,7 @@ export default function Payments() {
         timestampA = new Date(a.daySpecific?.date || 0);
         timestampB = new Date(b.daySpecific?.date || 0);
       }
-      
+
       // Sort in descending order (most recent payments first)
       return timestampB - timestampA;
     }) || [];
@@ -65,15 +75,19 @@ export default function Payments() {
   }
 
   const payments = paidMeetings.map((meeting) => ({
-    id: meeting.razorpay_payment_id, // Use actual transaction ID
+    id: meeting.razorpay_payment_id || meeting.paymentId || meeting.transactionId || meeting._id,
+    meeting,
     expert: meeting.expertName,
     service: meeting.serviceName,
     timeSlot: {
-      date: meeting.daySpecific.date,
-      time: `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`,
+      date: meeting.daySpecific?.date,
+      time:
+        meeting.daySpecific?.slot?.startTime && meeting.daySpecific?.slot?.endTime
+          ? `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`
+          : meeting.daySpecific?.slot?.startTime || meeting.daySpecific?.slot?.endTime || "-",
     },
     amount: meeting.amount,
-    status: "paid", // Since we are filtering only paid meetings
+    status: "paid",
   }));
   console.log("This is payments", payments);
   const filteredPayments = payments.filter(
@@ -129,15 +143,306 @@ export default function Payments() {
     }
   };
 
-  const handleDownloadInvoice = () => {
-    toast.success("Invoice downloaded successfully", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
+  const handleDownloadInvoice = async (meeting) => {
+    if (!meeting?._id) {
+      toast.error("Unable to download invoice for this payment.");
+      return;
+    }
+
+    try {
+      // Create a temporary container for the invoice
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "absolute";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "-9999px";
+      document.body.appendChild(tempContainer);
+
+      // Generate invoice content
+      const invoiceContent = renderInvoiceContent(meeting);
+
+      // Render the invoice
+      const root = createRoot(tempContainer);
+      root.render(invoiceContent);
+
+      // Wait for render to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Capture and generate PDF
+      const canvas = await html2canvas(tempContainer.firstChild, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      const filename = getInvoiceOrderId(meeting);
+      pdf.save(`${filename !== "N/A" ? filename : "invoice"}.pdf`);
+
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(tempContainer);
+
+      toast.success("Invoice downloaded successfully!");
+    } catch (error) {
+      console.error("Failed to download invoice:", error);
+      toast.error("Unable to download invoice. Please try again.");
+    }
+  };
+
+  const renderInvoiceContent = (meeting) => {
+    const MAX_SERVICE_NAME_LENGTH = 48;
+
+    const { daySpecific } = meeting || {};
+    const { date, slot } = daySpecific || {};
+    const { startTime, endTime } = slot || {};
+
+    const amount = Number(meeting.amount ?? meeting.baseAmount ?? meeting.price ?? 0);
+    const addOns = Number(meeting.addOnsTotal ?? meeting.addOnsAmount ?? meeting.addonAmount ?? 0);
+    const discount = Number(meeting.discount ?? meeting.discountAmount ?? meeting.couponDiscount ?? 0);
+    const tax = Number(meeting.tax ?? meeting.taxAmount ?? meeting.gstAmount ?? 0);
+    const subtotal = amount + addOns;
+    const computedTotal = subtotal - discount + tax;
+    const totalPaid = Number(
+      meeting.totalPaid ??
+      meeting.totalAmount ??
+      meeting.amountPaid ??
+      meeting.paymentAmount ??
+      meeting.netPayable ??
+      computedTotal
+    );
+    const paymentMethod =
+      meeting.paymentMethod ||
+      meeting.paymentMode ||
+      meeting.razorpayPaymentMethod ||
+      meeting.payoutMethod ||
+      meeting.method ||
+      "N/A";
+
+    const createdAt = meeting.paymentDate || meeting.paidAt || meeting.createdAt || date;
+    const formattedOrderDate = createdAt
+      ? new Date(createdAt).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+      : "N/A";
+    const formattedSessionDate = date
+      ? new Date(date).toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+      : "Not scheduled";
+    const sessionTime = startTime && endTime
+      ? `${startTime} - ${endTime}`
+      : startTime || endTime || "N/A";
+    const durationMinutes =
+      meeting.durationMinutes ||
+      meeting.duration ||
+      meeting.sessionDuration ||
+      meeting?.daySpecific?.slot?.duration;
+    const formattedDuration = durationMinutes ? `${durationMinutes} minutes` : "Not specified";
+
+    const normalisedServiceName =
+      meeting.serviceName && meeting.serviceName.length > MAX_SERVICE_NAME_LENGTH
+        ? `${meeting.serviceName.slice(0, MAX_SERVICE_NAME_LENGTH)}...`
+        : meeting.serviceName || "Consultation";
+
+    const orderId = getInvoiceOrderId(meeting);
+    const transactionId = getInvoiceTransactionId(meeting);
+    const statusLabel = getMeetingStatusLabel(meeting);
+    const statusToneClass = getMeetingStatusPillTone(meeting);
+
+    const formatCurrency = (value) =>
+      `₹${Number(value || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+
+    return (
+      <div style={{ padding: "32px 16px", backgroundColor: "#ffffff", width: "800px" }}>
+        <div style={{
+          maxWidth: "768px",
+          margin: "0 auto",
+          borderRadius: "16px",
+          border: "1px solid #f3f4f6",
+          backgroundColor: "#ffffff",
+          padding: "40px 32px",
+          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)"
+        }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+            <div>
+              <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#111827", margin: 0 }}>Advizy</h1>
+              <p style={{ marginTop: "4px", fontSize: "14px", color: "#6b7280" }}>
+                Thank you for your booking.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ margin: "32px 0", height: "1px", backgroundColor: "#e5e7eb" }} />
+
+          <div style={{ marginBottom: "32px" }}>
+            <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#111827", margin: 0 }}>Order Confirmation</h2>
+            <p style={{ marginTop: "8px", fontSize: "14px", color: "#4b5563" }}>
+              Below are the confirmed details of your consultation with {meeting.expertName || "your expert"}.
+            </p>
+          </div>
+
+          <div style={{ margin: "32px 0", height: "1px", backgroundColor: "#e5e7eb" }} />
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+            <div>
+              <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 12px 0" }}>
+                Order Details
+              </h3>
+              <div style={{ fontSize: "14px", color: "#4b5563" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Order ID</span>
+                  <span style={{ color: "#111827" }}>{orderId}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Transaction</span>
+                  <span style={{ color: "#111827" }}>{transactionId}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Order Date</span>
+                  <span>{formattedOrderDate}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 12px 0" }}>
+                Booking Status
+              </h3>
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                borderRadius: "9999px",
+                border: `1px solid ${statusToneClass?.borderColor || "#d1d5db"}`,
+                backgroundColor: statusToneClass?.backgroundColor || "#f9fafb",
+                color: statusToneClass?.color || "#374151",
+                padding: "4px 12px",
+                fontSize: "14px",
+                fontWeight: "500"
+              }}>
+                {statusLabel}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px" }}>
+            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
+              Session Details
+            </h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "14px", color: "#4b5563" }}>
+              <div>
+                <p style={{ margin: "0 0 8px 0" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Expert:</span> {meeting.expertName || "N/A"}
+                </p>
+                {meeting.expertEmail && (
+                  <p style={{ margin: "0 0 8px 0" }}>
+                    <span style={{ fontWeight: "500", color: "#374151" }}>Expert Email:</span> {meeting.expertEmail}
+                  </p>
+                )}
+                <p style={{ margin: 0 }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Service:</span> {normalisedServiceName}
+                </p>
+              </div>
+              <div>
+                <p style={{ margin: "0 0 8px 0" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Session Date:</span> {formattedSessionDate}
+                </p>
+                <p style={{ margin: "0 0 8px 0" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Session Time:</span> {sessionTime}
+                </p>
+                <p style={{ margin: 0 }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Duration:</span> {formattedDuration}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px" }}>
+            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
+              Billing Contact
+            </h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "14px", color: "#4b5563" }}>
+              <div>
+                <p style={{ margin: "0 0 8px 0" }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Name:</span> {meeting.userName || meeting.customerName || "N/A"}
+                </p>
+                {meeting.userEmail && (
+                  <p style={{ margin: 0 }}>
+                    <span style={{ fontWeight: "500", color: "#374151" }}>Email:</span> {meeting.userEmail}
+                  </p>
+                )}
+              </div>
+              <div>
+                {meeting.userPhone && (
+                  <p style={{ margin: "0 0 8px 0" }}>
+                    <span style={{ fontWeight: "500", color: "#374151" }}>Phone:</span> {meeting.userPhone}
+                  </p>
+                )}
+                <p style={{ margin: 0 }}>
+                  <span style={{ fontWeight: "500", color: "#374151" }}>Payment Method:</span> {paymentMethod}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "40px" }}>
+            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
+              Payment Summary
+            </h3>
+            <div style={{ overflow: "hidden", borderRadius: "16px", border: "1px solid #e5e7eb" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
+                <span>Base Price</span>
+                <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(amount)}</span>
+              </div>
+              <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span>Add-ons</span>
+                  <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(addOns)}</span>
+                </div>
+              </div>
+              <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span>Discount</span>
+                  <span style={{ fontWeight: "500", color: "#111827" }}>-{formatCurrency(discount)}</span>
+                </div>
+              </div>
+              {tax > 0 && (
+                <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>Taxes & Fees</span>
+                    <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(tax)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div style={{ marginTop: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: "16px", backgroundColor: "#111827", padding: "16px 24px", color: "#ffffff" }}>
+              <span style={{ fontSize: "16px", fontWeight: "600" }}>Amount Paid</span>
+              <span style={{ fontSize: "24px", fontWeight: "600" }}>{formatCurrency(totalPaid)}</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px 24px 16px", fontSize: "12px", color: "#6b7280" }}>
+            <p style={{ margin: "0 0 4px 0" }}>
+              Need help? Contact <a href="mailto:support@advizy.com" style={{ color: "#2563eb", textDecoration: "none" }}>support@advizy.com</a>
+            </p>
+            <p style={{ margin: 0 }}>
+              Please retain this invoice for your records.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -257,8 +562,8 @@ export default function Payments() {
                           payment.status === "paid"
                             ? "bg-green-100 text-green-800"
                             : payment.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         )}
                       >
                         {payment.status.charAt(0).toUpperCase() +
@@ -268,7 +573,7 @@ export default function Payments() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <button
-                      onClick={handleDownloadInvoice}
+                      onClick={() => handleDownloadInvoice(payment.meeting)}
                       className="inline-flex items-center justify-center text-green-600 hover:text-green-700"
                     >
                       <svg
@@ -318,22 +623,20 @@ export default function Payments() {
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-                currentPage === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               Previous
             </button>
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-                currentPage === totalPages
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               Next
             </button>
@@ -355,22 +658,20 @@ export default function Payments() {
                 <button
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === 1
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                    }`}
                 >
                   <AiOutlineLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === totalPages
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                    }`}
                 >
                   <AiOutlineRight className="w-5 h-5" />
                 </button>

@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import debounce from "lodash/debounce";
+import instantsearch from "instantsearch.js";
+import { configure } from "instantsearch.js/es/widgets";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { FaUser } from "react-icons/fa";
 import {
   ChevronDown,
   LogOut,
@@ -41,6 +44,8 @@ const NavbarWithSearch = () => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const { redirect_url } = useParams();
+  const dropdownTimeoutRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
 
   // Initialize expert mode and data from localStorage
   useEffect(() => {
@@ -163,6 +168,33 @@ const NavbarWithSearch = () => {
     setQuery("");
     setHits([]);
     setShowDropdown(false);
+  };
+
+  const handleMouseEnter = () => {
+    // Clear any existing timeout to prevent conflicts
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a timeout to open the dropdown after 300ms
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(true);
+    }, 300); // 300ms delay
+  };
+
+  const handleMouseLeave = () => {
+    // Clear the opening timeout if mouse leaves before delay completes
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a timeout before closing the dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // 200ms delay before closing
   };
 
   // Domain matching function
@@ -379,15 +411,17 @@ const NavbarWithSearch = () => {
 
   // User dropdown component
   const UserDropdown = () => (
-    <div className="relative">
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none p-2 rounded-md"
       >
         <span className="text-sm font-medium">
-          <CircleUserRound className="w-5 h-5" />
+          <FaUser className="w-5 h-5" />
         </span>
-        <ChevronDown className="w-4 h-4" />
       </button>
       <AnimatePresence>
         {isDropdownOpen && (
@@ -397,6 +431,8 @@ const NavbarWithSearch = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            onMouseEnter={handleMouseEnter} // Keep dropdown open when hovering over it
+            onMouseLeave={handleMouseLeave} // Close when leaving dropdown
           >
             {isExpertMode ? (
               <>
@@ -419,7 +455,7 @@ const NavbarWithSearch = () => {
               <>
                 <a
                   href="/dashboard/user/meetings"
-                  className="z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className=" z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   User Dashboard

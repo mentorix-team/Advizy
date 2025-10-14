@@ -33,11 +33,11 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
   const [isCancelPopupOpen, setIsCancelPopupOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
-  const {  currentMeeting } = useSelector((state) => state.meeting);
+  const { currentMeeting } = useSelector((state) => state.meeting);
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  console.log("This is meeting in upcoming meeting details",meeting);
+  console.log("This is meeting in upcoming meeting details", meeting);
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
       `https://meet.example.com/${meeting.userName
@@ -53,10 +53,10 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
     if (joinedMeetingId && isInMeeting) {  // Check both conditions
       console.log("Starting meeting polling for ID:", joinedMeetingId);
-      
+
       // Initial fetch
       dispatch(fetchMeeting(joinedMeetingId));
-      
+
       interval = setInterval(() => {
         dispatch(fetchMeeting(joinedMeetingId))
           .catch(error => {
@@ -110,18 +110,18 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
         navigate("/meeting", { state: { authToken } });
       } else {
         console.error("Failed to retrieve authToken.");
-        toast.error("Failed to join the meeting",{
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+        toast.error("Failed to join the meeting", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       }
     } catch (error) {
       console.error("Error joining call:", error);
-      toast.error("Error joining the meeting",{
+      toast.error("Error joining the meeting", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -157,7 +157,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
       meetingId: meeting._id,
       razorpay_payment_id: meeting.razorpay_payment_id,
     };
-    console.log('this is pauload',payload)
+    console.log('this is pauload', payload)
     // Dispatch the action
     dispatch(rescheduleByExpert(payload));
 
@@ -193,7 +193,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row border rounded-md p-2 sm:p-6 gap-4">
       <Toaster position="top-right" />
-      
+
       {/* Left Section: Meeting Details and Notes */}
       <div className="w-full lg:w-[768px] flex-shrink-0">
         <button
@@ -206,9 +206,9 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
         <div className="flex items-center gap-4 mb-6">
           <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-lg">
-            {meeting.userName && meeting.userName.length > 0 ? meeting.userName[0] : "No client available"}
-          </span>
+            <span className="text-lg">
+              {meeting.userName && meeting.userName.length > 0 ? meeting.userName[0] : "No client available"}
+            </span>
 
           </div>
           <h1 className="text-xl font-semibold">{meeting.userName}</h1>
@@ -230,7 +230,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
                     timeZone: "Asia/Kolkata",
                   })}
                 </p>
-                
+
               </div>
             </div>
             <div>
@@ -239,11 +239,10 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
                 <BsClock className="text-[#16A348]" />
                 <p className="text-gray-900">{meeting.daySpecific.slot.startTime}</p>
                 <span
-                  className={`text-sm ${
-                    meeting.sessionStatus === "Confirmed"
+                  className={`text-sm ${meeting.sessionStatus === "Confirmed"
                       ? "text-green-600"
                       : "text-orange-600"
-                  }`}
+                    }`}
                 >
                   {meeting.sessionStatus}
                 </span>
@@ -265,11 +264,10 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
                   <ArrowRightIcon className="w-3 h-2" />
                 </button>
                 <span
-                  className={`text-sm ${
-                    meeting.paymentStatus === "Paid"
+                  className={`text-sm ${meeting.paymentStatus === "Paid"
                       ? "text-green-600"
                       : "text-yellow-600"
-                  }`}
+                    }`}
                 >
                   {meeting.paymentStatus}
                 </span>
@@ -364,7 +362,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
         <PriceBreakdownModal
           isOpen={showPriceBreakdown}
           onClose={() => setShowPriceBreakdown(false)}
-          amount={meeting.amount}
+          amount={Number(meeting.amount) || 0}
         />
       </div>
 
@@ -543,17 +541,28 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
 UpcomingMeetingDetails.propTypes = {
   meeting: PropTypes.shape({
+    _id: PropTypes.string,
+    userId: PropTypes.string,
     userName: PropTypes.string.isRequired,
-    service: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
-    time: PropTypes.string.isRequired,
-    sessionStatus: PropTypes.string.isRequired,
-    paymentStatus: PropTypes.string.isRequired,
-    amount: PropTypes.number.isRequired,
-    summary: PropTypes.string,
+    expertId: PropTypes.string,
+    expertName: PropTypes.string,
+    serviceId: PropTypes.string,
+    serviceName: PropTypes.string,
+    daySpecific: PropTypes.shape({
+      date: PropTypes.string,
+      slot: PropTypes.shape({
+        startTime: PropTypes.string,
+        endTime: PropTypes.string,
+      }),
+    }),
+    sessionStatus: PropTypes.string,
+    paymentStatus: PropTypes.string,
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keyPoints: PropTypes.arrayOf(PropTypes.string),
     notes: PropTypes.string,
-  }),
+    razorpay_payment_id: PropTypes.string,
+    videoCallId: PropTypes.string,
+  }).isRequired,
   onBack: PropTypes.func.isRequired,
 };
 

@@ -7,6 +7,7 @@ import { BiDownload } from 'react-icons/bi';
 import { BsChatDots } from 'react-icons/bs';
 import { IoClose } from 'react-icons/io5';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
+import { getMeetingStatusLabel, getMeetingStatusPillTone } from '@/utils/meetingStatus';
 
 export default function PastMeetingDetails() {
   const { id } = useParams();
@@ -29,7 +30,7 @@ export default function PastMeetingDetails() {
 
   useEffect(() => {
     console.log('Target meeting ID:', id);
-    
+
     if (id) {
       console.log('Fetching meeting with ID:', id);
       setError(null);
@@ -54,15 +55,15 @@ export default function PastMeetingDetails() {
     if (selectedMeeting) {
       console.log('Selected meeting from Redux:', selectedMeeting);
       console.log('Meeting feedback object:', selectedMeeting.feedback);
-      
+
       if (selectedMeeting.feedback) {
         console.log('Feedback rating:', selectedMeeting.feedback.rating);
         console.log('Feedback text:', selectedMeeting.feedback.feedback);
       }
-      
+
       setMeeting(selectedMeeting);
       setIsLoading(false);
-      
+
       // Check if rating exists in the meeting data from backend
       if (selectedMeeting.feedback && selectedMeeting.feedback.rating) {
         console.log('Found existing rating in selected meeting:', selectedMeeting.feedback.rating);
@@ -137,11 +138,24 @@ export default function PastMeetingDetails() {
     );
   }
 
+  const statusLabel = getMeetingStatusLabel(meeting);
+  const statusToneClass = getMeetingStatusPillTone(meeting);
+
   const handleShowPopup = () => {
     setShowPopup(true);
     setTimeout(() => {
       setShowPopup(false);
     }, 3000);
+  };
+
+  const handleDownloadInvoice = () => {
+    if (!meeting?._id) {
+      return;
+    }
+
+    navigate(`/dashboard/user/meetings/receipt/${meeting._id}`, {
+      state: { meeting },
+    });
   };
 
   const handleSubmitRating = async () => {
@@ -152,7 +166,7 @@ export default function PastMeetingDetails() {
 
     // Parse user data if it's a string
     const user = typeof userData === "string" ? JSON.parse(userData) : userData;
-    
+
     if (!user || !user._id) {
       alert("User information not available. Please try logging in again.");
       return;
@@ -176,21 +190,21 @@ export default function PastMeetingDetails() {
 
       if (response?.payload?.success) {
         alert("Feedback submitted successfully!");
-        
+
         // Update the local meeting state to reflect the submitted rating
         const updatedMeeting = { ...meeting, rating, feedback };
         setMeeting(updatedMeeting);
-        
+
         // Also save to localStorage for local persistence
         const savedMeetings = JSON.parse(localStorage.getItem('pastMeetings') || '[]');
-        const updatedMeetings = savedMeetings.map(m => 
+        const updatedMeetings = savedMeetings.map(m =>
           m.id === meeting._id ? { ...m, rating, feedback } : m
         );
         if (!savedMeetings.some(m => m.id === meeting._id)) {
           updatedMeetings.push({ id: meeting._id, rating, feedback });
         }
         localStorage.setItem('pastMeetings', JSON.stringify(updatedMeetings));
-        
+
         setIsRatingModalOpen(false);
       } else {
         alert("Failed to submit feedback. Please try again.");
@@ -214,7 +228,7 @@ export default function PastMeetingDetails() {
   console.log('Rendering with meeting data:', meeting);
   console.log('Meeting object structure:');
   console.log('- serviceName:', meeting?.serviceName);
-  console.log('- expertName:', meeting?.expertName); 
+  console.log('- expertName:', meeting?.expertName);
   console.log('- userName:', meeting?.userName);
   console.log('- daySpecific:', meeting?.daySpecific);
   console.log('- amount:', meeting?.amount);
@@ -234,7 +248,7 @@ export default function PastMeetingDetails() {
               Back to Meetings
             </button>
           </div>
-          
+
           <div className="bg-white rounded-lg p-4 md:p-6 shadow-sm">
             {/* Meeting Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-6">
@@ -242,8 +256,10 @@ export default function PastMeetingDetails() {
                 <h2 className="text-lg md:text-xl text-green-600">{meeting.serviceName || 'Meeting'}</h2>
                 <p className="text-gray-600 mt-1 text-sm md:text-base">Session Details</p>
               </div>
-              <span className="px-3 py-1 bg-gray-50 text-gray-600 rounded-full text-sm whitespace-nowrap">
-                {meeting.sessionStatus || 'Completed'}
+              <span
+                className={`px-3 py-1 rounded-full text-sm whitespace-nowrap font-medium capitalize ${statusToneClass}`}
+              >
+                {statusLabel}
               </span>
             </div>
 
@@ -261,7 +277,7 @@ export default function PastMeetingDetails() {
                   <span className="text-gray-600">Professional Consultant</span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={handleShowPopup}
                 className="flex items-center space-x-2 text-gray-700 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50"
               >
@@ -303,7 +319,10 @@ export default function PastMeetingDetails() {
                   <p className="text-2xl font-medium">₹{meeting.amount || 'N/A'}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <button className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm">
+                  <button
+                    onClick={handleDownloadInvoice}
+                    className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
+                  >
                     <BiDownload className="w-5 h-5 mr-1" />
                     Download Invoice
                   </button>
@@ -343,7 +362,7 @@ export default function PastMeetingDetails() {
                     </div>
                     <div>
                       <span className="font-medium text-gray-900">Session Status:</span>
-                      <span className="ml-2 text-gray-600">{meeting.sessionStatus || meeting.status || 'N/A'}</span>
+                      <span className="ml-2 text-gray-600">{statusLabel}</span>
                     </div>
                     <div>
                       <span className="font-medium text-gray-900">Payment ID:</span>
@@ -363,9 +382,8 @@ export default function PastMeetingDetails() {
                     {[...Array(5)].map((_, index) => (
                       <AiFillStar
                         key={index}
-                        className={`w-6 h-6 ${
-                          index < rating ? 'text-yellow-400' : 'text-gray-200'
-                        }`}
+                        className={`w-6 h-6 ${index < rating ? 'text-yellow-400' : 'text-gray-200'
+                          }`}
                       />
                     ))}
                     <span className="ml-2 text-gray-600">{rating}/5</span>
@@ -384,7 +402,7 @@ export default function PastMeetingDetails() {
           <div className="space-y-6 sticky top-8">
             {rating === 0 && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <button 
+                <button
                   onClick={() => setIsRatingModalOpen(true)}
                   className="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
                 >
@@ -399,7 +417,7 @@ export default function PastMeetingDetails() {
               <p className="text-gray-600 text-sm mb-4">
                 If you have any questions or need assistance, our support team is here to help.
               </p>
-              <button 
+              <button
                 onClick={handleShowPopup}
                 className="w-full py-2 px-4 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
@@ -423,7 +441,7 @@ export default function PastMeetingDetails() {
                 <IoClose className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="flex space-x-1 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -463,7 +481,7 @@ export default function PastMeetingDetails() {
           <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
           <div className="bg-white rounded-lg p-6 shadow-xl relative z-10 w-full max-w-md transform transition-all animate-fade-in">
             <div className="absolute top-4 right-4">
-              <button 
+              <button
                 onClick={() => setShowPopup(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
