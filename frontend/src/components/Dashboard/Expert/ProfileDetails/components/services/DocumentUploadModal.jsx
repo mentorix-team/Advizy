@@ -11,18 +11,26 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   const initializedRef = React.useRef(false);
 
   useEffect(() => {
+    // When modal closes, reset only if there is something to reset
     if (!isOpen) {
-      setFiles([]);
-      setError('');
+      if (files.length > 0 || error) {
+        setFiles([]);
+        setError('');
+      }
       initializedRef.current = false;
-    } else if (existingFiles.length > 0 && !initializedRef.current) {
+      return;
+    }
+
+    // Initialize once on open with any pre-existing files
+    if (isOpen && existingFiles?.length > 0 && !initializedRef.current) {
       setFiles(existingFiles.map(file => ({
         file,
         preview: URL.createObjectURL(file)
       })));
       initializedRef.current = true;
     }
-  }, [isOpen, existingFiles]);
+    // Only depend on isOpen and length to avoid default [] causing re-runs
+  }, [isOpen, existingFiles?.length]);
 
   const validateFile = (file) => {
     if (file.size > DOCUMENT_MAX_FILE_SIZE) {
@@ -51,7 +59,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
           throw new Error(validationError);
         }
       }
-      
+
       const newFiles = acceptedFiles.map(file => ({
         file,
         preview: URL.createObjectURL(file)
@@ -124,8 +132,8 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
         {files.length > 0 && (
           <div className="mb-6 space-y-3">
             {files.map((file, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
               >
                 <div className="flex items-center gap-3">
@@ -155,8 +163,8 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-xl p-8 transition-all cursor-pointer
-            ${isDragActive 
-              ? 'border-primary bg-primary/5' 
+            ${isDragActive
+              ? 'border-primary bg-primary/5'
               : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
             }`}
         >
