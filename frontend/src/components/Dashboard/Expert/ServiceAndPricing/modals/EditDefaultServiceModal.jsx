@@ -167,7 +167,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 required">
-                Short Description
+                Short Description<span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -184,7 +184,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
             <div>
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-medium text-gray-700">
-                  Hourly Rate (60 minutes)
+                  Hourly Rate (60 minutes)<span className="text-red-500">*</span>
                 </label>
                 <div className="text-sm">
                   Net Earnings:{" "}
@@ -211,7 +211,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Available Durations
+                Available Durations<span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {formData.timeSlots.map((timeSlot) => (

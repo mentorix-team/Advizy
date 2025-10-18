@@ -53,8 +53,6 @@ const PayuOrderSummary = () => {
     title,
     selectedTime,
   } = location.state || {};
-  console.log("slec", selectedTime);
-  console.log("slecttt", selectedDate);
   const Price = location.state?.Price; // Ensure it exists before accessing
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
   console.log("parsed", parsedDate);
@@ -225,6 +223,10 @@ const PayuOrderSummary = () => {
         message: message,
       };
 
+      console.log("PayU Payment Data being sent:", paymentData);
+      console.log("Message being sent:", message);
+      console.log("Message length:", message?.length || 0);
+
       const response = await dispatch(PayU(paymentData)).unwrap();
       console.log('this is payu response', response)
       const payuWindow = window.open("", "_blank");
@@ -341,17 +343,38 @@ const PayuOrderSummary = () => {
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-green-600 font-semibold">
-                      Add message to Expert (optional)
-                    </p>
+                  <div className="space-y-1 mt-2 p-2 bg-gray-50 rounded-lg border">
+                    {/* <div className="flex items-center gap-2">
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className="h-5 w-5 text-green-600" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+                        />
+                      </svg>
+                      <p className="text-green-600 font-semibold text-sm">
+                        Add message to Expert (optional)
+                      </p>
+                    </div> */}
                     <textarea
-                      className="w-full border border-gray-300 rounded-md p-3 text-gray-600 resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Share what you'd like to discuss in the session..."
+                      className="w-full border border-gray-300 rounded-md p-3 text-sm text-gray-700 resize-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
+                      placeholder="Add a message for the expert (optional)"
                       rows="3"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
+                      maxLength={500}
                     ></textarea>
+                    <div className="flex justify-between items-center text-xs md:text-sm text-gray-500">
+                      <span>Help your expert prepare better for the session</span>
+                      <span>{message.length}/500</span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -43,7 +43,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
-                    onClick={() => handleNavigation("/find-consultant")}
+                    onClick={() => handleNavigation("/explore")}
                     className="text-gray-300 hover:text-white transition-colors"
                   >
                     Find an Expert

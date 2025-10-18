@@ -14,6 +14,27 @@ import toast from "react-hot-toast";
 
 const MAX_SOCIAL_LINKS = 4;
 
+// Custom Option component with checkbox
+const CustomOption = (props) => {
+  const { isSelected, label, innerProps, innerRef } = props;
+
+  return (
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+    >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => { }}
+        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+      />
+      <span className="ml-2">{label}</span>
+    </div>
+  );
+};
+
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
@@ -144,23 +165,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
-  // const handlePhoneChange = (phoneData) => {
-  //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
-
-  //   const formattedPhoneNumber = phoneNumber.startsWith(countryCode)
-  //     ? phoneNumber.replace(countryCode, "")
-  //     : phoneNumber;
-
-  //   onUpdate({
-  //     ...formData,
-  //     countryCode: countryCode,
-  //     mobile: formattedPhoneNumber,
-  //   });
-
-  //   // Optionally, you can also set some state to indicate if the phone number is valid
-  //   setIsPhoneValid(isValid);
-  // };
-
   const handleAddSocialLink = () => {
     const existingLinks = Array.isArray(formData.socialLinks)
       ? formData.socialLinks
@@ -281,7 +285,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         <textarea
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
-
           onBlur={() => onBlur("bio")}
           placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
@@ -311,8 +314,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onBlur={() => onBlur("firstName")}
             placeholder="John"
             className={`w-full p-2.5 border ${errors.firstName && touched.firstName
-                ? "border-red-500"
-                : "border-gray-300"
+              ? "border-red-500"
+              : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.firstName && touched.firstName && (
@@ -332,8 +335,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onBlur={() => onBlur("lastName")}
             placeholder="Doe"
             className={`w-full p-2.5 border ${errors.lastName && touched.lastName
-                ? "border-red-500"
-                : "border-gray-300"
+              ? "border-red-500"
+              : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.lastName && touched.lastName && (
@@ -351,8 +354,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange("gender", e.target.value)}
             onBlur={() => onBlur("gender")}
             className={`w-full p-2.5 border ${errors.gender && touched.gender
-                ? "border-red-500"
-                : "border-gray-300"
+              ? "border-red-500"
+              : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select Gender</option>
@@ -395,8 +398,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange("nationality", e.target.value)}
             onBlur={() => onBlur("nationality")}
             className={`w-full p-2.5 border ${errors.nationality && touched.nationality
-                ? "border-red-500"
-                : "border-gray-300"
+              ? "border-red-500"
+              : "border-gray-300"
               } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select nationality</option>
@@ -514,8 +517,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               onBlur={() => onBlur("email")}
               placeholder="john@example.com"
               className={`flex-1 p-2.5 border ${errors.email && touched.email
-                  ? "border-red-500"
-                  : "border-gray-300"
+                ? "border-red-500"
+                : "border-gray-300"
                 } rounded-lg focus:ring-1 focus:ring-primary`}
             />
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
@@ -543,6 +546,10 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
           className="w-full"
+          components={{
+            Option: CustomOption
+          }}
+          closeMenuOnSelect={false}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
@@ -560,8 +567,8 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onClick={handleAddSocialLink}
             disabled={!canAddSocialLink}
             className={`flex items-center px-4 py-2 gap-2 rounded-lg transition-colors duration-200 ${canAddSocialLink
-                ? "bg-primary text-white hover:bg-green-600"
-                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              ? "bg-primary text-white hover:bg-green-600"
+              : "bg-gray-200 text-gray-500 cursor-not-allowed"
               }`}
           >
             <span>Add More Link</span>

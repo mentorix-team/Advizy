@@ -75,7 +75,7 @@ const ReadyToShare = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="btn-expert inline-flex items-center"
+            className="btn-expert inline-flex items-center h-12"
           >
            Share your Expertise
             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +104,7 @@ const ReadyToShare = () => {
                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                 borderColor: "#169544"
               }}
-              className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-all duration-200"
+              className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 transition-all duration-200 h-48 flex flex-col justify-center"
             >
               <motion.div 
                 className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-primary mx-auto mb-4"

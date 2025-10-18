@@ -16,12 +16,11 @@ const sendEmail = async function(email, subject, message) {
         });
 
         await transporter.sendMail({
-            from: process.env.fromemail, // Sender's email
+            from: `Advizy <${process.env.fromemail}>`, // Sender's email
             to: email,
             subject: subject,
             html: message
-        });
-
+        }); 
         console.log(`Email sent to ${email}`);
     } catch (error) {
         console.error('Error sending email:', error);

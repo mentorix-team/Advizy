@@ -16,11 +16,15 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
+// Cookie options tuned for local dev (http://localhost) and production (https)
+const isDev = process.env.NODE_ENV !== "production";
 const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
   httpOnly: true,
-  secure: process.env.NODE_ENV === "development",
-  sameSite: process.env.NODE_ENV === "development" ? "None" : "Lax",
+  // Secure cookies cannot be set or sent over http. In dev we use http, so keep false.
+  secure: !isDev, // true in production, false in development
+  // On localhost, ports differ but it's still same-site; Lax works and avoids None+Secure requirement
+  sameSite: isDev ? "Lax" : "None",
 };
 
 const googleAuth = passport.authenticate("google", {
@@ -97,16 +101,16 @@ const handleGoogleCallback = async (req, res, next) => {
     // Set Cookies
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
-      maxAge: 24 * 60 * 60 * 1000, // 1 hour
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
-      maxAge: 70 * 24 * 60 * 60 * 1000, // 7 days
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
+      maxAge: 70 * 24 * 60 * 60 * 1000, // 70 days
     });
 
     // Check if the user is an expert
@@ -128,15 +132,15 @@ const handleGoogleCallback = async (req, res, next) => {
       // Set Expert Tokens in Cookies
       res.cookie("expertToken", expertAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "None",
+        secure: !isDev,
+        sameSite: isDev ? "Lax" : "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "None",
+        secure: !isDev,
+        sameSite: isDev ? "Lax" : "None",
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
       });
     }
@@ -209,7 +213,7 @@ const register_with_email = async (req, res, next) => {
       return next(new AppError("all fields are required", 500));
     }
     const userExists = await User.findOne({ email });
-    
+
     if (userExists) {
       return next(new AppError("try again", 500));
     }
@@ -312,15 +316,15 @@ const login = async (req, res, next) => {
     // ✅ Store User Tokens in HTTP-only Cookies
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -335,15 +339,15 @@ const login = async (req, res, next) => {
 
       res.cookie("expertToken", expertToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "None",
+        secure: !isDev,
+        sameSite: isDev ? "Lax" : "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
-        sameSite: "None",
+        secure: !isDev,
+        sameSite: isDev ? "Lax" : "None",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
     }
@@ -365,32 +369,32 @@ const logout = async (req, res, next) => {
     // ✅ Clear Access Token
     res.cookie("token", null, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 0,
     });
 
     // ✅ Clear Refresh Token
     res.cookie("refreshToken", null, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 0,
     });
 
     // ✅ Clear Expert Token
     res.cookie("expertToken", null, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 0,
     });
 
     // ✅ Clear Expert Refresh Token
     res.cookie("expertRefreshToken", null, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 0,
     });
 
@@ -1242,8 +1246,8 @@ const refresh_token = async (req, res, next) => {
     // Set new User Access Token in cookie
     res.cookie("token", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? "Lax" : "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
@@ -1261,8 +1265,8 @@ const refresh_token = async (req, res, next) => {
         // Set new Expert Access Token in cookie
         res.cookie("expertToken", newExpertToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "development",
-          sameSite: "None",
+          secure: !isDev,
+          sameSite: isDev ? "Lax" : "None",
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
       }

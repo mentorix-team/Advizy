@@ -125,6 +125,13 @@ function Meetings() {
     dispatch(getMeetingByExpertId());
   }, [dispatch]);
 
+  useEffect(() => {
+    console.log("Expert Meetings - All meetings from Redux:", meetings);
+    if (meetings[0]) {
+      console.log("Expert Meetings - First meeting sample:", meetings[0]);
+    }
+  }, [meetings]);
+
   const today = dayjs().format("YYYY-MM-DD");
 
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
@@ -234,6 +241,7 @@ function Meetings() {
   };
 
   const handleViewDetails = (meeting) => {
+    console.log("Expert Meetings - Meeting selected for details:", meeting);
     setSelectedMeeting(meeting);
   };
 

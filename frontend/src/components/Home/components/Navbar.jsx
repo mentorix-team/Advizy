@@ -21,10 +21,21 @@ const Navbar = ({ onSearch }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const dropdownTimeoutRef = useRef(null);
+  const { data } = useSelector((state) => state.auth);
+  
 
   const isLinkActive = (path) => {
     return location.pathname === path;
   };
+
+  let parsedData;
+    try {
+      parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      parsedData = data;
+    }
+
 
   useEffect(() => {
     const expertData = localStorage.getItem("expertData");
@@ -153,6 +164,14 @@ const Navbar = ({ onSearch }) => {
               </>
             ) : (
               <>
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className='text-sm font-medium text-gray-900 truncate'>
+                    {parsedData?.firstName} {parsedData?.lastName}
+                  </p>
+                  <p className='text-xs text-gray-500 truncate'>
+                    User
+                  </p>
+                </div>
                 <a
                   href="/dashboard/user/meetings"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"

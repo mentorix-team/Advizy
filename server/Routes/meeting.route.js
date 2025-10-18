@@ -1,6 +1,6 @@
 import Router from 'express'
 import { isExpert, isLoggedIn, isMeeting } from '../middlewares/auth.middleare.js';
-import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getBookedSlots, getClientDetails, getFeedbackbyexpertId, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, getmeet, getthemeet, giveFeedback, kickAllparticipant, payedForMeeting, rescheduleMeetingExpert, updateMeeting, updateMeetingDirectly, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
+import { addVideoParticipants, checkPresetExists, createMeetingToken, createPresetForHost, createVideocall, fetchActiveSession, getBookedSlots, getClientDetails, getFeedbackbyexpertId, getMeetingByExpertId, getMeetingById, getMeetingByUserId, getNotifications, getmeet, getthemeet, giveFeedback, kickAllparticipant, payedForMeeting, rescheduleMeetingExpert, sendMeetingReminders, sendSingleMeetingReminder, updateMeeting, updateMeetingDirectly, updateMeetingStatus, verifyRescheduleToken } from '../controllers/meeting.controller.js';
 const router = Router()
 
 router.post('/meet', isLoggedIn, createMeetingToken)
@@ -30,8 +30,13 @@ router.post('/verifyrescheduleToken', isLoggedIn, verifyRescheduleToken)
 
 router.post('/getclientdetails', isLoggedIn, isExpert, getClientDetails)
 router.post('/givefeedback', giveFeedback)
-router.post('/getfeedbackbyexpertid', isLoggedIn, getFeedbackbyexpertId)
+// Make feedback fetch public so Home page can read ratings without requiring login
+router.post('/getfeedbackbyexpertid', getFeedbackbyexpertId)
 router.post('/getthemeet', getthemeet)
 router.get('/booked-slots', getBookedSlots)
+
+// Meeting reminder routes
+router.post('/send-reminders', sendMeetingReminders) // For automated cron job
+router.post('/send-single-reminder', isLoggedIn, sendSingleMeetingReminder) // For manual trigger
 
 export default router;  

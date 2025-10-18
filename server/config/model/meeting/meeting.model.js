@@ -59,6 +59,11 @@ const meetingSchema = new Schema({
     razorpay_signature: {
         type: String,
     },
+    message: {
+        type: String,
+        trim: true,
+        maxLength: 500
+    },
     isPayed: {
         type: Boolean,
         default: false,

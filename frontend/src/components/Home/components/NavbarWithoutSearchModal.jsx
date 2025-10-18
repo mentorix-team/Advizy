@@ -46,6 +46,17 @@ const NavbarWithSearch = () => {
   const { redirect_url } = useParams();
   const dropdownTimeoutRef = useRef(null);
   const hoverTimeoutRef = useRef(null);
+  const { data } = useSelector((state) => state.auth);
+
+
+  let parsedData;
+  try {
+    parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    parsedData = data;
+  }
+
 
   // Initialize expert mode and data from localStorage
   useEffect(() => {
@@ -453,6 +464,14 @@ const NavbarWithSearch = () => {
               </>
             ) : (
               <>
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className='text-sm font-medium text-gray-900 truncate'>
+                    {parsedData?.firstName} {parsedData?.lastName}
+                  </p>
+                  <p className='text-xs text-gray-500 truncate'>
+                    User
+                  </p>
+                </div>
                 <a
                   href="/dashboard/user/meetings"
                   className=" z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"

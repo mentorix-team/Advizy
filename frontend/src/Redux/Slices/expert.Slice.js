@@ -109,8 +109,8 @@ export const ExperienceFormSubmit = createAsyncThunk(
         data,
         isFormData
           ? {
-              headers: { "Content-Type": "multipart/form-data" },
-            }
+            headers: { "Content-Type": "multipart/form-data" },
+          }
           : {}
       );
 
@@ -172,8 +172,8 @@ export const deleteExpertExperience = createAsyncThunk(
         data,
         isFormData
           ? {
-              headers: { "Content-Type": "multipart/form-data" },
-            }
+            headers: { "Content-Type": "multipart/form-data" },
+          }
           : {}
       );
       return await response.data;
@@ -850,14 +850,14 @@ export const getServiceWithExpertByServiceId = createAsyncThunk(
       return response.data; // { service, expert }
     } catch (error) {
       const errorMessage =
-      toast.error(errorMessage, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
       return thunkAPI.rejectWithValue(
         error.response?.data?.message || "Something went wrong"
       );
@@ -1126,15 +1126,37 @@ const expertSlice = createSlice({
       })
       .addCase(toggleService.fulfilled, (state, action) => {
         const { expert } = action.payload;
+        if (expert) {
+          localStorage.setItem("expertData", JSON.stringify(expert));
+        }
         state.expertData = expert;
         state.loading = false;
+        const toggledId = action.meta?.arg?.serviceId;
+        const toggledService = expert?.credentials?.services?.find((service) => {
+          const mongoId = service?._id ? String(service._id) : undefined;
+          return service.serviceId === toggledId || mongoId === String(toggledId);
+        });
+
+        if (toggledService) {
+          const toastId = "service-toggle-status";
+          toast.dismiss(toastId);
+          toast.success(
+            `Service ${toggledService.showMore ? "enabled" : "disabled"} successfully`,
+            {
+              id: toastId,
+              position: "top-right",
+            }
+          );
+        }
       })
       .addCase(toggleService.pending, (state, action) => {
-        (state.loading = true), (state.error = null);
+        state.loading = true;
+        state.error = null;
       })
       .addCase(toggleService.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload.error;
+        state.error =
+          action.payload?.message || action.error?.message || "Unable to toggle service";
       })
       .addCase(updateServicebyId.fulfilled, (state, action) => {
         const { expert } = action.payload;

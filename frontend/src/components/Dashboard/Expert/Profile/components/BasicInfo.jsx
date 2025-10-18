@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
@@ -8,6 +8,27 @@ import { useDispatch } from "react-redux";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
+
+// Custom Option component with checkbox
+const CustomOption = (props) => {
+  const { isSelected, label, innerProps, innerRef } = props;
+
+  return (
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+    >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => { }}
+        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+      />
+      <span className="ml-2">{label}</span>
+    </div>
+  );
+};
 
 const BasicInfo = ({
   formData,
@@ -30,6 +51,89 @@ const BasicInfo = ({
     countryCode: formData.countryCode || "",
     number: formData.mobile || "",
   });
+
+  const languageOptions = [
+    { value: "english", label: "English" },
+    { value: "hindi", label: "Hindi" },
+    { value: "marathi", label: "Marathi" },
+    { value: "punjabi", label: "Punjabi" },
+    { value: "telugu", label: "Telugu" },
+    { value: "gujarati", label: "Gujarati" },
+    { value: "bengali", label: "Bengali" },
+    { value: "tamil", label: "Tamil" },
+    { value: "urdu", label: "Urdu" },
+    { value: "kannada", label: "Kannada" },
+    { value: "odia", label: "Odia" },
+    { value: "malayalam", label: "Malayalam" },
+    { value: "assamese", label: "Assamese" },
+    { value: "maithili", label: "Maithili" },
+    { value: "santali", label: "Santali" },
+    { value: "kashmiri", label: "Kashmiri" },
+    { value: "nepali", label: "Nepali" },
+    { value: "gondi", label: "Gondi" },
+    { value: "sindhi", label: "Sindhi" },
+    { value: "konkani", label: "Konkani" },
+    { value: "dogri", label: "Dogri" },
+    { value: "mandarin", label: "Mandarin Chinese" },
+    { value: "spanish", label: "Spanish" },
+    { value: "french", label: "French" },
+    { value: "arabic", label: "Arabic" },
+    { value: "portuguese", label: "Portuguese" },
+    { value: "russian", label: "Russian" },
+    { value: "indonesian", label: "Indonesian" },
+    { value: "japanese", label: "Japanese" },
+    { value: "german", label: "German" },
+    { value: "nigerian_pidgin", label: "Nigerian Pidgin" },
+    { value: "turkish", label: "Turkish" },
+    { value: "hausa", label: "Hausa" },
+    { value: "vietnamese", label: "Vietnamese" },
+    { value: "yue", label: "Yue Chinese (Cantonese)" },
+    { value: "swahili", label: "Swahili" },
+    { value: "tagalog", label: "Tagalog" },
+    { value: "punjabi_western", label: "Western Punjabi" },
+    { value: "korean", label: "Korean" },
+    { value: "persian", label: "Iranian Persian" },
+    { value: "javanese", label: "Javanese" },
+    { value: "italian", label: "Italian" },
+    { value: "thai", label: "Thai" },
+    { value: "amharic", label: "Amharic" },
+    { value: "levantine_arabic", label: "Levantine Arabic" },
+    { value: "bhojpuri", label: "Bhojpuri" },
+    { value: "min_nan", label: "Min Nan Chinese" },
+  ];
+
+  // Convert languages from backend format to Select format
+  const convertedLanguages = useMemo(() => {
+    if (!formData.languages) return [];
+
+    // If formData.languages is already in the correct format (array of objects)
+    if (Array.isArray(formData.languages) && formData.languages.length > 0 &&
+      typeof formData.languages[0] === 'object' && formData.languages[0].value) {
+      return formData.languages;
+    }
+
+    // If formData.languages is an array of strings, convert to objects
+    if (Array.isArray(formData.languages)) {
+      return formData.languages
+        .map(lang => {
+          if (typeof lang === 'string') {
+            const option = languageOptions.find(opt => opt.value === lang);
+            return option || { value: lang, label: lang };
+          }
+          // If it's already an object but missing properties, ensure it has value and label
+          if (typeof lang === 'object') {
+            return {
+              value: lang.value || lang,
+              label: lang.label || lang
+            };
+          }
+          return null;
+        })
+        .filter(Boolean); // Remove any null values
+    }
+
+    return [];
+  }, [formData.languages, languageOptions]);
 
   const handleChange = (field, value) => {
     if (field === "email") {
@@ -106,56 +210,6 @@ const BasicInfo = ({
     onVerificationSuccess(verificationType);
   };
 
-  const languageOptions = [
-    { value: "english", label: "English" },
-    { value: "hindi", label: "Hindi" },
-    { value: "marathi", label: "Marathi" },
-    { value: "punjabi", label: "Punjabi" },
-    { value: "telugu", label: "Telugu" },
-    { value: "gujarati", label: "Gujarati" },
-    { value: "bengali", label: "Bengali" },
-    { value: "tamil", label: "Tamil" },
-    { value: "urdu", label: "Urdu" },
-    { value: "kannada", label: "Kannada" },
-    { value: "odia", label: "Odia" },
-    { value: "malayalam", label: "Malayalam" },
-    { value: "assamese", label: "Assamese" },
-    { value: "maithili", label: "Maithili" },
-    { value: "santali", label: "Santali" },
-    { value: "kashmiri", label: "Kashmiri" },
-    { value: "nepali", label: "Nepali" },
-    { value: "gondi", label: "Gondi" },
-    { value: "sindhi", label: "Sindhi" },
-    { value: "konkani", label: "Konkani" },
-    { value: "dogri", label: "Dogri" },
-    { value: "mandarin", label: "Mandarin Chinese" },
-    { value: "spanish", label: "Spanish" },
-    { value: "french", label: "French" },
-    { value: "arabic", label: "Arabic" },
-    { value: "portuguese", label: "Portuguese" },
-    { value: "russian", label: "Russian" },
-    { value: "indonesian", label: "Indonesian" },
-    { value: "japanese", label: "Japanese" },
-    { value: "german", label: "German" },
-    { value: "nigerian_pidgin", label: "Nigerian Pidgin" },
-    { value: "turkish", label: "Turkish" },
-    { value: "hausa", label: "Hausa" },
-    { value: "vietnamese", label: "Vietnamese" },
-    { value: "yue", label: "Yue Chinese (Cantonese)" },
-    { value: "swahili", label: "Swahili" },
-    { value: "tagalog", label: "Tagalog" },
-    { value: "punjabi_western", label: "Western Punjabi" },
-    { value: "korean", label: "Korean" },
-    { value: "persian", label: "Iranian Persian" },
-    { value: "javanese", label: "Javanese" },
-    { value: "italian", label: "Italian" },
-    { value: "thai", label: "Thai" },
-    { value: "amharic", label: "Amharic" },
-    { value: "levantine_arabic", label: "Levantine Arabic" },
-    { value: "bhojpuri", label: "Bhojpuri" },
-    { value: "min_nan", label: "Min Nan Chinese" },
-  ];
-
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
@@ -172,11 +226,10 @@ const BasicInfo = ({
             onChange={(e) => handleChange("firstName", e.target.value)}
             onBlur={() => onBlur("firstName")}
             placeholder="John"
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
-              errors.firstName && touched.firstName
+            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${errors.firstName && touched.firstName
                 ? "border-red-500"
                 : "border-gray-300"
-            }`}
+              }`}
           />
           {errors.firstName && touched.firstName && (
             <p className="text-red-500 text-xs sm:text-sm mt-1">
@@ -196,11 +249,10 @@ const BasicInfo = ({
             onChange={(e) => handleChange("lastName", e.target.value)}
             onBlur={() => onBlur("lastName")}
             placeholder="Doe"
-            className={`w-full p-2.5 border ${
-              errors.lastName && touched.lastName
+            className={`w-full p-2.5 border ${errors.lastName && touched.lastName
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.lastName && touched.lastName && (
             <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
@@ -216,11 +268,10 @@ const BasicInfo = ({
             value={formData.gender}
             onChange={(e) => handleChange("gender", e.target.value)}
             onBlur={() => onBlur("gender")}
-            className={`w-full p-2.5 border ${
-              errors.gender && touched.gender
+            className={`w-full p-2.5 border ${errors.gender && touched.gender
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -261,11 +312,10 @@ const BasicInfo = ({
             value={formData.nationality}
             onChange={(e) => handleChange("nationality", e.target.value)}
             onBlur={() => onBlur("nationality")}
-            className={`w-full p-2.5 border ${
-              errors.nationality && touched.nationality
+            className={`w-full p-2.5 border ${errors.nationality && touched.nationality
                 ? "border-red-500"
                 : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select nationality</option>
             <option value="in">Indian</option>
@@ -333,9 +383,8 @@ const BasicInfo = ({
             onChange={(e) => handleChange("city", e.target.value)}
             onBlur={() => onBlur("city")}
             placeholder="New Delhi"
-            className={`w-full p-2.5 border ${
-              errors.city && touched.city ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            className={`w-full p-2.5 border ${errors.city && touched.city ? "border-red-500" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.city && touched.city && (
             <p className="text-red-500 text-sm mt-1">{errors.city}</p>
@@ -400,11 +449,10 @@ const BasicInfo = ({
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
               placeholder="name@example.com"
-              className={`flex-1 p-2.5 border ${
-                errors.email && touched.email
+              className={`flex-1 p-2.5 border ${errors.email && touched.email
                   ? "border-red-500"
                   : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
+                } rounded-lg focus:ring-1 focus:ring-primary`}
             />
           </div>
           {errors.email && touched.email && (
@@ -424,17 +472,19 @@ const BasicInfo = ({
           isMulti
           hideSelectedOptions={false}
           onBlur={() => onBlur("languages")}
-          value={formData.languages}
-          // onChange={(value) => handleChange("languages", value)}
+          value={convertedLanguages} // Use the converted languages
           onChange={(value) => {
             // Convert the Select component's value format to match your form data structure
             handleChange("languages", value || []);
           }}
-          className={`${
-            errors.languages && touched.languages
+          className={`${errors.languages && touched.languages
               ? "border-red-500"
               : "border-gray-300"
-          }`}
+            }`}
+          components={{
+            Option: CustomOption
+          }}
+          closeMenuOnSelect={false}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>

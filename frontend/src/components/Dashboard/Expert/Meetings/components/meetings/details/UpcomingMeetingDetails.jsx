@@ -38,6 +38,12 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   console.log("This is meeting in upcoming meeting details", meeting);
+  console.log("Meeting message property:", meeting?.message);
+  console.log("Meeting keys:", Object.keys(meeting || {}));
+  
+  // Temporary test - let's check if a hardcoded message works
+  const testMessage = "Test message to verify UI works";
+  console.log("Testing with hardcoded message:", testMessage);
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
       `https://meet.example.com/${meeting.userName
@@ -294,6 +300,68 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
               </ul>
             </div>
           )}
+
+          {/* User Message Section */}
+          <div className="mb-6">
+            <h3 className="text-sm text-gray-500 mb-2">Client Message</h3>
+
+            {meeting.message && meeting.message.trim() ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="h-5 w-5 text-green-600 mt-0.5" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-green-900 mb-1">
+                      Message from {meeting.userName}:
+                    </p>
+                    <p className="text-sm text-green-800 leading-relaxed break-words">
+                      {meeting.message}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="h-5 w-5 text-gray-400 mt-0.5" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-500 italic">
+                      No message from client
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Accordion Section */}
@@ -560,6 +628,7 @@ UpcomingMeetingDetails.propTypes = {
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     keyPoints: PropTypes.arrayOf(PropTypes.string),
     notes: PropTypes.string,
+    message: PropTypes.string,
     razorpay_payment_id: PropTypes.string,
     videoCallId: PropTypes.string,
   }).isRequired,

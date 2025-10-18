@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { EditIcon, DeleteIcon } from "@/icons/Icons";
 import { ServiceFeatures } from "./ServiceFeatures";
-import { deleteServicebyId, updateServicebyId } from "@/Redux/Slices/expert.Slice";
+import {
+  deleteServicebyId,
+  toggleService,
+  updateServicebyId,
+} from "@/Redux/Slices/expert.Slice";
 import ConfirmDialog from "./ConfirmDialog";
-// import Spinner from "@/components/LoadingSkeleton/Spinner";
-import Spinner from "@/components/LoadingSkeleton/Spinner";
 
-
-const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
+const ServiceCard = ({ service, isDefault = false, onEdit }) => {
   const dispatch = useDispatch();
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(Boolean(service?.showMore));
   const [editedService, setEditedService] = useState(service);
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -18,22 +19,41 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
 
   // Update editedService when service prop changes
   useEffect(() => {
-    console.log('ServiceCard: service prop changed, updating editedService:', service);
     setEditedService(service);
+    setIsEnabled(Boolean(service?.showMore));
   }, [service]);
 
   const handleToggleConfirm = () => {
+    if (isDefault) {
+      return;
+    }
+
     if (isEnabled) {
       setShowToggleConfirm(true);
-    } else {
-      handleToggle();
+      return;
     }
+
+    handleToggle();
   };
 
   const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    onToggle?.(!isEnabled);
+    const identifier = service?.serviceId || service?._id;
+    if (!identifier) {
+      console.warn("Cannot toggle service without identifier", service);
+      setShowToggleConfirm(false);
+      return;
+    }
+
+    const nextState = !isEnabled;
+    setIsEnabled(nextState);
     setShowToggleConfirm(false);
+
+    dispatch(toggleService({ serviceId: identifier }))
+      .unwrap()
+      .catch((error) => {
+        console.error("Failed to toggle service", error);
+        setIsEnabled(!nextState);
+      });
   };
 
   const handleDeleteConfirm = () => {
@@ -41,9 +61,9 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
   };
 
   const handleDelete = () => {
-    if (isEnabled && service?._id) {
-      console.log("This is service id", service._id);
-      dispatch(deleteServicebyId(service._id));
+    const identifier = service?.serviceId || service?._id;
+    if (identifier) {
+      dispatch(deleteServicebyId({ serviceId: identifier }));
     }
     setShowDeleteConfirm(false);
   };
@@ -72,23 +92,29 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
     features = [],
     duration = "",
     price = "",
-    _id,
-  } = editedService;
+    timeSlots = [],
+  } = editedService || {};
+
+  // Prefer explicit duration/price; fallback to first timeSlot
+  const effectiveDuration = duration || timeSlots?.[0]?.duration;
+  const effectivePrice = price || timeSlots?.[0]?.price;
 
   return (
     <div
       className={`rounded-xl shadow-md p-5 transition-opacity border ${isEnabled
-          ? "bg-white border-gray-200 hover:shadow-lg"
-          : "bg-gray-50 text-gray-500"
+        ? "bg-white border-gray-200 hover:shadow-lg"
+        : "bg-gray-50 text-gray-500"
         }`}
     >
       {/* Confirmation Dialogs */}
-      <ConfirmDialog
-        isOpen={showToggleConfirm}
-        message="Are you sure you want to turn off your service?"
-        onConfirm={handleToggle}
-        onCancel={() => setShowToggleConfirm(false)}
-      />
+      {!isDefault && (
+        <ConfirmDialog
+          isOpen={showToggleConfirm}
+          message="Are you sure you want to turn off your service?"
+          onConfirm={handleToggle}
+          onCancel={() => setShowToggleConfirm(false)}
+        />
+      )}
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         message="Are you sure you want to delete this service?"
@@ -162,9 +188,9 @@ const ServiceCard = ({ service, isDefault = false, onEdit, onToggle }) => {
             : shortDescription}
         </p>
         <p className={`font-semibold ${isEnabled ? "font-semibold" : "text-gray-500"}`}>
-          {duration && price && (
+          {effectiveDuration && (effectivePrice || effectivePrice === 0) && (
             <span>
-              {duration} minutes - Rs {price}
+              {effectiveDuration} minutes - Rs {effectivePrice}
             </span>
           )}
         </p>

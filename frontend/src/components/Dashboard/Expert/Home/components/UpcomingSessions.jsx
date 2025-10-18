@@ -13,30 +13,72 @@ export default function UpcomingSessions() {
   }
   const { meetings } = useSelector((state) => state.meeting);
   console.log("This is meetings:", meetings);
-  const paidMeetings = meetings
-  ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
-  ?.map(({ amount, daySpecific }) => ({
-    amount: Number(amount), // Convert to number
-    date: daySpecific?.date || "Unknown Date",
-    status: "Paid",
-  }));
+  
+  // Filter for paid meetings first
+  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
+  
+  console.log("Paid meetings:", paidMeetings);
 
-  // Extract upcoming sessions
-  const upcomingSessions = paidMeetings
-    ?.map((meeting) => ({
-      id: meeting._id,
-      client: meeting.userName || "Unknown Client",
-      type: "Session", // Adjust if there's a session type field
-      date: meeting.daySpecific?.date, // Extract the correct date
-      time: meeting.daySpecific?.slot
-        ? `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`
-        : "N/A",
-      duration: "60 min", // Adjust if duration is available
-      initial: meeting.userName ? meeting.userName.charAt(0) : "C", // Extract the first letter of client name
-    }))
-    .filter((session) => session.date) // Ensure the session has a valid date
+  // Extract upcoming sessions with proper error handling
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // Set to start of today
+
+  const upcomingSessions = paidMeetings?.map((meeting) => {
+      // Handle daySpecific safely - check if it exists and is an object
+      let date = null;
+      let timeSlot = "N/A";
+      
+      if (meeting.daySpecific) {
+        // Check if daySpecific is an array (warn and convert)
+        if (Array.isArray(meeting.daySpecific)) {
+          console.warn("⚠️ daySpecific is an array! Using first element:", meeting.daySpecific);
+          const firstDay = meeting.daySpecific[0];
+          date = firstDay?.date;
+          timeSlot = firstDay?.slot
+            ? `${firstDay.slot.startTime} - ${firstDay.slot.endTime}`
+            : "N/A";
+        } else if (typeof meeting.daySpecific === 'object') {
+          // Normal object format
+          date = meeting.daySpecific.date;
+          timeSlot = meeting.daySpecific.slot
+            ? `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`
+            : "N/A";
+        } else {
+          console.warn("⚠️ daySpecific is not an object:", typeof meeting.daySpecific, meeting.daySpecific);
+        }
+      } else {
+        // Fallback to other date fields if daySpecific doesn't exist
+        date = meeting.date || meeting.createdAt;
+        console.warn("⚠️ No daySpecific found, using fallback date:", date);
+      }
+
+      return {
+        id: meeting._id,
+        client: meeting.userName || "Unknown Client",
+        type: meeting.serviceName || "Session",
+        date: date,
+        time: timeSlot,
+        duration: meeting.duration || "60 min",
+        initial: meeting.userName ? meeting.userName.charAt(0).toUpperCase() : "C",
+      };
+    })
+    .filter((session) => {
+      // Filter for valid dates and future sessions
+      if (!session.date) return false;
+      
+      try {
+        const sessionDate = new Date(session.date);
+        sessionDate.setHours(0, 0, 0, 0);
+        return sessionDate >= now;
+      } catch (error) {
+        console.warn("Invalid date format:", session.date);
+        return false;
+      }
+    })
     .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort by upcoming date
     .slice(0, 5); // Limit to 5 sessions
+    
+  console.log("Processed upcoming sessions:", upcomingSessions);
 
   return (
     <div className="bg-white border rounded-lg shadow-sm p-6">

@@ -10,11 +10,13 @@ import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
+import { getPublicAvailability } from "@/Redux/Slices/availability.slice";
 // import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
 import SearchModal from "@/components/Home/components/SearchModal";
+import BlockedDates from "./BlockedDates";
 import {
   optimisticAdd,
   optimisticRemove,
@@ -91,13 +93,6 @@ const ExpertDetailPage = () => {
     setIsExpertMode(!isExpertMode);
   };
 
-  // Fetch the expert data on mount
-  // useEffect(() => {
-  //   if (id) {
-  //     dispatch(getExpertById(id));
-  //   }
-  // }, [id, dispatch]);
-
   // Heuristic: 24-char hex => ObjectId -> fetch by ID; else treat as redirect slug
   useEffect(() => {
     if (!redirect_url) return;
@@ -123,6 +118,8 @@ const ExpertDetailPage = () => {
   }, [location.search]);
 
   const { selectedExpert: rawSelectedExpert, loading, error } = useSelector((state) => state.expert);
+  const { publicAvailability } = useSelector((state) => state.availability);
+
 
   // Normalized expert object whether slice stored wrapper {expert: {...}} or expert directly
   const expert = useMemo(() => {
@@ -136,10 +133,38 @@ const ExpertDetailPage = () => {
     [expert?.socialLinks]
   );
 
+  // Calculate rating from feedback data
+  const ratingData = useMemo(() => {
+    if (!feedbackofexpert || !Array.isArray(feedbackofexpert) || feedbackofexpert.length === 0) {
+      return {
+        averageRating: 0,
+        reviewsCount: 0
+      };
+    }
+
+    const validRatings = feedbackofexpert.filter(feedback =>
+      feedback.rating && !isNaN(Number(feedback.rating))
+    );
+
+    const totalRating = validRatings.reduce((sum, feedback) =>
+      sum + Number(feedback.rating), 0
+    );
+
+    const averageRating = validRatings.length > 0
+      ? totalRating / validRatings.length
+      : 0;
+
+    return {
+      averageRating: parseFloat(averageRating.toFixed(1)),
+      reviewsCount: feedbackofexpert.length
+    };
+  }, [feedbackofexpert]);
+
   console.log("Normalized expert", expert);
   useEffect(() => {
     if (expert?._id) {
       dispatch(getfeedbackbyexpertid({ id: expert._id }));
+      dispatch(getPublicAvailability(expert._id));
     }
   }, [dispatch, expert?._id]);
 
@@ -196,6 +221,12 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
 
+    // Extract blocked dates from availability data
+  const blockedDates = publicAvailability?.availability?.[0]?.blockedDates || [];
+  
+  console.log("Public availability data:", publicAvailability);
+  console.log("Blocked dates:", blockedDates);
+
   const handleModalCategorySelect = (category) => {
     if (category.value) {
       navigate(`/explore?category=${category.value}`);
@@ -216,15 +247,8 @@ const ExpertDetailPage = () => {
           name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
           title={expert?.credentials?.professionalTitle?.[0] || "No Title Provided"}
           location={expert?.city || "Unknown"}
-          rating={
-            expert?.reviews?.length
-              ? Math.round(
-                expert.reviews.reduce((acc, r) => acc + r.rating, 0) /
-                expert.reviews.length
-              )
-              : 0
-          }
-          reviewsCount={expert?.reviews?.length || 0}
+          rating={ratingData.averageRating}
+          reviewsCount={ratingData.reviewsCount}
           image={expert?.profileImage?.secure_url}
           redirect_uri={expert?.redirect_url || redirect_url}
           isAdminApproved={expert?.admin_approved_expert}
@@ -245,6 +269,7 @@ const ExpertDetailPage = () => {
                 about={expert?.bio || "No details provided"}
                 socialLinks={socialLinks}
               />
+              <BlockedDates blockedDates={blockedDates} />
               <Expertise skills={expert?.credentials?.skills || []} />
               <ServicesOffered
                 id="services-offered"

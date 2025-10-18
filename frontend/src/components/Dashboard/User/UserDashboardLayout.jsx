@@ -20,6 +20,15 @@ const UserDashboardLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const dropdownTimeoutRef = useRef(null);
+  const { data } = useSelector((state) => state.auth);
+
+  let parsedData;
+    try {
+      parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      parsedData = data;
+    }
 
   const isLinkActive = (path) => {
     return location.pathname === path;
@@ -114,6 +123,14 @@ const UserDashboardLayout = () => {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
+            <div className="px-4 py-2 border-b border-gray-200">
+              <p className='text-sm font-medium text-gray-900 truncate'>
+                {parsedData?.firstName} {parsedData?.lastName}
+              </p>
+              <p className='text-xs text-gray-500 truncate'>
+                User
+              </p>
+            </div>
             <a
               href="/"
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"

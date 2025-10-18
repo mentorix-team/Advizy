@@ -148,15 +148,15 @@ export default function PastMeetingDetails() {
     }, 3000);
   };
 
-  const handleDownloadInvoice = () => {
-    if (!meeting?._id) {
-      return;
-    }
+  // const handleDownloadInvoice = () => {
+  //   if (!meeting?._id) {
+  //     return;
+  //   }
 
-    navigate(`/dashboard/user/meetings/receipt/${meeting._id}`, {
-      state: { meeting },
-    });
-  };
+  //   navigate(`/dashboard/user/meetings/receipt/${meeting._id}`, {
+  //     state: { meeting },
+  //   });
+  // };
 
   const handleSubmitRating = async () => {
     if (!rating) {
@@ -318,7 +318,7 @@ export default function PastMeetingDetails() {
                   </div>
                   <p className="text-2xl font-medium">₹{meeting.amount || 'N/A'}</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2">
+                {/* <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={handleDownloadInvoice}
                     className="text-green-600 hover:text-green-700 flex items-center justify-center border border-gray-200 px-4 py-2 rounded-lg text-sm"
@@ -326,7 +326,7 @@ export default function PastMeetingDetails() {
                     <BiDownload className="w-5 h-5 mr-1" />
                     Download Invoice
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
 

@@ -22,13 +22,15 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
       const timeSlot = service.timeSlots?.[0] || {
         duration: service.duration || 15,
-        price: service.price || 25
+        price: service.price || 25,
+        enabled: service.enabled ?? true,
       };
 
       console.log('Selected timeSlot:', timeSlot)
 
       setFormData({
-        id: service.serviceId || service._id,
+        // IMPORTANT: Backend matches by service.serviceId only
+        id: service.serviceId,
         serviceName: service.serviceName || service.title || '',
         shortDescription: service.shortDescription || '',
         detailedDescription: service.detailedDescription || '',
@@ -78,7 +80,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
           {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto space-y-6 pb-16">
             <div>
-              <label className="block text-sm font-medium text-gray-700 required">Service Name</label>
+              <label className="block text-sm font-medium text-gray-700 required">Service Name<span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={formData.serviceName}
@@ -89,7 +91,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 required">Short Description</label>
+              <label className="block text-sm font-medium text-gray-700 required">Short Description<span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={formData.shortDescription}
@@ -102,7 +104,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Detailed Description <span className="text-gray-500">(Optional)</span>
+                Detailed Description
               </label>
               <textarea
                 value={formData.detailedDescription}
@@ -114,7 +116,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 required">Time Slot</label>
+              <label className="block text-sm font-medium text-gray-700 required">Time Slot<span className="text-red-500">*</span></label>
               <SingleTimeSlot
                 timeSlot={formData.timeSlot}
                 onChange={(updatedTimeSlot) => setFormData({ ...formData, timeSlot: updatedTimeSlot })}
@@ -158,4 +160,4 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   )
 }
 
-export default EditNonDefaultServiceModal
+export default EditNonDefaultServiceModal;

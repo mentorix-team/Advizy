@@ -159,16 +159,18 @@ function Home() {
     }
   };
 
-  const paidMeetings = meetings
-    ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
-    ?.map(({ amount, daySpecific }) => ({
-      amount: Number(amount), // Convert to number
-      date: daySpecific?.date || "Unknown Date",
-      status: "Paid",
-    }));
+  // Process meetings data for different components
+  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
+  
+  // For earnings calculation - simplified data
+  const earningsData = paidMeetings.map(({ amount, daySpecific }) => ({
+    amount: Number(amount),
+    date: daySpecific?.date || "Unknown Date",
+    status: "Paid",
+  }));
 
   const totalEarnings =
-    paidMeetings?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
+    earningsData?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
 
   // const earningsData = {
   //   totalEarnings: 45000,
@@ -302,7 +304,7 @@ function Home() {
             /> */}
             <RecentEarnings
               totalEarnings={totalEarnings}
-              earnings={paidMeetings}
+              earnings={earningsData}
             />
             {console.log("🔍 Feedback data being passed:", feedbackofexpert)}
             <ClientFeedback feedback={feedbackofexpert || []} />

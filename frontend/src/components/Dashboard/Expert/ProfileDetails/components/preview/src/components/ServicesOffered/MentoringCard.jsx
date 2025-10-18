@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Edit } from 'lucide-react';
+import { useDispatch } from 'react-redux';
 import { ServiceFeatures } from '@/components/Dashboard/Expert/ServiceAndPricing/ServiceFeatures';
 import ConfirmDialog from '@/components/Dashboard/Expert/ServiceAndPricing/ConfirmDialog';
+import { toggleService } from '@/Redux/Slices/expert.Slice';
 
 const DurationOption = ({ duration, price, enabled, onClick }) => (
   <button
     onClick={onClick}
-    className={`p-3 rounded-lg text-left border transition-colors ${
-      enabled ? 'border-[#16A348] border-2' : 'border-gray-300 text-gray-400 cursor-not-allowed'
-    }`}
+    className={`p-3 rounded-lg text-left border transition-colors ${enabled ? 'border-[#16A348] border-2' : 'border-gray-300 text-gray-400 cursor-not-allowed'
+      }`}
     disabled={!enabled}
   >
     <div className="text-sm">{duration} min</div>
@@ -16,9 +17,10 @@ const DurationOption = ({ duration, price, enabled, onClick }) => (
   </button>
 );
 
-const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
+const MentoringCard = ({ service, onEdit, setSteps }) => {
+  const dispatch = useDispatch();
   const [selectedDuration, setSelectedDuration] = useState(null);
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(Boolean(service?.showMore));
   const [showToggleConfirm, setShowToggleConfirm] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -43,26 +45,47 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
     }
   }, [setSteps]);
 
+  useEffect(() => {
+    setIsEnabled(Boolean(service?.showMore));
+  }, [service]);
+
   const handleToggleConfirm = () => {
+    if (!service?.serviceId && !service?._id) {
+      return;
+    }
+
     if (isEnabled) {
       setShowToggleConfirm(true);
-    } else {
-      handleToggle();
+      return;
     }
+
+    handleToggle();
   };
 
   const handleToggle = () => {
-    setIsEnabled(!isEnabled);
-    onToggle?.(!isEnabled);
+    const identifier = service?.serviceId || service?._id;
+    if (!identifier) {
+      setShowToggleConfirm(false);
+      return;
+    }
+
+    const nextState = !isEnabled;
+    setIsEnabled(nextState);
     setShowToggleConfirm(false);
+
+    dispatch(toggleService({ serviceId: identifier }))
+      .unwrap()
+      .catch((error) => {
+        console.error('Failed to toggle mentoring service', error);
+        setIsEnabled(!nextState);
+      });
   };
 
   if (!service) return null;
 
   return (
-    <div className={`border rounded-lg p-4 bg-white relative w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl lg:max-w-4xl transition-colors ${
-      isEnabled ? 'border-[#16A348]' : 'border-gray-300'
-    }`}>
+    <div className={`border rounded-lg p-4 bg-white relative w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl lg:max-w-4xl transition-colors ${isEnabled ? 'border-[#16A348]' : 'border-gray-300'
+      }`}>
       <ConfirmDialog
         isOpen={showToggleConfirm}
         message="Are you sure you want to turn off your service?"
@@ -71,9 +94,8 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
       />
 
       <div className="flex justify-between items-start">
-        <h3 className={`text-lg sm:text-xl font-medium ${
-          isEnabled ? 'text-[#101828]' : 'text-gray-500'
-        }`}>
+        <h3 className={`text-lg sm:text-xl font-medium ${isEnabled ? 'text-[#101828]' : 'text-gray-500'
+          }`}>
           {service.title}
         </h3>
         <div className="flex items-center gap-3">
@@ -82,14 +104,12 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
               onClick={handleToggleConfirm}
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
-              className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
-                isEnabled ? 'bg-[#16A348] text-white' : 'bg-gray-300 text-gray-500'
-              }`}
+              className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${isEnabled ? 'bg-[#16A348] text-white' : 'bg-gray-300 text-gray-500'
+                }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  isEnabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
               />
             </button>
             {showTooltip && isEnabled && (
@@ -100,9 +120,8 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
           </div>
           <button
             onClick={() => onEdit(service)}
-            className={`edit-button rounded-full p-1 transition-colors ${
-              isEnabled ? 'hover:bg-gray-100' : 'cursor-not-allowed'
-            }`}
+            className={`edit-button rounded-full p-1 transition-colors ${isEnabled ? 'hover:bg-gray-100' : 'cursor-not-allowed'
+              }`}
             disabled={!isEnabled}
           >
             <Edit className="w-5 h-5 text-gray-600" />
@@ -110,9 +129,8 @@ const MentoringCard = ({ service, onEdit, onToggle, setSteps }) => {
         </div>
       </div>
 
-      <p className={`text-sm sm:text-base mt-2 ${
-        isEnabled ? 'text-gray-600' : 'text-gray-400'
-      }`}>
+      <p className={`text-sm sm:text-base mt-2 ${isEnabled ? 'text-gray-600' : 'text-gray-400'
+        }`}>
         {service.shortDescription}
       </p>
 

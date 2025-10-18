@@ -4,7 +4,7 @@ import BlockedDateCard from './BlockedDateCard';
 import { useBlockedDates } from '@/Context/BlockedDatesContext';
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addBlockedDates } from "@/Redux/Slices/availability.slice";
+import { addBlockedDates, removeBlockedDate } from "@/Redux/Slices/availability.slice";
 
 function BlockUnavailableDates() {
   const dispatch = useDispatch();
@@ -78,7 +78,24 @@ useEffect(() => {
   };
 
   const handleRemoveDate = (dateToRemove) => {
-    setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
+    console.log("Removing date:", dateToRemove);
+    
+    // Convert date to ISO string for backend
+    const dateToRemoveISO = dateToRemove.toISOString();
+    
+    dispatch(removeBlockedDate(dateToRemoveISO))
+      .then((response) => {
+        if (response?.payload?.success) {
+          // Update local state only after successful backend call
+          setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
+          console.log("Successfully removed blocked date");
+        } else {
+          console.error("Failed to remove blocked date:", response?.payload?.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error dispatching removeBlockedDate:", error);
+      });
   };
 
   return (

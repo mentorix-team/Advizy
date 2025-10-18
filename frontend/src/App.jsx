@@ -71,28 +71,21 @@ const App = () => {
     const originalRemoveItem = sessionStorage.removeItem;
     const originalClear = sessionStorage.clear;
 
-    const shouldLog = (key) =>
-      typeof key === "string" && !key.startsWith("React::DevTools");
-
     sessionStorage.setItem = function (key, value) {
-      if (shouldLog(key)) {
-        console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
-        console.trace();
-      }
+      console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
+      console.trace(); // This will show you exactly where setItem is called from
       return originalSetItem.apply(this, arguments);
     };
 
     sessionStorage.removeItem = function (key) {
-      if (shouldLog(key)) {
-        console.log(`🔴 SessionStorage REMOVE: ${key}`);
-        console.trace();
-      }
+      console.log(`🔴 SessionStorage REMOVE: ${key}`);
+      console.trace(); // This will show you exactly where removeItem is called from
       return originalRemoveItem.apply(this, arguments);
     };
 
     sessionStorage.clear = function () {
       console.log(`💥 SessionStorage CLEARED`);
-      console.trace();
+      console.trace(); // This will show you exactly where clear is called from
       return originalClear.apply(this, arguments);
     };
 
@@ -182,13 +175,24 @@ const App = () => {
   }, [dispatch, location.pathname]);
 
   useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode") === "true";
+    const expertModeEnabled = localStorage.getItem("expertMode") === "true";
+    const currentPath = location.pathname;
+
     if (
-      expertMode &&
-      !location.pathname.startsWith("/dashboard/expert") &&
-      location.pathname !== "/meeting"
+      expertModeEnabled &&
+      !currentPath.startsWith("/dashboard/expert") &&
+      currentPath !== "/meeting"
     ) {
-      navigate("/dashboard/expert/home");
+      navigate("/dashboard/expert/home", { replace: true });
+      return;
+    }
+
+    const isDashboardRoot = currentPath === "/dashboard" || currentPath === "/dashboard/";
+    const isUserDashboardRoot =
+      currentPath === "/dashboard/user" || currentPath === "/dashboard/user/";
+
+    if (!expertModeEnabled && (isDashboardRoot || isUserDashboardRoot)) {
+      navigate("/dashboard/user/meetings", { replace: true });
     }
   }, [location.pathname, navigate]);
 

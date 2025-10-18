@@ -10,10 +10,6 @@ import { getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { getInvoiceOrderId, getInvoiceTransactionId } from "@/utils/invoice";
-import {
-  getMeetingStatusLabel,
-  getMeetingStatusPillTone,
-} from "@/utils/meetingStatus";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -62,18 +58,6 @@ export default function Payments() {
       return timestampB - timestampA;
     }) || [];
 
-  // Debug: Log the first few meetings to see available timestamp fields
-  if (meetings && meetings.length > 0) {
-    console.log("Sample meeting data for timestamp debugging:", {
-      firstMeeting: meetings[0],
-      availableFields: Object.keys(meetings[0] || {}),
-      hasCreatedAt: !!meetings[0]?.createdAt,
-      hasUpdatedAt: !!meetings[0]?.updatedAt,
-      hasPaymentDate: !!meetings[0]?.paymentDate,
-      _id: meetings[0]?._id
-    });
-  }
-
   const payments = paidMeetings.map((meeting) => ({
     id: meeting.razorpay_payment_id || meeting.paymentId || meeting.transactionId || meeting._id,
     meeting,
@@ -89,7 +73,7 @@ export default function Payments() {
     amount: meeting.amount,
     status: "paid",
   }));
-  console.log("This is payments", payments);
+
   const filteredPayments = payments.filter(
     (payment) =>
       payment.expert?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,44 +134,48 @@ export default function Payments() {
     }
 
     try {
-      // Create a temporary container for the invoice
+      // Create an offscreen container
       const tempContainer = document.createElement("div");
-      tempContainer.style.position = "absolute";
+      tempContainer.style.position = "fixed";
       tempContainer.style.left = "-9999px";
-      tempContainer.style.top = "-9999px";
+      tempContainer.style.top = "0";
       document.body.appendChild(tempContainer);
 
-      // Generate invoice content
       const invoiceContent = renderInvoiceContent(meeting);
-
-      // Render the invoice
       const root = createRoot(tempContainer);
       root.render(invoiceContent);
 
-      // Wait for render to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Capture and generate PDF
+      // Capture the invoice with proper scale and background
       const canvas = await html2canvas(tempContainer.firstChild, {
-        scale: 2,
+        scale: 3, // higher scale = sharper PDF
         useCORS: true,
         backgroundColor: "#ffffff",
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 800,
       });
 
       const imgData = canvas.toDataURL("image/png");
+
+      // Create PDF with correct proportions
       const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Center if shorter than A4
+      const yOffset = imgHeight < pdfHeight ? (pdfHeight - imgHeight) / 2 : 0;
+      pdf.addImage(imgData, "PNG", 0, yOffset, imgWidth, imgHeight, "", "FAST");
 
       const filename = getInvoiceOrderId(meeting);
       pdf.save(`${filename !== "N/A" ? filename : "invoice"}.pdf`);
 
-      // Cleanup
       root.unmount();
       document.body.removeChild(tempContainer);
 
-      toast.success("Invoice downloaded successfully!");
     } catch (error) {
       console.error("Failed to download invoice:", error);
       toast.error("Unable to download invoice. Please try again.");
@@ -195,251 +183,253 @@ export default function Payments() {
   };
 
   const renderInvoiceContent = (meeting) => {
-    const MAX_SERVICE_NAME_LENGTH = 48;
-
     const { daySpecific } = meeting || {};
     const { date, slot } = daySpecific || {};
     const { startTime, endTime } = slot || {};
 
-    const amount = Number(meeting.amount ?? meeting.baseAmount ?? meeting.price ?? 0);
-    const addOns = Number(meeting.addOnsTotal ?? meeting.addOnsAmount ?? meeting.addonAmount ?? 0);
-    const discount = Number(meeting.discount ?? meeting.discountAmount ?? meeting.couponDiscount ?? 0);
-    const tax = Number(meeting.tax ?? meeting.taxAmount ?? meeting.gstAmount ?? 0);
-    const subtotal = amount + addOns;
-    const computedTotal = subtotal - discount + tax;
-    const totalPaid = Number(
-      meeting.totalPaid ??
-      meeting.totalAmount ??
-      meeting.amountPaid ??
-      meeting.paymentAmount ??
-      meeting.netPayable ??
-      computedTotal
-    );
-    const paymentMethod =
-      meeting.paymentMethod ||
-      meeting.paymentMode ||
-      meeting.razorpayPaymentMethod ||
-      meeting.payoutMethod ||
-      meeting.method ||
-      "N/A";
+    // Calculate duration in minutes
+    const calculateDuration = () => {
+      if (!startTime || !endTime) return "N/A";
 
-    const createdAt = meeting.paymentDate || meeting.paidAt || meeting.createdAt || date;
-    const formattedOrderDate = createdAt
-      ? new Date(createdAt).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-      : "N/A";
-    const formattedSessionDate = date
-      ? new Date(date).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-      : "Not scheduled";
-    const sessionTime = startTime && endTime
-      ? `${startTime} - ${endTime}`
-      : startTime || endTime || "N/A";
-    const durationMinutes =
-      meeting.durationMinutes ||
-      meeting.duration ||
-      meeting.sessionDuration ||
-      meeting?.daySpecific?.slot?.duration;
-    const formattedDuration = durationMinutes ? `${durationMinutes} minutes` : "Not specified";
+      const start = new Date(`1970-01-01T${startTime}`);
+      const end = new Date(`1970-01-01T${endTime}`);
+      const diffMs = end - start;
+      const diffMins = Math.floor(diffMs / 60000);
 
-    const normalisedServiceName =
-      meeting.serviceName && meeting.serviceName.length > MAX_SERVICE_NAME_LENGTH
-        ? `${meeting.serviceName.slice(0, MAX_SERVICE_NAME_LENGTH)}...`
-        : meeting.serviceName || "Consultation";
+      return `${diffMins} minutes`;
+    };
 
-    const orderId = getInvoiceOrderId(meeting);
-    const transactionId = getInvoiceTransactionId(meeting);
-    const statusLabel = getMeetingStatusLabel(meeting);
-    const statusToneClass = getMeetingStatusPillTone(meeting);
+    const amount = Number(meeting.amount ?? 0);
+    const addOns = 20.00; // Placeholder value as in PDF
+    const discount = 10.00; // Placeholder value as in PDF
+    const totalPaid = amount; // In the PDF, total paid is the base price
 
-    const formatCurrency = (value) =>
-      `₹${Number(value || 0).toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`;
+    // Format date to match PDF style
+    const formatDate = (dateString) => {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    };
+
+    // Format time to match PDF style
+    const formatTime = (timeString) => {
+      if (!timeString) return "N/A";
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours, 10);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    };
+
+    // Format date for session date display
+    const formatSessionDate = (dateString) => {
+      if (!dateString) return "Not specified";
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    };
 
     return (
-      <div style={{ padding: "32px 16px", backgroundColor: "#ffffff", width: "800px" }}>
-        <div style={{
-          maxWidth: "768px",
+      <div
+        id="invoice-content"
+        style={{
+          width: "186mm",
+          minHeight: "282mm",
+          padding: "12mm 16mm",
+          backgroundColor: "white",
+          fontFamily: "Inter, sans-serif",
+          color: "#111827",
           margin: "0 auto",
-          borderRadius: "16px",
-          border: "1px solid #f3f4f6",
-          backgroundColor: "#ffffff",
-          padding: "40px 32px",
-          boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)"
-        }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <div>
-              <h1 style={{ fontSize: "24px", fontWeight: "600", color: "#111827", margin: 0 }}>Advizy</h1>
-              <p style={{ marginTop: "4px", fontSize: "14px", color: "#6b7280" }}>
-                Thank you for your booking.
+          fontSize: "0.88rem",
+          lineHeight: "1.55",
+        }}
+        className="font-sans text-gray-800"
+      >
+        {/* Print-specific style */}
+        <style>
+          {`
+          @media print {
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 210mm;
+              height: 297mm;
+            }
+            body * {
+              visibility: hidden;
+            }
+            #invoice-content,
+            #invoice-content * {
+              visibility: visible;
+            }
+            #invoice-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: calc(100% - 12mm);
+              max-width: 100%;
+              padding: 10mm 14mm !important;
+              box-shadow: none !important;
+              margin: 0 !important;
+            }
+            nav, header, footer, .navbar, .no-print {
+              display: none !important;
+            }
+            @page {
+              margin: 0;
+              size: A4;
+            }
+          }
+          @media screen {
+            #invoice-content {
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+          }
+        `}
+        </style>
+
+        {/* Header */}
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Advizy</h1>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">Order Confirmation</h2>
+          <p className="text-xs text-gray-600">Thank you for your booking.</p>
+        </div>
+
+        <hr className="border-gray-200 mb-4" />
+
+        {/* Order Details & Customer */}
+        <div className="grid grid-cols-2 gap-x-8 mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Order Details</h3>
+            <div className="space-y-1 text-xs">
+              <div>
+                <span className="text-gray-600">Order ID: </span>
+                <span className="font-medium text-gray-900">{getInvoiceOrderId(meeting)}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Date: </span>
+                <span className="font-medium text-gray-900">
+                  {formatDate(meeting.createdAt) || formatDate(date) || "N/A"}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-600">Status: </span>
+                <span className="font-semibold text-green-600">Confirmed</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Customer</h3>
+            <p className="text-xs font-medium text-gray-900">{meeting.userName || "Guest user"}</p>
+          </div>
+        </div>
+
+        {/* Service Details */}
+        <div className="bg-gray-50 border border-gray-100 rounded-md p-4 mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Service Details</h3>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Expert:</span>
+              <span className="font-medium text-gray-900">{meeting.expertName || "N/A"}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Session Date:</span>
+              <span className="font-medium text-gray-900">{formatSessionDate(date)}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Service:</span>
+              <span className="font-medium text-gray-900">
+                {meeting.serviceName || "Consultation"}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Session Time:</span>
+              <span className="font-medium text-gray-900">
+                {startTime ? formatTime(startTime) : "N/A"}
+              </span>
+            </div>
+            <div className="flex flex-col col-span-2">
+              <span className="text-gray-600 mb-0.5">Time Duration:</span>
+              <span className="font-medium text-gray-900">{calculateDuration()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Summary */}
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Payment Summary</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between">
+              <span className="text-gray-900">Base Price</span>
+              <span className="text-gray-900 text-right">₹{amount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-900">Add-ons</span>
+              <span className="text-gray-900 text-right">₹{addOns.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-900">Discount</span>
+              <span className="text-green-600 text-right">-₹{discount.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-gray-200 mb-3" />
+
+        {/* Total Paid */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base font-semibold text-gray-900">Total Paid</h3>
+          <span className="text-xl font-bold text-gray-900">₹{totalPaid.toFixed(2)}</span>
+        </div>
+
+        {/* Payment Successful */}
+        <div className="bg-green-50 border border-green-200 rounded-md pt-1 p-3.5 mb-4">
+          <div className="flex items-center gap-2.5">
+            <svg
+              className="h-4 w-4 text-green-600 flex-shrink-0"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div className="flex-1">
+              <h4 className="text-xs font-semibold text-green-800">
+                Payment Successful
+              </h4>
+              <p className="text-xs text-green-700">
+                Transaction ID: {getInvoiceTransactionId(meeting)} | Method: Credit Card
               </p>
             </div>
           </div>
+        </div>
 
-          <div style={{ margin: "32px 0", height: "1px", backgroundColor: "#e5e7eb" }} />
-
-          <div style={{ marginBottom: "32px" }}>
-            <h2 style={{ fontSize: "20px", fontWeight: "600", color: "#111827", margin: 0 }}>Order Confirmation</h2>
-            <p style={{ marginTop: "8px", fontSize: "14px", color: "#4b5563" }}>
-              Below are the confirmed details of your consultation with {meeting.expertName || "your expert"}.
-            </p>
-          </div>
-
-          <div style={{ margin: "32px 0", height: "1px", backgroundColor: "#e5e7eb" }} />
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-            <div>
-              <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 12px 0" }}>
-                Order Details
-              </h3>
-              <div style={{ fontSize: "14px", color: "#4b5563" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Order ID</span>
-                  <span style={{ color: "#111827" }}>{orderId}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Transaction</span>
-                  <span style={{ color: "#111827" }}>{transactionId}</span>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Order Date</span>
-                  <span>{formattedOrderDate}</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 12px 0" }}>
-                Booking Status
-              </h3>
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                borderRadius: "9999px",
-                border: `1px solid ${statusToneClass?.borderColor || "#d1d5db"}`,
-                backgroundColor: statusToneClass?.backgroundColor || "#f9fafb",
-                color: statusToneClass?.color || "#374151",
-                padding: "4px 12px",
-                fontSize: "14px",
-                fontWeight: "500"
-              }}>
-                {statusLabel}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px" }}>
-            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
-              Session Details
-            </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "14px", color: "#4b5563" }}>
-              <div>
-                <p style={{ margin: "0 0 8px 0" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Expert:</span> {meeting.expertName || "N/A"}
-                </p>
-                {meeting.expertEmail && (
-                  <p style={{ margin: "0 0 8px 0" }}>
-                    <span style={{ fontWeight: "500", color: "#374151" }}>Expert Email:</span> {meeting.expertEmail}
-                  </p>
-                )}
-                <p style={{ margin: 0 }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Service:</span> {normalisedServiceName}
-                </p>
-              </div>
-              <div>
-                <p style={{ margin: "0 0 8px 0" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Session Date:</span> {formattedSessionDate}
-                </p>
-                <p style={{ margin: "0 0 8px 0" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Session Time:</span> {sessionTime}
-                </p>
-                <p style={{ margin: 0 }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Duration:</span> {formattedDuration}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px" }}>
-            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
-              Billing Contact
-            </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", fontSize: "14px", color: "#4b5563" }}>
-              <div>
-                <p style={{ margin: "0 0 8px 0" }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Name:</span> {meeting.userName || meeting.customerName || "N/A"}
-                </p>
-                {meeting.userEmail && (
-                  <p style={{ margin: 0 }}>
-                    <span style={{ fontWeight: "500", color: "#374151" }}>Email:</span> {meeting.userEmail}
-                  </p>
-                )}
-              </div>
-              <div>
-                {meeting.userPhone && (
-                  <p style={{ margin: "0 0 8px 0" }}>
-                    <span style={{ fontWeight: "500", color: "#374151" }}>Phone:</span> {meeting.userPhone}
-                  </p>
-                )}
-                <p style={{ margin: 0 }}>
-                  <span style={{ fontWeight: "500", color: "#374151" }}>Payment Method:</span> {paymentMethod}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "40px" }}>
-            <h3 style={{ fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.05em", color: "#111827", margin: "0 0 16px 0" }}>
-              Payment Summary
-            </h3>
-            <div style={{ overflow: "hidden", borderRadius: "16px", border: "1px solid #e5e7eb" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
-                <span>Base Price</span>
-                <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(amount)}</span>
-              </div>
-              <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span>Add-ons</span>
-                  <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(addOns)}</span>
-                </div>
-              </div>
-              <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span>Discount</span>
-                  <span style={{ fontWeight: "500", color: "#111827" }}>-{formatCurrency(discount)}</span>
-                </div>
-              </div>
-              {tax > 0 && (
-                <div style={{ borderTop: "1px solid #e5e7eb", padding: "12px 24px", fontSize: "14px", color: "#4b5563" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span>Taxes & Fees</span>
-                    <span style={{ fontWeight: "500", color: "#111827" }}>{formatCurrency(tax)}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div style={{ marginTop: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", borderRadius: "16px", backgroundColor: "#111827", padding: "16px 24px", color: "#ffffff" }}>
-              <span style={{ fontSize: "16px", fontWeight: "600" }}>Amount Paid</span>
-              <span style={{ fontSize: "24px", fontWeight: "600" }}>{formatCurrency(totalPaid)}</span>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "40px", borderRadius: "16px", backgroundColor: "#f9fafb", padding: "24px 24px 16px", fontSize: "12px", color: "#6b7280" }}>
-            <p style={{ margin: "0 0 4px 0" }}>
-              Need help? Contact <a href="mailto:support@advizy.com" style={{ color: "#2563eb", textDecoration: "none" }}>support@advizy.com</a>
-            </p>
-            <p style={{ margin: 0 }}>
-              Please retain this invoice for your records.
-            </p>
-          </div>
+        {/* Footer */}
+        <div className="text-[10px] text-gray-500 space-y-0.5 pt-3 border-t border-gray-200">
+          <p>
+            For cancellation and refund policy:{" "}
+            <a href="/refund-policy" className="text-blue-600">
+              Cancellation & Refund Policy
+            </a>
+          </p>
+          <p>
+            Questions? Contact support at{" "}
+            <a href="mailto:support@advizy.com" className="text-blue-600">
+              support@advizy.com
+            </a>
+          </p>
         </div>
       </div>
     );

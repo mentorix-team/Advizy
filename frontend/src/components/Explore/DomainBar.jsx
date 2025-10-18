@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { domainOptions } from "../../utils/Options";
 import { Menu } from "lucide-react";
+import { FaFilter } from "react-icons/fa6";
 
 const DomainBar = ({
   onDomainSelect,
@@ -9,6 +10,8 @@ const DomainBar = ({
   setSorting,
   toggleSidebar,
   selectedDomain,
+  hasActiveFilters = false,
+  isSidebarOpen = false,
 }) => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [visibleDomains, setVisibleDomains] = useState(domainOptions.slice(0, 5));
@@ -68,13 +71,22 @@ const DomainBar = ({
       ref={containerRef}
       className="mt-2 bg-white p-2 flex flex-nowrap border shadow-sm items-center gap-2 md:gap-4 fixed top-[57px] w-full h-[62px] z-40"
     >
-      {/* Mobile Filter Button */}
+      {/* Filter Button - Always Visible */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden p-2 rounded-md hover:bg-gray-100 flex-shrink-0"
-        style={{ width: "48px" }}
+        className={`relative flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-2 border-green-600 flex-shrink-0 text-sm font-medium ${
+          isSidebarOpen
+            ? "bg-green-600 text-white hover:bg-green-700"
+            : "bg-white text-green-600 hover:bg-green-50"
+        }`}
+        style={{ minWidth: "80px" }}
       >
-        <Menu className="h-5 w-5" />
+        <span className="hidden sm:inline">Filter</span>
+        <FaFilter className="h-4 w-4" />
+        
+        {hasActiveFilters && (
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+        )}
       </button>
 
       {/* Domain Buttons */}

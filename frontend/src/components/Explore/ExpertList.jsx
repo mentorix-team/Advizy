@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ExpertCard from "./ExpertCard";
 import ExpertCardSkeleton from "../LoadingSkeleton/ExpertCardSkeleton";
 import NoExpertsFound from "./NoExpertsFound";
 import { getAllExperts } from "@/Redux/Slices/expert.Slice";
+import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ITEMS_PER_PAGE = 8; // 4 rows × 2 columns
@@ -11,13 +12,15 @@ const ITEMS_PER_PAGE = 8; // 4 rows × 2 columns
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
+  const [expertFeedback, setExpertFeedback] = useState({});
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const prevFiltersRef = useRef();
 
-  const { expertsData, loading, error } = useSelector((state) => ({
-    expertsData: state.expert.experts,
-    loading: state.expert.loading,
-    error: state.expert.error,
-  }));
+  // Select directly to avoid returning a new object each render (prevents React-Redux selector warnings)
+  const expertsData = useSelector((state) => state.expert.experts);
+  const loading = useSelector((state) => state.expert.loading);
+  const error = useSelector((state) => state.expert.error);
+  const { feedbackofexpert } = useSelector((state) => state.meeting);
 
   const experts = expertsData || [];
   const totalExperts = experts.length;
@@ -27,7 +30,6 @@ const ExpertList = ({ filters, sorting }) => {
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
   useEffect(() => {
-    if (!filters.selectedDomain) return; //don't dispatch if domain isn't ready
     const queryParams = {
       domain: filters.selectedDomain?.value || "",
       niches: filters.selectedNiches || [],
@@ -36,20 +38,82 @@ const ExpertList = ({ filters, sorting }) => {
       languages: filters.selectedLanguages || [],
       ratings: filters.selectedRatings || [],
       durations: filters.selectedDurations || [],
-      sorting: sorting || "",
+      sorting: sorting || "highest-rated", // Default to highest-rated sort when no sorting is specified
     };
+    
+    console.log("ExpertList: Sending query with filters:", filters);
+    console.log("ExpertList: Sending query params:", queryParams);
+    
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
           return value.length > 0;
         }
+        // Keep domain even if it's empty string to get all experts
+        if (key === 'domain') {
+          return true;
+        }
+        // Keep sorting even if it's empty to maintain default behavior
+        if (key === 'sorting') {
+          return true;
+        }
         return value !== "";
       })
     );
+    
+    console.log("ExpertList: Final cleaned query params:", cleanedQueryParams);
+    
     dispatch(getAllExperts(cleanedQueryParams));
     prevFiltersRef.current = filters;
     setCurrentPage(1);
   }, [dispatch, filters, sorting]);
+
+  // Helper to safely normalize various API shapes into an array of feedback items
+  const toFeedbackArray = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (payload && Array.isArray(payload.feedback)) return payload.feedback;
+    if (payload && Array.isArray(payload.data)) return payload.data;
+    if (payload && payload.feedback && Array.isArray(payload.feedback.data)) return payload.feedback.data;
+    return [];
+  };
+
+  // Fetch feedback for each expert
+  useEffect(() => {
+    const fetchExpertFeedback = async () => {
+      if (experts.length === 0) return;
+
+      setFeedbackLoading(true);
+      const feedbackData = {};
+
+      // Process experts in batches to avoid too many simultaneous requests
+      const batchSize = 5;
+      for (let i = 0; i < experts.length; i += batchSize) {
+        const batch = experts.slice(i, i + batchSize);
+        const batchPromises = batch.map(expert => {
+          if (expert._id) {
+            return dispatch(getfeedbackbyexpertid({ id: expert._id }))
+              .unwrap()
+              .then(result => ({ expertId: expert._id, feedback: toFeedbackArray(result) }))
+              .catch(error => {
+                console.error(`Error fetching feedback for expert ${expert._id}:`, error);
+                return { expertId: expert._id, feedback: [] };
+              });
+          }
+          return Promise.resolve({ expertId: expert._id, feedback: [] });
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        batchResults.forEach(result => {
+          feedbackData[result.expertId] = result.feedback;
+        });
+      }
+
+      setExpertFeedback(feedbackData);
+      setFeedbackLoading(false);
+    };
+
+    fetchExpertFeedback();
+  }, [experts, dispatch]);
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -78,13 +142,43 @@ const ExpertList = ({ filters, sorting }) => {
     return years > 0 ? `${years} years ${months} months` : `${months} months`;
   };
 
+  // Calculate rating data for each expert
+  const calculateRatingData = (expertId) => {
+    const raw = expertFeedback[expertId];
+    const feedback = Array.isArray(raw) ? raw : toFeedbackArray(raw);
+
+    if (!feedback || feedback.length === 0) {
+      return {
+        averageRating: 0,
+        reviewsCount: 0
+      };
+    }
+
+    const validRatings = feedback.filter((review) =>
+      review && review.rating != null && !isNaN(Number(review.rating))
+    );
+
+    const totalRating = validRatings.reduce((sum, review) =>
+      sum + Number(review.rating), 0
+    );
+
+    const averageRating = validRatings.length > 0
+      ? parseFloat((totalRating / validRatings.length).toFixed(1))
+      : 0;
+
+    return {
+      averageRating,
+      reviewsCount: feedback.length
+    };
+  };
+
   return (
     <div className="w-full max-w-[1440px] mx-auto py-4 px-4 sm:px-6 sm:py-4">
       {/* Available Experts Header */}
       <div className="mb-4">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-medium italic tracking-tighter">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-medium tracking-tighter">
           Available Experts -{" "}
-          <span className="text-green-600 underline">{totalExperts}</span>
+          <span className="text-green-600 ">{totalExperts}</span>
         </h2>
       </div>
 
@@ -127,6 +221,28 @@ const ExpertList = ({ filters, sorting }) => {
             expert.credentials?.work_experiences
           );
 
+          // Calculate rating data for this expert
+          const ratingData = calculateRatingData(expert._id);
+
+          // Sessions done: robustly pick from a few possible API field names or fallbacks
+          const pickNumeric = (...vals) => {
+            for (const v of vals) {
+              const n = typeof v === 'number' ? v : Number(v);
+              if (Number.isFinite(n) && n >= 0) return n;
+            }
+            return 0;
+          };
+          const sessionsDone = pickNumeric(
+            expert.totalSessions,
+            expert.sessionsCount,
+            expert.completedSessions,
+            expert.meetingsCount,
+            expert.totalMeetings,
+            expert.completedMeetings,
+            Array.isArray(expert.sessions) ? expert.sessions.length : undefined,
+            Array.isArray(expert.meetings) ? expert.meetings.length : undefined
+          );
+
           return (
             <div key={expert._id} className="w-full h-full">
               <ExpertCard
@@ -143,17 +259,9 @@ const ExpertList = ({ filters, sorting }) => {
                   expert.credentials?.professionalTitle?.[0] ||
                   "No Title Provided"
                 }
-                rating={
-                  expert.reviews?.length > 0
-                    ? Math.round(
-                      expert.reviews.reduce(
-                        (acc, review) => acc + review.rating,
-                        0
-                      ) / expert.reviews.length
-                    )
-                    : 0
-                }
-                totalRatings={expert.sessions?.length || 0}
+                rating={ratingData.averageRating}
+                totalRatings={ratingData.reviewsCount}
+                totalSessions={sessionsDone}
                 experience={expert?.credentials?.experienceYears}
                 languages={expert.languages || []}
                 startingPrice={startingPrice}

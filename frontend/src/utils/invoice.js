@@ -3,9 +3,9 @@ export const getInvoiceOrderId = (meeting = {}) => {
 
   return (
     meeting.razorpay_order_id ||
-    meeting.orderId ||
-    meeting.razorpay_payment_id ||
-    meeting.orderID ||
+      meeting.orderId ||
+      meeting.razorpay_payment_id ||
+      meeting.orderID ||
     meeting.paymentId ||
     "N/A"
   );

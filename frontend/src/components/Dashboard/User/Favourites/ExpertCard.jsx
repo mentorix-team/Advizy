@@ -10,7 +10,7 @@ import { optimisticAdd, optimisticRemove, toggleFavourite, selectFavouriteIds, s
 import toast from "react-hot-toast";
 import { BsHeartFill, BsHeart } from "react-icons/bs";
 
-const ExpertCard = ({ expert }) => {
+const ExpertCard = ({ expert, rating, totalRatings }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [pulse, setPulse] = useState(false); // one-shot animation trigger
   const navigate = useNavigate();
@@ -58,17 +58,9 @@ const ExpertCard = ({ expert }) => {
 
   const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
 
-  // Calculate rating
-  const rating =
-    expert.reviews?.length > 0
-      ? Math.round(
-        expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-        expert.reviews.length
-      )
-      : 0;
-
-  // Get total sessions/ratings
-  const totalSessions = expert.sessions?.length || 0;
+  // Use provided rating and totalRatings from testimonials
+  const displayRating = rating || 0;
+  const displayTotalRatings = totalRatings || 0;
 
   // Updated favorite handler with optimistic updates
   const handleFavourite = () => {
@@ -129,13 +121,13 @@ const ExpertCard = ({ expert }) => {
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-yellow-400 fill-yellow-400" />
                       <span className="font-['Figtree',Helvetica] font-medium text-[13px] sm:text-[14.5px] text-[#1d1f1d] leading-[1.4] sm:leading-[21.7px]">
-                        {rating}/5
+                        {displayRating}/5
                       </span>
                     </div>
                     <div className="flex items-center">
                       <span className="flex gap-1 sm:gap-2 items-center bg-[#c4f3d34c] text-[#1d1f1d] rounded-[24.16px] px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[10.6px] leading-[1.4] sm:leading-[15.9px] font-medium">
                         <User className="w-3 h-3 sm:w-[12.57px] sm:h-[12.57px]" />
-                        {totalSessions} Sessions done
+                        {displayTotalRatings} Sessions done
                       </span>
                     </div>
                   </div>

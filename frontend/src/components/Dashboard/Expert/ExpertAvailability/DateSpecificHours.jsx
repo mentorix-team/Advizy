@@ -5,16 +5,55 @@ import { PlusIcon, TrashIcon } from "@/icons/Icons";
 import { useBlockedDates } from "@/Context/BlockedDatesContext";
 import { validateTimeSlot, checkOverlap } from "@/utils/timeValidation";
 import "react-datepicker/dist/react-datepicker.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addSpecificDates } from "@/Redux/Slices/availability.slice";
+import { convertTo24Hour } from "@/utils/timeValidation";
+import toast from "react-hot-toast";
+
+// Helper function to convert local date to ISO string while preserving the date in the selected timezone
+const getDateStringInTimezone = (dateObj, timezone) => {
+  // Create a formatter for the specified timezone
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: timezone
+  });
+  
+  const parts = formatter.formatToParts(dateObj);
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+  
+  // Return in YYYY-MM-DD format (local date in the timezone)
+  return `${year}-${month}-${day}`;
+};
+
+// Helper function to convert 24-hour format (04:30) to 12-hour format (4:30 AM)
+const convertTo12Hour = (time24) => {
+  if (!time24) return '';
+  
+  const [hours24, minutes] = time24.split(':');
+  let hours = parseInt(hours24);
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  
+  hours = hours % 12 || 12; // Convert 0 to 12 (midnight), 13+ to 1-11
+  
+  return `${hours}:${minutes} ${ampm}`;
+};
 
 function DateSpecificHours({ availability }) {
   console.log("this is availability at specifuc", availability);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
+  const [originalDates, setOriginalDates] = useState([]); // Track original dates for deletion
   const { blockedDates } = useBlockedDates();
   const dispatch = useDispatch();
+  
+  // Get the selected timezone from Redux store
+  const { availability: availabilityData } = useSelector((state) => state.availability);
+  const selectedTimezone = availabilityData?.timezone?.value || "Asia/Kolkata";
 
   useEffect(() => {
     const availabilityArray = availability?.availability;
@@ -25,19 +64,38 @@ function DateSpecificHours({ availability }) {
       availabilityArray[0].specific_dates.length > 0
     ) {
       const formattedDates = availabilityArray[0].specific_dates.map(
-        (specificDate) => ({
-          id: Date.now() + Math.random(),
-          date: new Date(specificDate.date),
-          slots: specificDate.slots.map((slot) => ({
-            id: Date.now() + Math.random(),
-            start: slot.startTime,
-            end: slot.endTime,
-          })),
-        })
+        (specificDate) => {
+          const dateObj = new Date(specificDate.date);
+          // Extract just the date part using the selected timezone
+          const dateString = getDateStringInTimezone(dateObj, selectedTimezone);
+          
+          console.log(`✅ Loading date from DB: ${specificDate.date} -> ${dateString} (timezone: ${selectedTimezone})`);
+          
+          return {
+            id: dateString, // Use consistent date string as ID
+            originalDate: specificDate.date, // Keep original date for reference
+            date: dateObj,
+            slots: specificDate.slots.map((slot) => {
+              // Convert 24-hour format from DB back to 12-hour format for display
+              const startTime12 = convertTo12Hour(slot.startTime);
+              const endTime12 = convertTo12Hour(slot.endTime);
+              
+              console.log(`⏰ Loading slot: ${slot.startTime} -> ${startTime12}, ${slot.endTime} -> ${endTime12}`);
+              
+              return {
+                id: Date.now() + Math.random(),
+                start: startTime12,
+                end: endTime12,
+              };
+            }),
+          };
+        }
       );
       setDates(formattedDates);
+      setOriginalDates(formattedDates); // Store original dates for comparison
+      console.log("✅ Loaded dates from availability:", formattedDates);
     }
-  }, [availability]);
+  }, [availability, selectedTimezone]);
 
   const isDateBlocked = (date) =>
     blockedDates.some(
@@ -49,8 +107,14 @@ function DateSpecificHours({ availability }) {
       alert("This date is blocked or already selected.");
       return;
     }
+    
+    // Use timezone-aware date string
+    const dateString = getDateStringInTimezone(selectedDate, selectedTimezone);
+    console.log(`📅 Adding date: ${selectedDate.toISOString()} -> ${dateString} (timezone: ${selectedTimezone})`);
+    
     const newDate = {
-      id: Date.now(),
+      id: dateString, // Use consistent date string format
+      originalDate: dateString,
       date: selectedDate,
       slots: [],
     };
@@ -91,7 +155,12 @@ function DateSpecificHours({ availability }) {
   };
 
   const handleRemoveDate = (dateId) => {
-    setDates((prevDates) => prevDates.filter((date) => date.id !== dateId));
+    console.log("🗑️ Removing date:", dateId);
+    setDates((prevDates) => {
+      const updated = prevDates.filter((date) => date.id !== dateId);
+      console.log("📋 Remaining dates after removal:", updated);
+      return updated;
+    });
   };
 
   const handleTimeChange = (dateId, slotId, newStart, newEnd) => {
@@ -125,18 +194,72 @@ function DateSpecificHours({ availability }) {
   };
 
   const handleSave = () => {
-    const formattedData = dates.map((date) => ({
-      date: date.date.toISOString(),
-      slots: date.slots.map((slot) => ({
-        start: slot.start,
-        end: slot.end,
-      })),
-    }));
-    console.log(formattedData);
+    console.log("💾 Saving date-specific hours...");
+    console.log("📊 Current dates state:", dates);
+    console.log("📊 Original dates state:", originalDates);
+    console.log("🌍 Using timezone:", selectedTimezone);
+    
+    // Only include dates that have at least one slot
+    const datesWithSlots = dates.filter((date) => date.slots.length > 0);
+    
+    console.log("📊 Dates with slots:", datesWithSlots);
+    console.log("📊 Dates without slots (will be removed):", dates.filter((date) => date.slots.length === 0));
+    
+    // Format the data to send to backend
+    const formattedData = datesWithSlots.map((date) => {
+      // Convert the local date to ISO string at midnight in the selected timezone
+      const dateStringInTz = getDateStringInTimezone(date.date, selectedTimezone);
+      console.log(`📅 Processing date: ${date.date.toLocaleDateString()} -> ${dateStringInTz}`);
+      
+      return {
+        date: dateStringInTz, // Send as YYYY-MM-DD string instead of ISO timestamp
+        slots: date.slots.map((slot) => {
+          // Convert 12-hour format to 24-hour format
+          const startTime24 = convertTo24Hour(slot.start);
+          const endTime24 = convertTo24Hour(slot.end);
+          
+          console.log(`  ⏰ Slot: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
+          
+          return {
+            startTime: startTime24,
+            endTime: endTime24,
+          };
+        }),
+      };
+    });
 
+    // Find deleted dates (dates that were in originalDates but not in current formatted data)
+    const currentDateStrings = formattedData.map((d) => d.date);
+    const originalDateStrings = originalDates.map((d) => getDateStringInTimezone(d.date, selectedTimezone));
+    const deletedDates = originalDateStrings.filter(
+      (dateStr) => !currentDateStrings.includes(dateStr)
+    );
+
+    if (deletedDates.length > 0) {
+      console.log("🗑️ Deleted dates detected:", deletedDates);
+    }
+
+    console.log("📤 Final formatted data to send to API:", JSON.stringify(formattedData, null, 2));
+    console.log("🔢 Sending", formattedData.length, "dates to backend (deleted:", deletedDates.length, ")");
+
+    // Create payload with explicit data
+    const payload = {
+      specific_dates: formattedData,
+      deletedDates: deletedDates // Send deleted dates info for debugging
+    };
+    
+    console.log("📦 Full payload:", payload);
+
+    // Dispatch with additional deleted dates info
     dispatch(addSpecificDates(formattedData));
-
-    console.log("Formatted Data Sent to API:", formattedData);
+    
+    // Update originalDates to reflect current state
+    setOriginalDates(datesWithSlots);
+    
+    toast.success("Date-specific hours saved successfully!", {
+      position: "top-right",
+      autoClose: 2000,
+    });
   };
 
   const getDaysWithAvailability = () => {
@@ -253,7 +376,7 @@ function DateSpecificHours({ availability }) {
               minDate={new Date()}
               filterDate={(date) => {
                 const daysWithAvailability = getDaysWithAvailability();
-                return !daysWithAvailability.includes(date.getDay()); // Disable days with availability
+                return !daysWithAvailability.includes(date.getDay()) || !daysWithAvailability.includes(date.getDate()); // Disable days with availability
               }}
             />
             ;

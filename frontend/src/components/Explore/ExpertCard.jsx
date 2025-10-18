@@ -19,6 +19,7 @@ const ExpertCard = (props) => {
     title,
     rating,
     totalRatings,
+    totalSessions,
     experience,
     startingPrice,
     duration,
@@ -203,7 +204,7 @@ const ExpertCard = (props) => {
                     <div className="flex items-center">
                       <span className="flex gap-1 sm:gap-2 items-center bg-emerald-50 text-gray-800 rounded-full px-2 sm:px-2 py-1 text-xs sm:text-xs md:text-sm font-medium">
                         <User className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                        {totalRatings} Sessions done
+                        {(typeof totalSessions === 'number' ? totalSessions : Number(totalSessions || 0)) || 0} Sessions done
                       </span>
                     </div>
                   </div>

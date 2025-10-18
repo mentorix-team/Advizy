@@ -58,8 +58,15 @@ const addAvailability = async (req, res, next) => {
         if (dayEntry) {
           dayEntry.slots = slots && Array.isArray(slots) && slots.length > 0
             ? slots.map(({ startTime, endTime, dates }) => {
-                const startTimeUTC = moment.tz(startTime, "hh:mm A", userTimezone).utc().format("HH:mm");
-                const endTimeUTC = moment.tz(endTime, "hh:mm A", userTimezone).utc().format("HH:mm");
+                // Parse the time in 12-hour format and convert to 24-hour format without timezone conversion
+                const startTimeParsed = moment(startTime, "hh:mm A");
+                const endTimeParsed = moment(endTime, "hh:mm A");
+                
+                const startTime24H = startTimeParsed.format("HH:mm");
+                const endTime24H = endTimeParsed.format("HH:mm");
+                
+                console.log(`Original times: ${startTime} - ${endTime}`);
+                console.log(`Converted to 24H: ${startTime24H} - ${endTime24H}`);
 
                 const formattedDates = Array.isArray(dates)
                   ? dates.map((date) => {
@@ -70,15 +77,15 @@ const addAvailability = async (req, res, next) => {
                       return {
                         date: parsedDate.utc().toDate(),
                         isBooked: false,
-                        startTime: startTimeUTC,
-                        endTime: endTimeUTC,
+                        startTime: startTime24H,
+                        endTime: endTime24H,
                       };
                     })
                   : [];
 
                 return {
-                  startTime: startTimeUTC,
-                  endTime: endTimeUTC,
+                  startTime: startTime24H,
+                  endTime: endTime24H,
                   dates: formattedDates,
                 };
               })
@@ -170,13 +177,13 @@ const editAvailability = async (req, res, next) => {
         // Update slots for the day, or reset to null if slots are not provided
         dayEntry.slots = slots && Array.isArray(slots) && slots.length > 0
           ? slots.map(({ startTime, endTime }) => {
-              // Convert the startTime and endTime to UTC time without a date
-              const startTimeUTC = moment.tz(moment(startTime, "hh:mm A"), availabilityDoc.timezone.value).utc().format("HH:mm");
-              const endTimeUTC = moment.tz(moment(endTime, "hh:mm A"), availabilityDoc.timezone.value).utc().format("HH:mm");
+              // Convert from 12-hour to 24-hour format without timezone conversion
+              const startTimeParsed = moment(startTime, "hh:mm A");
+              const endTimeParsed = moment(endTime, "hh:mm A");
 
               return {
-                startTime: startTimeUTC,
-                endTime: endTimeUTC,
+                startTime: startTimeParsed.format("HH:mm"),
+                endTime: endTimeParsed.format("HH:mm"),
               };
             })
           : null;
@@ -224,11 +231,16 @@ const saveAvailability = async (req, res, next) => {
         return next(new AppError("Each day must have valid slots.", 400));
       }
 
-      // Convert slots to UTC using the expert's timezone
-      const convertedSlots = slots.map(({ startTime, endTime }) => ({
-        startTime: moment.tz(startTime, "hh:mm A", timezone.value).utc().format("HH:mm"),
-        endTime: moment.tz(endTime, "hh:mm A", timezone.value).utc().format("HH:mm"),
-      }));
+      // Convert slots from 12-hour to 24-hour format without timezone conversion
+      const convertedSlots = slots.map(({ startTime, endTime }) => {
+        const startTimeParsed = moment(startTime, "hh:mm A");
+        const endTimeParsed = moment(endTime, "hh:mm A");
+        
+        return {
+          startTime: startTimeParsed.format("HH:mm"),
+          endTime: endTimeParsed.format("HH:mm"),
+        };
+      });
 
       // Check if the day already exists
       const existingDay = availabilityDoc.daySpecific.find((entry) => entry.day === day);
@@ -279,20 +291,36 @@ const addBlockedDates = async (req, res, next) => {
 
     const timezone = availability.timezone.value; // Use the expert's timezone
 
-    // Convert each date to UTC format using the expert's timezone
-    const convertedDates = dates.map((date) =>
-      moment.tz(date, timezone).utc().format("YYYY-MM-DD")
-    );
+    // Convert each date to the correct format without time component changes
+    const convertedDates = dates.map((date) => {
+      // Parse the date in the expert's timezone and keep it as date-only (no time conversion)
+      const dateInTimezone = moment.tz(date, timezone);
+      // Store as YYYY-MM-DD format without time conversion to avoid timezone shift
+      return dateInTimezone.format("YYYY-MM-DD");
+    });
+
+    console.log("Original dates from client:", dates);
+    console.log("Expert timezone:", timezone);
+    console.log("Converted dates for storage:", convertedDates);
 
     // Merge existing blocked dates and new converted dates, ensuring uniqueness
+    const existingBlockedDates = availability.blockedDates.map((d) => {
+      // For existing dates, also ensure they're in YYYY-MM-DD format
+      return moment(d.dates).format("YYYY-MM-DD");
+    });
+    
     const uniqueBlockedDates = [
-      ...availability.blockedDates.map((d) => moment(d.dates).utc().format("YYYY-MM-DD")),
+      ...existingBlockedDates,
       ...convertedDates,
     ].filter((date, index, self) => self.indexOf(date) === index);
 
+    console.log("Existing blocked dates:", existingBlockedDates);
+    console.log("Unique blocked dates after merge:", uniqueBlockedDates);
+
     // Update blockedDates in the availability document
-    availability.blockedDates = uniqueBlockedDates.map((date) => ({
-      dates: new Date(date),
+    // Store as Date objects but preserve the date without timezone conversion
+    availability.blockedDates = uniqueBlockedDates.map((dateString) => ({
+      dates: new Date(dateString + "T00:00:00.000Z"), // Force UTC midnight to preserve the date
     }));
 
     // Log the dates being stored in the database
@@ -311,6 +339,60 @@ const addBlockedDates = async (req, res, next) => {
   }
 };
 
+const removeBlockedDates = async (req, res, next) => {
+  const { dateToRemove } = req.body; // Date to remove
+  const expertId = req.expert.id;
+
+  if (!dateToRemove) {
+    return next(new AppError("Date to remove is required.", 400));
+  }
+
+  try {
+    // Fetch the expert's availability
+    const availability = await Availability.findOne({ expert_id: expertId });
+
+    if (!availability) {
+      return next(new AppError("Availability not found for this expert.", 404));
+    }
+
+    if (!availability.timezone || !availability.timezone.value) {
+      return next(new AppError("Expert's timezone is not set.", 400));
+    }
+
+    const timezone = availability.timezone.value; // Use the expert's timezone
+
+    // Convert the date to remove to consistent format
+    const dateToRemoveFormatted = moment.tz(dateToRemove, timezone).format("YYYY-MM-DD");
+
+    console.log("Date to remove (original):", dateToRemove);
+    console.log("Date to remove (formatted):", dateToRemoveFormatted);
+    console.log("Current blocked dates:", availability.blockedDates);
+
+    // Filter out the date to remove from blocked dates
+    const updatedBlockedDates = availability.blockedDates.filter((blockedDate) => {
+      const blockedDateFormatted = moment(blockedDate.dates).format("YYYY-MM-DD");
+      console.log(`Comparing: ${blockedDateFormatted} !== ${dateToRemoveFormatted}`);
+      return blockedDateFormatted !== dateToRemoveFormatted;
+    });
+
+    // Update blockedDates in the availability document
+    availability.blockedDates = updatedBlockedDates;
+
+    console.log("Updated blocked dates:", availability.blockedDates);
+
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Blocked date removed successfully.",
+      availability: availability,
+    });
+  } catch (error) {
+    console.error("Error removing blocked date:", error);
+    return next(new AppError(error.message, 500));
+  }
+};
+
 
 const addSpecificDates = async (req, res, next) => {
   console.log("Full Request Body:", req.body); // Log the entire request body
@@ -318,8 +400,8 @@ const addSpecificDates = async (req, res, next) => {
   const { specific_dates } = req.body;
 
   // Validate specific_dates
-  if (!Array.isArray(specific_dates) || specific_dates.length === 0) {
-    return next(new AppError("Specific dates are required and must be an array.", 400));
+  if (!Array.isArray(specific_dates)) {
+    return next(new AppError("Specific dates must be an array.", 400));
   }
 
   const expertId = req.expert.id;
@@ -331,38 +413,54 @@ const addSpecificDates = async (req, res, next) => {
       return next(new AppError("Availability not found for this expert.", 404));
     }
 
-    const existingSpecificDates = availability.specific_dates || [];
+    console.log("📋 Existing specific_dates in DB before update:", availability.specific_dates?.length || 0, "dates");
+    console.log("📋 Existing dates:", availability.specific_dates?.map(d => ({ date: d.date.toISOString().split('T')[0], slots: d.slots.length })));
+    console.log("📋 New specific_dates from frontend:", specific_dates.length, "dates");
+    console.log("📋 New dates:", specific_dates.map(d => {
+      const dateStr = typeof d.date === 'string' ? d.date : d.date.toISOString().split('T')[0];
+      return { date: dateStr, slots: d.slots.length };
+    }));
 
-    const uniqueSpecificDates = [
-      ...existingSpecificDates.map((d) => d.date.toISOString()), 
-      ...specific_dates.map((d) => moment(d.date).utc().toISOString()), 
-    ].filter((date, index, self) => self.indexOf(date) === index); 
-
-    availability.specific_dates = uniqueSpecificDates.map((date) => {
-      const matchingSpecificDate = specific_dates.find(
-        (specificDate) => moment(specificDate.date).utc().toISOString() === date
-      );
-    
-      const convertedDate = new Date(date);
+    // Replace the specific_dates completely instead of merging
+    // This ensures deleted dates are properly removed
+    const newSpecificDates = specific_dates.map((specificDate) => {
+      // Handle both string (YYYY-MM-DD) and ISO string formats
+      let dateObj;
+      if (typeof specificDate.date === 'string' && specificDate.date.length === 10) {
+        // Format: YYYY-MM-DD - create at midnight UTC
+        dateObj = new Date(`${specificDate.date}T00:00:00Z`);
+      } else {
+        // ISO format or other
+        dateObj = new Date(specificDate.date);
+      }
      
-      console.log("Storing date in DB:", convertedDate.toISOString());
+      console.log("✅ Processing date:", specificDate.date, "->", dateObj.toISOString().split('T')[0], "with", specificDate.slots.length, "slots");
     
       return {
-        date: convertedDate,
-        slots: matchingSpecificDate
-          ? matchingSpecificDate.slots.map((slot) => ({
-              startTime: slot.start,
-              endTime: slot.end,
-            }))
+        date: dateObj,
+        slots: specificDate.slots
+          ? specificDate.slots.map((slot) => {
+              console.log(`   ⏰ Slot: ${slot.startTime} to ${slot.endTime}`);
+              return {
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+              };
+            })
           : [],
       };
     });
+
+    console.log("💾 REPLACING specific_dates array (not merging)");
+    console.log("💾 Final specific_dates to save:", newSpecificDates.map(d => ({ date: d.date.toISOString(), dateOnly: d.date.toISOString().split('T')[0], slotCount: d.slots.length })));
+
+    // THIS IS THE KEY FIX: Replace, don't merge
+    availability.specific_dates = newSpecificDates;
 
     await availability.save();
 
     res.status(200).json({
       success: true,
-      message: "Specific dates and slots added successfully.",
+      message: "Specific dates and slots saved successfully.",
       availability: availability,
     });
   } catch (error) {
@@ -428,16 +526,42 @@ const viewAvailability = async (req, res, next) => {
   const expertId = req.expert.id; // Correctly extract the expertId
 
   try {
-    const availability = await Availability.find({ expert_id: expertId });
+    const availability = await Availability.find({ expert_id: expertId }).lean();
 
     if (!availability) {
       return next(new AppError("No availability found for this expert.", 404));
     }
 
+    // Convert times from 24-hour to 12-hour format for frontend
+    const processedAvailability = availability.map(avail => ({
+      ...avail,
+      daySpecific: avail.daySpecific
+        ? avail.daySpecific.map((dayEntry) => ({
+            ...dayEntry,
+            slots: dayEntry.slots
+              ? dayEntry.slots.map((slot) => {
+                  const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
+                  const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
+                  
+                  console.log(`viewAvailability: Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
+                  
+                  return {
+                    ...slot,
+                    startTime: convertedStart,
+                    endTime: convertedEnd,
+                  };
+                })
+              : null,
+          }))
+        : [],
+    }));
+
+    console.log("viewAvailability processed data:", JSON.stringify(processedAvailability[0]?.daySpecific, null, 2));
+
     res.status(200).json({
       success: true,
       message: "Fetched availability of expert",
-      availability,
+      availability: processedAvailability,
     });
   } catch (error) {
     console.error("Error fetching availability:", error.message); // Log the error
@@ -602,50 +726,63 @@ const getAvailabilitybyid = async (req, res, next) => {
     //   return res.status(404).json({ success: false, message: "Expert availability not found" });
     // }
 
+    console.log("Raw availability from DB:", JSON.stringify(availability?.daySpecific, null, 2));
+
     const istTimezone = availability.timezone?.value || "Asia/Kolkata"; // Ensure correct timezone (IST)
 
-    // Convert `daySpecific` slots times & dates from UTC to IST
+    // Convert `daySpecific` slots from 24-hour to 12-hour format
     availability.daySpecific = availability.daySpecific
       ? availability.daySpecific.map((dayEntry) => ({
           ...dayEntry,
           slots: dayEntry.slots
-            ? dayEntry.slots.map((slot) => ({
-                ...slot,
-                startTime: moment.utc(slot.startTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
-                endTime: moment.utc(slot.endTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
-                dates: slot.dates
-                  ? slot.dates.map((dateEntry) => ({
-                      date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
-                      slots: dateEntry.slots
-                        ? dateEntry.slots.map((innerSlot) => ({
-                            startTime: moment.utc(innerSlot.startTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
-                            endTime: moment.utc(innerSlot.endTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
-                            meeting_id: innerSlot.meeting_id || null,
-                          }))
-                        : [],
-                    }))
-                  : [],
-              }))
+            ? dayEntry.slots.map((slot) => {
+                const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
+                const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
+                
+                console.log(`Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
+                
+                return {
+                  ...slot,
+                  startTime: convertedStart,
+                  endTime: convertedEnd,
+                  dates: slot.dates
+                    ? slot.dates.map((dateEntry) => ({
+                        date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
+                        slots: dateEntry.slots
+                          ? dateEntry.slots.map((innerSlot) => ({
+                              startTime: moment(innerSlot.startTime, "HH:mm").format("hh:mm A"),
+                              endTime: moment(innerSlot.endTime, "HH:mm").format("hh:mm A"),
+                              meeting_id: innerSlot.meeting_id || null,
+                            }))
+                          : [],
+                      }))
+                    : [],
+                };
+              })
             : [],
         }))
       : [];
 
-    // Convert `blockedDates` from UTC to IST
+    console.log("Converted availability for frontend:", JSON.stringify(availability?.daySpecific, null, 2));
+
+    // Convert `blockedDates` - preserve the original date without timezone conversion
     availability.blockedDates = availability.blockedDates
-      ? availability.blockedDates.map((block) =>
-          moment.utc(block.dates).tz(istTimezone).format("YYYY-MM-DD")
-        )
+      ? availability.blockedDates.map((block) => {
+          // Extract just the date part without timezone conversion
+          const dateOnly = moment(block.dates).format("YYYY-MM-DD");
+          return dateOnly;
+        })
       : [];
 
-    // Convert `dateSpecific` times & dates from UTC to IST
+    // Convert `dateSpecific` times from 24-hour to 12-hour format & dates
     availability.dateSpecific = availability.dateSpecific
       ? availability.dateSpecific.map((dateEntry) => ({
           ...dateEntry,
           date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
           slots: dateEntry.slots
             ? dateEntry.slots.map((slot) => ({
-                startTime: moment.utc(slot.startTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
-                endTime: moment.utc(slot.endTime, "HH:mm").tz(istTimezone).format("hh:mm A"),
+                startTime: moment(slot.startTime, "HH:mm").format("hh:mm A"),
+                endTime: moment(slot.endTime, "HH:mm").format("hh:mm A"),
                 isBooked: slot.isBooked,
                 user_id: slot.user_id || null,
               }))
@@ -676,6 +813,7 @@ const getAvailabilitybyid = async (req, res, next) => {
     deleteAvailability,
     bookSlot,
     addBlockedDates,
+    removeBlockedDates,
     addSpecificDates,
     changeSettings,
     reschedulePolicy,

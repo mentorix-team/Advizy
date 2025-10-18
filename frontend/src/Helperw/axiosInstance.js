@@ -16,20 +16,25 @@ const axiosInstance = axios.create({
 
 // Response Interceptor to handle expired tokens
 axiosInstance.interceptors.response.use(
-    response => response,
+    (response) => response,
     async (error) => {
-        const originalRequest = error.config;
+        const originalRequest = error.config || {};
+        const status = error.response?.status;
+        const url = originalRequest.url || "";
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Do not attempt refresh for clearly public endpoints
+        const isPublicEndpoint = /meeting\/getfeedbackbyexpertid|calendar\/public|expert\/public/i.test(url);
+
+        if (!isPublicEndpoint && status === 401 && !originalRequest._retry) {
             originalRequest._retry = true; // Prevents infinite loops
-
             try {
-                await store.dispatch(refreshToken()); // Refresh the token
+                await store.dispatch(refreshToken()); // Refresh the token via cookies
                 return axiosInstance(originalRequest); // Retry the failed request
             } catch (err) {
                 return Promise.reject(err);
             }
         }
+
         return Promise.reject(error);
     }
 );

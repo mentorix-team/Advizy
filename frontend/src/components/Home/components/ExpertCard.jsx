@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 
-const expertCard = ({ expert }) => {
+// E capital check
+const ExpertCard = ({ expert, displayRating, displayTotalRatings }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const cardRef = useRef(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -78,13 +79,13 @@ const expertCard = ({ expert }) => {
         const [time, period] = timeString.split(/(\s?[AP]M)/i);
         const [hours, minutes] = time.split(':').map(Number);
         let hour24 = hours;
-        
+
         if (period && period.toUpperCase().includes('PM') && hours !== 12) {
           hour24 += 12;
         } else if (period && period.toUpperCase().includes('AM') && hours === 12) {
           hour24 = 0;
         }
-        
+
         return hour24 * 60 + minutes;
       } catch (err) {
         return 0;
@@ -102,22 +103,22 @@ const expertCard = ({ expert }) => {
 
     // Check today's slots first
     const todayData = availability.daySpecific.find(day => day.day === currentDay);
-    
+
     if (todayData && todayData.slots && todayData.slots.length > 0) {
       let earliestAvailableTime = null;
       const bufferTime = currentTimeMinutes + 30; // 30 min buffer from current time
-      
+
       for (const slot of todayData.slots) {
         if (!slot.startTime || !slot.endTime) continue;
 
         const slotStartMinutes = parseTime(slot.startTime);
         const slotEndMinutes = parseTime(slot.endTime);
         const sessionDuration = parseInt(duration) || 30;
-        
+
         if (slotEndMinutes > bufferTime && (slotEndMinutes - slotStartMinutes) >= sessionDuration) {
           const earliestPossibleStart = Math.max(slotStartMinutes, bufferTime);
           const latestPossibleStart = slotEndMinutes - sessionDuration;
-          
+
           if (earliestPossibleStart <= latestPossibleStart) {
             if (!earliestAvailableTime || earliestPossibleStart < earliestAvailableTime) {
               earliestAvailableTime = earliestPossibleStart;
@@ -125,7 +126,7 @@ const expertCard = ({ expert }) => {
           }
         }
       }
-      
+
       if (earliestAvailableTime) {
         return { day: "Today", time: formatTime(earliestAvailableTime) };
       }
@@ -134,16 +135,16 @@ const expertCard = ({ expert }) => {
     // Check future days for next available slots
     for (const dayData of availability.daySpecific) {
       if (dayData.day === currentDay) continue;
-      
+
       if (!dayData.slots || dayData.slots.length === 0) continue;
 
       for (const slot of dayData.slots) {
         if (!slot.startTime || !slot.endTime) continue;
-        
+
         const slotStartMinutes = parseTime(slot.startTime);
         const slotEndMinutes = parseTime(slot.endTime);
         const sessionDuration = parseInt(duration) || 30;
-        
+
         if ((slotEndMinutes - slotStartMinutes) >= sessionDuration) {
           return { day: dayData.day, time: slot.startTime };
         }
@@ -155,13 +156,12 @@ const expertCard = ({ expert }) => {
 
   const { day: latestAvailableDay, time: latestAvailableTime } = getLatestAvailableSlot();
 
-  const averageRating =
-    expert.reviews?.length > 0
-      ? (
-          expert.reviews.reduce((acc, review) => acc + review.rating, 0) /
-          expert.reviews.length
-        ).toFixed(1)
-      : "0.0";
+  // Handle rating display with proper fallbacks
+  const averageRating = displayRating && displayRating > 0 ? displayRating.toFixed(1) : "0.0";
+  const totalRatings = displayTotalRatings || 0;
+
+  // Debug logging
+  console.log(`Expert ${expert.name} - Rating: ${displayRating}, Total: ${displayTotalRatings}`);
 
   return (
     <motion.div
@@ -196,7 +196,7 @@ const expertCard = ({ expert }) => {
               {averageRating}
             </span>
             <span className="font-medium text-gray-700 text-[9.8px] leading-[14.6px] font-['Figtree']">
-              ({expert.reviews || 0} reviews)
+              ({totalRatings} reviews)
             </span>
           </div>
 
@@ -226,11 +226,11 @@ const expertCard = ({ expert }) => {
               </span>
             </div>
 
-            
+
             <motion.button
               onClick={() => navigate(`/expert/${expert.redirect_url}`)}
               className="h-[27px] bg-neutral-50 rounded-[9px] border border-[#00000040] shadow-[0px_2px_5px_1.75px_#0000001a] px-3 font-['Figtree'] font-medium text-[#1d1d1fcc] text-[15px]"
-              whileHover={{ 
+              whileHover={{
                 scale: 1.05,
                 backgroundColor: "#169344",
                 color: "#ffffff",
@@ -238,7 +238,7 @@ const expertCard = ({ expert }) => {
                 boxShadow: "0px 4px 15px rgba(31, 64, 155, 0.3)",
                 transition: { duration: 0.3, ease: "easeOut" }
               }}
-              whileTap={{ 
+              whileTap={{
                 scale: 0.95,
                 transition: { duration: 0.1 }
               }}
@@ -260,4 +260,4 @@ const expertCard = ({ expert }) => {
   );
 };
 
-export default expertCard;
+export default ExpertCard; //E capital check

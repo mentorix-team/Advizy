@@ -17,13 +17,8 @@ function Testimonials() {
   const { expertData } = useSelector((state) => state.expert);
   const { feedbackofexpert, loading: feedbackLoading } = useSelector((state) => state.meeting);
 
-  console.log('Expert data:', expertData);
-  console.log('Feedback of expert:', feedbackofexpert);
-  console.log('Loading state:', loading, feedbackLoading);
-
   useEffect(() => {
     if (expertData?._id) {
-      console.log('Fetching feedback for expert ID:', expertData._id);
       setLoading(true);
       setError(null);
       dispatch(getfeedbackbyexpertid({ id: expertData._id }))
@@ -43,14 +38,8 @@ function Testimonials() {
 
   useEffect(() => {
     if (feedbackofexpert) {
-      console.log('Raw feedback data from backend:', feedbackofexpert);
-      console.log('Feedback data type:', typeof feedbackofexpert);
-      console.log('Feedback data length:', Array.isArray(feedbackofexpert) ? feedbackofexpert.length : 'Not an array');
-      
-      // Ensure feedbackofexpert is an array
       const feedbackArray = Array.isArray(feedbackofexpert) ? feedbackofexpert : [];
-      
-      // Map feedback data to match testimonial structure
+
       const mappedTestimonials = feedbackArray.map((feedback) => ({
         id: feedback._id,
         name: feedback.userName || 'Anonymous User',
@@ -62,11 +51,9 @@ function Testimonials() {
         userId: feedback.user_id,
       }));
 
-      console.log('Mapped testimonials:', mappedTestimonials);
       setTestimonials(mappedTestimonials);
       setLoading(false);
     } else {
-      console.log('No feedback data received');
       setTestimonials([]);
       setLoading(false);
     }
@@ -125,14 +112,6 @@ function Testimonials() {
       width: validRatings.length > 0 ? `${(count / validRatings.length) * 100}%` : '0%',
     }));
 
-    console.log('Analytics calculated:', {
-      totalReviews,
-      validRatings: validRatings.length,
-      averageRating,
-      distribution,
-      ratingDistribution
-    });
-
     return {
       totalReviews: `${totalReviews}`,
       validReviews: validRatings.length,
@@ -156,7 +135,6 @@ function Testimonials() {
 
   // Loading state
   if (loading || feedbackLoading) {
-    console.log('Component is in loading state:', { loading, feedbackLoading });
     return (
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -165,9 +143,6 @@ function Testimonials() {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
               <p className="text-gray-600">Loading testimonials...</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Local loading: {loading ? 'true' : 'false'}, Redux loading: {feedbackLoading ? 'true' : 'false'}
-              </p>
             </div>
           </div>
         </div>
@@ -177,7 +152,6 @@ function Testimonials() {
 
   // Error state
   if (error) {
-    console.log('Component is in error state:', error);
     return (
       <div className="min-h-screen py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -258,11 +232,11 @@ function Testimonials() {
                     {rating.stars}
                   </span>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-300" 
-                      style={{ 
-                        width: rating.width, 
-                        backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444' 
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: rating.width,
+                        backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444'
                       }}
                     ></div>
                   </div>
@@ -277,7 +251,7 @@ function Testimonials() {
             )}
           </div>
         </div>
-        
+
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <input
@@ -296,18 +270,14 @@ function Testimonials() {
 
         {/* Testimonials List */}
         <div className="bg-white rounded-xl shadow-sm divide-y divide-gray-200">
-          {console.log('Rendering testimonials. Current testimonials:', currentTestimonials.length, 'Total filtered:', filteredAndSortedTestimonials.length, 'All testimonials:', testimonials.length)}
           {currentTestimonials.length > 0 ? currentTestimonials.map((testimonial) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} onRespond={handleRespond} />
           )) : (
             <div className="p-6 text-center text-gray-500">
-              {filteredAndSortedTestimonials.length === 0 ? 
+              {filteredAndSortedTestimonials.length === 0 ?
                 'No testimonials available yet. Your ratings will appear here once customers provide feedback.' :
                 'No testimonials match your search criteria.'
               }
-              <div className="mt-4 text-sm text-gray-400">
-                Debug: testimonials={testimonials.length}, filtered={filteredAndSortedTestimonials.length}, current={currentTestimonials.length}
-              </div>
             </div>
           )}
         </div>
@@ -320,11 +290,10 @@ function Testimonials() {
                 <button
                   key={i + 1}
                   onClick={() => paginate(i + 1)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    currentPage === i + 1
+                  className={`px-4 py-2 rounded-lg transition-colors ${currentPage === i + 1
                       ? 'bg-green-600 text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                    }`}
                 >
                   {i + 1}
                 </button>

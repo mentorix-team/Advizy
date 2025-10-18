@@ -5,6 +5,7 @@ import {
   validateTimeSlot,
   checkOverlap,
   convert24To12Hour,
+  convertTo24Hour,
 } from "@/utils/timeValidation";
 import {
   addAvailability,
@@ -23,6 +24,9 @@ const DAYS = [
 
 function WeeklyAvailability({ availability }) {
   const dispatch = useDispatch();
+  
+  console.log("🔍 WeeklyAvailability received availability:", availability);
+  
   const [days, setDays] = useState(() => {
     if (
       availability &&
@@ -30,27 +34,40 @@ function WeeklyAvailability({ availability }) {
       availability[0].daySpecific
     ) {
       const apiDays = availability[0].daySpecific;
+      
+      console.log("📊 Processing apiDays:", apiDays);
 
       return DAYS.map((day) => {
         const matchedDay = apiDays.find((d) => d.day === day.name);
+        
+        console.log(`🔎 Processing day ${day.name}:`, matchedDay);
 
         if (matchedDay && matchedDay.slots && matchedDay.slots.length > 0) {
           // Populate slots dynamically
+          const processedSlots = matchedDay.slots.map((slot, index) => {
+            console.log(`⏰ Processing slot for ${day.name}:`, slot);
+            
+            const startTime = slot.startTime.includes("AM") || slot.startTime.includes("PM")
+              ? slot.startTime
+              : convert24To12Hour(slot.startTime);
+              
+            const endTime = slot.endTime.includes("AM") || slot.endTime.includes("PM")
+              ? slot.endTime
+              : convert24To12Hour(slot.endTime);
+              
+            console.log(`⏰ Converted times for ${day.name}: ${slot.startTime} -> ${startTime}, ${slot.endTime} -> ${endTime}`);
+            
+            return {
+              id: index + 1,
+              start: startTime,
+              end: endTime,
+            };
+          });
+          
           return {
             ...day,
             enabled: true,
-            slots: matchedDay.slots.map((slot, index) => ({
-              id: index + 1,
-              start:
-                slot.startTime.includes("AM") || slot.startTime.includes("PM")
-                  ? slot.startTime
-                  : convert24To12Hour(slot.startTime),
-
-              end:
-                slot.endTime.includes("AM") || slot.endTime.includes("PM")
-                  ? slot.endTime
-                  : convert24To12Hour(slot.endTime),
-            })),
+            slots: processedSlots,
             error: null,
           };
         } else {
@@ -210,11 +227,18 @@ function WeeklyAvailability({ availability }) {
 
           return {
             day: day.name,
-            slots: day.slots.map((slot) => ({
-              startTime: slot.start,
-              endTime: slot.end,
-              dates: dates.map((date) => date.toISOString()),
-            })),
+            slots: day.slots.map((slot) => {
+              const startTime24 = convertTo24Hour(slot.start);
+              const endTime24 = convertTo24Hour(slot.end);
+              
+              console.log(`💾 Converting for save: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
+              
+              return {
+                startTime: startTime24,
+                endTime: endTime24,
+                dates: dates.map((date) => date.toISOString()),
+              };
+            }),
           };
         });
 

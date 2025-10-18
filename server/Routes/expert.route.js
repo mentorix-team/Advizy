@@ -35,6 +35,7 @@ import manageService, {
   validatethnumberormobile,
   HelpCenter,
   getSupportRequestsForExpert,
+  handleToggleService,
 } from "../controllers/expert.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { verifyInternalToken } from "../middlewares/admin.middleware.js";
@@ -157,6 +158,7 @@ router.get("/getexpert/by-url/:redirect_url", getExpertByRedirectURL);
 router.post("/createservice", isLoggedIn, isExpert, manageService);
 router.post("/service", isLoggedIn, isExpert, createService);
 router.post("/updateService", isLoggedIn, isExpert, updateService);
+router.post("/handletoggle", isLoggedIn, isExpert, handleToggleService);
 router.post("/deleteService", isExpert, isLoggedIn, deleteService);
 router.post("/service/:serviceId", getService);
 router.get("/sync-algolia", pushExpertsToAlgolia);

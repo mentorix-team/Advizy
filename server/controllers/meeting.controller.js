@@ -62,10 +62,11 @@ const createMeetingToken = async (req, res, next) => {
     const token = meeting.generateToken();
 
     // Store the token in a cookie
+    const isDev =  process.env.NODE_ENV === "development";
     res.cookie('meetingToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
-      sameSite: "None",
+      secure: !isDev,
+      sameSite: isDev ? 'Lax' : 'None',
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
     });
 
@@ -133,7 +134,7 @@ const payedForMeeting = async (req, res, next) => {
     console.log("Request Body:", req.body);
 
     const { id } = req.meeting;
-    const { amount, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const { amount, razorpay_payment_id, razorpay_order_id, razorpay_signature, message } = req.body;
 
     if (!amount || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return next(new AppError("All payment fields are required", 401));
@@ -224,6 +225,11 @@ const payedForMeeting = async (req, res, next) => {
     meeting.razorpay_signature = razorpay_signature;
     meeting.isPayed = true;
     meeting.status = 'scheduled';
+    // Save the message if provided
+    if (message) {
+      meeting.message = message;
+      console.log("Razorpay: Message saved to meeting:", message);
+    }
     await meeting.save();
 
     const expert = await ExpertBasics.findById(expertId);
@@ -964,6 +970,54 @@ const checkPresetExists = async (req, res, next) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to send meeting reminder emails
+const sendMeetingReminder = async (meeting, user, expert) => {
+  try {
+    // Prepare template data
+    const fullDate = moment(meeting.daySpecific.date);
+    const month = fullDate.format("MMMM");
+    const datee = fullDate.format("DD");
+    const day = fullDate.format("dddd");
+
+    // User reminder email
+    const userTemplatePath = path.join(__dirname, "./EmailTemplates/userMeetingReminder.html");
+    let userEmailTemplate = fs.readFileSync(userTemplatePath, "utf8");
+    
+    userEmailTemplate = userEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+    userEmailTemplate = userEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+    userEmailTemplate = userEmailTemplate.replace(/{USERNAME}/g, user.firstName);
+    userEmailTemplate = userEmailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+    userEmailTemplate = userEmailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+    userEmailTemplate = userEmailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+    userEmailTemplate = userEmailTemplate.replace(/{MONTH}/g, month);
+    userEmailTemplate = userEmailTemplate.replace(/{DATE}/g, datee);
+    userEmailTemplate = userEmailTemplate.replace(/{DAY}/g, day);
+
+    // Expert reminder email
+    const expertTemplatePath = path.join(__dirname, "./EmailTemplates/expertMeetingReminder.html");
+    let expertEmailTemplate = fs.readFileSync(expertTemplatePath, "utf8");
+    
+    expertEmailTemplate = expertEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{USERNAME}/g, user.firstName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+    expertEmailTemplate = expertEmailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+    expertEmailTemplate = expertEmailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+    expertEmailTemplate = expertEmailTemplate.replace(/{MONTH}/g, month);
+    expertEmailTemplate = expertEmailTemplate.replace(/{DATE}/g, datee);
+    expertEmailTemplate = expertEmailTemplate.replace(/{DAY}/g, day);
+    expertEmailTemplate = expertEmailTemplate.replace(/{CLIENTMESSAGE}/g, meeting.message || "No message from client.");
+
+    // Send emails
+    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate, true);
+    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate, true);
+
+    console.log(`Meeting reminders sent for meeting ${meeting._id}`);
+  } catch (error) {
+    console.error("Error sending meeting reminder:", error);
+  }
+};
+
 
 const rescheduleMeetingExpert = async (req, res, next) => {
   const { id } = req.expert;
@@ -1283,6 +1337,94 @@ const getthemeet = async (req, res, next) => {
   }
 }
 
+// Send meeting reminders for meetings starting in 15 minutes
+const sendMeetingReminders = async (req, res, next) => {
+  try {
+    console.log("Checking for meetings starting in 15 minutes...");
+    
+    // Get current time and add 15 minutes
+    const now = moment().tz("Asia/Kolkata");
+    const reminderTime = now.clone().add(15, 'minutes');
+    
+    // Format time for comparison
+    const reminderDate = reminderTime.format("YYYY-MM-DD");
+    const reminderHour = reminderTime.format("HH:mm");
+    
+    console.log(`Looking for meetings on ${reminderDate} at ${reminderHour}`);
+
+    // Find meetings scheduled to start in 15 minutes
+    const upcomingMeetings = await Meeting.find({
+      isPayed: true,
+      status: 'scheduled',
+      'daySpecific.date': reminderDate
+    });
+
+    console.log(`Found ${upcomingMeetings.length} meetings for today`);
+
+    for (const meeting of upcomingMeetings) {
+      const meetingStartTime = moment(meeting.daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
+      
+      // Check if this meeting starts in 15 minutes (within a 1-minute window)
+      const timeDiff = moment(`${reminderDate} ${meetingStartTime}`).diff(moment(`${reminderDate} ${reminderHour}`), 'minutes');
+      
+      if (Math.abs(timeDiff) <= 1) { // Within 1 minute window
+        console.log(`Sending reminder for meeting: ${meeting._id}`);
+        
+        // Get user and expert details
+        const user = await User.findById(meeting.userId);
+        const expert = await ExpertBasics.findById(meeting.expertId);
+        
+        if (user && expert) {
+          await sendMeetingReminder(meeting, user, expert);
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Meeting reminders processed successfully",
+      processed: upcomingMeetings.length
+    });
+  } catch (error) {
+    console.error("Error in sendMeetingReminders:", error);
+    next(new AppError("Failed to send meeting reminders", 500));
+  }
+};
+
+// Send reminder for a specific meeting (manual trigger)
+const sendSingleMeetingReminder = async (req, res, next) => {
+  try {
+    const { meetingId } = req.body;
+    
+    if (!meetingId) {
+      return next(new AppError("Meeting ID is required", 400));
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      return next(new AppError("Meeting not found", 404));
+    }
+
+    const user = await User.findById(meeting.userId);
+    const expert = await ExpertBasics.findById(meeting.expertId);
+
+    if (!user || !expert) {
+      return next(new AppError("User or Expert not found", 404));
+    }
+
+    await sendMeetingReminder(meeting, user, expert);
+
+    res.status(200).json({
+      success: true,
+      message: "Meeting reminder sent successfully",
+      meetingId: meeting._id
+    });
+  } catch (error) {
+    console.error("Error in sendSingleMeetingReminder:", error);
+    next(new AppError("Failed to send meeting reminder", 500));
+  }
+};
+
 // Get booked slots for a specific expert and date
 const getBookedSlots = async (req, res, next) => {
   try {
@@ -1339,5 +1481,7 @@ export {
   giveFeedback,
   getFeedbackbyexpertId,
   getthemeet,
-  getBookedSlots
+  getBookedSlots,
+  sendMeetingReminders,
+  sendSingleMeetingReminder
 }

@@ -1425,7 +1425,25 @@ const manageService = async (req, res, next) => {
   }
 };
 const deleteService = async (req, res, next) => {
-  const serviceId = Object.keys(req.body)[0]; // Extract serviceId
+  let serviceId =
+    req.body?.serviceId ||
+    req.body?.id ||
+    req.body?.service_id ||
+    null;
+
+  if (!serviceId && req.body && typeof req.body === "object") {
+    const dynamicKeys = Object.keys(req.body).filter(
+      (key) => !["serviceId", "id", "service_id"].includes(key)
+    );
+    if (dynamicKeys.length > 0) {
+      serviceId = dynamicKeys[0];
+    }
+  }
+
+  if (!serviceId) {
+    return next(new AppError("Service ID is required", 400));
+  }
+
   const expertId = req.expert.id;
 
   console.log("Received delete request for serviceId:", serviceId);
@@ -1441,9 +1459,10 @@ const deleteService = async (req, res, next) => {
       return next(new AppError("No services found to delete", 404));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service._id.toString() === serviceId // Ensure proper matching
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return mongoId === String(serviceId) || service.serviceId === String(serviceId);
+    });
 
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 405));
@@ -1474,6 +1493,7 @@ const updateService = async (req, res, next) => {
     features,
   } = req.body;
   const serviceId = id; // Ensure correct ID mapping
+  const serviceIdStr = serviceId ? String(serviceId) : undefined;
   const expertId = req.expert.id;
 
   console.log("This is req.body", req.body);
@@ -1488,9 +1508,10 @@ const updateService = async (req, res, next) => {
       return next(new AppError("No services found", 406));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service.serviceId === serviceId
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return service.serviceId === serviceId || mongoId === serviceIdStr;
+    });
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 401));
     }
@@ -1500,28 +1521,58 @@ const updateService = async (req, res, next) => {
     // Check if the service is "One-on-One Mentoring"
     if (serviceName === "One-on-One Mentoring") {
       // Update only relevant fields for One-on-One Mentoring
-      if (hourlyRate) service.hourlyRate = hourlyRate;
-      if (shortDescription) service.shortDescription = shortDescription;
-      if (detailedDescription)
+      if (typeof hourlyRate !== "undefined") service.hourlyRate = hourlyRate;
+      if (typeof shortDescription !== "undefined")
+        service.shortDescription = shortDescription;
+      if (typeof detailedDescription !== "undefined")
         service.detailedDescription = detailedDescription;
       if (Array.isArray(features)) service.features = features;
 
       // Update one_on_one field with timeSlots data
       if (Array.isArray(timeSlots)) {
-        service.one_on_one = timeSlots.map((slot) => ({
-          duration: slot.duration,
-          price: slot.price,
-          enabled: slot.enabled ?? false, // Ensure default value for enabled
+        const normalizedSlots = timeSlots.map((slot) => ({
+          duration: Number(slot.duration),
+          price: Number(slot.price),
+          enabled: Boolean(slot.enabled),
         }));
+
+        service.one_on_one = normalizedSlots;
+        service.timeSlots = normalizedSlots;
+
+        const primarySlot =
+          normalizedSlots.find((slot) => slot.enabled) || normalizedSlots[0];
+        if (primarySlot) {
+          service.duration = primarySlot.duration;
+          service.price = primarySlot.price;
+        }
       }
     } else {
       // Default behavior for other services
-      if (serviceName) service.title = serviceName;
-      if (shortDescription) service.shortDescription = shortDescription;
-      if (detailedDescription)
+      if (typeof serviceName !== "undefined") {
+        service.title = serviceName;
+        service.serviceName = serviceName;
+      }
+      if (typeof shortDescription !== "undefined")
+        service.shortDescription = shortDescription;
+      if (typeof detailedDescription !== "undefined")
         service.detailedDescription = detailedDescription;
       if (Array.isArray(features)) service.features = features;
-      if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
+      if (Array.isArray(timeSlots)) {
+        const normalizedSlots = timeSlots.map((slot) => ({
+          duration: Number(slot.duration),
+          price: Number(slot.price),
+          enabled: Boolean(slot.enabled),
+        }));
+
+        service.timeSlots = normalizedSlots;
+
+        const primarySlot =
+          normalizedSlots.find((slot) => slot.enabled) || normalizedSlots[0];
+        if (primarySlot) {
+          service.duration = primarySlot.duration;
+          service.price = primarySlot.price;
+        }
+      }
     }
 
     await expert.save();
@@ -2156,8 +2207,20 @@ const handleToggleService = async (req, res, next) => {
   try {
     console.log("Raw request body:", req.body); // Debugging line
 
-    // Extract the first key from req.body
-    const serviceId = Object.keys(req.body)[0];
+    let serviceId =
+      req.body?.serviceId ||
+      req.body?.id ||
+      req.body?.service_id ||
+      null;
+
+    if (!serviceId && req.body && typeof req.body === "object") {
+      const dynamicKeys = Object.keys(req.body).filter(
+        (key) => !["serviceId", "id", "service_id"].includes(key)
+      );
+      if (dynamicKeys.length > 0) {
+        serviceId = dynamicKeys[0];
+      }
+    }
 
     if (!serviceId) {
       return next(new AppError("Service ID is required", 400));
@@ -2174,9 +2237,10 @@ const handleToggleService = async (req, res, next) => {
     }
 
     // Find the index of the service in the services array
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service.serviceId === serviceId
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return service.serviceId === serviceId || mongoId === String(serviceId);
+    });
 
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 404));
@@ -2336,6 +2400,7 @@ export {
   adminapproved,
   getAllExpertswithoutfilter,
   handleSuspendExpert,
+  handleToggleService,
 
   // help center
   HelpCenter,

@@ -19,7 +19,7 @@ const Homees = () => {
     selectedRatings: [],
     selectedDurations: [],
   });
-  const [sorting, setSorting] = useState("");
+  const [sorting, setSorting] = useState("highest-rated"); // Default to highest-rated sort
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Log whenever filters or domain change dynamically
@@ -68,11 +68,16 @@ const Homees = () => {
       ...prevFilters,
       ...newFilters,
     }));
-    // Close sidebar on mobile after applying filters
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
   };
+
+  // Check if any filters are active (excluding selectedDomain)
+  const hasActiveFilters = 
+    filters.selectedNiches.length > 0 ||
+    filters.priceRange[0] !== 1 || 
+    filters.priceRange[1] !== 100000 ||
+    filters.selectedLanguages.length > 0 ||
+    filters.selectedRatings.length > 0 ||
+    filters.selectedDurations.length > 0;
 
   const resetFilters = () => {
     setSelectedDomain(null);
@@ -84,12 +89,24 @@ const Homees = () => {
       selectedRatings: [],
       selectedDurations: [],
     });
-    setSorting(""); // Reset sorting to initial state
+    setSorting("highest-rated"); // Reset to highest-rated sort instead of empty
   };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // Handle Escape key to close sidebar
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape' && isSidebarOpen) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+    return () => document.removeEventListener('keydown', handleEscapeKey);
+  }, [isSidebarOpen]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,6 +124,8 @@ const Homees = () => {
           setSorting={setSorting} // Pass setSorting function
           toggleSidebar={toggleSidebar}
           selectedDomain={selectedDomain}
+          hasActiveFilters={hasActiveFilters}
+          isSidebarOpen={isSidebarOpen}
         />
       </div>
 
@@ -114,48 +133,27 @@ const Homees = () => {
       <div className="flex pt-28">
         {" "}
         {/* Reduced padding-top for mobile */}
-        {/* Mobile Filter Button (visible only on small screens) */}
-        <button
-          onClick={toggleSidebar}
-          className="fixed bottom-4 right-4 md:hidden z-50 bg-primary text-white p-3 rounded-full shadow-lg"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-            />
-          </svg>
-        </button>
-        {/* Sidebar - Increased width on desktop, hidden on mobile by default */}
+        {/* Sidebar - Now controlled by button click */}
         <div
-          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40
-                        md:translate-x-0 ${isSidebarOpen
-              ? "translate-x-0"
-              : "-translate-x-full md:translate-x-0"
-            }`}
+          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
           <FilterSidebar
             selectedDomain={selectedDomain}
             onApplyFilters={handleApplyFilters}
+            onCloseSidebar={() => setIsSidebarOpen(false)}
           />
         </div>
-        {/* Overlay for mobile sidebar */}
+        {/* Overlay for sidebar */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
             onClick={() => setIsSidebarOpen(false)}
           ></div>
         )}
-        {/* Content Area - Full width on mobile, adjusted on desktop */}
-        <div className="w-full md:ml-80 p-4 md:p-6">
+        {/* Content Area - Always full width now */}
+        <div className="w-full p-4 md:p-6">
           <ExpertList
             filters={filters}
             sorting={sorting}

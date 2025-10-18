@@ -368,6 +368,11 @@ export const success = async (req, res) => {
           meeting.isPayed = true;
           meeting.amount = sessionDoc.amount;
           meeting.razorpay_payment_id = payuMoneyId;
+          // Save the message from the payment session to the meeting
+          if (sessionDoc.message) {
+            meeting.message = sessionDoc.message;
+            console.log("PayU: Message saved to meeting:", sessionDoc.message);
+          }
 
           // Create video call using Dyte API
           // Create video call using Dyte API

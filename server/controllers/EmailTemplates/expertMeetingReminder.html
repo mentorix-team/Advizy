@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meeting Details</title>
+    <title>Meeting Reminder - Client Session Starting Soon</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Reset styles */
@@ -78,6 +78,17 @@
             border-radius: 0 8px 8px 0;
         }
 
+        /* Expert reminder alert */
+        .expert-reminder-alert {
+            background: linear-gradient(135deg, #3B82F6, #60A5FA);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
         /* Responsive styles */
         @media screen and (max-width: 600px) {
             .container {
@@ -113,6 +124,14 @@
         <tr>
             <td align="center">
                 <table class="container" cellpadding="0" cellspacing="0" border="0" width="800" style="background: white; border-radius: 12px;">
+                    
+                    <!-- Expert Reminder Alert Banner -->
+                    <tr>
+                        <td class="expert-reminder-alert">
+                            📞 Expert Reminder: Your client session starts in 15 minutes!
+                        </td>
+                    </tr>
+
                     <!-- Header Section -->
                     <tr>
                         <td style="padding: 40px;">
@@ -126,44 +145,51 @@
                                         </div>
                                     </td>
                                     <td class="mobile-stack">
-                                        <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a202c;">Topic : {SERVICENAME} : {EXPERTNAME}</h1>
-                                        <!-- <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #718096; width: 80px;">When</td>
-                                                <td style="padding: 8px 0; color: #2d3748;">{MEETINGDATE} {STARTTIME} – {ENDTIME} (IST)</td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #718096;">Where</td>
-                                                <td style="padding: 8px 0;"><a href="http://Advizy.in/videocallv2/MfypgvgthpDY9RwL5MbqG" style="color: #388544;">http://Advizy.in/videocallv2/MfypgvgthpDY9RwL5MbqG</a></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 8px 0; color: #718096;">Who</td>
-                                                <td style="padding: 8px 0; color: #2d3748;">Advizy*</td>
-                                            </tr>
-                                        </table> -->
+                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">📋 Client Session Starting Soon</h1>
+                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation with <strong>{USERNAME}</strong> for <strong>{SERVICENAME}</strong> is starting soon!</p>
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
-                    <!-- Combined Meeting Details Section -->
+
+                    <!-- Session Details Section -->
                     <tr>
                         <td style="padding: 40px; border-top: 1px solid #e2e8f0;">
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
                                     <td class="mobile-stack">
-                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">Your booking has been confirmed</h2>
+                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">⏰ Session Ready - Starting in 15 Minutes!</h2>
                                         
                                         <div class="timeline-event">
-                                            <strong style="color: #2d3748;">{STARTTIME} - {ENDTIME} (IST)</strong>
-                                            <div style="margin-top: 8px;">Topic : {SERVICENAME}</div>
+                                            <strong style="color: #2d3748;">⏰ {STARTTIME} - {ENDTIME} (IST)</strong>
+                                            <div style="margin-top: 8px;">📝 Service: {SERVICENAME}</div>
                                         </div>
+
                                         <div class="timeline-event">
-                                            <div style="color: #718096;">Meeting With</div>
-                                            <strong style="color: #2d3748;">{EXPERTNAME} - {USERNAME}</strong>
+                                            <div style="color: #718096;">👤 Client Session With</div>
+                                            <strong style="color: #2d3748;">{USERNAME}</strong>
                                         </div>
+
+                                        <div class="timeline-event" style="background: #EFF6FF; border-left: 2px solid #3B82F6;">
+                                            <div style="color: #1E40AF; font-weight: 600; margin-bottom: 12px;">💬 Client Message</div>
+                                            <div style="color: #1E3A8A; font-size: 14px;">
+                                                {CLIENTMESSAGE}
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-event" style="background: #F0FDF4; border-left: 2px solid #15803D;">
+                                            <div style="color: #15803D; font-weight: 600; margin-bottom: 12px;">✅ Expert Pre-Session Checklist</div>
+                                            <div style="color: #166534; font-size: 14px;">
+                                                <div>🎥 Test camera and audio setup</div>
+                                                <div>📝 Review client's service requirements</div>
+                                                <div>🗂️ Prepare relevant materials or documents</div>
+                                                <div>🌐 Ensure stable internet connection</div>
+                                            </div>
+                                        </div>
+
                                         <div style="margin-top: 24px; text-align: center;">
-                                            <a href="http://localhost:5173/dashboard" class="button">Go to Dashboard</a>
+                                            <a href="http://localhost:5173/dashboard/expert/meetings" class="button" style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥 Start Meeting Session</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -171,15 +197,27 @@
                         </td>
                     </tr>
 
+                    <!-- Professional Tips Section -->
+                    <tr>
+                        <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #FFFBEB;">
+                            <h3 style="color: #D97706; font-size: 18px; margin-bottom: 12px;">💡 Session Tips for Success</h3>
+                            <div style="color: #92400E; font-size: 14px; text-align: left; max-width: 500px; margin: 0 auto;">
+                                <div style="margin-bottom: 8px;">• Start with a warm welcome and introduction</div>
+                                <div style="margin-bottom: 8px;">• Confirm the client's specific needs and objectives</div>
+                                <div style="margin-bottom: 8px;">• Keep track of time to ensure all topics are covered</div>
+                                <div style="margin-bottom: 8px;">• End with clear next steps or recommendations</div>
+                            </div>
+                        </td>
+                    </tr>
+
                     <!-- Footer Section -->
                     <tr>
                         <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <!-- <a href="#" class="button">Reschedule</a> -->
-                            <p style="color: #4a5568; font-size: 14px;">You can reschedule your Session anytime before the expert's notice period begins.</p>
+                            <p style="color: #4a5568; font-size: 14px;">Your client is counting on your expertise. Deliver an exceptional session!</p>
                             <div style="margin-top: 32px; background-color: #f8f8f8;">
                                 <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
                                 <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
-                                    This is an automated message, please do not reply directly to this email.
+                                    This is an automated reminder. You're receiving this because you have an upcoming client session.
                                 </p>
                             </div>
                         </td>

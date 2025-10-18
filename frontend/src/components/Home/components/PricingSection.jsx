@@ -7,6 +7,15 @@ const PricingSection = () => {
   const handleNavigation = () => {
     navigate("/contact");
   };
+   const handleExpertOnboarding = () => {
+    const expertData = localStorage.getItem("expertData");
+
+    if (!expertData) {
+      navigate("/expert-onboarding");
+    } else {
+      alert("You're already an expert! Switch to expert mode.");
+    }
+  };
 
   return (
     <>
@@ -131,7 +140,7 @@ const PricingSection = () => {
             </li>
           </ul>
           <button
-            onClick={() => navigate("/expert-onboarding")}
+            onClick={handleExpertOnboarding}
             className="w-full py-3 rounded-lg font-medium transition-colors cursor-pointer bg-[#169544] text-white hover:bg-[#138339]"
           >
             Start Earning Now
