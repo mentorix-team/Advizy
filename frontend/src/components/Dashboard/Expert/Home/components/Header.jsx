@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileShare from "./ProfileShare";
 import { Bell, BellOff, X } from "lucide-react";
 import NotificationSkeleton from "@/components/LoadingSkeleton/NotificationSkeleton";
+// import admin_approved_expert from "@/Redux/Slices/authSlice";
 
 export default function Header({ pendingActions }) {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ export default function Header({ pendingActions }) {
     (state) => state.meeting
   );
   const { expertData } = useSelector((state) => state.expert);
+  const admin_approved_expert = expertData?.admin_approved_expert;
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAllNotifications, setShowAllNotifications] = useState(false);
@@ -177,6 +179,11 @@ export default function Header({ pendingActions }) {
                 Let's complete your profile to unlock opportunities!<br />
                 You're just a few steps away from getting verified and connecting with clients.
               </>
+            ) : !admin_approved_expert ? (
+              <>
+                Your profile is under verification, you will be verified in 24-48 hrs. <br />
+                <span className="text-amber-600 font-medium">Please wait while we review your profile.</span>
+              </>
             ) : (
               "Let's make today productive!"
             )}
@@ -269,7 +276,7 @@ export default function Header({ pendingActions }) {
       </div>
 
       <div className="flex gap-4 items-center">
-        {pendingActions.length === 0 && <ProfileShare expert={expertData} />}
+        {pendingActions.length === 0 && admin_approved_expert && <ProfileShare expert={expertData} />}
 
         <div className="hidden sm:block relative">
           <button
