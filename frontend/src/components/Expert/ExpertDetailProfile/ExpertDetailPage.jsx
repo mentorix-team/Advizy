@@ -10,13 +10,14 @@ import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
-import { getPublicAvailability } from "@/Redux/Slices/availability.slice";
+import { getAvailabilitybyid } from "@/Redux/Slices/availability.slice";
 // import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
 import SearchModal from "@/components/Home/components/SearchModal";
 import BlockedDates from "./BlockedDates";
+import AvailableSlots from "./AvailableSlots";
 import {
   optimisticAdd,
   optimisticRemove,
@@ -27,6 +28,190 @@ import {
 import toast from "react-hot-toast";
 
 const MAX_SOCIAL_LINKS = 4;
+
+const DAYS_OF_WEEK = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+const extractTimeString = (timeLike) => {
+  if (!timeLike) return "";
+  if (typeof timeLike === "string") return timeLike;
+  if (typeof timeLike === "number") return String(timeLike);
+  if (typeof timeLike === "object") {
+    const candidate =
+      timeLike.value ??
+      timeLike.label ??
+      timeLike.startTime ??
+      timeLike.from ??
+      timeLike.start ??
+      timeLike.time ??
+      "";
+    return typeof candidate === "string" ? candidate : String(candidate || "");
+  }
+  return "";
+};
+
+const parseTimeToMinutes = (timeLike) => {
+  const raw = extractTimeString(timeLike)
+    .replace(/\u200e|\u200f/g, "")
+    .trim();
+
+  if (!raw) return null;
+
+  const periodMatch = raw.match(/(AM|PM)/i);
+  const period = periodMatch ? periodMatch[1].toUpperCase() : null;
+  const numericPart = period ? raw.replace(/(AM|PM)/i, "").trim() : raw;
+
+  const [hourPart, minutePart = "0"] = numericPart.split(":");
+  let hours = parseInt(hourPart, 10);
+  const minutes = parseInt(minutePart, 10) || 0;
+
+  if (Number.isNaN(hours) || minutes < 0 || minutes > 59) {
+    return null;
+  }
+
+  if (period === "PM" && hours < 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  if (!period && hours >= 24) {
+    hours %= 24;
+  }
+
+  return hours * 60 + minutes;
+};
+
+const roundUpToInterval = (minutes, interval = 15) => {
+  if (!Number.isFinite(minutes)) return minutes;
+  return Math.ceil(minutes / interval) * interval;
+};
+
+const formatMinutesAsLabel = (minutes) => {
+  if (!Number.isFinite(minutes)) return "";
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setMinutes(minutes);
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const collectSlotsForDay = (availability, dayName) => {
+  if (!availability) return [];
+
+  const normalizedDay = dayName.toLowerCase();
+  const daySpecificList = Array.isArray(availability.daySpecific)
+    ? availability.daySpecific
+    : [];
+
+  const daySpecificEntry = daySpecificList.find(
+    (entry) =>
+      typeof entry?.day === "string" &&
+      entry.day.toLowerCase() === normalizedDay
+  );
+
+  const normalizeSlots = (slotCollection) =>
+    Array.isArray(slotCollection) ? slotCollection : [];
+
+  const daySpecificSlots = normalizeSlots(daySpecificEntry?.slots).filter(
+    (slot) => extractTimeString(slot?.startTime ?? slot?.start ?? slot?.from)
+  );
+
+  if (daySpecificSlots.length > 0) {
+    return daySpecificSlots;
+  }
+
+  const weeklyEntry = availability?.weeklyAvailability?.[normalizedDay];
+  if (!weeklyEntry || weeklyEntry.enabled === false) {
+    return [];
+  }
+
+  const weeklySlots = normalizeSlots(weeklyEntry.slots).filter((slot) =>
+    extractTimeString(slot?.startTime ?? slot?.start ?? slot?.from)
+  );
+
+  if (weeklySlots.length > 0) {
+    return weeklySlots;
+  }
+
+  if (
+    extractTimeString(
+      weeklyEntry.startTime ??
+      weeklyEntry.start ??
+      weeklyEntry.from ??
+      weeklyEntry.begin
+    )
+  ) {
+    return [weeklyEntry];
+  }
+
+  return [];
+};
+
+const computeNextAvailableSlot = (availability, durationMinutes = 30) => {
+  if (!availability) return null;
+
+  const duration = Number(durationMinutes) > 0 ? Number(durationMinutes) : 30;
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const threshold = roundUpToInterval(currentMinutes + 30, 15);
+
+  for (let offset = 0; offset < 7; offset += 1) {
+    const dayIndex = (now.getDay() + offset) % 7;
+    const dayName = DAYS_OF_WEEK[dayIndex];
+    const slots = collectSlotsForDay(availability, dayName);
+    if (!slots.length) continue;
+
+    for (const slot of slots) {
+      const rawStart =
+        slot?.startTime ??
+        slot?.start ??
+        slot?.from ??
+        slot?.begin ??
+        slot?.time ??
+        slot;
+      const rawEnd =
+        slot?.endTime ?? slot?.end ?? slot?.to ?? slot?.finish ?? null;
+      const slotStart = parseTimeToMinutes(rawStart);
+      let slotEnd = parseTimeToMinutes(rawEnd);
+
+      if (!Number.isFinite(slotStart)) {
+        continue;
+      }
+
+      if (!Number.isFinite(slotEnd) || slotEnd <= slotStart) {
+        const slotDuration = Number(slot?.duration) > 0 ? Number(slot.duration) : duration;
+        slotEnd = slotStart + slotDuration;
+      }
+
+      const initial = offset === 0 ? Math.max(slotStart, threshold) : slotStart;
+      const alignedStart = offset === 0 ? roundUpToInterval(initial, 15) : initial;
+
+      for (
+        let candidate = alignedStart;
+        candidate + duration <= slotEnd + 1e-6;
+        candidate += 15
+      ) {
+        const labelDay = offset === 0 ? "Today" : offset === 1 ? "Tomorrow" : dayName;
+        return {
+          day: labelDay,
+          time: formatMinutesAsLabel(candidate),
+        };
+      }
+    }
+  }
+
+  return null;
+};
 
 const parseSocialLinks = (rawLinks) => {
   if (!rawLinks) return [];
@@ -118,7 +303,7 @@ const ExpertDetailPage = () => {
   }, [location.search]);
 
   const { selectedExpert: rawSelectedExpert, loading, error } = useSelector((state) => state.expert);
-  const { publicAvailability } = useSelector((state) => state.availability);
+  const { selectedAvailability } = useSelector((state) => state.availability);
 
 
   // Normalized expert object whether slice stored wrapper {expert: {...}} or expert directly
@@ -164,7 +349,7 @@ const ExpertDetailPage = () => {
   useEffect(() => {
     if (expert?._id) {
       dispatch(getfeedbackbyexpertid({ id: expert._id }));
-      dispatch(getPublicAvailability(expert._id));
+      dispatch(getAvailabilitybyid(expert._id));
     }
   }, [dispatch, expert?._id]);
 
@@ -173,6 +358,33 @@ const ExpertDetailPage = () => {
   const favIds = useSelector(selectFavouriteIds);
   const isFav = expertId ? favIds.includes(expertId) : false;
   const isUpdating = useSelector(s => selectIsUpdatingFavourite(s, expertId));
+
+  const services = useMemo(
+    () =>
+      Array.isArray(expert?.credentials?.services)
+        ? expert.credentials.services
+        : [],
+    [expert?.credentials?.services]
+  );
+
+  const defaultDuration = useMemo(() => {
+    const durations = services
+      .map((service) => Number(service?.duration))
+      .filter((value) => Number.isFinite(value) && value > 0);
+    if (durations.length === 0) {
+      return 30;
+    }
+    return Math.min(...durations);
+  }, [services]);
+
+  const nextAvailableSlot = useMemo(
+    () =>
+      computeNextAvailableSlot(
+        selectedAvailability?.availability,
+        defaultDuration
+      ),
+    [selectedAvailability?.availability, defaultDuration]
+  );
 
   const handleFavorite = () => {
     if (!expertId || isUpdating) return;
@@ -221,10 +433,10 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
 
-    // Extract blocked dates from availability data
-  const blockedDates = publicAvailability?.availability?.[0]?.blockedDates || [];
-  
-  console.log("Public availability data:", publicAvailability);
+  // Extract blocked dates from availability data
+  const blockedDates = selectedAvailability?.availability?.blockedDates || [];
+
+  console.log("Selected availability data:", selectedAvailability);
   console.log("Blocked dates:", blockedDates);
 
   const handleModalCategorySelect = (category) => {
@@ -271,9 +483,11 @@ const ExpertDetailPage = () => {
               />
               <BlockedDates blockedDates={blockedDates} />
               <Expertise skills={expert?.credentials?.skills || []} />
+              <AvailableSlots selectedAvailability={selectedAvailability} />
               <ServicesOffered
                 id="services-offered"
-                services={expert?.credentials?.services || []}
+                services={services}
+                nextAvailableSlot={nextAvailableSlot}
               />
               <div className="block md:hidden">
                 <EducationCertifications

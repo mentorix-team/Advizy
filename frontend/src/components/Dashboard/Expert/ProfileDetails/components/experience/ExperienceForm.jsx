@@ -1,14 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
-import ImageUploadModal from '../ImageUploadModal';
 import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
-import { useDispatch } from 'react-redux';
-import { ExperienceFormSubmit } from '@/Redux/Slices/expert.Slice';
 import DocumentUploadModal from '../services/DocumentUploadModal';
 
+const normalizeDocuments = (documents) => {
+  if (!documents) return [];
+  if (Array.isArray(documents)) return documents;
+  return [documents];
+};
+
+const getDocumentDisplayName = (doc) => {
+  if (!doc) return '';
+  if (doc instanceof File) return doc.name;
+  if (typeof doc === 'object' && doc.secure_url) {
+    const parts = doc.secure_url.split('/');
+    return parts[parts.length - 1] || 'document';
+  }
+  return String(doc);
+};
+
+const isPdfDoc = (doc) => {
+  if (!doc) return false;
+  if (doc instanceof File) return doc.type?.toLowerCase().includes('pdf');
+  if (typeof doc === 'object' && doc.secure_url) {
+    return doc.secure_url.toLowerCase().includes('.pdf');
+  }
+  return false;
+};
+
+const openDocument = (doc) => {
+  if (!doc) return;
+  if (doc instanceof File) {
+    const url = URL.createObjectURL(doc);
+    window.open(url, '_blank');
+    return;
+  }
+
+  if (typeof doc === 'object' && doc.secure_url) {
+    window.open(doc.secure_url, '_blank');
+  }
+};
+
 export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
-  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     _id: initialData?._id || '',
     companyName: initialData?.companyName || '',
@@ -16,47 +50,42 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
     startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
     endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
     currentlyWork: initialData?.currentlyWork || false,
-    documents: initialData?.documents || []
+    documents: normalizeDocuments(initialData?.documents || initialData?.document)
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log("Selected file:", file);
-      setFormData((prev) => ({
-        ...prev,
-        document: file,
-      }));
-    }
-  };
+  const initialDocumentsRef = useRef(normalizeDocuments(initialData?.documents || initialData?.document));
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        ...initialData,
-        // Ensure we create new Date objects from the initial data
+        _id: initialData._id || '',
+        companyName: initialData.companyName || '',
+        jobTitle: initialData.jobTitle || '',
         startDate: initialData.startDate ? new Date(initialData.startDate) : null,
-        endDate: initialData.endDate ? new Date(initialData.endDate) : null
+        endDate: initialData.endDate ? new Date(initialData.endDate) : null,
+        currentlyWork: initialData.currentlyWork || false,
+        documents: normalizeDocuments(initialData.documents || initialData.document)
       });
+      initialDocumentsRef.current = normalizeDocuments(initialData.documents || initialData.document);
     }
   }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const formDataToSend = {
+    const normalizedDocuments = normalizeDocuments(formData.documents);
+    const submissionPayload = {
       _id: formData._id,
-      companyName: formData.companyName,
+      companyName: formData.companyName.trim(),
       currentlyWork: formData.currentlyWork,
-      endDate: formData.endDate,
-      jobTitle: formData.jobTitle,
+      endDate: formData.currentlyWork ? null : formData.endDate,
+      jobTitle: formData.jobTitle.trim(),
       startDate: formData.startDate,
-      documents: formData.documents
+      documents: normalizedDocuments,
+      removeDocument:
+        initialDocumentsRef.current.length > 0 && normalizedDocuments.length === 0,
     };
 
-    console.log('submitting FormData', formDataToSend);
-    onSubmit(formDataToSend);
+    onSubmit(submissionPayload);
   };
 
   const handleDateChange = (field, date) => {
@@ -69,10 +98,13 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const incomingFiles = Array.from(e.target?.files || []);
+    if (incomingFiles.length === 0) return;
+
+    const [file] = incomingFiles;
     setFormData(prev => ({
       ...prev,
-      documents: [...prev.documents, ...files]
+      documents: file ? [file] : [],
     }));
     setShowUploadModal(false);
   };
@@ -80,12 +112,8 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   const removeFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      documents: prev.documents.filter((_, i) => i !== index)
+      documents: (prev.documents || []).filter((_, i) => i !== index)
     }));
-  };
-
-  const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
   };
 
   const handleCurrentlyWorkChange = (e) => {
@@ -138,7 +166,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
+              Start Date<span className="text-red-500">*</span>
             </label>
             <CustomDatePicker
               selectedDate={formData.startDate}
@@ -149,7 +177,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
           <div className="text-left">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Date
+              End Date<span className="text-red-500">*</span>
             </label>
             <CustomDatePicker
               selectedDate={formData.endDate}
@@ -188,7 +216,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      {file.type.includes('pdf') ? (
+                      {isPdfDoc(file) ? (
                         <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -198,12 +226,12 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-gray-600">{file.name}</span>
+                    <span className="text-sm text-gray-600" title={getDocumentDisplayName(file)}>{getDocumentDisplayName(file)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => viewFile(file)}
+                      onClick={() => openDocument(file)}
                       className="p-1.5 text-gray-600 hover:text-primary transition-colors"
                     >
                       <FaEye className="w-4 h-4" />

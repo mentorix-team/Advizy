@@ -17,7 +17,6 @@ const actionTooltips = {
   "Add Your Expertise": "Help clients understand your expertise.",
   "Add Your Services": "Set your own price and duration for sessions.",
   "Set your Availability": "Let clients know when they can book you.",
-  "Edit your One-on-One Service": "Set your own price and duration for sessions.",
   // "Update your Payment Details": "Get ready to receive hassle-free payments.",
 };
 
@@ -25,7 +24,6 @@ const actionRoutes = {
   "Add Your Expertise": "/dashboard/expert/profile-detail",
   "Add Your Services": "/dashboard/expert/service-pricing",
   "Set your Availability": "/dashboard/expert/availability",
-  "Edit your One-on-One Service": "/dashboard/expert/service-pricing",
   // "Update your Payment Details": "/dashboard/expert/payments",
 };
 

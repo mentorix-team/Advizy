@@ -1,57 +1,99 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import ImageUploadModal from '../ImageUploadModal';
 import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
-import { SingleEducationForm } from '@/Redux/Slices/expert.Slice';
-import { useDispatch } from 'react-redux';
 import DocumentUploadModal from '../services/DocumentUploadModal';
 import toast from 'react-hot-toast';
+const normalizeCertificate = (certificate) => {
+  if (!certificate) return [];
+  if (Array.isArray(certificate)) return certificate;
+
+  if (typeof certificate === 'string') {
+    try {
+      const parsed = JSON.parse(certificate);
+      if (Array.isArray(parsed)) return parsed;
+      return parsed ? [parsed] : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  return [certificate];
+};
+
+const getFileDisplayName = (file) => {
+  if (!file) return '';
+  if (file instanceof File) return file.name;
+  if (typeof file === 'object' && file.secure_url) {
+    const parts = file.secure_url.split('/');
+    return parts[parts.length - 1] || 'certificate';
+  }
+  return String(file);
+};
+
+const isPdfDocument = (file) => {
+  if (!file) return false;
+  if (file instanceof File) return file.type?.toLowerCase().includes('pdf');
+  if (typeof file === 'object' && file.secure_url) {
+    return file.secure_url.toLowerCase().includes('.pdf');
+  }
+  return false;
+};
+
+const openDocument = (file) => {
+  if (!file) return;
+  if (file instanceof File) {
+    const url = URL.createObjectURL(file);
+    window.open(url, '_blank');
+    return;
+  }
+
+  if (typeof file === 'object' && file.secure_url) {
+    window.open(file.secure_url, '_blank');
+  }
+};
+
 export default function EducationForm({ onSubmit, onCancel, initialData }) {
-  const dispatch = useDispatch()
   const [formData, setFormData] = useState({
     _id: initialData?._id || '',
     degree: initialData?.degree || '',
     institution: initialData?.institution || '',
     passingYear: initialData?.passingYear || '',
-    certificate: initialData?.certificate || []
+    certificate: normalizeCertificate(initialData?.certificate)
   });
 
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [errors, setErrors] = useState({});
+  const initialCertificateRef = useRef(normalizeCertificate(initialData?.certificate));
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        _id: initialData._id || '',
+        degree: initialData.degree || '',
+        institution: initialData.institution || '',
+        passingYear: initialData.passingYear || '',
+        certificate: normalizeCertificate(initialData.certificate)
+      });
+      initialCertificateRef.current = normalizeCertificate(initialData.certificate);
     }
   }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const normalizedCertificate = normalizeCertificate(formData.certificate);
+
     const formDataToSend = {
       _id: formData._id,
-      degree: formData.degree,
-      institution: formData.institution,
+      degree: formData.degree.trim(),
+      institution: formData.institution.trim(),
       passingYear: formData.passingYear,
-      certificate: formData.certificate
+      certificate: normalizedCertificate,
+      removeCertificate:
+        initialCertificateRef.current.length > 0 && normalizedCertificate.length === 0,
     };
 
-    console.log("Submitting Form Data:", formDataToSend);
     onSubmit(formDataToSend);
-  };
-
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      console.log("Selected file:", file);
-      setFormData((prev) => ({
-        ...prev,
-        certificate: file,
-      }));
-      setShowUploadModal(false);
-    }
   };
 
   const handlePassingYearChange = (e) => {
@@ -81,7 +123,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
   };
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0]; // Get the first file only
+    const file = e.target.files?.[0];
 
     if (file) {
       // Validate file type
@@ -114,7 +156,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
 
       setFormData(prev => ({
         ...prev,
-        certificate: file // Store single file
+        certificate: file ? [file] : []
       }));
       setShowUploadModal(false);
       toast.success('File uploaded successfully', {
@@ -131,12 +173,8 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
   const removeFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      certificate: prev.certificate.filter((_, i) => i !== index)
+      certificate: (prev.certificate || []).filter((_, i) => i !== index)
     }));
-  };
-
-  const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
   };
 
   return (
@@ -211,7 +249,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      {file.type.includes('pdf') ? (
+                      {isPdfDocument(file) ? (
                         <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -221,12 +259,12 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-gray-600">{file.name}</span>
+                    <span className="text-sm text-gray-600" title={getFileDisplayName(file)}>{getFileDisplayName(file)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => viewFile(file)}
+                      onClick={() => openDocument(file)}
                       className="p-1.5 text-gray-600 hover:text-primary transition-colors"
                     >
                       <FaEye className="w-4 h-4" />

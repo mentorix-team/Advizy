@@ -5,53 +5,162 @@ import { useBlockedDates } from '@/Context/BlockedDatesContext';
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
 import { addBlockedDates, removeBlockedDate } from "@/Redux/Slices/availability.slice";
+import toast from 'react-hot-toast';
+
+// Helper function to get date string in timezone (YYYY-MM-DD format)
+const getDateStringInTimezone = (dateObj, timezone) => {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: timezone
+  });
+
+  const parts = formatter.formatToParts(dateObj);
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+
+  return `${year}-${month}-${day}`;
+};
 
 function BlockUnavailableDates() {
   const dispatch = useDispatch();
-  const availability = useSelector((state) => state.availability.availability); 
-  console.log('this is availabliity at blocked dates',availability)
+  const availability = useSelector((state) => state.availability.availability);
+  const { timezone } = useSelector((state) => state.availability.availability?.[0] || {});
+  const selectedTimezone = timezone?.value || "Asia/Kolkata";
+
+  console.log('this is availabliity at blocked dates', availability)
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
-  const [disabledDates, setDisabledDates] = useState([]); 
+  const [disabledDates, setDisabledDates] = useState([]);
   const { blockedDates, setBlockedDates } = useBlockedDates();
 
-useEffect(() => {
-  console.log("useEffect triggered. Availability:", availability);
+  // Helper function to check if a date is in specific_dates
+  const isDateInSpecificDates = (date) => {
+    const expertAvailability = availability?.availability?.[0];
+    if (!expertAvailability?.specific_dates || !Array.isArray(expertAvailability.specific_dates)) {
+      return false;
+    }
 
-  const expertAvailability = availability?.availability?.[0];
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
 
-  if (expertAvailability?.daySpecific) {
-    const nullSlotDays = expertAvailability.daySpecific
-      .filter((entry) => !entry.slots)
-      .map((entry) => {
-        const dayOfWeek = entry.day.toLowerCase();
-        const daysOfWeek = {
-          sunday: 0,
-          monday: 1,
-          tuesday: 2,
-          wednesday: 3,
-          thursday: 4,
-          friday: 5,
-          saturday: 6,
-        };
-        return daysOfWeek[dayOfWeek];
-      })
-      .filter((day) => day !== undefined);
+    return expertAvailability.specific_dates.some(specificDate => {
+      try {
+        let specificDateValue;
 
-    setDisabledDates(nullSlotDays);
-  }
+        if (typeof specificDate.date === 'string') {
+          if (specificDate.date.length === 10) {
+            specificDateValue = specificDate.date;
+          } else {
+            specificDateValue = specificDate.date.split('T')[0];
+          }
+        } else if (specificDate.date) {
+          const dateObj = new Date(specificDate.date);
+          specificDateValue = getDateStringInTimezone(dateObj, selectedTimezone);
+        } else {
+          return false;
+        }
 
-  if (expertAvailability?.blockedDates?.length > 0) {
-    const formattedBlockedDates = expertAvailability.blockedDates.map(
-      (dateObj) => new Date(dateObj.dates)
-    );
-    setBlockedDates(formattedBlockedDates);
-  }
-}, [availability]);
+        return dateString === specificDateValue;
+      } catch (error) {
+        console.warn('Error parsing specific date:', specificDate, error);
+        return false;
+      }
+    });
+  };
+
+  useEffect(() => {
+    console.log("useEffect triggered. Availability:", availability);
+
+    const expertAvailability = availability?.availability?.[0];
+
+    if (expertAvailability?.daySpecific) {
+      const nullSlotDays = expertAvailability.daySpecific
+        .filter((entry) => !entry.slots || entry.slots.length === 0)
+        .map((entry) => {
+          const dayOfWeek = entry.day.toLowerCase();
+          const daysOfWeek = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+          };
+          return daysOfWeek[dayOfWeek];
+        })
+        .filter((day) => day !== undefined);
+
+      console.log("🚫 Disabled days (no slots):", nullSlotDays);
+      setDisabledDates(nullSlotDays);
+    }
+
+    if (expertAvailability?.blockedDates?.length > 0) {
+      const formattedBlockedDates = expertAvailability.blockedDates.map(
+        (dateObj) => new Date(dateObj.dates)
+      );
+      setBlockedDates(formattedBlockedDates);
+    }
+  }, [availability]);
+
+  // Helper function to check if a date is already blocked
+  const isDateAlreadyBlocked = (date) => {
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
+
+    // Check against Redux blocked dates
+    const expertAvailability = availability?.availability?.[0];
+    if (!expertAvailability?.blockedDates || !Array.isArray(expertAvailability.blockedDates)) {
+      return false;
+    }
+
+    return expertAvailability.blockedDates.some(blockedDate => {
+      try {
+        let blockedDateValue;
+
+        if (typeof blockedDate === 'string') {
+          blockedDateValue = blockedDate.split('T')[0];
+        } else if (blockedDate.dates) {
+          const dateObj = new Date(blockedDate.dates);
+          blockedDateValue = getDateStringInTimezone(dateObj, selectedTimezone);
+        } else if (blockedDate.date) {
+          const dateObj = new Date(blockedDate.date);
+          blockedDateValue = getDateStringInTimezone(dateObj, selectedTimezone);
+        } else {
+          return false;
+        }
+
+        return dateString === blockedDateValue;
+      } catch (error) {
+        console.warn('Error parsing blocked date:', blockedDate, error);
+        return false;
+      }
+    });
+  };
 
 
-    
+
   const handleDateSelect = (date) => {
+    // Check if date is in specific_dates
+    if (isDateInSpecificDates(date)) {
+      const dateString = getDateStringInTimezone(date, selectedTimezone);
+      toast.error(`${dateString} is already in the specific dates, remove from the specific dates to block the ${dateString}`, {
+        position: "top-right",
+        autoClose: 4000,
+      });
+      return;
+    }
+
+    // Don't allow selection if day of week is disabled or date is already blocked
+    const dayOfWeek = date.getDay();
+    const isDisabledDay = disabledDates.includes(dayOfWeek);
+    const isAlreadyBlocked = isDateAlreadyBlocked(date);
+
+    if (isDisabledDay || isAlreadyBlocked) {
+      return; // Don't allow selection
+    }
+
     setSelectedDates((prev) =>
       prev.some((d) => d.getTime() === date.getTime())
         ? prev.filter((d) => d.getTime() !== date.getTime())
@@ -79,10 +188,10 @@ useEffect(() => {
 
   const handleRemoveDate = (dateToRemove) => {
     console.log("Removing date:", dateToRemove);
-    
+
     // Convert date to ISO string for backend
     const dateToRemoveISO = dateToRemove.toISOString();
-    
+
     dispatch(removeBlockedDate(dateToRemoveISO))
       .then((response) => {
         if (response?.payload?.success) {
@@ -102,14 +211,14 @@ useEffect(() => {
     <div className="bg-white rounded-lg p-6 shadow-md">
       <h2 className="text-lg font-semibold text-gray-900 mb-2">Block Unavailable Dates</h2>
       <hr className="h-px mb-4 border-1 bg-gray-200" />
-  
+
       <button
         onClick={() => setIsOpen(true)}
         className="w-full bg-[#16A348] text-white py-2.5 rounded-lg hover:bg-[#388544] transition-colors text-sm font-medium"
       >
         Block Unavailable Dates
       </button>
-  
+
       {blockedDates.length > 0 && (
         <div className="mt-4">
           <h3 className="text-sm font-medium text-gray-700 mb-3">Blocked Dates:</h3>
@@ -120,7 +229,7 @@ useEffect(() => {
           </div>
         </div>
       )}
-  
+
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-0">
           <div className="bg-white rounded-lg p-6 max-w-md w-200">
@@ -135,28 +244,43 @@ useEffect(() => {
                 </svg>
               </button>
             </div>
-  
+
             <div className="overflow-auto max-h-[75vh]">
               <DatePicker
+                key={`datepicker-${availability?.availability?.[0]?.blockedDates?.length}-${availability?.availability?.[0]?.specific_dates?.length}`}
                 inline
                 onChange={handleDateSelect}
                 selected={null}
                 highlightDates={selectedDates}
-                excludeDates={[]} // Exclude specific dates if needed
                 minDate={new Date()}
+                filterDate={(date) => {
+                  // Filter out dates where day of week is disabled OR date is already blocked OR date is in specific_dates
+                  const dayOfWeek = date.getDay();
+                  const isDisabledDay = disabledDates.includes(dayOfWeek);
+                  const isAlreadyBlocked = isDateAlreadyBlocked(date);
+                  const isInSpecificDates = isDateInSpecificDates(date);
+
+                  return !isDisabledDay && !isAlreadyBlocked && !isInSpecificDates;
+                }}
                 className="w-full border border-gray-300 rounded-md p-2"
                 calendarClassName="bg-white shadow-md"
                 dayClassName={(date) => {
                   const dayOfWeek = date.getDay();
-                  return disabledDates.includes(dayOfWeek)
-                    ? "bg-gray-200 text-gray-400"
-                    : selectedDates.some((d) => d.getTime() === date.getTime())
+                  const isDisabledDay = disabledDates.includes(dayOfWeek);
+                  const isAlreadyBlocked = isDateAlreadyBlocked(date);
+                  const isInSpecificDates = isDateInSpecificDates(date);
+
+                  if (isDisabledDay || isAlreadyBlocked || isInSpecificDates) {
+                    return "bg-gray-200 text-gray-400 cursor-not-allowed";
+                  }
+
+                  return selectedDates.some((d) => d.getTime() === date.getTime())
                     ? "text-white bg-black rounded-md"
                     : "hover:bg-gray-100 rounded-md";
                 }}
               />
             </div>
-  
+
             <button
               onClick={handleConfirm}
               className="w-full mt-4 bg-[#16A348] text-white py-2.5 rounded-lg hover:bg-[#388544] transition-colors font-medium"
@@ -168,7 +292,7 @@ useEffect(() => {
       )}
     </div>
   );
-  
+
 }
 
 export default BlockUnavailableDates;

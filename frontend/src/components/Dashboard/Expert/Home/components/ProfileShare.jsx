@@ -55,15 +55,32 @@ const ProfileShare = ({ expert }) => {
   };
 
   const handleShare = async () => {
+    const customMessage = `This is my profile on Advizy\n${profileUrl}\nCheck it out and share it!`;
+
     try {
-      await navigator.share({
-        title: "My Profile",
-        text: "Check out my profile!",
-        url: profileUrl,
-      });
+      // Check if Web Share API is supported
+      if (navigator.share) {
+        await navigator.share({
+          title: "My Profile on Advizy",
+          text: customMessage,
+        });
+      } else {
+        // Fallback: Copy the message to clipboard
+        await navigator.clipboard.writeText(customMessage);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
       setIsOpen(false);
     } catch (err) {
       console.error("Failed to share:", err);
+      // Fallback: Copy the message to clipboard
+      try {
+        await navigator.clipboard.writeText(customMessage);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (copyErr) {
+        console.error("Failed to copy:", copyErr);
+      }
     }
   };
 

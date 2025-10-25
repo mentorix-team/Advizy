@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { FaCloudUploadAlt, FaTrash, FaFileAlt } from 'react-icons/fa';
 import Modal from './Modal';
@@ -8,33 +8,82 @@ const DOCUMENT_MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) => {
   const [files, setFiles] = useState([]);
   const [error, setError] = useState('');
-  const initializedRef = React.useRef(false);
+  const initializedRef = useRef(false);
+  const prevExistingFilesRef = useRef([]);
+  const wasOpenRef = useRef(false);
 
+  // Helper function to truncate long file names
+  const truncateFileName = (fileName, maxLength = 25) => {
+    if (fileName.length <= maxLength) return fileName;
+
+    const extension = fileName.split('.').pop();
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+
+    // Keep extension and truncate the name part
+    const truncatedName = nameWithoutExt.substring(0, maxLength - extension.length - 3) + '...';
+    return truncatedName + '.' + extension;
+  };
+
+  // Helper function to format file size
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Effect to handle modal open/close without causing rerender loops
   useEffect(() => {
-    // When modal closes, reset only if there is something to reset
-    if (!isOpen) {
+    // Handle transition to open
+    if (isOpen && !wasOpenRef.current) {
+      wasOpenRef.current = true;
+      initializedRef.current = false;
+
+      if (Array.isArray(existingFiles) && existingFiles.length > 0) {
+        // Clean up any existing preview URLs to avoid memory leaks
+        files.forEach((fileObj) => {
+          if (fileObj.preview) URL.revokeObjectURL(fileObj.preview);
+        });
+
+        // Create preview URLs for provided File objects only
+        const newFiles = existingFiles
+          .filter((f) => f instanceof File || (typeof Blob !== 'undefined' && f instanceof Blob))
+          .map((file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+          }));
+
+        if (newFiles.length) {
+          setFiles(newFiles);
+          initializedRef.current = true;
+          prevExistingFilesRef.current = [...existingFiles];
+        }
+      }
+      return;
+    }
+
+    // Handle transition to closed (reset only once when closing)
+    if (!isOpen && wasOpenRef.current) {
+      wasOpenRef.current = false;
       if (files.length > 0 || error) {
         setFiles([]);
         setError('');
       }
       initializedRef.current = false;
-      return;
+      prevExistingFilesRef.current = [];
     }
-
-    // Initialize once on open with any pre-existing files
-    if (isOpen && existingFiles?.length > 0 && !initializedRef.current) {
-      setFiles(existingFiles.map(file => ({
-        file,
-        preview: URL.createObjectURL(file)
-      })));
-      initializedRef.current = true;
-    }
-    // Only depend on isOpen and length to avoid default [] causing re-runs
-  }, [isOpen, existingFiles?.length]);
+  }, [isOpen]);
 
   const validateFile = (file) => {
+    console.log(`Validating file: ${file.name}, size: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
     if (file.size > DOCUMENT_MAX_FILE_SIZE) {
-      return 'File size must be less than 50MB';
+      const maxSizeMB = DOCUMENT_MAX_FILE_SIZE / 1024 / 1024;
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      return `File size (${fileSizeMB} MB) exceeds the maximum limit of ${maxSizeMB} MB`;
     }
 
     const allowedTypes = [
@@ -50,22 +99,48 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
     return null;
   };
 
-  const onDrop = useCallback(async (acceptedFiles) => {
+  const onDrop = useCallback((acceptedFiles, fileRejections) => {
+    console.log('Files dropped:', { accepted: acceptedFiles.length, rejected: fileRejections.length });
     setError('');
+
+    // Process file rejections
+    if (fileRejections.length > 0) {
+      const rejectionErrors = fileRejections.map(rejection => {
+        const { errors, file } = rejection;
+        const errorMessages = errors.map(err => err.message).join(', ');
+        return `${file.name}: ${errorMessages}`;
+      });
+      setError(rejectionErrors.join('; '));
+    }
+
+    // Process accepted files
     try {
+      const validFiles = [];
+      const validationErrors = [];
+
       for (const file of acceptedFiles) {
         const validationError = validateFile(file);
         if (validationError) {
-          throw new Error(validationError);
+          validationErrors.push(`${file.name}: ${validationError}`);
+        } else {
+          validFiles.push(file);
         }
       }
 
-      const newFiles = acceptedFiles.map(file => ({
-        file,
-        preview: URL.createObjectURL(file)
-      }));
-      setFiles(prevFiles => [...prevFiles, ...newFiles]);
+      if (validationErrors.length > 0) {
+        setError(validationErrors.join('; '));
+      }
+
+      if (validFiles.length > 0) {
+        const newFiles = validFiles.map(file => ({
+          file,
+          preview: URL.createObjectURL(file)
+        }));
+        setFiles(prevFiles => [...prevFiles, ...newFiles]);
+        console.log(`Successfully added ${validFiles.length} files`);
+      }
     } catch (err) {
+      console.error('File validation error:', err);
       setError(err.toString());
     }
   }, []);
@@ -84,23 +159,44 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   const removeFile = (index) => {
     setFiles(prevFiles => {
       const newFiles = [...prevFiles];
-      URL.revokeObjectURL(newFiles[index].preview);
+      const fileToRemove = newFiles[index];
+
+      // Revoke the preview URL to avoid memory leaks
+      if (fileToRemove.preview) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+
       newFiles.splice(index, 1);
       return newFiles;
     });
   };
 
   const handleUpload = () => {
-    if (files.length > 0) {
-      onUpload({ target: { files: files.map(f => f.file) } });
+    if (files.length === 0) {
+      setError('Please add at least one file to upload');
+      return;
+    }
+
+    try {
+      // Create a FileList-like object
+      const fileList = files.map(f => f.file);
+
+      // Call onUpload with an event-like object
+      onUpload({ target: { files: fileList } });
       onClose();
+    } catch (err) {
+      console.error('Upload error:', err);
+      setError('Failed to upload files. Please try again.');
     }
   };
 
+  // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
-      files.forEach(file => {
-        if (file.preview) URL.revokeObjectURL(file.preview);
+      files.forEach(fileObj => {
+        if (fileObj.preview) {
+          URL.revokeObjectURL(fileObj.preview);
+        }
       });
     };
   }, [files]);
@@ -133,17 +229,19 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
           <div className="mb-6 space-y-3">
             {files.map((file, index) => (
               <div
-                key={index}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
+                key={`${file.file.name}-${index}`}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 min-w-0"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <FaFileAlt className="w-5 h-5 text-gray-500" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">{file.file.name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-700 truncate" title={file.file.name}>
+                      {truncateFileName(file.file.name)}
+                    </p>
                     <p className="text-xs text-gray-500">
-                      {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                      {formatFileSize(file.file.size)}
                     </p>
                   </div>
                 </div>
@@ -199,7 +297,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
             className="px-4 py-2 text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             <FaCloudUploadAlt className="w-4 h-4" />
-            Upload
+            Upload {files.length > 0 && `(${files.length})`}
           </button>
         </div>
       </div>

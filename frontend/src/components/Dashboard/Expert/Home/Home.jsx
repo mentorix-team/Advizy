@@ -91,20 +91,21 @@ function Home() {
       id: 2,
       icon: "star",
       text: "Add Your Services",
-      completed: hasServices,
+      completed: hasEditedOneOnOneService,
     },
+    // {
+    //   id: 2,
+    //   icon: "star",
+    //   text: "Add Your Services",
+    //   completed: hasServices,
+    // },
     {
       id: 3,
       icon: "calendar",
       text: "Set your Availability",
       completed: hasAvailability,
     },
-    {
-      id: 4,
-      icon: "edit",
-      text: "Edit your One-on-One Service",
-      completed: hasEditedOneOnOneService,
-    },
+
     // {
     //   id: 5,
     //   icon: "payment", // Use an appropriate icon
@@ -161,7 +162,7 @@ function Home() {
 
   // Process meetings data for different components
   const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
-  
+
   // For earnings calculation - simplified data
   const earningsData = paidMeetings.map(({ amount, daySpecific }) => ({
     amount: Number(amount),

@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import ProfileHeader from "./components/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs";
 import BasicInfo from "./components/BasicInfo";
-import ExpertiseTab from "./components/expertise/ExpertiseTab";
+import ExpertiseTab, { validateProfessionalDetailsData } from "./components/expertise/ExpertiseTab";
 import EducationTab from "./components/education/EducationTab";
 import PreviewApp from "./components/preview/src/App";
 import {
@@ -78,6 +79,7 @@ function App() {
     "experience",
     "certifications",
   ];
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { expertData, loading, error } = useSelector((state) => state.expert);
   const { selectedExpert } = useSelector((state) => state.expert);
@@ -91,12 +93,14 @@ function App() {
   const headerRef = useRef(null);
   const headerInitialTopRef = useRef(null);
   const scrollAnimationFrame = useRef(null);
+  const expertiseTabRef = useRef(null);
   const [isHeaderFixed, setIsHeaderFixed] = useState(false);
   const [headerStyle, setHeaderStyle] = useState({});
   const [navbarHeight, setNavbarHeight] = useState(0);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [expertiseValidationKey, setExpertiseValidationKey] = useState(0);
   const [enabledTabs, setEnabledTabs] = useState([
     "basic",
     "certifications",
@@ -341,6 +345,9 @@ function App() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Invalid email format";
     }
+    if (!Array.isArray(basic.languages) || basic.languages.length === 0) {
+      newErrors.languages = "Please select at least one language";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -391,71 +398,73 @@ function App() {
     const currentIndex = tabs.indexOf(activeTab);
 
     if (activeTab === "basic") {
-      if (validateBasicInfo()) {
-        const requiredFields = [
-          "firstName",
-          "lastName",
-          "gender",
-          "dateOfBirth",
-          "nationality",
-          "city",
-          "mobile",
-          "email",
-        ];
-        const allTouched = {};
-        requiredFields.forEach((field) => {
-          allTouched[field] = true;
-        });
-        setTouched(allTouched);
-        // console.log("profile image ",formData.basic.profileImage)
-        const basicData = new FormData();
-        basicData.append("firstName", formData.basic.firstName);
-        basicData.append("lastName", formData.basic.lastName);
-        basicData.append("city", formData.basic.city);
-        basicData.append("bio", formData.basic.bio);
-        basicData.append("gender", formData.basic.gender);
-        basicData.append("dateOfBirth", formData.basic.dateOfBirth);
-        basicData.append("email", formData.basic.email);
-        basicData.append("countryCode", formData.basic.countryCode);
-        basicData.append("mobile", formData.basic.mobile);
-        basicData.append("nationality", formData.basic.nationality);
-        basicData.append("languages", JSON.stringify(formData.basic.languages));
-        const sanitizedSocialLinks = normalizeSocialLinks(
-          formData.basic.socialLinks
-        );
-        basicData.append(
-          "socialLinks",
-          JSON.stringify(sanitizedSocialLinks)
-        );
-        basicData.append("coverImage", formData.basic.coverImage);
-        basicData.append("profileImage", formData.basic.profileImage);
+      const requiredFields = [
+        "firstName",
+        "lastName",
+        "gender",
+        "dateOfBirth",
+        "nationality",
+        "city",
+        "mobile",
+        "email",
+        "languages",
+      ];
+      const touchedUpdate = requiredFields.reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {});
+      setTouched((prev) => ({ ...prev, ...touchedUpdate }));
 
-        try {
-          const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
-          if (response.success) {
-            setEnabledTabs((prev) => [...prev, "expertise"]); // Enable the next tab
-            toast.success("Basic information submitted successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
-          } else {
-            toast.error("Failed to submit basic information", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
-            return;
-          }
-        } catch (error) {
-          console.error("Error submitting basic form:", error);
-          toast.error("An error occurred while submitting the form", {
+      const isBasicValid = validateBasicInfo();
+      if (!isBasicValid) {
+        toast.error("Please complete all required basic details before proceeding.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
+      }
+
+      // console.log("profile image ",formData.basic.profileImage)
+      const basicData = new FormData();
+      basicData.append("firstName", formData.basic.firstName);
+      basicData.append("lastName", formData.basic.lastName);
+      basicData.append("city", formData.basic.city);
+      basicData.append("bio", formData.basic.bio);
+      basicData.append("gender", formData.basic.gender);
+      basicData.append("dateOfBirth", formData.basic.dateOfBirth);
+      basicData.append("email", formData.basic.email);
+      basicData.append("countryCode", formData.basic.countryCode);
+      basicData.append("mobile", formData.basic.mobile);
+      basicData.append("nationality", formData.basic.nationality);
+      basicData.append("languages", JSON.stringify(formData.basic.languages));
+      const sanitizedSocialLinks = normalizeSocialLinks(
+        formData.basic.socialLinks
+      );
+      basicData.append(
+        "socialLinks",
+        JSON.stringify(sanitizedSocialLinks)
+      );
+      basicData.append("coverImage", formData.basic.coverImage);
+      basicData.append("profileImage", formData.basic.profileImage);
+
+      try {
+        const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
+        if (response.success) {
+          setEnabledTabs((prev) => [...prev, "expertise"]); // Enable the next tab
+          toast.success("Basic information submitted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        } else {
+          toast.error("Failed to submit basic information", {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -465,15 +474,46 @@ function App() {
           });
           return;
         }
+      } catch (error) {
+        console.error("Error submitting basic form:", error);
+        toast.error("An error occurred while submitting the form", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
       }
     }
 
     if (activeTab === "expertise") {
-      setEnabledTabs((prev) => [...prev, "education"]);
-      console.log(
-        "This is the data to be sent for expertise",
-        formData.expertise
+      const expertiseValid =
+        (expertiseTabRef.current &&
+          expertiseTabRef.current.validateAndTouch?.()) ||
+        validateProfessionalDetailsData(formData.expertise).isValid;
+
+      if (!expertiseValid) {
+        toast.error("Please complete your professional details before proceeding.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        if (!expertiseTabRef.current) {
+          setExpertiseValidationKey(Date.now());
+        }
+        return;
+      }
+
+      setEnabledTabs((prev) =>
+        prev.includes("education") ? prev : [...prev, "education"]
       );
+
       dispatch(professionalFormSubmit(formData.expertise));
       toast.success("Changes saved successfully!", {
         position: "top-right",
@@ -552,6 +592,7 @@ function App() {
           draggable: true,
         });
       }
+      navigate("/dashboard/expert/home");
     }
 
     if (currentIndex < tabs.length - 1) {
@@ -593,6 +634,37 @@ function App() {
 
   const handleSaveAll = async () => {
     try {
+      const requiredFields = [
+        "firstName",
+        "lastName",
+        "gender",
+        "dateOfBirth",
+        "nationality",
+        "city",
+        "mobile",
+        "email",
+        "languages",
+      ];
+      const touchedUpdate = requiredFields.reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {});
+      setTouched((prev) => ({ ...prev, ...touchedUpdate }));
+
+      const basicIsValid = validateBasicInfo();
+      if (!basicIsValid) {
+        setActiveTab("basic");
+        toast.error("Please fill in all required basic details before saving.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
+      }
+
       // Save basic info
       const basicData = new FormData();
       basicData.append("firstName", formData.basic.firstName);
@@ -622,6 +694,35 @@ function App() {
       const basicResponse = await dispatch(basicFormSubmit(basicData)).unwrap();
 
       if (basicResponse.success) {
+        const { isValid: expertiseIsValid } =
+          validateProfessionalDetailsData(formData.expertise);
+
+        if (!expertiseIsValid) {
+          if (expertiseTabRef.current) {
+            expertiseTabRef.current.validateAndTouch?.();
+          } else {
+            setExpertiseValidationKey(Date.now());
+          }
+
+          setActiveTab("expertise");
+          toast.error(
+            "Please fill in all required professional details before saving.",
+            {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
+          return;
+        }
+
+        if (expertiseTabRef.current) {
+          expertiseTabRef.current.validateAndTouch?.();
+        }
+
         // Save expertise info
         await dispatch(professionalFormSubmit(formData.expertise)).unwrap();
 
@@ -743,8 +844,10 @@ function App() {
             )}
             {activeTab === "expertise" && enabledTabs.includes("expertise") && (
               <ExpertiseTab
+                ref={expertiseTabRef}
                 formData={formData.expertise}
                 onUpdate={(data) => handleUpdateFormData("expertise", data)}
+                forceValidationKey={expertiseValidationKey}
               />
             )}
             {activeTab === "education" && enabledTabs.includes("education") && (

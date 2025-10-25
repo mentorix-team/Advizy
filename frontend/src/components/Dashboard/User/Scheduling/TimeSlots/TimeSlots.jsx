@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createMeet, getBookedSlots } from '@/Redux/Slices/meetingSlice';
 import { CalendarX } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { convert24To12Hour } from '@/utils/timeValidation';
 
 function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvailability, expertId, serviceId, userName, serviceName, expertName, title, includes, serviceDescription }) {
   const navigate = useNavigate();
@@ -81,23 +82,157 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 
 
 
+  // Helper function to check if a date is blocked
+  const isDateBlocked = (date) => {
+    if (!selectedAvailability?.availability?.blockedDates || !Array.isArray(selectedAvailability.availability.blockedDates)) {
+      return false;
+    }
+
+    // Get the date in YYYY-MM-DD format in local timezone
+    const localDateString = date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0');
+
+    return selectedAvailability.availability.blockedDates.some(blockedDate => {
+      try {
+        let blockedDateValue;
+
+        // Handle different blocked date formats
+        if (typeof blockedDate === 'string') {
+          blockedDateValue = blockedDate;
+        } else if (blockedDate && blockedDate.dates) {
+          const blockedDateObj = new Date(blockedDate.dates);
+          blockedDateValue = blockedDateObj.getUTCFullYear() + '-' +
+            String(blockedDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' +
+            String(blockedDateObj.getUTCDate()).padStart(2, '0');
+        } else if (blockedDate && blockedDate.date) {
+          const blockedDateObj = new Date(blockedDate.date);
+          blockedDateValue = blockedDateObj.getUTCFullYear() + '-' +
+            String(blockedDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' +
+            String(blockedDateObj.getUTCDate()).padStart(2, '0');
+        } else {
+          return false;
+        }
+
+        return localDateString === blockedDateValue;
+      } catch (error) {
+        console.warn('Error parsing blocked date:', blockedDate, error);
+        return false;
+      }
+    });
+  };
+
+  // Helper function to get specific date slots for a date
+  const getSpecificDateSlots = (date) => {
+    if (!selectedAvailability?.availability?.specific_dates || !Array.isArray(selectedAvailability.availability.specific_dates)) {
+      return null;
+    }
+
+    // Get the date in YYYY-MM-DD format in local timezone
+    const localDateString = date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0');
+
+    const specificDate = selectedAvailability.availability.specific_dates.find(specificDate => {
+      try {
+        let specificDateValue;
+
+        if (typeof specificDate.date === 'string') {
+          if (specificDate.date.length === 10) {
+            specificDateValue = specificDate.date;
+          } else {
+            specificDateValue = specificDate.date.split('T')[0];
+          }
+        } else if (specificDate.date) {
+          const dateObj = new Date(specificDate.date);
+          specificDateValue = dateObj.getUTCFullYear() + '-' +
+            String(dateObj.getUTCMonth() + 1).padStart(2, '0') + '-' +
+            String(dateObj.getUTCDate()).padStart(2, '0');
+        } else {
+          return false;
+        }
+
+        return localDateString === specificDateValue;
+      } catch (error) {
+        console.warn('Error parsing specific date:', specificDate, error);
+        return false;
+      }
+    });
+
+    return specificDate?.slots && specificDate.slots.length > 0 ? specificDate.slots : null;
+  };
+
   useEffect(() => {
-    if (!selectedAvailability?.availability?.daySpecific || !selectedDate) {
-      console.warn("Missing availability data or selectedDate");
+    console.log("📊 [TimeSlots] useEffect triggered");
+    console.log("📊 [TimeSlots] selectedAvailability:", selectedAvailability);
+    console.log("📊 [TimeSlots] selectedAvailability?.availability:", selectedAvailability?.availability);
+    console.log("📊 [TimeSlots] daySpecific:", selectedAvailability?.availability?.daySpecific);
+    console.log("📊 [TimeSlots] selectedDate:", selectedDate);
+
+    if (!selectedDate) {
+      console.warn("Missing selectedDate");
       setTimeSlots([]);
       return;
     }
 
-    const dayName = selectedDate.toLocaleString("en-US", { weekday: "long" });
-    const dayData = selectedAvailability.availability.daySpecific.find(
-      (day) => day.day === dayName
-    );
+    // ⭐ CHECK SPECIFIC DATE SLOTS FIRST (HIGHEST PRIORITY)
+    const specificDateSlots = getSpecificDateSlots(selectedDate);
+    console.log("📅 [TimeSlots] Specific date slots found?", specificDateSlots);
 
-    if (!dayData || !dayData.slots || dayData.slots.length === 0) {
-      console.warn(`No slots available for ${dayName}`);
+    if (specificDateSlots) {
+      console.log("✨ [TimeSlots] Using specific date slots (highest priority)");
+      // Use specific date slots and skip blocked date check
+    } else {
+      // Only check for blocked dates if there are no specific date slots
+      const dateIsBlocked = isDateBlocked(selectedDate);
+      console.log("🚫 [TimeSlots] Is selected date blocked?", dateIsBlocked);
+
+      if (dateIsBlocked) {
+        console.warn("Selected date is blocked by expert");
+        setTimeSlots([]);
+        return;
+      }
+    }
+
+    if (!selectedAvailability?.availability?.daySpecific) {
+      console.warn("Missing availability data");
       setTimeSlots([]);
       return;
     }
+
+    // ⭐ DETERMINE WHICH SLOTS TO USE
+    let slotsToUse = null;
+    let sourceType = null;
+
+    if (specificDateSlots) {
+      slotsToUse = specificDateSlots;
+      sourceType = 'specific';
+      console.log("✨ [TimeSlots] Using SPECIFIC DATE slots");
+    } else {
+      const dayName = selectedDate.toLocaleString("en-US", { weekday: "long" });
+      console.log("📅 [TimeSlots] Looking for WEEKLY day:", dayName);
+
+      const dayData = selectedAvailability.availability.daySpecific.find(
+        (day) => day.day === dayName
+      );
+
+      console.log("📅 [TimeSlots] Found dayData:", dayData);
+
+      if (!dayData || !dayData.slots || dayData.slots.length === 0) {
+        console.warn(`No slots available for ${dayName}`);
+        setTimeSlots([]);
+        return;
+      }
+
+      slotsToUse = dayData.slots;
+      sourceType = 'weekly';
+      console.log("📅 [TimeSlots] Using WEEKLY slots");
+    }
+
+    console.log("⏰ [TimeSlots] Slots to process:", slotsToUse);
+    console.log("⏰ [TimeSlots] First slot example:", slotsToUse[0]);
+    console.log("⏰ [TimeSlots] First slot startTime type:", typeof slotsToUse[0]?.startTime);
+    console.log("⏰ [TimeSlots] First slot startTime value:", slotsToUse[0]?.startTime);
 
     const now = new Date();
     const noticePeriodMinutes = parseInt(selectedAvailability.availability.reschedulePolicy.noticeperiod) || 0;
@@ -115,17 +250,60 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     const batchSize = sessionDuration;
     const startTimeMap = {};
 
-    dayData.slots.forEach(slot => {
-      const [startHour, startMinute] = slot.startTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
-      const [endHour, endMinute] = slot.endTime.split(/[:\s]/).map((val, i) => i === 2 ? val : Number(val));
-      const isStartPM = slot.startTime.includes("PM");
-      const isEndPM = slot.endTime.includes("PM");
+    slotsToUse.forEach((slot, slotIndex) => {
+      console.log(`\n🔄 [TimeSlots] Processing ${sourceType} slot ${slotIndex}:`, slot);
+
+      // Handle both 24-hour format (00:30) and 12-hour format (12:30 AM)
+      let startHour24, startMinute, endHour24, endMinute;
+
+      // Check if the time contains AM/PM
+      if (slot.startTime && (slot.startTime.includes('AM') || slot.startTime.includes('PM'))) {
+        console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 12-hour format with AM/PM`);
+        // Time is in 12-hour format, parse it differently
+        const startParts = slot.startTime.split(' ');
+        const [startHourStr, startMinStr] = startParts[0].split(':');
+        const startModifier = startParts[1];
+        startHour24 = parseInt(startHourStr, 10);
+        startMinute = parseInt(startMinStr, 10);
+
+        if (startModifier === 'PM' && startHour24 !== 12) {
+          startHour24 += 12;
+        } else if (startModifier === 'AM' && startHour24 === 12) {
+          startHour24 = 0;
+        }
+
+        const endParts = slot.endTime.split(' ');
+        const [endHourStr, endMinStr] = endParts[0].split(':');
+        const endModifier = endParts[1];
+        endHour24 = parseInt(endHourStr, 10);
+        endMinute = parseInt(endMinStr, 10);
+
+        if (endModifier === 'PM' && endHour24 !== 12) {
+          endHour24 += 12;
+        } else if (endModifier === 'AM' && endHour24 === 12) {
+          endHour24 = 0;
+        }
+      } else {
+        console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 24-hour format`);
+        // Time is in 24-hour format
+        const [sh, sm] = slot.startTime.split(':').map(Number);
+        const [eh, em] = slot.endTime.split(':').map(Number);
+        startHour24 = sh;
+        startMinute = sm;
+        endHour24 = eh;
+        endMinute = em;
+      }
+
+      console.log(`⏰ [TimeSlots] Slot ${slotIndex} parsed - Start: ${startHour24}:${String(startMinute).padStart(2, '0')}, End: ${endHour24}:${String(endMinute).padStart(2, '0')}`);
 
       const start = new Date(selectedDate);
-      start.setHours(isStartPM && startHour !== 12 ? startHour + 12 : startHour, startMinute, 0, 0);
+      start.setHours(startHour24, startMinute, 0, 0);
 
       const end = new Date(selectedDate);
-      end.setHours(isEndPM && endHour !== 12 ? endHour + 12 : endHour, endMinute, 0, 0);
+      end.setHours(endHour24, endMinute, 0, 0);
+
+      console.log(`⏰ [TimeSlots] Slot ${slotIndex} start date-time:`, start);
+      console.log(`⏰ [TimeSlots] Slot ${slotIndex} end date-time:`, end);
 
       let currentTime = new Date(start);
       if (selectedDate.toDateString() === now.toDateString()) {
@@ -138,16 +316,23 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 
       currentTime.setMinutes(Math.ceil(currentTime.getMinutes() / batchSize) * batchSize, 0, 0);
 
+      let generatedCount = 0;
       while (currentTime < end) {
         const nextTime = new Date(currentTime);
         nextTime.setMinutes(nextTime.getMinutes() + batchSize);
         if (nextTime <= end) {
           const slotKey = currentTime.toTimeString();
           if (!startTimeMap[slotKey]) {
+            // Convert 24-hour times to 12-hour format for display
+            const start24 = `${String(currentTime.getHours()).padStart(2, '0')}:${String(currentTime.getMinutes()).padStart(2, '0')}`;
+            const end24 = `${String(nextTime.getHours()).padStart(2, '0')}:${String(nextTime.getMinutes()).padStart(2, '0')}`;
+
             const timeSlot = {
-              startTime: currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              startTime: convert24To12Hour(start24),
+              endTime: convert24To12Hour(end24),
             };
+
+            console.log(`   ✅ Generated slot: ${timeSlot.startTime} - ${timeSlot.endTime}`);
 
             // Check if this slot overlaps with any booked slot
             const isBooked = bookedSlots.some(bookedSlot =>
@@ -172,10 +357,12 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
             });
 
             startTimeMap[slotKey] = true;
+            generatedCount++;
           }
         }
         currentTime = nextTime;
       }
+      console.log(`⏰ [TimeSlots] Slot ${slotIndex} generated ${generatedCount} time slots`);
     });
 
     console.log("📅 Generated slots:", generatedSlots);
@@ -280,8 +467,8 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       <div className="relative mb-4">
         <CalendarX className="w-12 h-12 text-[#16A348]" />
       </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-1 text-center">No available slots</h3>
-      <p className="text-gray-500 text-center">There are no available appointment slots for this Date!.</p>
+      <h3 className="text-lg font-medium text-gray-900 mb-1 text-center">Not Available</h3>
+      <p className="text-gray-500 text-center">There are no available appointment slots for this date. Please select a different date.</p>
     </div>;
   }
 

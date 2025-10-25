@@ -9,101 +9,135 @@ import {
 } from "@/Redux/Slices/expert.Slice";
 import { useDispatch } from "react-redux";
 
-export default function ExperienceTab({ formData, onUpdate }) {
+const parseDocumentPayload = (value) => {
+  if (!value) return null;
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      return null;
+    }
+  }
+  return value;
+};
+
+const normalizeDocuments = (documents) => {
+  const parsed = parseDocumentPayload(documents);
+  if (!parsed) return [];
+  return Array.isArray(parsed) ? parsed : [parsed];
+};
+
+const getPrimaryDocument = (documents) => {
+  const normalized = normalizeDocuments(documents);
+  return normalized.length > 0 ? normalized[0] : null;
+};
+
+const sanitizeExperience = (experience) => {
+  if (!experience) return null;
+  const documents =
+    experience.documents ?? experience.document ?? experience.existingDocument;
+
+  return {
+    ...experience,
+    documents: parseDocumentPayload(documents),
+    currentlyWork:
+      experience.currentlyWork === true ||
+      experience.currentlyWork === "true",
+  };
+};
+
+const mapExperiences = (incoming) => {
+  if (!Array.isArray(incoming)) return [];
+  return incoming.map(sanitizeExperience).filter(Boolean);
+};
+
+const formatDateValue = (value) => {
+  if (!value) return "";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toISOString();
+};
+
+const buildExperienceFormData = (experience, options = {}) => {
+  const formData = new FormData();
+
+  const trimmedCompany = experience.companyName?.trim() ?? "";
+  const trimmedJobTitle = experience.jobTitle?.trim() ?? "";
+  const currentlyWorking =
+    experience.currentlyWork === true || experience.currentlyWork === "true";
+
+  formData.append("companyName", trimmedCompany);
+  formData.append("jobTitle", trimmedJobTitle);
+  formData.append("startDate", formatDateValue(experience.startDate));
+  formData.append("currentlyWork", currentlyWorking ? "true" : "false");
+
+  if (experience._id) {
+    formData.append("_id", experience._id);
+  }
+
+  if (currentlyWorking) {
+    formData.append("endDate", "");
+  } else {
+    formData.append("endDate", formatDateValue(experience.endDate));
+  }
+
+  const primaryDocument = getPrimaryDocument(experience.documents);
+
+  if (primaryDocument instanceof File) {
+    formData.append("document", primaryDocument);
+  } else if (primaryDocument) {
+    formData.append("existingDocument", JSON.stringify(primaryDocument));
+  }
+
+  if (options.removeDocument) {
+    formData.append("removeDocument", "true");
+  }
+
+  return formData;
+};
+
+export default function ExperienceTab({ formData = [], onUpdate }) {
   const dispatch = useDispatch();
+  const [experiences, setExperiences] = useState(mapExperiences(formData));
+  const [showForm, setShowForm] = useState(formData?.length === 0);
   const [experienceToEdit, setExperienceToEdit] = useState(null);
 
-  console.log("This is formData:", formData);
-
-  // Initialize state from localStorage or formData
-  const [experiences, setExperiences] = useState(() => {
-    const savedExperiences = localStorage.getItem("experiences");
-    const parsedExperiences = savedExperiences
-      ? JSON.parse(savedExperiences)
-      : formData;
-
-    // Ensure experiences is always an array
-    return Array.isArray(parsedExperiences) ? parsedExperiences : [];
-  });
-
-  console.log("Experiences being passed to ExperienceList:", experiences);
-
-  const [showForm, setShowForm] = useState(experiences.length === 0);
-  const [editingIndex, setEditingIndex] = useState(null);
-
-  // Ensure experiences state is always in sync with formData
   useEffect(() => {
-    console.log("Updating experiences from formData:", formData);
-
-    if (Array.isArray(formData)) {
-      setExperiences(formData);
-      setShowForm(formData.length === 0);
-    }
+    const normalizedExperiences = mapExperiences(formData);
+    setExperiences(normalizedExperiences);
+    setShowForm(normalizedExperiences.length === 0);
   }, [formData]);
 
-  // Update localStorage whenever experiences change
-  useEffect(() => {
-    localStorage.setItem("experiences", JSON.stringify(experiences));
-  }, [experiences]);
+  const syncExperiencesFromResponse = (payload) => {
+    const updatedExperiences = mapExperiences(
+      payload?.expert?.credentials?.work_experiences
+    );
 
-  const handleAddExperience = async (formData) => {
-    try {
-      // Convert the formData to a format your API expects
-      const experienceData = {
-        companyName: formData.companyName,
-        currentlyWork: formData.currentlyWork,
-        endDate: formData.endDate,
-        jobTitle: formData.jobTitle,
-        startDate: formData.startDate,
-        documents: formData.documents || null,
-      };
+    setExperiences(updatedExperiences);
+    setShowForm(updatedExperiences.length === 0);
 
-      const response = await dispatch(
-        ExperienceFormSubmit(experienceData)
-      ).unwrap();
-      toast.success("Education added successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-      const newExperience = {
-        ...response, // Use the response from the API which includes the _id
-        companyName: formData.companyName,
-        currentlyWork: formData.currentlyWork,
-        endDate: formData.endDate,
-        jobTitle: formData.jobTitle,
-        startDate: formData.startDate,
-        documents: formData.documents || null,
-      };
-
-      const updatedExperiences = [...experiences, newExperience];
-      setExperiences(updatedExperiences);
+    if (typeof onUpdate === "function") {
       onUpdate(updatedExperiences);
-      setShowForm(false);
-      toast.success("Experience added successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+    }
+  };
+
+  const handleAddExperience = async (draftExperience) => {
+    try {
+      const response = await dispatch(
+        ExperienceFormSubmit(buildExperienceFormData(draftExperience))
+      ).unwrap();
+
+      syncExperiencesFromResponse(response);
+      setExperienceToEdit(null);
+      toast.success("Experience added successfully!");
     } catch (error) {
       console.error("Error adding experience:", error);
-      toast.error("Failed to add Experience. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(
+        error?.message || "Failed to add experience. Please try again."
+      );
     }
   };
 
@@ -111,113 +145,63 @@ export default function ExperienceTab({ formData, onUpdate }) {
     const selectedExperience = experiences[index];
 
     if (!selectedExperience || !selectedExperience._id) {
-      console.error(
-        "Selected experience entry is missing ID!",
-        selectedExperience
-      );
+      toast.error("Unable to edit this experience entry.");
       return;
     }
 
-    console.log("Editing experience at index:", index);
-    console.log("Selected experience:", selectedExperience);
-
     setExperienceToEdit(selectedExperience);
-    setEditingIndex(index);
     setShowForm(true);
   };
 
   const handleUpdateExperience = async (updatedExperience) => {
-    console.log("Before updating, experienceToEdit:", experienceToEdit);
-
     if (!experienceToEdit || !experienceToEdit._id) {
-      console.error("Experience entry ID is missing. Setting it manually.");
-
-      if (updatedExperience._id) {
-        setExperienceToEdit(updatedExperience);
-      } else {
-        toast.error("Error updating experience. Please try again.", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        return;
-      }
+      toast.error("Unable to update experience. Please try again.");
+      return;
     }
 
-    // Ensure `_id` is present in the update payload
-    const dataToUpdate = {
-      ...updatedExperience,
-      _id: experienceToEdit._id,
-
-      documents: updatedExperience.documents || experienceToEdit.documents,
-    };
-
-    console.log("Updating Experience with Data:", dataToUpdate);
-
     try {
-      const response = await dispatch(editExperience(dataToUpdate)).unwrap();
-      toast.success("Education added successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-      console.log("Response from server:", response);
+      const response = await dispatch(
+        editExperience(
+          buildExperienceFormData(
+            {
+              ...updatedExperience,
+              _id: experienceToEdit._id,
+            },
+            { removeDocument: Boolean(updatedExperience.removeDocument) }
+          )
+        )
+      ).unwrap();
 
-      const updatedExperiences = [...experiences];
-      updatedExperiences[editingIndex] = response;
-
-      setExperiences(updatedExperiences);
-      onUpdate(updatedExperiences);
-      setShowForm(false);
-      setEditingIndex(null);
-      toast.success("Experience updated successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      syncExperiencesFromResponse(response);
+      setExperienceToEdit(null);
+      toast.success("Experience updated successfully!");
     } catch (error) {
       console.error("Error updating experience:", error);
-      toast.error("Failed to update experience. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error(
+        error?.message || "Failed to update experience. Please try again."
+      );
     }
   };
 
   const handleDeleteExperience = async (index) => {
-    if (index < 0 || index >= experiences.length) return;
-
     const experienceToDelete = experiences[index];
-    console.log("THis is the experience", experienceToDelete);
+    if (!experienceToDelete || !experienceToDelete._id) {
+      toast.error("Unable to delete experience. Please try again.");
+      return;
+    }
+
     try {
       const response = await dispatch(
         deleteExpertExperience({ _id: experienceToDelete._id })
       ).unwrap();
-      console.log("Experience deleted successfully:", response);
 
-      const updatedExperiences = experiences.filter((_, i) => i !== index);
-      setExperiences(updatedExperiences);
-      onUpdate(updatedExperiences);
+      syncExperiencesFromResponse(response);
       toast.success("Experience deleted successfully!");
     } catch (error) {
       console.error("Error deleting experience:", error);
-      toast.error("Failed to delete experience. Please try again.");
+      toast.error(
+        error?.message || "Failed to delete experience. Please try again."
+      );
     }
   };
 
@@ -228,25 +212,30 @@ export default function ExperienceTab({ formData, onUpdate }) {
           Showcase Your Professional Journey
         </h3>
         <p className="text-green-700">
-        Your professional journey tells your story. Adding your experience helps people understand your expertise and trust your skills.
+          Your professional journey tells your story. Adding your experience helps people
+          understand your expertise and trust your skills.
         </p>
       </div>
 
       {showForm ? (
         <ExperienceForm
+          key={experienceToEdit?._id || "create-experience"}
           onSubmit={
-            editingIndex !== null ? handleUpdateExperience : handleAddExperience
+            experienceToEdit ? handleUpdateExperience : handleAddExperience
           }
           onCancel={() => {
+            setExperienceToEdit(null);
             setShowForm(false);
-            setEditingIndex(null);
           }}
-          initialData={editingIndex !== null ? experiences[editingIndex] : null}
+          initialData={experienceToEdit}
         />
       ) : (
         <ExperienceList
           experiences={experiences}
-          onAddClick={() => setShowForm(true)}
+          onAddClick={() => {
+            setExperienceToEdit(null);
+            setShowForm(true);
+          }}
           onEdit={handleEditExperience}
           onDelete={handleDeleteExperience}
         />

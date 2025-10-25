@@ -200,6 +200,28 @@ export default function Payments() {
     };
 
     const amount = Number(meeting.amount ?? 0);
+    const normalizeTitle = (val) =>
+      typeof val === 'string'
+        ? val
+          .replace(/[_-]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+        : '';
+
+    const inferPaymentMethod = (m) => {
+      // For user invoice, prefer gateway/method used at checkout
+      if (m?.paymentMethod) return normalizeTitle(m.paymentMethod);
+      if (m?.paymentGateway) return normalizeTitle(m.paymentGateway);
+      if (m?.gateway) return normalizeTitle(m.gateway);
+      const rid = m?.razorpay_payment_id || m?.paymentId || m?.transactionId;
+      if (typeof rid === 'string' && rid.startsWith('pay_')) return 'Razorpay';
+      if (rid) return 'PayU';
+      if (m?.mihpayid || m?.payuTransactionId) return 'PayU';
+      return 'N/A';
+    };
+
+    const paymentMethod = inferPaymentMethod(meeting);
     const addOns = 20.00; // Placeholder value as in PDF
     const discount = 10.00; // Placeholder value as in PDF
     const totalPaid = amount; // In the PDF, total paid is the base price
@@ -356,10 +378,10 @@ export default function Payments() {
                 {startTime ? formatTime(startTime) : "N/A"}
               </span>
             </div>
-            <div className="flex flex-col col-span-2">
+            {/* <div className="flex flex-col col-span-2">
               <span className="text-gray-600 mb-0.5">Time Duration:</span>
               <span className="font-medium text-gray-900">{calculateDuration()}</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -410,7 +432,7 @@ export default function Payments() {
                 Payment Successful
               </h4>
               <p className="text-xs text-green-700">
-                Transaction ID: {getInvoiceTransactionId(meeting)} | Method: Credit Card
+                Transaction ID: {getInvoiceTransactionId(meeting)} | Method: {paymentMethod}
               </p>
             </div>
           </div>
@@ -426,8 +448,8 @@ export default function Payments() {
           </p>
           <p>
             Questions? Contact support at{" "}
-            <a href="mailto:support@advizy.com" className="text-blue-600">
-              support@advizy.com
+            <a href="mailto:contact@advizy.in" className="text-blue-600">
+              contact@advizy.in
             </a>
           </p>
         </div>

@@ -19,12 +19,12 @@ const getDateStringInTimezone = (dateObj, timezone) => {
     day: '2-digit',
     timeZone: timezone
   });
-  
+
   const parts = formatter.formatToParts(dateObj);
   const year = parts.find(p => p.type === 'year').value;
   const month = parts.find(p => p.type === 'month').value;
   const day = parts.find(p => p.type === 'day').value;
-  
+
   // Return in YYYY-MM-DD format (local date in the timezone)
   return `${year}-${month}-${day}`;
 };
@@ -32,13 +32,13 @@ const getDateStringInTimezone = (dateObj, timezone) => {
 // Helper function to convert 24-hour format (04:30) to 12-hour format (4:30 AM)
 const convertTo12Hour = (time24) => {
   if (!time24) return '';
-  
+
   const [hours24, minutes] = time24.split(':');
   let hours = parseInt(hours24);
   const ampm = hours >= 12 ? 'PM' : 'AM';
-  
+
   hours = hours % 12 || 12; // Convert 0 to 12 (midnight), 13+ to 1-11
-  
+
   return `${hours}:${minutes} ${ampm}`;
 };
 
@@ -48,12 +48,58 @@ function DateSpecificHours({ availability }) {
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
   const [originalDates, setOriginalDates] = useState([]); // Track original dates for deletion
-  const { blockedDates } = useBlockedDates();
+  const { blockedDates: blockedDatesContext } = useBlockedDates();
   const dispatch = useDispatch();
-  
+
   // Get the selected timezone from Redux store
   const { availability: availabilityData } = useSelector((state) => state.availability);
   const selectedTimezone = availabilityData?.timezone?.value || "Asia/Kolkata";
+
+  // Helper function to check if a date is blocked from Redux state
+  const getBlockedDatesFromAvailability = () => {
+    const expertAvailability = availability?.availability?.[0];
+    if (!expertAvailability?.blockedDates || !Array.isArray(expertAvailability.blockedDates)) {
+      return [];
+    }
+
+    return expertAvailability.blockedDates.map((dateObj) => {
+      if (typeof dateObj === 'string') {
+        return new Date(dateObj);
+      } else if (dateObj.dates) {
+        return new Date(dateObj.dates);
+      } else if (dateObj.date) {
+        return new Date(dateObj.date);
+      }
+      return null;
+    }).filter(date => date !== null);
+  };
+
+  const isDateBlocked = (date) => {
+    const blockedDatesFromAvailability = getBlockedDatesFromAvailability();
+
+    // Compare by date string (YYYY-MM-DD) in the selected timezone
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
+
+    console.log(`🔍 Checking if date is blocked: ${dateString}`);
+
+    // Check blocked dates from Redux state
+    const isBlockedFromRedux = blockedDatesFromAvailability.some((blockedDate) => {
+      const blockedDateString = getDateStringInTimezone(blockedDate, selectedTimezone);
+      console.log(`  📅 Comparing: "${dateString}" vs blocked "${blockedDateString}"`);
+      return dateString === blockedDateString;
+    });
+
+    // Check blocked dates from context (for immediate feedback during blocking)
+    const isBlockedFromContext = blockedDatesContext.some((blockedDate) => {
+      const blockedDateString = getDateStringInTimezone(blockedDate, selectedTimezone);
+      return dateString === blockedDateString;
+    });
+
+    const result = isBlockedFromRedux || isBlockedFromContext;
+    console.log(`  ✅ Is blocked? ${result}`);
+
+    return result;
+  };
 
   useEffect(() => {
     const availabilityArray = availability?.availability;
@@ -68,9 +114,9 @@ function DateSpecificHours({ availability }) {
           const dateObj = new Date(specificDate.date);
           // Extract just the date part using the selected timezone
           const dateString = getDateStringInTimezone(dateObj, selectedTimezone);
-          
+
           console.log(`✅ Loading date from DB: ${specificDate.date} -> ${dateString} (timezone: ${selectedTimezone})`);
-          
+
           return {
             id: dateString, // Use consistent date string as ID
             originalDate: specificDate.date, // Keep original date for reference
@@ -79,9 +125,9 @@ function DateSpecificHours({ availability }) {
               // Convert 24-hour format from DB back to 12-hour format for display
               const startTime12 = convertTo12Hour(slot.startTime);
               const endTime12 = convertTo12Hour(slot.endTime);
-              
+
               console.log(`⏰ Loading slot: ${slot.startTime} -> ${startTime12}, ${slot.endTime} -> ${endTime12}`);
-              
+
               return {
                 id: Date.now() + Math.random(),
                 start: startTime12,
@@ -97,21 +143,11 @@ function DateSpecificHours({ availability }) {
     }
   }, [availability, selectedTimezone]);
 
-  const isDateBlocked = (date) =>
-    blockedDates.some(
-      (blockedDate) => blockedDate.getTime() === date.getTime()
-    );
-
   const handleAddDate = (selectedDate) => {
-    if (isDateBlocked(selectedDate)) {
-      alert("This date is blocked or already selected.");
-      return;
-    }
-    
     // Use timezone-aware date string
     const dateString = getDateStringInTimezone(selectedDate, selectedTimezone);
     console.log(`📅 Adding date: ${selectedDate.toISOString()} -> ${dateString} (timezone: ${selectedTimezone})`);
-    
+
     const newDate = {
       id: dateString, // Use consistent date string format
       originalDate: dateString,
@@ -198,28 +234,58 @@ function DateSpecificHours({ availability }) {
     console.log("📊 Current dates state:", dates);
     console.log("📊 Original dates state:", originalDates);
     console.log("🌍 Using timezone:", selectedTimezone);
-    
+
+    // Validate: Check for dates without slots
+    const datesWithoutSlots = dates.filter((date) => date.slots.length === 0);
+    if (datesWithoutSlots.length > 0) {
+      const datesList = datesWithoutSlots.map((date) => date.date.toLocaleDateString()).join(", ");
+      console.warn("⚠️ Dates without slots detected:", datesList);
+      toast.error(`Please add time slots for: ${datesList}`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    // Validate: Check for dates with invalid time slots
+    const datesWithInvalidSlots = dates.filter((date) =>
+      date.slots.some((slot) => {
+        const validationError = validateTimeSlot(slot.start, slot.end);
+        return validationError || !slot.start || !slot.end;
+      })
+    );
+
+    if (datesWithInvalidSlots.length > 0) {
+      const datesList = datesWithInvalidSlots.map((date) => date.date.toLocaleDateString()).join(", ");
+      console.warn("⚠️ Dates with invalid time slots detected:", datesList);
+      toast.error(`Please select a valid time slot for: ${datesList}`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     // Only include dates that have at least one slot
     const datesWithSlots = dates.filter((date) => date.slots.length > 0);
-    
+
     console.log("📊 Dates with slots:", datesWithSlots);
     console.log("📊 Dates without slots (will be removed):", dates.filter((date) => date.slots.length === 0));
-    
+
     // Format the data to send to backend
     const formattedData = datesWithSlots.map((date) => {
       // Convert the local date to ISO string at midnight in the selected timezone
       const dateStringInTz = getDateStringInTimezone(date.date, selectedTimezone);
       console.log(`📅 Processing date: ${date.date.toLocaleDateString()} -> ${dateStringInTz}`);
-      
+
       return {
         date: dateStringInTz, // Send as YYYY-MM-DD string instead of ISO timestamp
         slots: date.slots.map((slot) => {
           // Convert 12-hour format to 24-hour format
           const startTime24 = convertTo24Hour(slot.start);
           const endTime24 = convertTo24Hour(slot.end);
-          
+
           console.log(`  ⏰ Slot: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
-          
+
           return {
             startTime: startTime24,
             endTime: endTime24,
@@ -247,15 +313,15 @@ function DateSpecificHours({ availability }) {
       specific_dates: formattedData,
       deletedDates: deletedDates // Send deleted dates info for debugging
     };
-    
+
     console.log("📦 Full payload:", payload);
 
     // Dispatch with additional deleted dates info
     dispatch(addSpecificDates(formattedData));
-    
+
     // Update originalDates to reflect current state
     setOriginalDates(datesWithSlots);
-    
+
     toast.success("Date-specific hours saved successfully!", {
       position: "top-right",
       autoClose: 2000,
@@ -267,6 +333,25 @@ function DateSpecificHours({ availability }) {
     return dates
       .filter((date) => date.slots.length > 0) // Check only dates with slots
       .map((date) => date.date.getDay()); // Get the day of the week
+  };
+
+  // Helper function to check if a date is in specific_dates
+  const isDateInSpecificDates = (date) => {
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
+    return dates.some(d => getDateStringInTimezone(d.date, selectedTimezone) === dateString);
+  };
+
+  // Helper function to check if day of week is disabled
+  const isDisabledDay = (date) => {
+    const expertAvailability = availability?.availability?.[0];
+    if (!expertAvailability?.daySpecific) return false;
+
+    const dayOfWeek = date.getDay();
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+    const dayData = expertAvailability.daySpecific.find(d => d.day === dayName);
+
+    // Day is disabled if it has no slots
+    return !dayData || !dayData.slots || dayData.slots.length === 0;
   };
 
   return (
@@ -375,11 +460,20 @@ function DateSpecificHours({ availability }) {
               monthsShown={1}
               minDate={new Date()}
               filterDate={(date) => {
-                const daysWithAvailability = getDaysWithAvailability();
-                return !daysWithAvailability.includes(date.getDay()) || !daysWithAvailability.includes(date.getDate()); // Disable days with availability
+                // Filter out: blocked dates, disabled days of week, and already selected dates
+                return !isDateBlocked(date) && !isDisabledDay(date) && !isDateInSpecificDates(date);
+              }}
+              dayClassName={(date) => {
+                const isBlocked = isDateBlocked(date);
+                const isAlreadySelected = isDateInSpecificDates(date);
+                const isDisabledDayOfWeek = isDisabledDay(date);
+
+                if (isBlocked || isAlreadySelected || isDisabledDayOfWeek) {
+                  return "bg-gray-200 text-gray-400 cursor-not-allowed";
+                }
+                return "hover:bg-gray-100 rounded-md";
               }}
             />
-            ;
           </div>
         </div>
       )}

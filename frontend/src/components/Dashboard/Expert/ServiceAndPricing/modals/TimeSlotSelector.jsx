@@ -2,7 +2,7 @@ export function TimeSlotSelector({ duration, price, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+        <label className="block text-sm font-medium text-gray-700">Duration (minutes) <span className="text-red-500">*</span></label>
         <select
           value={duration}
           onChange={(e) => onChange('duration', e.target.value)}
@@ -16,7 +16,7 @@ export function TimeSlotSelector({ duration, price, onChange }) {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Price (INR)</label>
+        <label className="block text-sm font-medium text-gray-700">Price (INR) <span className="text-red-500">*</span></label>
         <input
           type="number"
           value={price}

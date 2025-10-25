@@ -2,6 +2,62 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "@/Helperw/axiosInstance";
 import toast from "react-hot-toast";
 
+const prepareMultipartPayload = (data) => {
+  if (!data || data instanceof FormData) {
+    return { payload: data, config: data ? { headers: { "Content-Type": "multipart/form-data" } } : {} };
+  }
+
+  const formData = new FormData();
+  let hasFile = false;
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === undefined || value === null) {
+      return;
+    }
+
+    if (value instanceof Date) {
+      formData.append(key, value.toISOString());
+      return;
+    }
+
+    if (value instanceof File || value instanceof Blob) {
+      hasFile = true;
+      formData.append(key, value);
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      const fileItems = value.filter((item) => item instanceof File || item instanceof Blob);
+
+      if (fileItems.length > 0) {
+        hasFile = true;
+        const preferredFile = fileItems[0];
+        formData.append(key, preferredFile);
+        return;
+      }
+
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+      return;
+    }
+
+    formData.append(key, value);
+  });
+
+  if (!hasFile) {
+    return { payload: data, config: {} };
+  }
+
+  return {
+    payload: formData,
+    config: { headers: { "Content-Type": "multipart/form-data" } },
+  };
+};
+
 const initialState = {
   expertData: (() => {
     const data = localStorage.getItem("expertData");
@@ -103,15 +159,11 @@ export const ExperienceFormSubmit = createAsyncThunk(
   "expert/experienceForm",
   async (data, { rejectWithValue }) => {
     try {
-      const isFormData = data instanceof FormData;
+      const { payload, config } = prepareMultipartPayload(data);
       const response = await axiosInstance.post(
         "/expert/expertExperience",
-        data,
-        isFormData
-          ? {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-          : {}
+        payload,
+        config
       );
 
       return response.data; // Assuming the backend returns the desired response
@@ -138,9 +190,11 @@ export const editExperience = createAsyncThunk(
   "expert/editExperience",
   async (data, { rejectWithValue }) => {
     try {
+      const { payload, config } = prepareMultipartPayload(data);
       const response = await axiosInstance.post(
         "/expert/editExpertExperience",
-        data
+        payload,
+        config
       );
       return response?.data;
     } catch (error) {
@@ -251,9 +305,11 @@ export const EditEducationForm = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       console.log("this is in slice", data);
+      const { payload, config } = prepareMultipartPayload(data);
       const response = await axiosInstance.post(
         "/expert/editExpertEducation",
-        data
+        payload,
+        config
       );
       return await response?.data;
     } catch (error) {
@@ -303,9 +359,11 @@ export const SingleEducationForm = createAsyncThunk(
   "expert/singleeducationform",
   async (data, { rejectWithValue }) => {
     try {
+      const { payload, config } = prepareMultipartPayload(data);
       const res = await axiosInstance.post(
         "/expert/singleexpertEducation",
-        data
+        payload,
+        config
       );
       return res.data;
     } catch (error) {
@@ -327,7 +385,12 @@ export const CertificateForm = createAsyncThunk(
   "expert/certificateForm",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("expert/expertCertificate", data);
+      const { payload, config } = prepareMultipartPayload(data);
+      const res = await axiosInstance.post(
+        "expert/expertCertificate",
+        payload,
+        config
+      );
       return res.data;
     } catch (error) {
       console.error("Error submitting certificate form:", error);
@@ -350,7 +413,12 @@ export const EditCertificate = createAsyncThunk(
   "expert/editCertificate",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post("expert/editExpertCerti", data);
+      const { payload, config } = prepareMultipartPayload(data);
+      const response = await axiosInstance.post(
+        "expert/editExpertCerti",
+        payload,
+        config
+      );
       return response?.data;
     } catch (error) {
       console.error("Error submitting certificate form:", error);

@@ -2,10 +2,30 @@ import PropTypes from 'prop-types';
 import { isDateInPast, isSameDay, getMonthDays, getFirstDayOfMonth } from '../../utils/dateUtils';
 import Spinner from '@/components/LoadingSkeleton/Spinner';
 
+// Helper function to get date string in timezone (YYYY-MM-DD format)
+const getDateStringInTimezone = (dateObj, timezone) => {
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: timezone
+  });
+
+  const parts = formatter.formatToParts(dateObj);
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+
+  return `${year}-${month}-${day}`;
+};
+
 function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability }) {
   console.log("🗓️ CalendarGrid received availability:", availability);
   console.log("🚫 Blocked dates found:", availability?.blockedDates);
-  
+
+  // Get timezone from availability
+  const selectedTimezone = availability?.timezone?.value || "Asia/Kolkata";
+
   const today = new Date();
   const daysInMonth = getMonthDays(
     currentDate.getFullYear(),
@@ -57,44 +77,39 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
   // Check if a specific date has slots (date-specific availability)
   const hasSpecificDateSlots = (date) => {
     if (!availability?.specific_dates || !Array.isArray(availability.specific_dates)) return false;
-    
-    // Get the date in YYYY-MM-DD format in local timezone
-    const localDateString = date.getFullYear() + '-' + 
-      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-      String(date.getDate()).padStart(2, '0');
-    
-    console.log(`🔍 Checking specific slots for: ${localDateString}`);
+
+    // Get the date in YYYY-MM-DD format in the selected timezone
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
+
+    console.log(`🔍 Checking specific slots for: ${dateString}`);
     console.log(`📅 Available specific_dates:`, availability.specific_dates);
-    
+
     return availability.specific_dates.some(specificDate => {
       try {
         let specificDateValue;
-        
+
         // Handle different date formats
         if (typeof specificDate.date === 'string') {
           // If it's already a string in YYYY-MM-DD format, use directly
           if (specificDate.date.length === 10) {
-            // Already in YYYY-MM-DD format
             specificDateValue = specificDate.date;
           } else {
             // ISO string format - extract date part
             specificDateValue = specificDate.date.split('T')[0];
           }
         } else if (specificDate.date) {
-          // If it's a Date object or ISO string, convert to YYYY-MM-DD using UTC
+          // If it's a Date object or ISO string, convert to YYYY-MM-DD using timezone
           const dateObj = new Date(specificDate.date);
-          specificDateValue = dateObj.getUTCFullYear() + '-' + 
-            String(dateObj.getUTCMonth() + 1).padStart(2, '0') + '-' + 
-            String(dateObj.getUTCDate()).padStart(2, '0');
+          specificDateValue = getDateStringInTimezone(dateObj, selectedTimezone);
         } else {
           return false;
         }
-        
+
         const hasSlots = specificDate.slots && specificDate.slots.length > 0;
-        const dateMatches = localDateString === specificDateValue;
-        
-        console.log(`  📅 Comparing: "${localDateString}" === "${specificDateValue}" | Has slots: ${hasSlots} | Match: ${dateMatches}`);
-        
+        const dateMatches = dateString === specificDateValue;
+
+        console.log(`  📅 Comparing: "${dateString}" === "${specificDateValue}" | Has slots: ${hasSlots} | Match: ${dateMatches}`);
+
         return dateMatches && hasSlots;
       } catch (error) {
         console.warn('Error parsing specific date:', specificDate, error);
@@ -106,42 +121,35 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
   // Check if the date is blocked by the expert
   const isDateBlocked = (date) => {
     if (!availability?.blockedDates || !Array.isArray(availability.blockedDates)) return false;
-    
-    // Get the date in YYYY-MM-DD format in local timezone
-    const localDateString = date.getFullYear() + '-' + 
-      String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-      String(date.getDate()).padStart(2, '0');
-    
-    console.log("🔍 Checking if date is blocked:", localDateString);
+
+    // Get the date in YYYY-MM-DD format in the selected timezone
+    const dateString = getDateStringInTimezone(date, selectedTimezone);
+
+    console.log("🔍 Checking if date is blocked:", dateString);
     console.log("🚫 Available blocked dates:", availability.blockedDates);
-    
+
     return availability.blockedDates.some(blockedDate => {
       try {
         let blockedDateValue;
-        
+
         // Handle different blocked date formats
         if (typeof blockedDate === 'string') {
-          // If it's already a string in YYYY-MM-DD format, use directly
-          blockedDateValue = blockedDate;
+          // If it's already a string, use it
+          blockedDateValue = blockedDate.length === 10 ? blockedDate : blockedDate.split('T')[0];
         } else if (blockedDate && blockedDate.dates) {
           // If it's an object with dates property, extract the date part
           const blockedDateObj = new Date(blockedDate.dates);
-          // Get date in YYYY-MM-DD format without timezone conversion
-          blockedDateValue = blockedDateObj.getUTCFullYear() + '-' + 
-            String(blockedDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' + 
-            String(blockedDateObj.getUTCDate()).padStart(2, '0');
+          blockedDateValue = getDateStringInTimezone(blockedDateObj, selectedTimezone);
         } else if (blockedDate && blockedDate.date) {
           // Alternative property name
           const blockedDateObj = new Date(blockedDate.date);
-          blockedDateValue = blockedDateObj.getUTCFullYear() + '-' + 
-            String(blockedDateObj.getUTCMonth() + 1).padStart(2, '0') + '-' + 
-            String(blockedDateObj.getUTCDate()).padStart(2, '0');
+          blockedDateValue = getDateStringInTimezone(blockedDateObj, selectedTimezone);
         } else {
           return false;
         }
-        
-        console.log(`📅 Comparing: ${localDateString} === ${blockedDateValue}`);
-        return localDateString === blockedDateValue;
+
+        console.log(`📅 Comparing: ${dateString} === ${blockedDateValue}`);
+        return dateString === blockedDateValue;
       } catch (error) {
         console.warn('Error parsing blocked date:', blockedDate, error);
         return false;
@@ -177,7 +185,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
             const hasSpecificSlots = hasSpecificDateSlots(date);
             const hasSlots = hasWeeklySlots || hasSpecificSlots; // Either weekly OR specific date slots
             const isBlocked = isDateBlocked(date);
-            
+
             // A date is unavailable if it's in the past, has no slots, or is blocked
             const isUnavailable = isPast || !hasSlots || isBlocked;
 
@@ -188,13 +196,13 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
                   disabled={isUnavailable}
                   className={`
                     w-9 h-9 flex items-center justify-center rounded-full text-sm transition-colors
-                    ${isUnavailable ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}
-                    ${isBlocked && !isPast ? 'bg-red-50 text-red-400 border border-red-200' : ''}
+                    ${isUnavailable ? 'text-gray-300 cursor-not-allowed bg-gray-100' : 'hover:bg-gray-100'}
                     ${isSelected ? 'bg-green-500 text-white hover:bg-green-600' : ''}
                     ${isToday && !isSelected ? 'border border-green-500' : ''}
                     ${hasSlots && !isUnavailable && !isSelected ? 'text-green-600' : ''}
+                    ${isBlocked ? 'bg-red-50 text-red-300 border border-red-200' : ''}
+                    ${hasSpecificSlots && !isBlocked && !isPast ? 'bg-blue-50 text-blue-600 border border-blue-200' : ''}
                   `}
-                  title={isBlocked ? 'Expert is unavailable on this date' : ''}
                 >
                   {date.getDate()}
                 </button>

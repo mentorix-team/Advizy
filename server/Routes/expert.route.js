@@ -100,14 +100,14 @@ router.post(
 
 router.post(
   "/expertExperience",
-  upload.single("document"),
+  upload.array("documents"),
   isLoggedIn,
   isExpert,
   expertexperience
 );
 router.post(
   "/editExpertExperience",
-  upload.single("document"),
+  upload.array("documents"),
   isLoggedIn,
   isExpert,
   editExpertExperience
@@ -123,21 +123,21 @@ router.post("/expertPayment", isLoggedIn, isExpert, expertPaymentDetails);
 
 router.post(
   "/expertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   expertEducation
 );
 router.post(
   "/singleexpertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   singleexperteducation
 );
 router.post(
   "/editExpertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   editSingleExpertEducation

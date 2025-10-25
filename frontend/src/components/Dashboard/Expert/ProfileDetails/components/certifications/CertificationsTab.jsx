@@ -6,16 +6,15 @@ import { CertificateForm, deleteCerti, EditCertificate } from "@/Redux/Slices/ex
 import { useDispatch } from "react-redux";
 
 export default function CertificationsTab({ formData = [], onUpdate }) {
-  const [certificateToEdit,setCertificateToEdit] = useState(null)
-  console.log('this is formdata',formData)
+  const [certificateToEdit, setCertificateToEdit] = useState(null);
   const [certifications, setCertifications] = useState(() => {
     const storedData = localStorage.getItem('certifications');
-  
+
     if (!storedData) {
       console.log("LocalStorage is empty, using formData:", formData);
       return Array.isArray(formData) ? formData : [formData]; // Ensure formData is an array
     }
-  
+
     try {
       const parsedCertification = JSON.parse(storedData);
       console.log("Parsed data from localStorage:", parsedCertification);
@@ -25,11 +24,8 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       return formData; // Fallback to formData if JSON parsing fails
     }
   });
-  
-  
-  
-  console.log('THis is certificats',certifications)
-  const dispatch = useDispatch()
+
+  const dispatch = useDispatch();
   const [showForm, setShowForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
 
@@ -44,49 +40,36 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
 
   // Update local state when props change and no local storage exists
   useEffect(() => {
-    if (Array.isArray(formData)) {
+    if (Array.isArray(formData) && formData.length > 0) {
       setCertifications(formData);
       setShowForm(formData.length === 0);
       localStorage.setItem('certifications', JSON.stringify(formData)); // Sync localStorage with latest formData
     }
   }, [formData]); // Runs whenever formData updates
-  
 
   const handleAddCertification = async (formData) => {
-
     try {
       const certificateData = {
         title: formData.title,
         issue_organization: formData.issue_organization,
         year: formData.year,
-        certificates: formData.certificates
-      }
+        certificates: formData.certificates || []
+      };
 
-      const response = await dispatch(CertificateForm(certificateData))
+      const response = await dispatch(CertificateForm(certificateData)).unwrap();
 
-      toast.success('Education added successfully!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-
+      // Create a new certification object with the response data
       const newCertificate = {
-        title: formData.title,
-        issue_organization: formData.issue_organization,
-        year: formData.year,
-        certificates: formData.certificates
-      }
+        ...response,
+        certificates: formData.certificates || [] // Keep the file objects from the form
+      };
+
       const updatedCertifications = [...certifications, newCertificate];
       setCertifications(updatedCertifications);
       onUpdate(updatedCertifications);
       setShowForm(false);
-      toast.success("Certification added successfully!",{
+
+      toast.success("Certification added successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -95,9 +78,14 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
         draggable: true,
       });
 
+      // Instead of reloading, update the state directly
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 500);
+
     } catch (error) {
-      console.error('Error adding education:', error);
-      toast.error('Failed to add education. Please try again.',{
+      console.error('Error adding certification:', error);
+      toast.error('Failed to add certification. Please try again.', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -106,38 +94,34 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
         draggable: true,
       });
     }
-
-    
   };
 
   const handleEditCertification = (index) => {
-
-    const selectedCerti = certifications[index]
+    const selectedCerti = certifications[index];
 
     if (!selectedCerti || !selectedCerti._id) {
       console.error("Selected certification entry is missing ID!", selectedCerti);
       return;
     }
-  
-    console.log("Editing education at index:", index);
-    console.log("Selected education:", selectedCerti);
 
-    setCertificateToEdit(selectedCerti); // Ensure state is updated properly
+    console.log("Editing certification at index:", index);
+    console.log("Selected certification:", selectedCerti);
+
+    setCertificateToEdit(selectedCerti);
     setEditingIndex(index);
     setShowForm(true);
   };
 
   const handleUpdateCertification = async (updatedCertification) => {
-
-    console.log("Before updating, educationToEdit:", certificateToEdit);
+    console.log("Before updating, certificateToEdit:", certificateToEdit);
 
     if (!certificateToEdit || !certificateToEdit._id) {
       console.error("Certificate entry ID is missing. Setting it manually.");
-      
+
       if (certificateToEdit._id) {
         setCertificateToEdit(updatedCertification);
       } else {
-        toast.error("Error updating certificate. Please try again.",{
+        toast.error("Error updating certificate. Please try again.", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -153,33 +137,28 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       ...updatedCertification, // New values first
       _id: certificateToEdit._id, // Preserve the ID
       // Preserve certificate if not updated
-      certificate: updatedCertification.certificate || certificateToEdit.certificate
+      certificates: updatedCertification.certificates || certificateToEdit.certificates || []
     };
 
     console.log("Updating certificate with Data:", dataToUpdate);
-  
+
     try {
       const response = await dispatch(EditCertificate(dataToUpdate)).unwrap();
-      toast.success('Education added successfully!',{
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-      console.log('Response from server:', response);
-  
-      const updatedCertification = [...certifications];
-      updatedCertification[editingIndex] = response;
-  
-      setCertifications(updatedCertification);
-      onUpdate(updatedCertification);
+
+      // Create updated certification object with the response data
+      const updatedCert = {
+        ...response,
+        certificates: updatedCertification.certificates || certificateToEdit.certificates || []
+      };
+
+      const updatedCertifications = [...certifications];
+      updatedCertifications[editingIndex] = updatedCert;
+
+      setCertifications(updatedCertifications);
+      onUpdate(updatedCertifications);
       setShowForm(false);
       setEditingIndex(null);
+
       toast.success('Certificate updated successfully!', {
         position: "top-right",
         autoClose: 3000,
@@ -188,6 +167,11 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
         pauseOnHover: true,
         draggable: true,
       });
+
+      // Instead of reloading, update the state directly
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 500);
     } catch (error) {
       console.error('Error updating certificate:', error);
       toast.error('Failed to update certificate. Please try again.', {
@@ -203,25 +187,25 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
 
   const handleDeleteCertification = async (index) => {
     if (index < 0 || index >= certifications.length) return;
-  
+
     const certificationToDelete = certifications[index];
-  
+
     try {
       // Dispatch deleteCerti action with the certification to be deleted
       const response = await dispatch(deleteCerti(certificationToDelete)).unwrap(); // Unwrap to handle success or failure
       console.log('Certification deleted successfully:', response);
-  
+
       // Remove the certification from local state
       const updatedCertifications = certifications.filter((_, i) => i !== index);
       setCertifications(updatedCertifications);
-  
+
       // Update the parent component
       if (onUpdate) {
         onUpdate(updatedCertifications);
       }
-  
+
       // Show success toast notification
-      toast.success('Certification deleted successfully!',{
+      toast.success('Certification deleted successfully!', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -231,7 +215,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       });
     } catch (error) {
       console.error('Error deleting certification:', error);
-      toast.error('Failed to delete certification. Please try again.',{
+      toast.error('Failed to delete certification. Please try again.', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -241,7 +225,6 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       });
     }
   };
-  
 
   const handleCancel = () => {
     setShowForm(false);
@@ -253,10 +236,10 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       <Toaster position="top-right" />
       <div className="bg-green-50 p-4 rounded-lg mb-6 text-left">
         <h3 className="text-xl font-semibold text-green-800 mb-2">
-        Boost Your Credibility with Certifications
+          Boost Your Credibility with Certifications
         </h3>
         <p className="text-green-700">
-        Certifications showcase your expertise, commitment, and skills, helping you stand out to potential clients.
+          Certifications showcase your expertise, commitment, and skills, helping you stand out to potential clients.
         </p>
       </div>
 

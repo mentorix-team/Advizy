@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import CustomDatePicker from "./CustomDatePicker";
-import { CircleCheckBig, Info, Trash2 } from "lucide-react";
+import { CircleCheckBig, Info, Trash2, AlertCircle } from "lucide-react";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
@@ -11,6 +11,10 @@ import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import Tooltip from "../../ToolTip";
 import toast from "react-hot-toast";
+import {
+  nationalityOptions,
+  getCitiesForNationality,
+} from "./nationalityCities";
 
 const MAX_SOCIAL_LINKS = 4;
 
@@ -48,8 +52,23 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     mobile: false,
   });
 
+  // Function to check if a field is empty
+  const isEmpty = (value) => {
+    return !value || (Array.isArray(value) && value.length === 0) ||
+      (typeof value === 'string' && value.trim() === '');
+  };
+
   const handleChange = (field, value) => {
-    onUpdate({ ...formData, [field]: value });
+    const updatedForm = {
+      ...formData,
+      [field]: value,
+    };
+
+    if (field === "nationality") {
+      updatedForm.city = "";
+    }
+
+    onUpdate(updatedForm);
     // Reset verification status when email/mobile changes
     if (field === "email" || field === "mobile") {
       setVerificationStatus((prev) => ({
@@ -270,6 +289,168 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     socialLinks.length < MAX_SOCIAL_LINKS &&
     socialLinks.every((link) => link && link.trim() !== "");
 
+  const cityOptions = useMemo(
+    () => getCitiesForNationality(formData.nationality),
+    [formData.nationality]
+  );
+
+  const getSelectStyles = (hasError) => ({
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "42px",
+      borderColor: hasError
+        ? "#ef4444"
+        : state.isFocused
+          ? "#16a34a"
+          : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #16a34a" : "none",
+      backgroundColor: hasError ? "#fef2f2" : provided.backgroundColor,
+      "&:hover": {
+        borderColor: state.isFocused ? "#16a34a" : hasError ? "#ef4444" : "#16a34a",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 20,
+    }),
+  });
+
+  // Function to render a required field with validation
+  const renderRequiredField = (
+    field,
+    label,
+    placeholder,
+    type = "text",
+    options = null,
+    extraProps = {}
+  ) => {
+    const value = formData[field];
+    const hasError = (errors[field] && touched[field]) || (isEmpty(value) && touched[field]);
+    const isEmptyField = isEmpty(value);
+
+    return (
+      <div className="col-span-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label} <span className="text-red-500">*</span>
+        </label>
+        {type === "select" ? (
+          <select
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            {...extraProps}
+          >
+            <option value="">{placeholder}</option>
+            {options && options.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+                disabled={Boolean(option.disabled)}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ) : type === "single-select" ? (
+          <Select
+            value={options?.find((option) => option.value === value) || null}
+            onChange={(option) => handleChange(field, option ? option.value : "")}
+            onBlur={() => onBlur(field)}
+            options={options || []}
+            placeholder={placeholder}
+            isDisabled={Boolean(extraProps.disabled)}
+            isClearable
+            classNamePrefix="advizy-select"
+            styles={getSelectStyles(hasError)}
+            menuPlacement="bottom"
+            menuShouldScrollIntoView={false}
+            noOptionsMessage={() => extraProps.noOptionsMessage || "No options"}
+          />
+        ) : type === "textarea" ? (
+          <textarea
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            placeholder={placeholder}
+            rows={4}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+          />
+        ) : type === "date" ? (
+          <CustomDatePicker
+            selectedDate={value ? new Date(value) : null}
+            onChange={(date) => {
+              handleChange(field, date.toISOString().split("T")[0]);
+              onBlur(field);
+            }}
+            type="dob"
+          />
+        ) : type === "phone" ? (
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <input
+                type="tel"
+                value={value}
+                onChange={handlePhoneChange}
+                onBlur={() => onBlur(field)}
+                className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+                  } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+                placeholder={placeholder}
+                maxLength={10}
+              />
+            </div>
+            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
+              Verified
+            </div>
+          </div>
+        ) : type === "email" ? (
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={value}
+              onChange={(e) => handleChange(field, e.target.value)}
+              onBlur={() => onBlur(field)}
+              placeholder={placeholder}
+              className={`flex-1 p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+                } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            />
+            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
+              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
+              Verified
+            </div>
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            placeholder={placeholder}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+          />
+        )}
+
+        {hasError && (
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors[field] || `${label} is required`}</span>
+          </div>
+        )}
+
+        {/* {isEmptyField && !hasError && (
+          <div className="mt-1 flex items-center text-amber-600 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{label} is required</span>
+          </div>
+        )} */}
+      </div>
+    );
+  };
+
   return (
     <div className="py-6">
       {/* Bio Description */}
@@ -288,254 +469,81 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("bio")}
           placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
-          className={`w-full p-2.5 border ${errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+          className={`w-full p-2.5 border ${errors.bio && touched.bio ? "border-red-500 bg-red-50" : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
         />
         <p className="text-sm text-gray-500 mt-1">
           Your bio is your chance to showcase your expertise and personality.
           Make it count!
         </p>
         {errors.bio && touched.bio && (
-          <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors.bio}</span>
+          </div>
+        )}
+        {isEmpty(formData.bio) && !errors.bio && (
+          <div className="mt-1 flex items-center text-amber-600 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>Bio description is required</span>
+          </div>
         )}
       </div>
 
       {/* Form Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* First Name */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            onBlur={() => onBlur("firstName")}
-            placeholder="John"
-            className={`w-full p-2.5 border ${errors.firstName && touched.firstName
-              ? "border-red-500"
-              : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.firstName && touched.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-          )}
-        </div>
+        {renderRequiredField("firstName", "First Name", "John")}
 
         {/* Last Name */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.lastName}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-            onBlur={() => onBlur("lastName")}
-            placeholder="Doe"
-            className={`w-full p-2.5 border ${errors.lastName && touched.lastName
-              ? "border-red-500"
-              : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.lastName && touched.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-          )}
-        </div>
+        {renderRequiredField("lastName", "Last Name", "Doe")}
 
         {/* Gender */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Gender <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={formData.gender}
-            onChange={(e) => handleChange("gender", e.target.value)}
-            onBlur={() => onBlur("gender")}
-            className={`w-full p-2.5 border ${errors.gender && touched.gender
-              ? "border-red-500"
-              : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-          {errors.gender && touched.gender && (
-            <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
-          )}
-        </div>
+        {renderRequiredField(
+          "gender",
+          "Gender",
+          "Select Gender",
+          "select",
+          [
+            { value: "male", label: "Male" },
+            { value: "female", label: "Female" },
+            { value: "other", label: "Other" }
+          ]
+        )}
 
         {/* Date of Birth */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date of Birth <span className="text-red-500">*</span>
-          </label>
-          <CustomDatePicker
-            selectedDate={
-              formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
-            }
-            onChange={(date) => {
-              handleChange("dateOfBirth", date.toISOString().split("T")[0]);
-              onBlur("dateOfBirth");
-            }}
-            type="dob"
-          />
-          {errors.dateOfBirth && touched.dateOfBirth && (
-            <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>
-          )}
-        </div>
+        {renderRequiredField("dateOfBirth", "Date of Birth", "", "date")}
 
         {/* Nationality */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nationality
-          </label>
-          <select
-            value={formData.nationality}
-            onChange={(e) => handleChange("nationality", e.target.value)}
-            onBlur={() => onBlur("nationality")}
-            className={`w-full p-2.5 border ${errors.nationality && touched.nationality
-              ? "border-red-500"
-              : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
-          >
-            <option value="">Select nationality</option>
-            <option value="in">Indian</option>
-            <option value="cn">Chinese</option>
-            <option value="us">American</option>
-            <option value="id">Indonesian</option>
-            <option value="pk">Pakistani</option>
-            <option value="ng">Nigerian</option>
-            <option value="br">Brazilian</option>
-            <option value="bd">Bangladeshi</option>
-            <option value="ru">Russian</option>
-            <option value="mx">Mexican</option>
-            <option value="jp">Japanese</option>
-            <option value="et">Ethiopian</option>
-            <option value="ph">Filipino</option>
-            <option value="eg">Egyptian</option>
-            <option value="vn">Vietnamese</option>
-            <option value="cd">Congolese</option>
-            <option value="tr">Turkish</option>
-            <option value="ir">Iranian</option>
-            <option value="de">German</option>
-            <option value="th">Thai</option>
-            <option value="gb">British</option>
-            <option value="fr">French</option>
-            <option value="it">Italian</option>
-            <option value="tz">Tanzanian</option>
-            <option value="za">South African</option>
-            <option value="mm">Burmese</option>
-            <option value="ke">Kenyan</option>
-            <option value="kr">South Korean</option>
-            <option value="co">Colombian</option>
-            <option value="es">Spanish</option>
-            <option value="ug">Ugandan</option>
-            <option value="ar">Argentinian</option>
-            <option value="dz">Algerian</option>
-            <option value="sd">Sudanese</option>
-            <option value="ua">Ukrainian</option>
-            <option value="iq">Iraqi</option>
-            <option value="af">Afghan</option>
-            <option value="pl">Polish</option>
-            <option value="ca">Canadian</option>
-            <option value="ma">Moroccan</option>
-            <option value="sa">Saudi Arabian</option>
-            <option value="uz">Uzbekistani</option>
-            <option value="pe">Peruvian</option>
-            <option value="ao">Angolan</option>
-            <option value="my">Malaysian</option>
-            <option value="gh">Ghanaian</option>
-            <option value="mz">Mozambican</option>
-            <option value="ye">Yemeni</option>
-          </select>
-          {errors.nationality && touched.nationality && (
-            <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
-          )}
-        </div>
+        {renderRequiredField(
+          "nationality",
+          "Nationality",
+          "Select nationality",
+          "single-select",
+          nationalityOptions
+        )}
 
         {/* City */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            City
-          </label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => handleChange("city", e.target.value)}
-            onBlur={() => onBlur("city")}
-            placeholder="New Delhi"
-            className={`w-full p-2.5 border ${errors.city && touched.city ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.city && touched.city && (
-            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-          )}
-        </div>
+        {renderRequiredField(
+          "city",
+          "City",
+          formData.nationality ? "Select city" : "Select nationality first",
+          "single-select",
+          formData.nationality ? cityOptions : [],
+          { disabled: !formData.nationality, noOptionsMessage: "No cities available" }
+        )}
 
         {/* Mobile Number */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mobile Number
-          </label>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <input
-                type="tel"
-                value={formData.mobile}
-                onChange={handlePhoneChange}
-                onBlur={() => onBlur("mobile")}
-                className={`w-full p-2.5 border ${errors.mobile && touched.mobile ? "border-red-500" : "border-gray-300"
-                  } rounded-lg focus:ring-1 focus:ring-primary`}
-                placeholder="Enter 10-digit phone number"
-                maxLength={10}
-              />
-            </div>
-            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-              Verified
-            </div>
-          </div>
-          {errors.mobile && touched.mobile && (
-            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
-          )}
-        </div>
+        {renderRequiredField("mobile", "Mobile Number", "Enter 10-digit phone number", "phone")}
 
         {/* Email Address */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              onBlur={() => onBlur("email")}
-              placeholder="john@example.com"
-              className={`flex-1 p-2.5 border ${errors.email && touched.email
-                ? "border-red-500"
-                : "border-gray-300"
-                } rounded-lg focus:ring-1 focus:ring-primary`}
-            />
-            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-              Verified
-            </div>
-          </div>
-          {errors.email && touched.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
+        {renderRequiredField("email", "Email Address", "john@example.com", "email")}
       </div>
 
       {/* Languages Known */}
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Languages Known
+          Languages Known <span className="text-red-500">*</span>
         </label>
         <Select
           name="languages"
@@ -545,14 +553,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className="w-full"
+          className={`w-full ${errors.languages && touched.languages ? "border-red-500 bg-red-50 rounded-lg" : ""}`}
           components={{
             Option: CustomOption
           }}
           closeMenuOnSelect={false}
+          menuPlacement="bottom"
+          menuShouldScrollIntoView={false}
         />
         {errors.languages && touched.languages && (
-          <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors.languages}</span>
+          </div>
+        )}
+        {isEmpty(formData.languages) && !errors.languages && (
+          <div className="mt-1 flex items-center text-amber-600 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>Please select at least one language</span>
+          </div>
         )}
       </div>
 

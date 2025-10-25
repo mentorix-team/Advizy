@@ -37,7 +37,32 @@ const MeetingInvoice = () => {
 
   const orderId = getInvoiceOrderId(meeting);
   const transactionId = getInvoiceTransactionId(meeting);
-  const paymentMethod = meeting.payoutMethod || meeting.paymentMethod || "N/A";
+  const normalizeTitle = (val) =>
+    typeof val === "string"
+      ? val
+        .replace(/[_-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+      : "";
+
+  const inferPaymentMethod = (m) => {
+    // Prefer explicit payout method for expert payout invoice
+    if (m?.payoutMethod) return normalizeTitle(m.payoutMethod);
+    // Fall back to generic payment method or gateway names
+    if (m?.paymentMethod) return normalizeTitle(m.paymentMethod);
+    if (m?.paymentGateway) return normalizeTitle(m.paymentGateway);
+    if (m?.gateway) return normalizeTitle(m.gateway);
+    // Infer from known identifiers
+    const rid = m?.razorpay_payment_id || m?.paymentId || m?.transactionId;
+    if (typeof rid === "string" && rid.startsWith("pay_")) return "Razorpay";
+    // PayU cases: controller stores payuMoneyId in razorpay_payment_id for historical reasons
+    if (rid) return "PayU";
+    if (m?.mihpayid || m?.payuTransactionId) return "PayU";
+    return "N/A";
+  };
+
+  const paymentMethod = inferPaymentMethod(meeting);
   const formattedOrderDate = (meeting.createdAt || date)
     ? new Date(meeting.createdAt || date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -362,8 +387,8 @@ const MeetingInvoice = () => {
         <div className="text-[10px] text-gray-500 space-y-0.5 pt-3 border-t border-gray-200">
           <p>
             For payout assistance contact{" "}
-            <a href="mailto:support@advizy.com" className="text-blue-600">
-              support@advizy.com
+            <a href="mailto:contact@advizy.in" className="text-blue-600">
+              contact@advizy.in
             </a>
           </p>
           <p>
