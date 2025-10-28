@@ -335,6 +335,7 @@ function App() {
 
     if (!basic.firstName.trim()) newErrors.firstName = "First name is required";
     if (!basic.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!basic.bio.trim()) newErrors.bio = "Bio description is required";
     if (!basic.gender) newErrors.gender = "Gender is required";
     if (!basic.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
     if (!basic.nationality) newErrors.nationality = "Nationality is required";
@@ -637,6 +638,7 @@ function App() {
       const requiredFields = [
         "firstName",
         "lastName",
+        "bio",
         "gender",
         "dateOfBirth",
         "nationality",

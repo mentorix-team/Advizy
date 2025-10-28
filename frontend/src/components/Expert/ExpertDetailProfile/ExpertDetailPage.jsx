@@ -269,7 +269,7 @@ const ExpertDetailPage = () => {
                 about={expert?.bio || "No details provided"}
                 socialLinks={socialLinks}
               />
-              <BlockedDates blockedDates={blockedDates} />
+              {/* <BlockedDates blockedDates={blockedDates} /> */}
               <Expertise skills={expert?.credentials?.skills || []} />
               <ServicesOffered
                 id="services-offered"

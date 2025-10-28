@@ -84,12 +84,25 @@ const buildExperienceFormData = (experience, options = {}) => {
     formData.append("endDate", formatDateValue(experience.endDate));
   }
 
-  const primaryDocument = getPrimaryDocument(experience.documents);
+  // Handle all documents
+  const documents = normalizeDocuments(experience.documents);
+  const existingDocuments = [];
+  
+  if (documents.length > 0) {
+    documents.forEach((doc) => {
+      if (doc instanceof File) {
+        // New file uploads - use field name "documents" to match server route
+        formData.append("documents", doc);
+      } else if (doc) {
+        // Existing documents from server - collect them for batch processing
+        existingDocuments.push(doc);
+      }
+    });
+  }
 
-  if (primaryDocument instanceof File) {
-    formData.append("document", primaryDocument);
-  } else if (primaryDocument) {
-    formData.append("existingDocument", JSON.stringify(primaryDocument));
+  // Send existing documents as a JSON array if any exist
+  if (existingDocuments.length > 0) {
+    formData.append("existingDocuments", JSON.stringify(existingDocuments));
   }
 
   if (options.removeDocument) {

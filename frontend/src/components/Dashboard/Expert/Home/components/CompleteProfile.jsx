@@ -4,17 +4,25 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 
-export default function CompleteProfile({ 
+export default function CompleteProfile({
   completion = 0,
+  firstIncompleteSection = 'basic'
 }) {
+  console.log('CompleteProfile rendering with completion:', completion);
+
   // If profile is complete, don't render anything
   if (completion === 100) {
+    console.log('CompleteProfile: hiding because completion is 100');
     return null;
   }
+
+  console.log('CompleteProfile: showing because completion is', completion);
 
   const navigate = useNavigate();
 
   const onCompleteProfile = () => {
+    // Set the active tab to the first incomplete section
+    localStorage.setItem('activeTab', firstIncompleteSection);
     navigate('/dashboard/expert/profile-detail')
   }
 
@@ -24,15 +32,15 @@ export default function CompleteProfile({
         <h2 className="text-lg sm:text-xl font-bold">Complete Your Profile</h2>
         <ArrowUpRight onClick={onCompleteProfile} className='w-4 h-4 text-gray-800 cursor-pointer' />
       </div>
-      
+
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm text-gray-600">Profile Completion</span>
           <span className="text-sm font-medium">{completion}%</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-black rounded-full h-2 transition-all duration-300" 
+          <div
+            className="bg-black rounded-full h-2 transition-all duration-300"
             style={{ width: `${completion}%` }}
           ></div>
         </div>
@@ -42,7 +50,7 @@ export default function CompleteProfile({
         Complete your profile to increase visibility and attract more clients.
       </p>
 
-      <button 
+      <button
         onClick={onCompleteProfile}
         className="w-full bg-black text-white rounded-lg py-2 px-4 hover:bg-gray-800 flex items-center justify-center gap-2"
       >
@@ -55,6 +63,7 @@ export default function CompleteProfile({
 
 CompleteProfile.propTypes = {
   completion: PropTypes.number,
+  firstIncompleteSection: PropTypes.string,
   sections: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
     status: PropTypes.oneOf(['completed', 'in-progress', 'pending']).isRequired

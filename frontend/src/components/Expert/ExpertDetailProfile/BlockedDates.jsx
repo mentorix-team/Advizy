@@ -3,11 +3,11 @@ import { BiCalendarX } from 'react-icons/bi';
 
 const BlockedDates = ({ blockedDates = [] }) => {
   console.log("BlockedDates component received:", blockedDates);
-  
+
   // Format blocked dates for display
   const formatBlockedDates = (dates) => {
     if (!dates || dates.length === 0) return [];
-    
+
     return dates.map(dateObj => {
       try {
         // Handle different date formats
@@ -21,15 +21,15 @@ const BlockedDates = ({ blockedDates = [] }) => {
         } else {
           dateValue = dateObj;
         }
-        
+
         const date = new Date(dateValue);
-        
+
         // Check if date is valid
         if (isNaN(date.getTime())) {
           console.warn('Invalid date:', dateValue);
           return null;
         }
-        
+
         return {
           formatted: date.toLocaleDateString('en-US', {
             month: 'short',
@@ -60,22 +60,22 @@ const BlockedDates = ({ blockedDates = [] }) => {
           Unavailable Dates
         </h3>
       </div>
-      
+
       <p className="text-sm text-gray-600 mb-4">
         The expert is not available on the following dates:
       </p>
-      
+
       <div className="flex flex-wrap gap-2">
         {formattedDates.map((date, index) => (
           <span
             key={index}
             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200"
           >
-            {date}
+            {date.formatted}
           </span>
         ))}
       </div>
-      
+
       {formattedDates.length > 10 && (
         <p className="text-xs text-gray-500 mt-3">
           Showing {Math.min(10, formattedDates.length)} of {formattedDates.length} unavailable dates

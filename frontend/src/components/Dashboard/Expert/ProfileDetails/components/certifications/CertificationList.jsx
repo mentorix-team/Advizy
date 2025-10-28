@@ -27,15 +27,90 @@ const CertificationList = ({ certifications = [], onEdit, onDelete, onAddClick }
     }
   };
 
-  const viewFile = (file) => {
-    // Create object URL and open in new tab
-    const fileUrl = URL.createObjectURL(file);
-    window.open(fileUrl, '_blank');
+  const normalizeCertificates = (certificates) => {
+    if (!certificates) return [];
+    if (Array.isArray(certificates)) return certificates;
+    if (typeof certificates === 'string') {
+      try {
+        const parsed = JSON.parse(certificates);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch (error) {
+        console.error('Error parsing certificates JSON:', error);
+        return [];
+      }
+    }
+    return [certificates];
+  };
 
-    // Revoke the URL after a short delay to free memory
-    setTimeout(() => {
-      URL.revokeObjectURL(fileUrl);
-    }, 1000);
+  const getDisplayName = (file) => {
+    if (!file) return '';
+    
+    // Handle File objects (newly uploaded)
+    if (file instanceof File) return file.name;
+    
+    // Handle server response objects with secure_url (Cloudinary)
+    if (typeof file === 'object' && file.secure_url) {
+      // Extract filename from URL, removing query parameters
+      const urlParts = file.secure_url.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      const cleanFilename = filename.split('?')[0]; // Remove query params
+      
+      // If it's a generic ID, try to get original filename
+      if (file.original_filename) {
+        return file.original_filename;
+      }
+      
+      // Create a user-friendly name from the clean filename
+      if (cleanFilename && cleanFilename.length > 10) {
+        return cleanFilename.length > 30 ? 
+          cleanFilename.substring(0, 30) + '...' : 
+          cleanFilename;
+      }
+      
+      return 'Certificate.pdf';
+    }
+    
+    // Handle simple URL strings
+    if (typeof file === 'string' && file.startsWith('http')) {
+      const urlParts = file.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      return filename.split('?')[0] || 'Certificate.pdf';
+    }
+    
+    return String(file);
+  };
+
+  const openDocument = (file) => {
+    if (!file) return;
+    
+    try {
+      // Handle File objects (newly uploaded files)
+      if (file instanceof File) {
+        const url = URL.createObjectURL(file);
+        window.open(url, '_blank');
+        // Clean up the URL after opening to prevent memory leaks
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
+
+      // Handle server response objects with secure_url
+      if (typeof file === 'object' && file.secure_url) {
+        window.open(file.secure_url, '_blank');
+        return;
+      }
+      
+      // Handle direct URL strings
+      if (typeof file === 'string' && file.startsWith('http')) {
+        window.open(file, '_blank');
+        return;
+      }
+      
+      console.warn('Unable to open document - unsupported format:', file);
+      alert('Unable to open document. Please try again.');
+    } catch (error) {
+      console.error('Error opening document:', error);
+      alert('Unable to open document. Please try again.');
+    }
   };
 
   return (
@@ -75,23 +150,21 @@ const CertificationList = ({ certifications = [], onEdit, onDelete, onAddClick }
               {/* Certificates Section */}
               {cert.certificates && cert.certificates.length > 0 && (
                 <div className="mt-2 space-y-1">
-                  {cert.certificates.map((file, fileIndex) => (
-                    file?.name ? (
-                      <div key={`${file.name}-${fileIndex}`} className="flex items-center gap-2">
-                        <button
-                          onClick={() => viewFile(file)}
-                          className="flex items-center gap-2 text-primary hover:text-green-600 transition-colors duration-200"
-                        >
-                          <FaEye className="w-4 h-4" />
-                          <span className="text-sm">{file.name}</span>
+                  {normalizeCertificates(cert.certificates).map((file, fileIndex) => (
+                    <div key={fileIndex} className="flex items-center gap-2">
+                      <button
+                        onClick={() => openDocument(file)}
+                        className="flex items-center gap-2 text-primary hover:text-green-600 transition-colors duration-200"
+                      >
+                        <FaEye className="w-4 h-4" />
+                        <span className="text-sm">{getDisplayName(file)}</span>
+                        {file instanceof File && file.size && (
                           <span className="text-xs text-gray-400">
                             ({(file.size / 1024 / 1024).toFixed(2)} MB)
                           </span>
-                        </button>
-                      </div>
-                    ) : (
-                      <p key={fileIndex} className="text-sm text-gray-500">Invalid file</p>
-                    )
+                        )}
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}

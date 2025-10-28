@@ -441,53 +441,85 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           </div>
         )}
 
-        {/* {isEmptyField && !hasError && (
+        {isEmptyField && !hasError && (
           <div className="mt-1 flex items-center text-amber-600 text-sm">
             <AlertCircle className="w-4 h-4 mr-1" />
             <span>{label} is required</span>
           </div>
-        )} */}
+        )}
       </div>
     );
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate all fields, including bio
+    const updatedErrors = { ...errors };
+    const updatedTouched = { ...touched };
+
+    let hasErrors = false;
+
+    if (isEmpty(formData.bio)) {
+      updatedErrors.bio = "Bio description is required.";
+      updatedTouched.bio = true;
+      hasErrors = true;
+    }
+
+    // Check other fields (if not already validated)
+    Object.keys(formData).forEach((field) => {
+      if (isEmpty(formData[field]) && !updatedErrors[field]) {
+        updatedErrors[field] = `${field} is required.`;
+        updatedTouched[field] = true;
+        hasErrors = true;
+      }
+    });
+
+    onUpdate({ ...formData }); // Update form data
+    onBlur("bio"); // Mark bio as touched
+
+    if (hasErrors) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    // Proceed with form submission logic
+    toast.success("All changes are saved.");
+    // ...existing code...
+  };
+
   return (
-    <div className="py-6">
+    <form onSubmit={handleSubmit} className="py-6">
       {/* Bio Description */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
           <label className="block text-sm font-medium text-gray-700">
-            Bio Description
+            Bio Description<span className="text-red-500">*</span>
           </label>
           <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
             <Info className="w-4 h-4 text-gray-400 cursor-help" />
           </Tooltip>
         </div>
         <textarea
+          id="bio-field"
           value={formData.bio}
           onChange={(e) => handleChange("bio", e.target.value)}
           onBlur={() => onBlur("bio")}
           placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
           rows={4}
-          className={`w-full p-2.5 border ${errors.bio && touched.bio ? "border-red-500 bg-red-50" : "border-gray-300"
+          className={`w-full p-2.5 border ${(errors.bio && touched.bio) || (isEmpty(formData.bio) && touched.bio) ? "border-red-500 bg-red-50" : "border-gray-300"
             } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
         />
         <p className="text-sm text-gray-500 mt-1">
           Your bio is your chance to showcase your expertise and personality.
           Make it count!
         </p>
-        {errors.bio && touched.bio && (
+        {(errors.bio && touched.bio) || (isEmpty(formData.bio) && touched.bio) ? (
           <div className="mt-1 flex items-center text-red-500 text-sm">
             <AlertCircle className="w-4 h-4 mr-1" />
-            <span>{errors.bio}</span>
+            <span>{errors.bio || "Bio description is required"}</span>
           </div>
-        )}
-        {isEmpty(formData.bio) && !errors.bio && (
-          <div className="mt-1 flex items-center text-amber-600 text-sm">
-            <AlertCircle className="w-4 h-4 mr-1" />
-            <span>Bio description is required</span>
-          </div>
-        )}
+        ) : null}
       </div>
 
       {/* Form Grid */}
@@ -628,7 +660,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           contactInfo={contactInfo}
         />
       )}
-    </div>
+    </form>
   );
 };
 

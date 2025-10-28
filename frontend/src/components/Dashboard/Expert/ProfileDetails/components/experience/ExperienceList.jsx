@@ -18,29 +18,85 @@ const ExperienceList = ({ experiences = [], onEdit, onDelete, onAddClick }) => {
   const normalizeDocuments = (documents) => {
     if (!documents) return [];
     if (Array.isArray(documents)) return documents;
+    if (typeof documents === 'string') {
+      try {
+        const parsed = JSON.parse(documents);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch (error) {
+        console.error('Error parsing documents JSON:', error);
+        return [];
+      }
+    }
     return [documents];
   };
 
   const getDisplayName = (file) => {
     if (!file) return '';
+    
+    // Handle File objects (newly uploaded)
     if (file instanceof File) return file.name;
+    
+    // Handle server response objects with secure_url (Cloudinary)
     if (typeof file === 'object' && file.secure_url) {
-      const parts = file.secure_url.split('/');
-      return parts[parts.length - 1] || 'document';
+      // Extract filename from URL, removing query parameters and hashes
+      const urlParts = file.secure_url.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      const cleanFilename = filename.split('?')[0]; // Remove query params
+      
+      // If it's a generic ID, try to get original filename
+      if (file.original_filename) {
+        return file.original_filename;
+      }
+      
+      // Create a user-friendly name from the clean filename
+      if (cleanFilename && cleanFilename.length > 10) {
+        return cleanFilename.length > 30 ? 
+          cleanFilename.substring(0, 30) + '...' : 
+          cleanFilename;
+      }
+      
+      return 'Document.pdf';
     }
+    
+    // Handle simple URL strings
+    if (typeof file === 'string' && file.startsWith('http')) {
+      const urlParts = file.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      return filename.split('?')[0] || 'Document.pdf';
+    }
+    
     return String(file);
   };
 
   const openDocument = (file) => {
     if (!file) return;
-    if (file instanceof File) {
-      const url = URL.createObjectURL(file);
-      window.open(url, '_blank');
-      return;
-    }
+    
+    try {
+      // Handle File objects (newly uploaded files)
+      if (file instanceof File) {
+        const url = URL.createObjectURL(file);
+        window.open(url, '_blank');
+        // Clean up the URL after opening to prevent memory leaks
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
 
-    if (typeof file === 'object' && file.secure_url) {
-      window.open(file.secure_url, '_blank');
+      // Handle server response objects with secure_url
+      if (typeof file === 'object' && file.secure_url) {
+        window.open(file.secure_url, '_blank');
+        return;
+      }
+      
+      // Handle direct URL strings
+      if (typeof file === 'string' && file.startsWith('http')) {
+        window.open(file, '_blank');
+        return;
+      }
+      
+      console.warn('Unable to open document - unsupported format:', file);
+    } catch (error) {
+      console.error('Error opening document:', error);
+      alert('Unable to open document. Please try again.');
     }
   };
 

@@ -216,13 +216,38 @@ export default function Payments() {
     };
 
     // Format time to match PDF style
+    // Handles inputs like "13:30", "11:00 AM", "11:00AM" and normalizes them to e.g. "11:00 AM"
     const formatTime = (timeString) => {
       if (!timeString) return "N/A";
-      const [hours, minutes] = timeString.split(':');
-      const hour = parseInt(hours, 10);
-      const ampm = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour % 12 || 12;
-      return `${displayHour}:${minutes} ${ampm}`;
+      const trimmed = String(timeString).trim();
+
+      // If string already contains AM/PM (case-insensitive), normalize spacing and casing
+      const ampmMatch = trimmed.match(/(am|pm)$/i);
+      if (ampmMatch) {
+        // Capture hour and minute and am/pm even if there's no space (e.g. "11:00AM")
+        const m = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+        if (m) {
+          const h = parseInt(m[1], 10);
+          const min = m[2];
+          const ap = m[3].toUpperCase();
+          const displayHour = h % 12 || 12;
+          return `${displayHour}:${min} ${ap}`;
+        }
+        // Fallback: return trimmed value uppercased for AM/PM
+        return trimmed.replace(/\s+/, ' ').toUpperCase();
+      }
+
+      // Otherwise assume 24-hour like "13:30" or "9:05"
+      const parts = trimmed.split(':');
+      if (parts.length < 2) return trimmed;
+      const hours = parseInt(parts[0], 10);
+      let minutes = parts[1];
+      // If minutes contains seconds or stray text, just take first two chars
+      minutes = minutes.slice(0, 2);
+      if (isNaN(hours)) return trimmed;
+      const ap = hours >= 12 ? 'PM' : 'AM';
+      const displayHour = hours % 12 || 12;
+      return `${displayHour}:${minutes} ${ap}`;
     };
 
     // Format date for session date display
@@ -353,13 +378,13 @@ export default function Payments() {
             <div className="flex flex-col">
               <span className="text-gray-600 mb-0.5">Session Time:</span>
               <span className="font-medium text-gray-900">
-                {startTime ? formatTime(startTime) : "N/A"}
+                {startTime ? formatTime(startTime) : "N/A"} - {endTime ? formatTime(endTime) : "N/A"}
               </span>
             </div>
-            <div className="flex flex-col col-span-2">
+            {/* <div className="flex flex-col col-span-2">
               <span className="text-gray-600 mb-0.5">Time Duration:</span>
               <span className="font-medium text-gray-900">{calculateDuration()}</span>
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -7,38 +7,109 @@ import DocumentUploadModal from '../services/DocumentUploadModal';
 const normalizeDocuments = (documents) => {
   if (!documents) return [];
   if (Array.isArray(documents)) return documents;
+  if (typeof documents === 'string') {
+    try {
+      const parsed = JSON.parse(documents);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (error) {
+      console.error('Error parsing documents JSON:', error);
+      return [];
+    }
+  }
   return [documents];
 };
 
 const getDocumentDisplayName = (doc) => {
   if (!doc) return '';
+  
+  // Handle File objects (newly uploaded)
   if (doc instanceof File) return doc.name;
+  
+  // Handle server response objects with secure_url (Cloudinary)
   if (typeof doc === 'object' && doc.secure_url) {
-    const parts = doc.secure_url.split('/');
-    return parts[parts.length - 1] || 'document';
+    // Extract filename from URL, removing query parameters
+    const urlParts = doc.secure_url.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    const cleanFilename = filename.split('?')[0]; // Remove query params
+    
+    // If it's a generic ID, try to get original filename
+    if (doc.original_filename) {
+      return doc.original_filename;
+    }
+    
+    // Create a user-friendly name from the clean filename
+    if (cleanFilename && cleanFilename.length > 10) {
+      return cleanFilename.length > 30 ? 
+        cleanFilename.substring(0, 30) + '...' : 
+        cleanFilename;
+    }
+    
+    return 'Document.pdf';
   }
+  
+  // Handle simple URL strings
+  if (typeof doc === 'string' && doc.startsWith('http')) {
+    const urlParts = doc.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    return filename.split('?')[0] || 'Document.pdf';
+  }
+  
   return String(doc);
 };
 
 const isPdfDoc = (doc) => {
   if (!doc) return false;
-  if (doc instanceof File) return doc.type?.toLowerCase().includes('pdf');
-  if (typeof doc === 'object' && doc.secure_url) {
-    return doc.secure_url.toLowerCase().includes('.pdf');
+  
+  // Check File objects
+  if (doc instanceof File) {
+    return doc.type?.toLowerCase().includes('pdf');
   }
+  
+  // Check server response objects
+  if (typeof doc === 'object' && doc.secure_url) {
+    return doc.secure_url.toLowerCase().includes('.pdf') || 
+           doc.format?.toLowerCase() === 'pdf' ||
+           doc.resource_type === 'raw'; // Cloudinary uses 'raw' for PDFs
+  }
+  
+  // Check URL strings
+  if (typeof doc === 'string') {
+    return doc.toLowerCase().includes('.pdf');
+  }
+  
   return false;
 };
 
 const openDocument = (doc) => {
   if (!doc) return;
-  if (doc instanceof File) {
-    const url = URL.createObjectURL(doc);
-    window.open(url, '_blank');
-    return;
-  }
+  
+  try {
+    // Handle File objects (newly uploaded files)
+    if (doc instanceof File) {
+      const url = URL.createObjectURL(doc);
+      window.open(url, '_blank');
+      // Clean up the URL after opening to prevent memory leaks
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
 
-  if (typeof doc === 'object' && doc.secure_url) {
-    window.open(doc.secure_url, '_blank');
+    // Handle server response objects with secure_url
+    if (typeof doc === 'object' && doc.secure_url) {
+      window.open(doc.secure_url, '_blank');
+      return;
+    }
+    
+    // Handle direct URL strings
+    if (typeof doc === 'string' && doc.startsWith('http')) {
+      window.open(doc, '_blank');
+      return;
+    }
+    
+    console.warn('Unable to open document - unsupported format:', doc);
+    alert('Unable to open document. Please try again.');
+  } catch (error) {
+    console.error('Error opening document:', error);
+    alert('Unable to open document. Please try again.');
   }
 };
 
@@ -101,10 +172,10 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
     const incomingFiles = Array.from(e.target?.files || []);
     if (incomingFiles.length === 0) return;
 
-    const [file] = incomingFiles;
+    // Store all uploaded files, not just the first one
     setFormData(prev => ({
       ...prev,
-      documents: file ? [file] : [],
+      documents: [...(prev.documents || []), ...incomingFiles],
     }));
     setShowUploadModal(false);
   };
