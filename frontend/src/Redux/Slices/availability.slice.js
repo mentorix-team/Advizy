@@ -189,7 +189,7 @@ export const setSettings = createAsyncThunk(
 );
 
 export const setTimezone = createAsyncThunk(
-  "availability/ssettimezone",
+  "availability/settimezone",
   async (data, { rejectWithValue }) => {
     try {
       console.log("[setTimezone] Request data:", data);

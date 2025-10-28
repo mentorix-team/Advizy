@@ -679,7 +679,7 @@ const reschedulePolicy = async (req, res, next) => {
 };
 
 const changeTimezone = async (req, res, next) => {
-    console.log(req.body);
+    console.log("Received timezone change request:", req.body);
     const { timezone } = req.body;
     const expert_id = req.expert.id; // Adjust based on your auth setup
   
@@ -691,16 +691,26 @@ const changeTimezone = async (req, res, next) => {
       }
   
       // Validate and update the timezone field
-      if (timezone && typeof timezone === "object") {
+      if (timezone && typeof timezone === "object" && timezone.value) {
+        console.log("Updating timezone to:", timezone);
         availability.timezone = {
           value: timezone.value,
-          label: timezone.label,
-          offset: timezone.offset,
-          abbrev: timezone.abbrev,
-          altName: timezone.altName,
+          label: timezone.label || timezone.value,
+          offset: timezone.offset || 0,
+          abbrev: timezone.abbrev || '',
+          altName: timezone.altName || '',
+        };
+      } else if (typeof timezone === "string") {
+        // Handle case where timezone is sent as a string
+        console.log("Timezone sent as string:", timezone);
+        availability.timezone = {
+          value: timezone,
+          label: timezone,
+          offset: 0,
         };
       } else {
-        return next(new AppError("Invalid timezone format", 400));
+        console.error("Invalid timezone format received:", timezone);
+        return next(new AppError("Invalid timezone format. Expected object with 'value' property or string.", 400));
       }
   
       await availability.save();

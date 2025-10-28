@@ -150,6 +150,9 @@ router.post(
 );
 
 router.post("/adminapproved", adminapproved);
+router.post("/suspendexpert", handleSuspendExpert);
+
+
 router.post("/updateExpertDetails", isLoggedIn, isExpert, updateProfileStatus);
 router.get("/getexperts", getAllExperts);
 router.get("/getServices", isExpert, getExpertServices);

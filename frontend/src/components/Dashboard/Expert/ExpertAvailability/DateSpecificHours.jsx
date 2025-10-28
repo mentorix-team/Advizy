@@ -229,7 +229,7 @@ function DateSpecificHours({ availability }) {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("💾 Saving date-specific hours...");
     console.log("📊 Current dates state:", dates);
     console.log("📊 Original dates state:", originalDates);
@@ -317,15 +317,31 @@ function DateSpecificHours({ availability }) {
     console.log("📦 Full payload:", payload);
 
     // Dispatch with additional deleted dates info
-    dispatch(addSpecificDates(formattedData));
+    const result = await dispatch(addSpecificDates(formattedData));
 
-    // Update originalDates to reflect current state
-    setOriginalDates(datesWithSlots);
+    // Check if the save was successful and reload the page
+    if (result.type === 'availability/addSpecificDates/fulfilled') {
+      console.log("✅ Date-specific hours saved successfully, reloading page...");
+      
+      // Update originalDates to reflect current state
+      setOriginalDates(datesWithSlots);
 
-    toast.success("Date-specific hours saved successfully!", {
-      position: "top-right",
-      autoClose: 2000,
-    });
+      toast.success("Date-specific hours saved successfully!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+
+      // Reload the page after a short delay to show the toast
+      setTimeout(() => {
+        window.location.reload();
+      }, 2500);
+    } else {
+      console.error("Failed to save date-specific hours:", result);
+      toast.error("Failed to save date-specific hours. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
 
   const getDaysWithAvailability = () => {
@@ -453,25 +469,64 @@ function DateSpecificHours({ availability }) {
                 </svg>
               </button>
             </div>
+            <style>{`
+              .custom-datepicker-specific .react-datepicker__day--highlighted,
+              .custom-datepicker-specific .react-datepicker__day--highlighted:hover {
+                background-color: white !important;
+                color: inherit !important;
+              }
+              .custom-datepicker-specific .react-datepicker__day--today {
+                background-color: white !important;
+                color: inherit !important;
+                font-weight: normal !important;
+              }
+              .custom-datepicker-specific .react-datepicker__day--today:hover {
+                background-color: #f3f4f6 !important;
+              }
+              .custom-datepicker-specific .selected-date-green {
+                background-color: #16a34a !important;
+                color: white !important;
+              }
+              .custom-datepicker-specific .selected-date-green:hover {
+                background-color: #15803d !important;
+                color: white !important;
+              }
+            `}</style>
             <DatePicker
               inline
               onChange={handleAddDate}
               selected={null}
+              selectsMultiple={false}
+              highlightDates={[]}
+              todayButton={null}
+              showTodayButton={false}
               monthsShown={1}
               minDate={new Date()}
               filterDate={(date) => {
                 // Filter out: blocked dates, disabled days of week, and already selected dates
                 return !isDateBlocked(date) && !isDisabledDay(date) && !isDateInSpecificDates(date);
               }}
+              calendarClassName="custom-datepicker-specific"
               dayClassName={(date) => {
                 const isBlocked = isDateBlocked(date);
                 const isAlreadySelected = isDateInSpecificDates(date);
                 const isDisabledDayOfWeek = isDisabledDay(date);
 
                 if (isBlocked || isAlreadySelected || isDisabledDayOfWeek) {
-                  return "bg-gray-200 text-gray-400 cursor-not-allowed";
+                  return "bg-gray-200 text-gray-400 cursor-not-allowed !important";
                 }
-                return "hover:bg-gray-100 rounded-md";
+
+                // Additional check to ensure we're not accidentally highlighting today's date
+                const today = new Date();
+                const isToday = date.getFullYear() === today.getFullYear() &&
+                               date.getMonth() === today.getMonth() &&
+                               date.getDate() === today.getDate();
+
+                if (isToday && !isAlreadySelected) {
+                  return "hover:bg-gray-100 rounded-md bg-white !bg-white";
+                }
+
+                return "hover:bg-gray-100 rounded-md bg-white !bg-white";
               }}
             />
           </div>

@@ -168,43 +168,54 @@ function BlockUnavailableDates() {
     );
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     const formattedDates = selectedDates.map((date) => date.toISOString());
 
-    dispatch(addBlockedDates({ dates: formattedDates }))
-      .then((response) => {
-        if (response?.payload?.success) {
-          setBlockedDates([...blockedDates, ...selectedDates]);
-          setSelectedDates([]);
-          setIsOpen(false);
-        } else {
-          console.error("Failed to add blocked dates:", response?.payload?.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error dispatching addBlockedDates:", error);
-      });
+    try {
+      const response = await dispatch(addBlockedDates({ dates: formattedDates }));
+      
+      if (response?.payload?.success) {
+        console.log("✅ Blocked dates saved successfully, reloading page...");
+        setBlockedDates([...blockedDates, ...selectedDates]);
+        setSelectedDates([]);
+        setIsOpen(false);
+        
+        // Reload the page after successful save
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        console.error("Failed to add blocked dates:", response?.payload?.message);
+      }
+    } catch (error) {
+      console.error("Error dispatching addBlockedDates:", error);
+    }
   };
 
-  const handleRemoveDate = (dateToRemove) => {
+  const handleRemoveDate = async (dateToRemove) => {
     console.log("Removing date:", dateToRemove);
 
     // Convert date to ISO string for backend
     const dateToRemoveISO = dateToRemove.toISOString();
 
-    dispatch(removeBlockedDate(dateToRemoveISO))
-      .then((response) => {
-        if (response?.payload?.success) {
-          // Update local state only after successful backend call
-          setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
-          console.log("Successfully removed blocked date");
-        } else {
-          console.error("Failed to remove blocked date:", response?.payload?.message);
-        }
-      })
-      .catch((error) => {
-        console.error("Error dispatching removeBlockedDate:", error);
-      });
+    try {
+      const response = await dispatch(removeBlockedDate(dateToRemoveISO));
+      
+      if (response?.payload?.success) {
+        console.log("✅ Blocked date removed successfully, reloading page...");
+        // Update local state only after successful backend call
+        setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
+        
+        // Reload the page after successful removal
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        console.error("Failed to remove blocked date:", response?.payload?.message);
+      }
+    } catch (error) {
+      console.error("Error dispatching removeBlockedDate:", error);
+    }
   };
 
   return (
@@ -246,12 +257,38 @@ function BlockUnavailableDates() {
             </div>
 
             <div className="overflow-auto max-h-[75vh]">
+              <style>{`
+                .custom-datepicker .react-datepicker__day--highlighted,
+                .custom-datepicker .react-datepicker__day--highlighted:hover {
+                  background-color: white !important;
+                  color: inherit !important;
+                }
+                .custom-datepicker .react-datepicker__day--today {
+                  background-color: white !important;
+                  color: inherit !important;
+                  font-weight: normal !important;
+                }
+                .custom-datepicker .react-datepicker__day--today:hover {
+                  background-color: #f3f4f6 !important;
+                }
+                .custom-datepicker .selected-date-green {
+                  background-color: #16a34a !important;
+                  color: white !important;
+                }
+                .custom-datepicker .selected-date-green:hover {
+                  background-color: #15803d !important;
+                  color: white !important;
+                }
+              `}</style>
               <DatePicker
                 key={`datepicker-${availability?.availability?.[0]?.blockedDates?.length}-${availability?.availability?.[0]?.specific_dates?.length}`}
                 inline
                 onChange={handleDateSelect}
                 selected={null}
-                highlightDates={selectedDates}
+                selectsMultiple={false}
+                highlightDates={[]}
+                todayButton={null}
+                showTodayButton={false}
                 minDate={new Date()}
                 filterDate={(date) => {
                   // Filter out dates where day of week is disabled OR date is already blocked OR date is in specific_dates
@@ -263,7 +300,7 @@ function BlockUnavailableDates() {
                   return !isDisabledDay && !isAlreadyBlocked && !isInSpecificDates;
                 }}
                 className="w-full border border-gray-300 rounded-md p-2"
-                calendarClassName="bg-white shadow-md"
+                calendarClassName="bg-white shadow-md custom-datepicker"
                 dayClassName={(date) => {
                   const dayOfWeek = date.getDay();
                   const isDisabledDay = disabledDates.includes(dayOfWeek);
@@ -271,12 +308,39 @@ function BlockUnavailableDates() {
                   const isInSpecificDates = isDateInSpecificDates(date);
 
                   if (isDisabledDay || isAlreadyBlocked || isInSpecificDates) {
-                    return "bg-gray-200 text-gray-400 cursor-not-allowed";
+                    return "bg-gray-200 text-gray-400 cursor-not-allowed !important";
                   }
 
-                  return selectedDates.some((d) => d.getTime() === date.getTime())
-                    ? "text-white bg-black rounded-md"
-                    : "hover:bg-gray-100 rounded-md";
+                  // Check if this exact date (year, month, day) is selected
+                  const isSelected = selectedDates.some((selectedDate) => {
+                    const matches = selectedDate.getFullYear() === date.getFullYear() &&
+                           selectedDate.getMonth() === date.getMonth() &&
+                           selectedDate.getDate() === date.getDate();
+                    
+                    if (matches) {
+                      console.log(`🎯 Date ${date.toDateString()} is selected for blocking`);
+                    }
+                    
+                    return matches;
+                  });
+
+                  // Additional check to ensure we're not accidentally highlighting today's date
+                  const today = new Date();
+                  const isToday = date.getFullYear() === today.getFullYear() &&
+                                 date.getMonth() === today.getMonth() &&
+                                 date.getDate() === today.getDate();
+
+                  if (isToday && !isSelected) {
+                    console.log(`📅 Today's date ${date.toDateString()} - not selected, using normal styling`);
+                    return "hover:bg-gray-100 rounded-md bg-white !bg-white"; // Force normal styling for today's date
+                  }
+
+                  if (isSelected) {
+                    console.log(`✅ Applying selected styling to ${date.toDateString()}`);
+                    return "!text-white !bg-green-600 rounded-md selected-date-green";
+                  }
+
+                  return "hover:bg-gray-100 rounded-md bg-white !bg-white";
                 }}
               />
             </div>

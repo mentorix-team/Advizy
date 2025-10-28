@@ -509,6 +509,43 @@ const adminapproved = async (req, res, next) => {
   }
 };
 
+const handleSuspendExpert = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    console.log("Suspending expert with ID:", id);
+
+    // Check if expert exists in the database
+    const expert = await ExpertBasics.findById(id);
+
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    console.log("Expert found, proceeding with deletion...");
+
+    // Delete the expert from MongoDB
+    await ExpertBasics.findByIdAndDelete(id);
+
+    // If you're using Algolia, you might want to remove from there too
+    // await client.deleteObject({
+    //   indexName: "experts_index",
+    //   objectID: id
+    // });
+
+    console.log("Expert suspended/deleted successfully");
+
+    return res.status(200).json({
+      success: true,
+      message: "Expert suspended and deleted successfully",
+      deletedExpertId: id
+    });
+
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 500));
+  }
+};
+
 const editExpertCertificate = async (req, res, next) => {
   try {
     console.log("Received Request Body:", req.body); // Debugging log
@@ -2506,23 +2543,6 @@ const getExpert = async (req, res, next) => {
   }
 };
 
-const handleSuspendExpert = async (req, res, next) => {
-  try {
-    const { id } = req.body;
-    const expert = await ExpertBasics.findByIdAndDelete(id);
-
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "EXpert data deleted",
-    });
-  } catch (error) {
-    return next(new AppError(error, 503));
-  }
-};
 
 const HelpCenter = async (req, res) => {
   try {
@@ -2605,9 +2625,11 @@ export {
   pushExpertsToAlgolia,
   generateOtpForVerifying,
   validatethnumberormobile,
+
   adminapproved,
-  getAllExpertswithoutfilter,
   handleSuspendExpert,
+
+  getAllExpertswithoutfilter,
   handleToggleService,
 
   // help center

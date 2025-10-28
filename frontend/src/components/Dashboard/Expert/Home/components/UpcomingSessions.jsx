@@ -58,7 +58,7 @@ export default function UpcomingSessions() {
         type: meeting.serviceName || "Session",
         date: date,
         time: timeSlot,
-        duration: meeting.duration || "60 min",
+        duration: meeting.duration || "30 min",
         initial: meeting.userName ? meeting.userName.charAt(0).toUpperCase() : "C",
       };
     })
@@ -105,7 +105,7 @@ export default function UpcomingSessions() {
                   <p className="text-sm text-gray-600">{session.type}</p>
                   <p className="text-xs text-gray-500">
                     <span className="inline-block mr-2">⏰ {session.time}</span>
-                    <span>({session.duration})</span>
+                    {/* <span>({session.duration})</span> */}
                   </p>
                 </div>
               </div>

@@ -242,8 +242,14 @@ function WeeklyAvailability({ availability }) {
           };
         });
 
-      dispatch(addAvailability({ data }));
+      const result = await dispatch(addAvailability({ data }));
       console.log("Dispatched data with dates:", data);
+      
+      // Check if the save was successful and reload the page
+      if (result.type === 'availability/addAvailability/fulfilled') {
+        console.log("✅ Weekly availability saved successfully, reloading page...");
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Error saving changes:", error);
     } finally {
