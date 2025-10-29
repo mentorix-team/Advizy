@@ -129,15 +129,6 @@ const App = () => {
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
   useEffect(() => {
-    console.log('🔀 Navigation:', {
-      pathname: location.pathname,
-      search: location.search,
-      key: location.key,
-      historyLength: window.history.length
-    });
-  }, [location]);
-
-  useEffect(() => {
     const excludedPathPatterns = [
       /^\/$/,
       /^\/auth-error$/,

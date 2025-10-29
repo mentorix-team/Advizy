@@ -375,7 +375,7 @@ function HomePage() {
             <CTASection onOpenSearchModal={() => setIsModalOpen(true)} />
           </div>
         </div>
-        <Footer />
+  <Footer onOpenSearchModal={() => setIsModalOpen(true)} />
       </div>
       <SearchModal
         isOpen={isModalOpen}

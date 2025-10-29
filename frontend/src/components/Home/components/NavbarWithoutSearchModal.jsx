@@ -284,6 +284,43 @@ const NavbarWithSearch = () => {
   const renderSearchResults = () => {
     const domainMatch = getDomainMatch(query);
 
+    // helper: format domain to readable text
+    const formatDomain = (domain) => {
+      if (!domain) return '';
+      return String(domain).replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    };
+
+    // helper: compute matched niche/skills for a hit (prefer highlights, then query filter, then fallback)
+    const getMatchedNiche = (hit) => {
+      try {
+        // 1) Highlight result from Algolia if present
+        if (hit._highlightResult && hit._highlightResult.niche) {
+          const hl = hit._highlightResult.niche;
+          const items = Array.isArray(hl) ? hl.map((i) => i.value).filter(Boolean) : (hl && hl.value ? [hl.value] : []);
+          if (items.length > 0) return items.map((s) => String(s).replace(/_/g, ' '));
+        }
+
+        // 2) If niche is an array, try to match current query
+        const q = query ? String(query).toLowerCase().trim() : '';
+        if (Array.isArray(hit.niche) && q) {
+          const filtered = hit.niche.filter((s) => String(s).toLowerCase().includes(q));
+          if (filtered.length > 0) return filtered.map((s) => String(s).replace(/_/g, ' '));
+        }
+
+        // 3) If niche is a string and contains query
+        if (typeof hit.niche === 'string' && q) {
+          if (String(hit.niche).toLowerCase().includes(q)) return [String(hit.niche).replace(/_/g, ' ')];
+        }
+
+        // 4) fallback: return all niches formatted
+        if (Array.isArray(hit.niche) && hit.niche.length > 0) return hit.niche.map((s) => String(s).replace(/_/g, ' '));
+        if (typeof hit.niche === 'string' && hit.niche.trim() !== '') return [String(hit.niche).replace(/_/g, ' ')];
+      } catch (e) {
+        // ignore and fallback
+      }
+      return [];
+    };
+
     // Filter experts by domain if a domain is matched
     let domainExperts = [];
     if (domainMatch && hits.length > 0) {
@@ -333,7 +370,58 @@ const NavbarWithSearch = () => {
             <div className="px-4 py-2 text-xs text-gray-500 font-semibold">
               {domainMatch.label} Experts
             </div>
-            {domainExperts.map((hit) => (
+            {domainExperts.map((hit) => {
+              const matched = getMatchedNiche(hit);
+              const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+              const domainText = formatDomain(hit.domain);
+              const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}` : (domainText || nicheText);
+              return (
+                <div
+                  key={getRedirect(hit)}
+                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    {hit.profileImage ? (
+                      <img
+                        src={hit.profileImage}
+                        alt={hit.name || 'Expert'}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-500" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-medium flex items-center gap-2 flex-wrap">
+                        <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                        {hit.redirect_url && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            @{hit.username}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate max-w-">
+                        {expertiseDisplay || 'Expert'}
+                      </div> 
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              );
+            })}
+          </>
+        )}
+
+        {/* If no domain match, show regular expert results */}
+        {!domainMatch && hits.length > 0 && (
+          hits.map((hit) => {
+            const matched = getMatchedNiche(hit);
+            const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+            const domainText = formatDomain(hit.domain);
+            const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}`.trim() : (domainText || nicheText);
+            return (
               <div
                 key={getRedirect(hit)}
                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
@@ -361,53 +449,14 @@ const NavbarWithSearch = () => {
                       )}
                     </div>
                     <div className="text-sm text-gray-500 truncate max-w-[220px]">
-                      {hit.professionalTitle || hit.expertise || 'Expert'}
+                      {expertiseDisplay || 'Expert'}
                     </div>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </div>
-            ))}
-          </>
-        )}
-
-        {/* If no domain match, show regular expert results */}
-        {!domainMatch && hits.length > 0 && (
-          hits.map((hit) => (
-            <div
-              key={getRedirect(hit)}
-              className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-              onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
-            >
-              <div className="flex items-center space-x-3">
-                {hit.profileImage ? (
-                  <img
-                    src={hit.profileImage}
-                    alt={hit.name || 'Expert'}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-500" />
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <div className="font-medium flex items-center gap-2 flex-wrap">
-                    <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
-                    {hit.redirect_url && (
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        @{hit.username}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-500 truncate max-w-[220px]">
-                    {hit.professionalTitle || hit.expertise || 'Expert'}
-                  </div>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </div>
-          ))
+            );
+          })
         )}
 
         {/* No results message */}

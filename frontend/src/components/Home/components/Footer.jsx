@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const Footer = () => {
+const Footer = ({ onOpenSearchModal }) => {
   const navigate = useNavigate();
 
   const handleNavigation = (path) => {
@@ -43,7 +43,13 @@ const Footer = () => {
                 </li>
                 <li>
                   <button
-                    onClick={() => handleNavigation("/explore")}
+                    onClick={() => {
+                      if (typeof onOpenSearchModal === 'function') {
+                        onOpenSearchModal();
+                      } else {
+                        handleNavigation("/explore");
+                      }
+                    }}
                     className="text-gray-300 hover:text-white transition-colors"
                   >
                     Find an Expert

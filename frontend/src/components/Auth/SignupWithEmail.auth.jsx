@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { IoIosClose } from "react-icons/io";
+import { FcGoogle } from "react-icons/fc";
 import {
   createAccount,
   generateOtpEmail,
@@ -38,6 +40,8 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
     password: false,
   });
 
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
   const validateField = (name, value) => {
     switch (name) {
       case "firstName":
@@ -51,11 +55,12 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
             : "Invalid email format"
           : "Email is required";
       case "password":
-        return value.trim()
-          ? value.length >= 8
-            ? ""
-            : "Password must be at least 8 characters"
-          : "Password is required";
+        if (!value.trim()) return "Password is required";
+        // enforce regex: at least 8 chars, uppercase, lowercase, number and special char
+        const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+        return pwdRegex.test(value)
+          ? ""
+          : "Password must contain at least 8 characters, a uppercase letter, a lowercase letter, a number, and a special character.";
       default:
         return "";
     }
@@ -68,8 +73,15 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
       [name]: value,
     }));
 
-    // Validate on change if field has been touched
-    if (touched[name]) {
+    // Only validate password after submit attempt, validate other fields if touched
+    if (name === 'password') {
+      if (submitAttempted) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: validateField(name, value),
+        }));
+      }
+    } else if (touched[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: validateField(name, value),
@@ -83,10 +95,14 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
       ...prev,
       [name]: true,
     }));
-    setErrors((prev) => ({
-      ...prev,
-      [name]: validateField(name, value),
-    }));
+    
+    // Don't validate password on blur, only on submit
+    if (name !== 'password') {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: validateField(name, value),
+      }));
+    }
   };
 
   // const handlePolicyChange = (event) => {
@@ -98,7 +114,8 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
   const handlePasswordChange = (value) => {
     setSignupData((prev) => ({ ...prev, password: value }));
-    if (touched.password) {
+    // Only validate password after submit attempt
+    if (submitAttempted) {
       setErrors((prev) => ({
         ...prev,
         password: validateField("password", value),
@@ -120,7 +137,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
     // Show toast for each error
     const errorMessages = Object.values(newErrors).filter((error) => error);
     if (errorMessages.length > 0) {
-      errorMessages.forEach((error) => toast.error(error));
+      // Inline errors will show under each field; do not show toasts for validation errors.
       return false;
     }
 
@@ -129,6 +146,9 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
   const createNewAccount = async (event) => {
     event.preventDefault();
+
+    // Mark that submit was attempted (for password validation)
+    setSubmitAttempted(true);
 
     // Mark all fields as touched
     setTouched({
@@ -158,24 +178,12 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
         });
         onSwitchView("VerifyAccount");
       } else {
-        toast.error(otpResponse?.message || "Failed to generate OTP.", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        // Don't show toast for server-side OTP errors; log for debugging and let inline UI handle it
+        console.warn("OTP generation failed:", otpResponse?.message || "Failed to generate OTP.");
       }
     } catch (error) {
-      toast.error("Error generating OTP.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      // Network/server error while generating OTP — log for debugging. No toast shown.
+      console.error("Error generating OTP:", error);
     } finally {
       setIsLoading(false); // Reset loading state
     }
@@ -186,35 +194,32 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md">
-      <div className="relative w-[90%] max-w-[820px] max-h-[90vh] overflow-y-auto bg-white rounded-[20px] shadow-lg p-6 sm:p-8">
-        <button
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md px-4 py-8 overflow-auto">
+      <div className="relative w-full max-h-[90vh] bg-white rounded-3xl shadow-lg p-4 sm:p-6 md:p-8 overflow-auto mx-4 sm:mx-6 lg:mx-0 sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+        <IoIosClose
+          className="hover:cursor-pointer hover:bg-gray-100 rounded-full hover:shadow-md absolute top-6 right-6 text-black hover:text-black text-4xl font-bold"
           onClick={onClose}
-          className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"
-          aria-label="Close"
-        >
-          &times;
-        </button>
+        />
 
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 mb-2 text-center">
           Sign Up
         </h2>
 
-        <div className="text-sm text-gray-500 text-right mb-6">
+        <div className="text-sm text-gray-500 text-center mb-6">
           <span>Already have an account? </span>
           <button
-            className="text-black hover:underline"
+            className="text-gray-700 font-medium tracking-tight hover:underline"
             onClick={() => onSwitchView("LoginWithEmail")}
           >
             Login
           </button>
         </div>
 
-        <form onSubmit={createNewAccount} className="w-full max-w-md mx-auto">
+        <form onSubmit={createNewAccount} className="w-full sm:w-[480px] md:w-[520px] max-w-full mx-auto flex flex-col gap-3">
           <div className="flex gap-4 mb-2">
             <div className="w-1/2">
               <label className="block text-gray-700 text-sm font-medium mb-1">
-                First Name*
+                First Name{errors.firstName && touched.firstName && (<span className="text-red-500">*</span>)}
               </label>
               <input
                 type="text"
@@ -223,9 +228,9 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
                 value={signupData.firstName}
                 onChange={handleUserInput}
                 onBlur={handleBlur}
-                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${
+                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-sm placeholder:text-sm text-gray-900 ${
                   errors.firstName && touched.firstName
-                    ? "border-red-500"
+                    ? "border-red-500 bg-red-50"
                     : "border-gray-300"
                 }`}
               />
@@ -235,7 +240,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
             </div>
             <div className="w-1/2">
               <label className="block text-gray-700 text-sm font-medium mb-1">
-                Last Name*
+                Last Name{errors.lastName && touched.lastName && (<span className="text-red-500">*</span>)}
               </label>
               <input
                 type="text"
@@ -244,9 +249,9 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
                 value={signupData.lastName}
                 onChange={handleUserInput}
                 onBlur={handleBlur}
-                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${
+                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-sm placeholder:text-sm text-gray-900 ${
                   errors.lastName && touched.lastName
-                    ? "border-red-500"
+                    ? "border-red-500 bg-red-50"
                     : "border-gray-300"
                 }`}
               />
@@ -258,7 +263,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
           <div className="mb-2">
             <label className="block text-gray-700 text-sm font-medium mb-1">
-              Email address*
+              Mail id{errors.email && touched.email && (<span className="text-red-500">*</span>)}
             </label>
             <input
               type="email"
@@ -267,22 +272,21 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
               value={signupData.email}
               onChange={handleUserInput}
               onBlur={handleBlur}
-              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${
+              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-sm placeholder:text-sm text-gray-900 ${
                 errors.email && touched.email
-                  ? "border-red-500"
+                  ? "border-red-500 bg-red-50"
                   : "border-gray-300"
               }`}
-            />{" "}
+            />
             {/* {errors.email && touched.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-            )}
- */}
+            )} */}
           </div>
 
-          <div className="mb-2">
+          <div className="">
             <PasswordInput
-              label="Create Password*"
-              showPasswordConditions="true"
+              label="Create Password"
+              showPasswordConditions={true}
               name="password"
               placeholder="Create your password"
               value={signupData.password}
@@ -292,20 +296,15 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
                 })
               }
               onBlur={(e) => handleBlur(e)}
-              // error={errors.password && touched.password ? errors.password : ""}
+              error={submitAttempted && errors.password ? errors.password : ""}
             />
+            {/* {errors.password && touched.password && (
+              <p className="text-red-500 text-xs">{errors.password}</p>
+            )} */}
           </div>
 
           <div className="mb-2">
             <div className="flex items-center gap-2">
-              {/* <input
-                type="checkbox"
-                name="policy"
-                id="policy"
-                checked={policyAccepted}
-                onChange={handlePolicyChange}
-                className="w-4 h-4 accent-[#169544] cursor-pointer"
-              /> */}
               <label htmlFor="policy" className="text-xs cursor-pointer">
                 By continuing you agree to our{" "}
                 <a
@@ -327,14 +326,11 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
                 </a>
               </label>
             </div>
-            {/* {errors.policy && (
-              <p className="text-red-500 text-xs mt-1">{errors.policy}</p>
-            )} */}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#169544] text-white py-2 rounded-lg hover:bg-primary/90 transition-colors mb-2 flex items-center justify-center"
+            className="w-full bg-[#169544] text-white py-2 md:py-3 rounded-lg shadow-sm hover:shadow-md hover:bg-primary/90 transition-colors mb-2 flex items-center justify-center text-sm md:text-base font-medium"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -372,14 +368,10 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
           <div className="flex flex-col gap-4">
             <button
               type="button"
-              className="flex-1 h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
+              className="flex-1 h-10  flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black shadow-sm hover:shadow-md hover:bg-gray-100 transition-colors text-sm md:text-base"
               onClick={handleGoogleSignup}
             >
-              <img
-                src="https://img.icons8.com/color/24/000000/google-logo.png"
-                alt="Google"
-                className="w-6 h-6"
-              />
+              <FcGoogle size={24} />
               Continue with Google
             </button>
             {/* <button
