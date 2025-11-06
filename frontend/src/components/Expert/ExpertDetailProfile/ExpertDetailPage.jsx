@@ -221,9 +221,9 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
 
-    // Extract blocked dates from availability data
+  // Extract blocked dates from availability data
   const blockedDates = publicAvailability?.availability?.[0]?.blockedDates || [];
-  
+
   console.log("Public availability data:", publicAvailability);
   console.log("Blocked dates:", blockedDates);
 
@@ -270,11 +270,15 @@ const ExpertDetailPage = () => {
                 socialLinks={socialLinks}
               />
               {/* <BlockedDates blockedDates={blockedDates} /> */}
-              <Expertise skills={expert?.credentials?.skills || []} />
-              <ServicesOffered
-                id="services-offered"
-                services={expert?.credentials?.services || []}
-              />
+              <div className="my-6">
+                <Expertise skills={expert?.credentials?.skills || []} />
+              </div>
+              <div className="my-6">
+                <ServicesOffered
+                  id="services-offered"
+                  services={expert?.credentials?.services || []}
+                />
+              </div>
               <div className="block md:hidden">
                 <EducationCertifications
                   education={expert?.credentials?.education || []}
