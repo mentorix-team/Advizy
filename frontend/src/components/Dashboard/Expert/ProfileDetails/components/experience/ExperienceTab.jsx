@@ -87,7 +87,7 @@ const buildExperienceFormData = (experience, options = {}) => {
   // Handle all documents
   const documents = normalizeDocuments(experience.documents);
   const existingDocuments = [];
-  
+
   if (documents.length > 0) {
     documents.forEach((doc) => {
       if (doc instanceof File) {

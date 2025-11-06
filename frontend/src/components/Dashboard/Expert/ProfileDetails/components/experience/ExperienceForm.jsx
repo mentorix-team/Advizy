@@ -21,68 +21,68 @@ const normalizeDocuments = (documents) => {
 
 const getDocumentDisplayName = (doc) => {
   if (!doc) return '';
-  
+
   // Handle File objects (newly uploaded)
   if (doc instanceof File) return doc.name;
-  
+
   // Handle server response objects with secure_url (Cloudinary)
   if (typeof doc === 'object' && doc.secure_url) {
     // Extract filename from URL, removing query parameters
     const urlParts = doc.secure_url.split('/');
     const filename = urlParts[urlParts.length - 1];
     const cleanFilename = filename.split('?')[0]; // Remove query params
-    
+
     // If it's a generic ID, try to get original filename
     if (doc.original_filename) {
       return doc.original_filename;
     }
-    
+
     // Create a user-friendly name from the clean filename
     if (cleanFilename && cleanFilename.length > 10) {
-      return cleanFilename.length > 30 ? 
-        cleanFilename.substring(0, 30) + '...' : 
+      return cleanFilename.length > 30 ?
+        cleanFilename.substring(0, 30) + '...' :
         cleanFilename;
     }
-    
+
     return 'Document.pdf';
   }
-  
+
   // Handle simple URL strings
   if (typeof doc === 'string' && doc.startsWith('http')) {
     const urlParts = doc.split('/');
     const filename = urlParts[urlParts.length - 1];
     return filename.split('?')[0] || 'Document.pdf';
   }
-  
+
   return String(doc);
 };
 
 const isPdfDoc = (doc) => {
   if (!doc) return false;
-  
+
   // Check File objects
   if (doc instanceof File) {
     return doc.type?.toLowerCase().includes('pdf');
   }
-  
+
   // Check server response objects
   if (typeof doc === 'object' && doc.secure_url) {
-    return doc.secure_url.toLowerCase().includes('.pdf') || 
-           doc.format?.toLowerCase() === 'pdf' ||
-           doc.resource_type === 'raw'; // Cloudinary uses 'raw' for PDFs
+    return doc.secure_url.toLowerCase().includes('.pdf') ||
+      doc.format?.toLowerCase() === 'pdf' ||
+      doc.resource_type === 'raw'; // Cloudinary uses 'raw' for PDFs
   }
-  
+
   // Check URL strings
   if (typeof doc === 'string') {
     return doc.toLowerCase().includes('.pdf');
   }
-  
+
   return false;
 };
 
 const openDocument = (doc) => {
   if (!doc) return;
-  
+
   try {
     // Handle File objects (newly uploaded files)
     if (doc instanceof File) {
@@ -98,13 +98,13 @@ const openDocument = (doc) => {
       window.open(doc.secure_url, '_blank');
       return;
     }
-    
+
     // Handle direct URL strings
     if (typeof doc === 'string' && doc.startsWith('http')) {
       window.open(doc, '_blank');
       return;
     }
-    
+
     console.warn('Unable to open document - unsupported format:', doc);
     alert('Unable to open document. Please try again.');
   } catch (error) {
