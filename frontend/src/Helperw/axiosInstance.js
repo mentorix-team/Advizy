@@ -9,8 +9,8 @@ const BASE_URL =
     (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL)
         ? import.meta.env.VITE_API_URL
         : (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PROD)
-        ? 'https://advizy.onrender.com/api/v1'
-        : 'http://localhost:5030/api/v1';
+            ? 'https://advizy.onrender.com/api/v1'
+            : 'http://localhost:5030/api/v1';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,

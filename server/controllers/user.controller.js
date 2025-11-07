@@ -697,12 +697,19 @@ const refresh_token = async (req, res, next) => {
     const refreshToken = req.cookies?.refreshToken;
     const expertRefreshToken = req.cookies?.expertRefreshToken;
 
-    const mask = (t) => (t && typeof t === 'string' ? `${t.slice(0, 6)}...${t.slice(-6)}` : '');
-    console.log('refresh_token called; cookies keys:', Object.keys(req.cookies || {}));
-    console.log('refresh_token: refreshToken=', mask(refreshToken), ' expertRefreshToken=', mask(expertRefreshToken));
+    const mask = (t) => (t && typeof t === "string" ? `${t.slice(0, 6)}...${t.slice(-6)}` : "");
+    console.log("refresh_token called; cookies keys:", Object.keys(req.cookies || {}));
+    console.log("refresh_token: refreshToken=", mask(refreshToken), " expertRefreshToken=", mask(expertRefreshToken));
 
-    if (!refreshToken && !expertRefreshToken) {
-      return res.status(403).json({ success: false, message: 'Refresh token missing' });
+    if (!refreshToken) {
+      console.warn("Refresh token missing; clearing cookies");
+      res.clearCookie("refreshToken");
+      res.clearCookie("token");
+      if (expertRefreshToken) {
+        res.clearCookie("expertToken");
+        res.clearCookie("expertRefreshToken");
+      }
+      return res.status(403).json({ success: false, message: "Refresh token missing" });
     }
 
     // Use environment secrets when available, fallback to legacy hardcoded secrets
@@ -711,49 +718,77 @@ const refresh_token = async (req, res, next) => {
 
     let payload = null;
     try {
-      if (refreshToken) {
-        payload = jwt.verify(refreshToken, jwtSecret);
-      } else {
-        payload = jwt.verify(expertRefreshToken, expertJwtSecret);
-      }
+      payload = jwt.verify(refreshToken, jwtSecret);
     } catch (verifyErr) {
-      console.error('Refresh token verification failed:', verifyErr && verifyErr.message);
-      // Clear possibly-invalid cookies to avoid repeated attempts
-      try {
-        res.clearCookie('refreshToken');
-        res.clearCookie('expertRefreshToken');
-      } catch (e) {
-        console.warn('Failed to clear cookies after invalid refresh token', e && e.message);
-      }
-      return res.status(403).json({ success: false, message: 'Invalid or expired refresh token' });
+      console.error("Refresh token verification failed:", verifyErr && verifyErr.message);
+      res.clearCookie("refreshToken");
+      res.clearCookie("token");
+      res.clearCookie("expertToken");
+      res.clearCookie("expertRefreshToken");
+      return res.status(403).json({ success: false, message: "Invalid or expired refresh token" });
     }
 
-    // Find user by id in payload
     const userId = payload?.id || payload?._id || payload?.userId;
     if (!userId) {
-      console.error('Refresh token payload missing id:', payload);
-      return res.status(403).json({ success: false, message: 'Invalid token payload' });
+      console.error("Refresh token payload missing id:", payload);
+      res.clearCookie("refreshToken");
+      res.clearCookie("token");
+      return res.status(403).json({ success: false, message: "Invalid token payload" });
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      console.warn("Refresh token user not found for id", userId);
+      res.clearCookie("refreshToken");
+      res.clearCookie("token");
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Generate a new access token and set cookie
-    const newAccessToken = user.generateJWTToken({ expiresIn: '1d' });
-    res.cookie('token', newAccessToken, {
+    const newAccessToken = user.generateJWTToken({ expiresIn: "1d" });
+    res.cookie("token", newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    console.log('Issued new access token for user:', user._id.toString());
-    return res.status(200).json({ success: true, message: 'Token refreshed', user });
+    let expert = null;
+    if (expertRefreshToken) {
+      try {
+        const expertPayload = jwt.verify(expertRefreshToken, expertJwtSecret);
+        const expertId = expertPayload?.id || expertPayload?._id || expertPayload?.expertId;
+        if (expertId) {
+          expert = await ExpertBasics.findById(expertId);
+          if (expert) {
+            const newExpertToken = expert.generateExpertToken({ expiresIn: "7d" });
+            res.cookie("expertToken", newExpertToken, {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === "production",
+              sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+              maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+          } else {
+            console.warn("Expert not found for refresh token", expertId);
+            res.clearCookie("expertToken");
+            res.clearCookie("expertRefreshToken");
+          }
+        } else {
+          console.warn("Expert refresh payload missing id", expertPayload);
+          res.clearCookie("expertToken");
+          res.clearCookie("expertRefreshToken");
+        }
+      } catch (expertErr) {
+        console.warn("Expert refresh token verification failed:", expertErr && expertErr.message);
+        res.clearCookie("expertToken");
+        res.clearCookie("expertRefreshToken");
+      }
+    }
+
+    console.log("Issued new access token for user:", user._id.toString());
+    return res.status(200).json({ success: true, message: "Token refreshed", user, expert });
   } catch (error) {
-    console.error('Error in refresh_token:', error && error.message);
-    return next(new AppError(error.message || 'Failed to refresh token', 500));
+    console.error("Error in refresh_token:", error && error.message);
+    return next(new AppError(error.message || "Failed to refresh token", 500));
   }
 };
 
@@ -1285,68 +1320,6 @@ const validateToken = async (req, res, next) => {
     );
   } catch (e) {
     next(e);
-  }
-};
-
-const refresh_token = async (req, res, next) => {
-  try {
-    const { refreshToken, expertRefreshToken } = req.cookies;
-
-    if (!refreshToken) {
-      return next(new AppError("Please login!", 403));
-    }
-
-    // Verify User Refresh Token
-    const decodedUser = jwt.verify(
-      refreshToken,
-      "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0="
-    );
-    const user = await User.findById(decodedUser.id);
-    if (!user) {
-      return res.status(403).json({ message: "Invalid user refresh token" });
-    }
-
-    // Generate new User Access Token
-    const newAccessToken = user.generateJWTToken({ expiresIn: "1d" });
-
-    // Set new User Access Token in cookie
-    res.cookie("token", newAccessToken, {
-      httpOnly: true,
-      secure: !isDev,
-      sameSite: isDev ? "Lax" : "None",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-
-    let expert = null;
-    if (expertRefreshToken) {
-      const decodedExpert = jwt.verify(
-        expertRefreshToken,
-        "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew="
-      );
-      expert = await ExpertBasics.findById(decodedExpert.id);
-      if (expert) {
-        // Generate new Expert Access Token
-        const newExpertToken = expert.generateExpertToken({ expiresIn: "7d" });
-
-        // Set new Expert Access Token in cookie
-        res.cookie("expertToken", newExpertToken, {
-          httpOnly: true,
-          secure: !isDev,
-          sameSite: isDev ? "Lax" : "None",
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-      }
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Tokens refreshed",
-      user, // Send user details
-      expert, // Send expert details (if exists)
-    });
-  } catch (error) {
-    console.error(error);
-    return next(new AppError(error, 505));
   }
 };
 
