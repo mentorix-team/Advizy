@@ -10,11 +10,13 @@ import Reviews from "./Reviews";
 import FAQ from "./FAQ";
 import EducationCertifications from "./EducationCertifications";
 import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
+import { getPublicAvailability } from "@/Redux/Slices/availability.slice";
 // import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 import Navbar from "@/components/Home/components/Navbar";
 import Footer from "@/components/Home/components/Footer";
 import SearchModal from "@/components/Home/components/SearchModal";
+import BlockedDates from "./BlockedDates";
 import {
   optimisticAdd,
   optimisticRemove,
@@ -23,6 +25,56 @@ import {
   selectIsUpdatingFavourite,
 } from "@/Redux/Slices/favouritesSlice";
 import toast from "react-hot-toast";
+
+const MAX_SOCIAL_LINKS = 4;
+
+const parseSocialLinks = (rawLinks) => {
+  if (!rawLinks) return [];
+
+  const collected = new Set();
+
+  const processValue = (value) => {
+    if (!value) return;
+    if (Array.isArray(value)) {
+      value.forEach(processValue);
+      return;
+    }
+    if (typeof value !== "string") return;
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const looksJson =
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"));
+
+    if (looksJson) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // treat as literal when parsing fails
+      }
+    }
+
+    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // fallback to trimmed literal value
+      }
+    }
+
+    collected.add(trimmed);
+  };
+
+  processValue(rawLinks);
+
+  return Array.from(collected).slice(0, MAX_SOCIAL_LINKS);
+};
 
 const ExpertDetailPage = () => {
   const navigate = useNavigate();
@@ -40,13 +92,6 @@ const ExpertDetailPage = () => {
   const handleToggle = () => {
     setIsExpertMode(!isExpertMode);
   };
-
-  // Fetch the expert data on mount
-  // useEffect(() => {
-  //   if (id) {
-  //     dispatch(getExpertById(id));
-  //   }
-  // }, [id, dispatch]);
 
   // Heuristic: 24-char hex => ObjectId -> fetch by ID; else treat as redirect slug
   useEffect(() => {
@@ -73,6 +118,8 @@ const ExpertDetailPage = () => {
   }, [location.search]);
 
   const { selectedExpert: rawSelectedExpert, loading, error } = useSelector((state) => state.expert);
+  const { publicAvailability } = useSelector((state) => state.availability);
+
 
   // Normalized expert object whether slice stored wrapper {expert: {...}} or expert directly
   const expert = useMemo(() => {
@@ -81,10 +128,43 @@ const ExpertDetailPage = () => {
     return rawSelectedExpert; // assume already expert object
   }, [rawSelectedExpert]);
 
+  const socialLinks = useMemo(
+    () => parseSocialLinks(expert?.socialLinks),
+    [expert?.socialLinks]
+  );
+
+  // Calculate rating from feedback data
+  const ratingData = useMemo(() => {
+    if (!feedbackofexpert || !Array.isArray(feedbackofexpert) || feedbackofexpert.length === 0) {
+      return {
+        averageRating: 0,
+        reviewsCount: 0
+      };
+    }
+
+    const validRatings = feedbackofexpert.filter(feedback =>
+      feedback.rating && !isNaN(Number(feedback.rating))
+    );
+
+    const totalRating = validRatings.reduce((sum, feedback) =>
+      sum + Number(feedback.rating), 0
+    );
+
+    const averageRating = validRatings.length > 0
+      ? totalRating / validRatings.length
+      : 0;
+
+    return {
+      averageRating: parseFloat(averageRating.toFixed(1)),
+      reviewsCount: feedbackofexpert.length
+    };
+  }, [feedbackofexpert]);
+
   console.log("Normalized expert", expert);
   useEffect(() => {
     if (expert?._id) {
       dispatch(getfeedbackbyexpertid({ id: expert._id }));
+      dispatch(getPublicAvailability(expert._id));
     }
   }, [dispatch, expert?._id]);
 
@@ -141,6 +221,12 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
 
+  // Extract blocked dates from availability data
+  const blockedDates = publicAvailability?.availability?.[0]?.blockedDates || [];
+
+  console.log("Public availability data:", publicAvailability);
+  console.log("Blocked dates:", blockedDates);
+
   const handleModalCategorySelect = (category) => {
     if (category.value) {
       navigate(`/explore?category=${category.value}`);
@@ -161,15 +247,8 @@ const ExpertDetailPage = () => {
           name={`${expert?.firstName || "Unknown"} ${expert?.lastName || ""}`}
           title={expert?.credentials?.professionalTitle?.[0] || "No Title Provided"}
           location={expert?.city || "Unknown"}
-          rating={
-            expert?.reviews?.length
-              ? Math.round(
-                expert.reviews.reduce((acc, r) => acc + r.rating, 0) /
-                expert.reviews.length
-              )
-              : 0
-          }
-          reviewsCount={expert?.reviews?.length || 0}
+          rating={ratingData.averageRating}
+          reviewsCount={ratingData.reviewsCount}
           image={expert?.profileImage?.secure_url}
           redirect_uri={expert?.redirect_url || redirect_url}
           isAdminApproved={expert?.admin_approved_expert}
@@ -177,6 +256,7 @@ const ExpertDetailPage = () => {
           isFavourite={isFav}
           onToggleFavourite={handleFavorite}
           favUpdating={isUpdating}
+          socialLinks={socialLinks}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -187,12 +267,18 @@ const ExpertDetailPage = () => {
                   (lang) => lang.label
                 )}
                 about={expert?.bio || "No details provided"}
+                socialLinks={socialLinks}
               />
-              <Expertise skills={expert?.credentials?.skills || []} />
-              <ServicesOffered
-                id="services-offered"
-                services={expert?.credentials?.services || []}
-              />
+              {/* <BlockedDates blockedDates={blockedDates} /> */}
+              <div className="my-6">
+                <Expertise skills={expert?.credentials?.skills || []} />
+              </div>
+              <div className="my-6">
+                <ServicesOffered
+                  id="services-offered"
+                  services={expert?.credentials?.services || []}
+                />
+              </div>
               <div className="block md:hidden">
                 <EducationCertifications
                   education={expert?.credentials?.education || []}

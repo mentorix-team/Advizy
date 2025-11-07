@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Check } from "lucide-react";
 import CustomDatePicker from "./CustomDatePicker";
 import "react-phone-input-2/lib/style.css";
@@ -8,6 +8,31 @@ import { useDispatch } from "react-redux";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import { Toaster } from "react-hot-toast";
+import {
+  nationalityOptions,
+  getCitiesForNationality,
+} from "../../ProfileDetails/components/nationalityCities";
+
+// Custom Option component with checkbox
+const CustomOption = (props) => {
+  const { isSelected, label, innerProps, innerRef } = props;
+
+  return (
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+    >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => { }}
+        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+      />
+      <span className="ml-2">{label}</span>
+    </div>
+  );
+};
 
 const BasicInfo = ({
   formData,
@@ -30,81 +55,6 @@ const BasicInfo = ({
     countryCode: formData.countryCode || "",
     number: formData.mobile || "",
   });
-
-  const handleChange = (field, value) => {
-    if (field === "email") {
-      const savedEmailVerification = localStorage.getItem(
-        `emailVerified_${value}`
-      );
-
-      // if (savedEmailVerification === "true") {
-      //   setIsEmailVerified(true); // Restore verification if the email matches the previously verified one
-      // } else {
-      //   setIsEmailVerified(false); // Otherwise, reset verification
-      // }
-    }
-
-    onUpdate({ ...formData, [field]: value });
-  };
-
-  const handlePhoneChange = ({ countryCode, phoneNumber }) => {
-    const newMobile = `${countryCode}${phoneNumber}`;
-
-    const savedMobileVerification = localStorage.getItem(
-      `mobileVerified_${newMobile}`
-    );
-
-    if (savedMobileVerification === "true") {
-      // setIsMobileVerified(true); // Restore verification if the mobile matches the previously verified one
-    } else {
-      // setIsMobileVerified(false); // Otherwise, reset verification
-    }
-    setPhoneNumber({
-      countryCode,
-      number: phoneNumber,
-    });
-
-    // Update parent form data with both countryCode and mobile number
-    onUpdate({
-      ...formData,
-      countryCode: countryCode,
-      mobile: phoneNumber, // This is the actual phone number without country code
-    });
-  };
-
-  const handleVerifyClick = async (type) => {
-    if (type === "mobile") {
-      // Update the form data with current phone number only when verifying
-      onUpdate({
-        ...formData,
-        countryCode: phoneNumber.countryCode,
-        mobile: phoneNumber.number,
-      });
-    }
-
-    setVerificationType(type);
-    setContactInfo(
-      type === "email"
-        ? formData.email
-        : phoneNumber.countryCode + phoneNumber.number
-    );
-    // setShowOtpPopup(true);
-
-    try {
-      if (type === "email") {
-        await dispatch(generateOtpforValidating(formData.email));
-      } else if (type === "mobile") {
-        await dispatch(generateOtpforValidating(phoneNumber.number));
-      }
-    } catch (error) {
-      console.error("Error generating OTP:", error);
-    }
-  };
-
-  const handleOtpVerificationSuccess = () => {
-    setShowOtpPopup(false);
-    onVerificationSuccess(verificationType);
-  };
 
   const languageOptions = [
     { value: "english", label: "English" },
@@ -156,6 +106,160 @@ const BasicInfo = ({
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
+  // Convert languages from backend format to Select format
+  const convertedLanguages = useMemo(() => {
+    if (!formData.languages) return [];
+
+    // If formData.languages is already in the correct format (array of objects)
+    if (Array.isArray(formData.languages) && formData.languages.length > 0 &&
+      typeof formData.languages[0] === 'object' && formData.languages[0].value) {
+      return formData.languages;
+    }
+
+    // If formData.languages is an array of strings, convert to objects
+    if (Array.isArray(formData.languages)) {
+      return formData.languages
+        .map(lang => {
+          if (typeof lang === 'string') {
+            const option = languageOptions.find(opt => opt.value === lang);
+            return option || { value: lang, label: lang };
+          }
+          // If it's already an object but missing properties, ensure it has value and label
+          if (typeof lang === 'object') {
+            return {
+              value: lang.value || lang,
+              label: lang.label || lang
+            };
+          }
+          return null;
+        })
+        .filter(Boolean); // Remove any null values
+    }
+
+    return [];
+  }, [formData.languages, languageOptions]);
+
+  const handleChange = (field, value) => {
+    if (field === "email") {
+      const savedEmailVerification = localStorage.getItem(
+        `emailVerified_${value}`
+      );
+
+      // if (savedEmailVerification === "true") {
+      //   setIsEmailVerified(true); // Restore verification if the email matches the previously verified one
+      // } else {
+      //   setIsEmailVerified(false); // Otherwise, reset verification
+      // }
+    }
+
+    const updatedForm = {
+      ...formData,
+      [field]: value,
+    };
+
+    if (field === "nationality") {
+      updatedForm.city = "";
+    }
+
+    onUpdate(updatedForm);
+  };
+
+  const handlePhoneChange = ({ countryCode, phoneNumber }) => {
+    const newMobile = `${countryCode}${phoneNumber}`;
+
+    const savedMobileVerification = localStorage.getItem(
+      `mobileVerified_${newMobile}`
+    );
+
+    if (savedMobileVerification === "true") {
+      // setIsMobileVerified(true); // Restore verification if the mobile matches the previously verified one
+    } else {
+      // setIsMobileVerified(false); // Otherwise, reset verification
+    }
+    setPhoneNumber({
+      countryCode,
+      number: phoneNumber,
+    });
+
+    // Update parent form data with both countryCode and mobile number
+    onUpdate({
+      ...formData,
+      countryCode: countryCode,
+      mobile: phoneNumber, // This is the actual phone number without country code
+    });
+  };
+
+  const cityOptions = useMemo(
+    () => getCitiesForNationality(formData.nationality),
+    [formData.nationality]
+  );
+
+  const selectedNationality = useMemo(
+    () =>
+      nationalityOptions.find((option) => option.value === formData.nationality) || null,
+    [formData.nationality]
+  );
+
+  const selectedCity = useMemo(
+    () => cityOptions.find((option) => option.value === formData.city) || null,
+    [cityOptions, formData.city]
+  );
+
+  const getSelectStyles = (hasError) => ({
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "42px",
+      borderColor: hasError
+        ? "#ef4444"
+        : state.isFocused
+          ? "#16a34a"
+          : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #16a34a" : "none",
+      backgroundColor: hasError ? "#fef2f2" : provided.backgroundColor,
+      "&:hover": {
+        borderColor: state.isFocused ? "#16a34a" : hasError ? "#ef4444" : "#16a34a",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 20,
+    }),
+  });
+
+  const handleVerifyClick = async (type) => {
+    if (type === "mobile") {
+      // Update the form data with current phone number only when verifying
+      onUpdate({
+        ...formData,
+        countryCode: phoneNumber.countryCode,
+        mobile: phoneNumber.number,
+      });
+    }
+
+    setVerificationType(type);
+    setContactInfo(
+      type === "email"
+        ? formData.email
+        : phoneNumber.countryCode + phoneNumber.number
+    );
+    // setShowOtpPopup(true);
+
+    try {
+      if (type === "email") {
+        await dispatch(generateOtpforValidating(formData.email));
+      } else if (type === "mobile") {
+        await dispatch(generateOtpforValidating(phoneNumber.number));
+      }
+    } catch (error) {
+      console.error("Error generating OTP:", error);
+    }
+  };
+
+  const handleOtpVerificationSuccess = () => {
+    setShowOtpPopup(false);
+    onVerificationSuccess(verificationType);
+  };
+
   return (
     <div className="p-4 sm:p-6 md:p-8 lg:p-10">
       <Toaster position="top-right" />
@@ -172,11 +276,10 @@ const BasicInfo = ({
             onChange={(e) => handleChange("firstName", e.target.value)}
             onBlur={() => onBlur("firstName")}
             placeholder="John"
-            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${
-              errors.firstName && touched.firstName
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
+            className={`w-full p-2.5 border rounded-lg focus:ring-1 focus:ring-primary text-sm sm:text-base ${errors.firstName && touched.firstName
+              ? "border-red-500"
+              : "border-gray-300"
+              }`}
           />
           {errors.firstName && touched.firstName && (
             <p className="text-red-500 text-xs sm:text-sm mt-1">
@@ -196,11 +299,10 @@ const BasicInfo = ({
             onChange={(e) => handleChange("lastName", e.target.value)}
             onBlur={() => onBlur("lastName")}
             placeholder="Doe"
-            className={`w-full p-2.5 border ${
-              errors.lastName && touched.lastName
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            className={`w-full p-2.5 border ${errors.lastName && touched.lastName
+              ? "border-red-500"
+              : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           />
           {errors.lastName && touched.lastName && (
             <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
@@ -216,11 +318,10 @@ const BasicInfo = ({
             value={formData.gender}
             onChange={(e) => handleChange("gender", e.target.value)}
             onBlur={() => onBlur("gender")}
-            className={`w-full p-2.5 border ${
-              errors.gender && touched.gender
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            className={`w-full p-2.5 border ${errors.gender && touched.gender
+              ? "border-red-500"
+              : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary`}
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -257,66 +358,18 @@ const BasicInfo = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Nationality <span className="text-red-500">*</span>
           </label>
-          <select
-            value={formData.nationality}
-            onChange={(e) => handleChange("nationality", e.target.value)}
+          <Select
+            value={selectedNationality}
+            onChange={(option) => handleChange("nationality", option ? option.value : "")}
             onBlur={() => onBlur("nationality")}
-            className={`w-full p-2.5 border ${
-              errors.nationality && touched.nationality
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          >
-            <option value="">Select nationality</option>
-            <option value="in">Indian</option>
-            <option value="cn">Chinese</option>
-            <option value="us">American</option>
-            <option value="id">Indonesian</option>
-            <option value="pk">Pakistani</option>
-            <option value="ng">Nigerian</option>
-            <option value="br">Brazilian</option>
-            <option value="bd">Bangladeshi</option>
-            <option value="ru">Russian</option>
-            <option value="mx">Mexican</option>
-            <option value="jp">Japanese</option>
-            <option value="et">Ethiopian</option>
-            <option value="ph">Filipino</option>
-            <option value="eg">Egyptian</option>
-            <option value="vn">Vietnamese</option>
-            <option value="cd">Congolese</option>
-            <option value="tr">Turkish</option>
-            <option value="ir">Iranian</option>
-            <option value="de">German</option>
-            <option value="th">Thai</option>
-            <option value="gb">British</option>
-            <option value="fr">French</option>
-            <option value="it">Italian</option>
-            <option value="tz">Tanzanian</option>
-            <option value="za">South African</option>
-            <option value="mm">Burmese</option>
-            <option value="ke">Kenyan</option>
-            <option value="kr">South Korean</option>
-            <option value="co">Colombian</option>
-            <option value="es">Spanish</option>
-            <option value="ug">Ugandan</option>
-            <option value="ar">Argentinian</option>
-            <option value="dz">Algerian</option>
-            <option value="sd">Sudanese</option>
-            <option value="ua">Ukrainian</option>
-            <option value="iq">Iraqi</option>
-            <option value="af">Afghan</option>
-            <option value="pl">Polish</option>
-            <option value="ca">Canadian</option>
-            <option value="ma">Moroccan</option>
-            <option value="sa">Saudi Arabian</option>
-            <option value="uz">Uzbekistani</option>
-            <option value="pe">Peruvian</option>
-            <option value="ao">Angolan</option>
-            <option value="my">Malaysian</option>
-            <option value="gh">Ghanaian</option>
-            <option value="mz">Mozambican</option>
-            <option value="ye">Yemeni</option>
-          </select>
+            options={nationalityOptions}
+            placeholder="Select nationality"
+            classNamePrefix="advizy-select"
+            isClearable
+            styles={getSelectStyles(errors.nationality && touched.nationality)}
+            menuPlacement="bottom"
+            menuShouldScrollIntoView={false}
+          />
           {errors.nationality && touched.nationality && (
             <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
           )}
@@ -327,15 +380,19 @@ const BasicInfo = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">
             City <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => handleChange("city", e.target.value)}
+          <Select
+            value={selectedCity}
+            onChange={(option) => handleChange("city", option ? option.value : "")}
             onBlur={() => onBlur("city")}
-            placeholder="New Delhi"
-            className={`w-full p-2.5 border ${
-              errors.city && touched.city ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            options={formData.nationality ? cityOptions : []}
+            placeholder={formData.nationality ? "Select city" : "Select nationality first"}
+            classNamePrefix="advizy-select"
+            isDisabled={!formData.nationality}
+            isClearable
+            styles={getSelectStyles(errors.city && touched.city)}
+            menuPlacement="bottom"
+            menuShouldScrollIntoView={false}
+            noOptionsMessage={() => "No cities available"}
           />
           {errors.city && touched.city && (
             <p className="text-red-500 text-sm mt-1">{errors.city}</p>
@@ -400,11 +457,10 @@ const BasicInfo = ({
               onChange={(e) => handleChange("email", e.target.value)}
               onBlur={() => onBlur("email")}
               placeholder="name@example.com"
-              className={`flex-1 p-2.5 border ${
-                errors.email && touched.email
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
+              className={`flex-1 p-2.5 border ${errors.email && touched.email
+                ? "border-red-500"
+                : "border-gray-300"
+                } rounded-lg focus:ring-1 focus:ring-primary`}
             />
           </div>
           {errors.email && touched.email && (
@@ -424,17 +480,21 @@ const BasicInfo = ({
           isMulti
           hideSelectedOptions={false}
           onBlur={() => onBlur("languages")}
-          value={formData.languages}
-          // onChange={(value) => handleChange("languages", value)}
+          value={convertedLanguages} // Use the converted languages
           onChange={(value) => {
             // Convert the Select component's value format to match your form data structure
             handleChange("languages", value || []);
           }}
-          className={`${
-            errors.languages && touched.languages
-              ? "border-red-500"
-              : "border-gray-300"
-          }`}
+          className={`${errors.languages && touched.languages
+            ? "border-red-500"
+            : "border-gray-300"
+            }`}
+          components={{
+            Option: CustomOption
+          }}
+          closeMenuOnSelect={false}
+          menuPlacement="bottom"
+          menuShouldScrollIntoView={false}
         />
         {errors.languages && touched.languages && (
           <p className="text-red-500 text-sm mt-1">{errors.languages}</p>

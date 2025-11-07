@@ -150,6 +150,11 @@ function Scheduling() {
       expertError,
       availabilityError,
     },
+    "Availability Structure": {
+      availability: selectedAvailability?.availability,
+      blockedDates: selectedAvailability?.availability?.blockedDates,//check
+      daySpecific: selectedAvailability?.availability?.daySpecific,//check[0]?.
+    },
     "User Data": userData,
     "Calculated Values": {
       defaultSlot,

@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 const initialState = {
   availability: JSON.parse(localStorage.getItem("availability")) || {}, // Load from local storage
   selectedAvailability: null,
+  publicAvailability: null, // For expert's public availability data
   loading: false,
   error: null,
 };
@@ -105,6 +106,32 @@ export const addBlockedDates = createAsyncThunk(
     }
   }
 );
+
+export const removeBlockedDate = createAsyncThunk(
+  "availability/removeBlockedDate",
+  async (dateToRemove, { rejectWithValue }) => {
+    try {
+      console.log("[removeBlockedDate] Request data:", dateToRemove);
+      const res = await axiosInstance.post("calendar/removeblockeddates", {
+        dateToRemove: dateToRemove
+      });
+      console.log("[removeBlockedDate] Response:", res.data);
+      return res.data;
+    } catch (error) {
+      const errorMessage =
+        error?.response?.data?.message || "Failed to remove blocked date.";
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 export const addSpecificDates = createAsyncThunk(
   "availability/addspecificdates",
   async (data, { rejectWithValue }) => {
@@ -162,7 +189,7 @@ export const setSettings = createAsyncThunk(
 );
 
 export const setTimezone = createAsyncThunk(
-  "availability/ssettimezone",
+  "availability/settimezone",
   async (data, { rejectWithValue }) => {
     try {
       console.log("[setTimezone] Request data:", data);
@@ -221,6 +248,23 @@ export const getAvailabilitybyid = createAsyncThunk(
       const errorMessage =
         error?.response?.data?.message || "Failed to validate OTP.";
       // toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getPublicAvailability = createAsyncThunk(
+  "availability/getPublicAvailability",
+  async (expertId, { rejectWithValue }) => {
+    try {
+      console.log("[getPublicAvailability] Request Expert ID:", expertId);
+      const res = await axiosInstance.get(`calendar/get/${expertId}`);
+      console.log("[getPublicAvailability] Response:", res.data);
+      return res.data;
+    } catch (error) {
+      const errorMessage =
+        error?.response?.data?.message || "Failed to fetch expert availability.";
+      console.error("Error in getPublicAvailability:", errorMessage);
       return rejectWithValue(errorMessage);
     }
   }
@@ -294,6 +338,18 @@ const availabilitySlice = createSlice({
           draggable: true,
         });
       })
+      .addCase(removeBlockedDate.fulfilled, (state, action) => {
+        state.availability = action.payload;
+        saveToLocalStorage(state.availability); // Save to local storage
+        toast.success("Blocked date removed successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      })
       .addCase(addSpecificDates.fulfilled, (state, action) => {
         state.availability = action.payload;
         saveToLocalStorage(state.availability); // Save to local storage
@@ -351,6 +407,18 @@ const availabilitySlice = createSlice({
         state.error = null;
       })
       .addCase(getAvailabilitybyid.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      })
+      .addCase(getPublicAvailability.fulfilled, (state, action) => {
+        state.publicAvailability = action.payload;
+        state.loading = false;
+      })
+      .addCase(getPublicAvailability.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPublicAvailability.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       })

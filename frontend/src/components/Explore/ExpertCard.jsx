@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
+// import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { BsHeartFill, BsHeart } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { User, Star } from "lucide-react";
@@ -18,6 +19,7 @@ const ExpertCard = (props) => {
     title,
     rating,
     totalRatings,
+    totalSessions,
     experience,
     startingPrice,
     duration,
@@ -48,29 +50,80 @@ const ExpertCard = (props) => {
     fetchAvailability();
   }, [dispatch, expertId]);
 
-  const firstAvailableDay = availability?.daySpecific?.find(
-    (day) => day.slots?.length > 0
-  );
-  const firstAvailableTime = firstAvailableDay?.slots?.[0]?.startTime;
-
-  const truncateByChar = (text = "", maxChars) => {
-    if (!text) return "";
-    if (text.length <= maxChars) return text;
-    let truncated = text.slice(0, maxChars);
-    if (text[maxChars] !== " ") {
-      truncated = truncated.slice(0, truncated.lastIndexOf(" "));
+  const getFirstAvailableSlot = () => {
+    if (!availability?.daySpecific) {
+      return { day: null, time: null };
     }
-    return truncated + "...";
+
+    const now = new Date();
+    const currentDay = now.toLocaleString("en-US", { weekday: "long" });
+    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes();
+
+    const parseTime = (timeString) => {
+      const [time, period] = timeString.split(/(\s?[AP]M)/i);
+      const [hours, minutes] = time.split(':').map(Number);
+      let hour24 = hours;
+
+      if (period && period.toUpperCase().includes('PM') && hours !== 12) {
+        hour24 += 12;
+      } else if (period && period.toUpperCase().includes('AM') && hours === 12) {
+        hour24 = 0;
+      }
+
+      return hour24 * 60 + minutes;
+    };
+
+    // Check today's slots first
+    const todayData = availability.daySpecific.find(day => day.day === currentDay);
+
+    if (todayData && todayData.slots && todayData.slots.length > 0) {
+      for (const slot of todayData.slots) {
+        if (!slot.startTime || !slot.endTime) continue;
+
+        const slotStartMinutes = parseTime(slot.startTime);
+        const slotEndMinutes = parseTime(slot.endTime);
+        const sessionDuration = duration || 30;
+
+        let currentSlotTime = slotStartMinutes;
+
+        while (currentSlotTime + sessionDuration <= slotEndMinutes) {
+          if (currentSlotTime > currentTimeMinutes + 30) {
+            const nextAvailableHour = Math.floor(currentSlotTime / 60);
+            const nextAvailableMinute = currentSlotTime % 60;
+            const nextAvailableTime = `${nextAvailableHour > 12 ? nextAvailableHour - 12 : nextAvailableHour === 0 ? 12 : nextAvailableHour}:${nextAvailableMinute.toString().padStart(2, '0')} ${nextAvailableHour >= 12 ? 'PM' : 'AM'}`;
+
+            return { day: "Today", time: nextAvailableTime };
+          }
+          currentSlotTime += 15;
+        }
+      }
+    }
+
+    // Check future days if no today slots
+    for (const dayData of availability.daySpecific) {
+      if (dayData.day === currentDay) continue;
+
+      if (!dayData.slots || dayData.slots.length === 0) continue;
+
+      for (const slot of dayData.slots) {
+        if (!slot.startTime) continue;
+        return { day: dayData.day, time: slot.startTime };
+      }
+    }
+
+    return { day: null, time: null };
   };
 
-  const [pulse, setPulse] = useState(false); // trigger one-shot animation
+  const { day: firstAvailableDay, time: firstAvailableTime } = getFirstAvailableSlot();
+
+  const [pulse, setPulse] = useState(false);
 
   const handleFav = (e) => {
     e.stopPropagation();
     if (!expertId || isUpdating) return;
     setPulse(true);
 
-    const wasFav = isFav; // snapshot the value at click time
+    const wasFav = isFav;
 
     if (wasFav) dispatch(optimisticRemove(expertId));
     else dispatch(optimisticAdd(expertId));
@@ -83,7 +136,7 @@ const ExpertCard = (props) => {
           { position: "top-right" }
         );
       } else {
-        // rollback using snapshot, not current isFav
+        // rollback using snapshot
         if (wasFav) dispatch(optimisticAdd(expertId));
         else dispatch(optimisticRemove(expertId));
         toast.error("Failed to update favourite", { position: "top-right" });
@@ -99,10 +152,10 @@ const ExpertCard = (props) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      whileHover={{ 
-        y: -2, 
+      whileHover={{
+        y: -2,
         boxShadow: "0px 8px 25px rgba(22, 149, 68, 0.15)",
-        transition: { duration: 0.2 } 
+        transition: { duration: 0.2 }
       }}
       className="w-full h-full sm:max-w-screen-md bg-[#fdfdfd] rounded-xl p-3 sm:p-5 border-2 border-solid border-[#16954440] shadow-[0px_3px_9px_#16954440] cursor-pointer"
     >
@@ -111,7 +164,7 @@ const ExpertCard = (props) => {
         <div className="flex-1 flex flex-col gap-3">
           {/* Top Section */}
           <div className="flex items-start gap-3 sm:gap-4 relative">
-            <motion.div 
+            <motion.div
               className="py-1 sm:py-2"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
@@ -128,9 +181,9 @@ const ExpertCard = (props) => {
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h2 
-                    onClick={() => navigate(profilePath)}
-                    className="text-base sm:text-lg md:text-lg lg:text-xl font-semibold text-gray-900 leading-tight break-words">
+                    <h2
+                      onClick={() => navigate(profilePath)}
+                      className="text-base sm:text-lg md:text-lg lg:text-xl font-semibold text-gray-900 leading-tight break-words">
                       {name}
                     </h2>
                     {verified === true && (
@@ -151,7 +204,7 @@ const ExpertCard = (props) => {
                     <div className="flex items-center">
                       <span className="flex gap-1 sm:gap-2 items-center bg-emerald-50 text-gray-800 rounded-full px-2 sm:px-2 py-1 text-xs sm:text-xs md:text-sm font-medium">
                         <User className="w-3 h-3 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                        {totalRatings} Sessions done
+                        {(typeof totalSessions === 'number' ? totalSessions : Number(totalSessions || 0)) || 0} Sessions done
                       </span>
                     </div>
                   </div>
@@ -191,9 +244,9 @@ const ExpertCard = (props) => {
                     className="flex"
                   >
                     {isFav ? (
-                      <FaHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-red-500 ${isUpdating ? "animate-pulse" : ""}`} />
+                      <BsHeartFill className={`w-5 h-5 sm:w-6 sm:h-6 text-red-500 ${isUpdating ? "animate-pulse" : ""}`} />
                     ) : (
-                      <FaRegHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-600 ${isUpdating ? "animate-pulse" : ""}`} />
+                      <BsHeart className={`w-5 h-5 sm:w-6 sm:h-6 text-gray-600 ${isUpdating ? "animate-pulse" : ""}`} />
                     )}
                   </motion.span>
                   {isUpdating && (
@@ -218,7 +271,7 @@ const ExpertCard = (props) => {
               ))}
             </div>
           </div>
-          </div>
+        </div>
 
         {/* Bottom Section */}
         <div className="mt-3 sm:mt-3 pt-3 border-t border-gray-100">
@@ -229,7 +282,12 @@ const ExpertCard = (props) => {
               </span>
               <span className="text-xs sm:text-sm md:text-sm lg:text-sm text-blue-700 font-medium">
                 {firstAvailableDay && firstAvailableTime
-                  ? `${firstAvailableDay.day}, ${firstAvailableTime}`
+                  ? (() => {
+                    const now = new Date();
+                    const currentDay = now.toLocaleString("en-US", { weekday: "long" });
+                    const isToday = firstAvailableDay === currentDay;
+                    return `${isToday ? "Today" : firstAvailableDay}, ${firstAvailableTime}`;
+                  })()
                   : "No slots available"}
               </span>
             </div>
@@ -239,7 +297,7 @@ const ExpertCard = (props) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.1 }}
-                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-white border border-gray-300 shadow-sm font-semibold tracking-tight rounded-lg text-xs sm:text-sm md:text-base hover:bg-gray-50"
+                className=" h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-white border border-gray-300 shadow-sm font-semibold tracking-tight rounded-lg text-xs sm:text-sm md:text-base hover:bg-gray-50"
               >
                 View Profile
               </motion.button>
@@ -250,7 +308,7 @@ const ExpertCard = (props) => {
                 whileHover={{ scale: 1.05, backgroundColor: "rgb(209 250 229)" }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.1 }}
-                className="italic h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-emerald-50 text-emerald-600 font-semibold tracking-tight text-xs sm:text-sm md:text-base shadow-sm rounded-lg hover:bg-emerald-100"
+                className=" h-8 sm:h-9 px-3 sm:px-3 md:px-4 bg-emerald-50 text-emerald-600 font-semibold tracking-tight text-xs sm:text-sm md:text-base shadow-sm rounded-lg hover:bg-emerald-100"
               >
                 Book
               </motion.button>

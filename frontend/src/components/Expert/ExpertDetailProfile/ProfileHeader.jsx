@@ -1,14 +1,21 @@
-import {
-  LocationIcon,
-  RatingStarIcon,
-  ShareIcon,
-  VerifiedTickIcon,
-} from "@/icons/Icons";
+import { LocationIcon, RatingStarIcon } from "@/icons/Icons";
 import { IoShareSocialOutline } from "react-icons/io5";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import Share from "@/utils/ShareButton/Share";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
+import {
+  FaRegHeart,
+  FaHeart,
+  FaLinkedin,
+  FaGithub,
+  FaTwitter,
+  FaInstagram,
+  FaFacebook,
+} from "react-icons/fa";
+import { Link as LinkIcon } from "lucide-react";
+import { BsHeartFill, BsHeart } from "react-icons/bs";
+
+const MAX_SOCIAL_LINKS = 4;
 
 const ProfileHeader = ({
   name,
@@ -25,6 +32,7 @@ const ProfileHeader = ({
   onToggleFavourite = () => { },
   favUpdating = false,
   isFavourite,
+  socialLinks = [],
 }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [pulse, setPulse] = useState(false); // controls one-shot heart animation
@@ -35,6 +43,83 @@ const ProfileHeader = ({
     setPulse(true); // trigger animation
   };
 
+  const ensureProtocol = (url) => {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
+  const formatLinkLabel = (url) => {
+    if (!url) return "";
+
+    try {
+      const parsed = new URL(ensureProtocol(url));
+      const pathname = parsed.pathname === "/" ? "" : parsed.pathname;
+      return `${parsed.hostname.replace(/^www\./i, "")}${pathname}`;
+    } catch (error) {
+      return url;
+    }
+  };
+
+  const PLATFORM_MAP = [
+    {
+      matcher: /linkedin\.com/i,
+      label: "LinkedIn",
+      Icon: FaLinkedin,
+      iconClassName: "text-[#0A66C2]",
+    },
+    {
+      matcher: /github\.com/i,
+      label: "GitHub",
+      Icon: FaGithub,
+      iconClassName: "text-gray-900",
+    },
+    {
+      matcher: /twitter\.com|x\.com/i,
+      label: "Twitter",
+      Icon: FaTwitter,
+      iconClassName: "text-sky-500",
+    },
+    {
+      matcher: /instagram\.com/i,
+      label: "Instagram",
+      Icon: FaInstagram,
+      iconClassName: "text-[#E1306C]",
+    },
+    {
+      matcher: /facebook\.com/i,
+      label: "Facebook",
+      Icon: FaFacebook,
+      iconClassName: "text-[#1877F2]",
+    },
+  ];
+
+  const normalizedLinks = Array.isArray(socialLinks)
+    ? socialLinks.slice(0, MAX_SOCIAL_LINKS)
+    : [];
+
+  const socialLinkMeta = normalizedLinks
+    .map((link) => {
+      if (!link) return null;
+
+      const rawUrl = typeof link === "string" ? link : link.url || link.href || "";
+      if (!rawUrl) return null;
+
+      const platform = PLATFORM_MAP.find(({ matcher }) => matcher.test(rawUrl));
+      const Icon = platform?.Icon || LinkIcon;
+      const labelFromLink =
+        (typeof link === "object" && (link.label || link.platform)) || "";
+
+      return {
+        href: ensureProtocol(rawUrl),
+        label: platform?.label || labelFromLink || formatLinkLabel(rawUrl) || "Website",
+        Icon,
+        iconClassName: platform?.iconClassName || "text-primary",
+      };
+    })
+    .filter(Boolean);
   // Function to open the share modal
   const openShareModal = () => {
     setIsShareOpen(true);
@@ -122,12 +207,13 @@ const ProfileHeader = ({
                     )}
                   </div>
                 </div>
+
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleFavouriteClick}
                       disabled={favUpdating}
-                      className={`relative flex items-center justify-center border w-10 h-10 border-gray-300 rounded-full text-2xl transition bg-white hover:bg-gray-50 ${favUpdating ? "opacity-60" : ""}`}
+                      className={`relative flex items-center justify-center w-10 h-10 border-gray-300 rounded-full text-2xl transition bg-white hover:bg-gray-50 ${favUpdating ? "opacity-60" : ""}`}
                       aria-label="toggle favourite"
                       aria-pressed={isFavourite}
                     >
@@ -139,9 +225,9 @@ const ProfileHeader = ({
                         className="flex"
                       >
                         {isFavourite ? (
-                          <FaHeart className="text-red-500 drop-shadow-sm" />
+                          <BsHeartFill className="text-red-500 drop-shadow-sm" />
                         ) : (
-                          <FaRegHeart className="text-gray-600" />
+                          <BsHeart className="text-gray-600" />
                         )}
                       </motion.span>
                       {favUpdating && (
@@ -153,7 +239,7 @@ const ProfileHeader = ({
                     <div className="relative">
                       {/* Share Button */}
                       <button
-                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100 transition"
+                        className="w-10 h-10 flex items-center justify-center border-gray-300 rounded-full hover:bg-gray-100 transition"
                         onClick={openShareModal}
                       >
                         <IoShareSocialOutline className="w-6 h-6" />
@@ -177,31 +263,44 @@ const ProfileHeader = ({
             </div>
           </div>
 
-          {/* Favorite Button */}
-          {/* <button
-            onClick={onToggleFavourite}
-            disabled={favUpdating}
-            className={`absolute bottom-4 right-4 flex items-center gap-1 px-3 py-1 rounded text-sm transition ${favUpdating ? " text-red-600" :
-              onToggleFavourite ? " text-red-600" :
-                "bg-gray-100 text-gray-600 border-gray-300"
-              } ${favUpdating ? "opacity-60 animate-pulse" : ""}`}
-            aria-label="toggle favourite"
-          >
-            {isFavourite ? (
-              <>
-                <FaHeart className="text-red-500" />
-              </>
-            ) : (
-              <>
-                <FaRegHeart />
-              </>
-            )}
-          </button> */}
-
+          {/* Social Links Icons */}
+          {socialLinkMeta.length > 0 && (
+            <div className="absolute right-6 bottom-6 flex items-center gap-3">
+              {socialLinkMeta.map(({ href, label, Icon, iconClassName }, index) => (
+                <motion.a
+                  key={`${href}-${index}`}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit ${label}`}
+                  className="inline-flex items-center justify-center w-9 h-9 text-primary hover:rounded-lg transition-shadow"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 10
+                  }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.2 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 15
+                    }}
+                  >
+                    <Icon className={`w-8 h-8 ${iconClassName}`} aria-hidden />
+                  </motion.div>
+                  <span className="sr-only">{label}</span>
+                </motion.a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div >
   );
 };
 
-export default ProfileHeader; 
+export default ProfileHeader;

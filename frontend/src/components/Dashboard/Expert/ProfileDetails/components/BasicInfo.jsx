@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from "react";
-import PhoneInput from "react-phone-input-2";
-import { FaPlus } from "react-icons/fa";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import CustomDatePicker from "./CustomDatePicker";
-import { CircleCheckBig,Info } from "lucide-react";
+import { CircleCheckBig, Info, Trash2, AlertCircle } from "lucide-react";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import PhoneNumberValidation from "@/utils/PhoneNumberValidation/PhoneNumberValidation.util";
@@ -12,12 +10,41 @@ import { forgotPassword, generateOtp } from "@/Redux/Slices/authSlice";
 import { generateOtpforValidating } from "@/Redux/Slices/expert.Slice";
 import VerifyThedetails from "@/components/Auth/VerifyThedetails";
 import Tooltip from "../../ToolTip";
+import toast from "react-hot-toast";
+import {
+  nationalityOptions,
+  getCitiesForNationality,
+} from "./nationalityCities";
+
+const MAX_SOCIAL_LINKS = 4;
+
+// Custom Option component with checkbox
+const CustomOption = (props) => {
+  const { isSelected, label, innerProps, innerRef } = props;
+
+  return (
+    <div
+      ref={innerRef}
+      {...innerProps}
+      className="flex items-center p-2 hover:bg-gray-100 cursor-pointer"
+    >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => { }}
+        className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+      />
+      <span className="ml-2">{label}</span>
+    </div>
+  );
+};
 
 const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const dispatch = useDispatch();
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
   const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
+  const initialSocialSanitized = useRef(false);
 
   // Add verification status state
   const [verificationStatus, setVerificationStatus] = useState({
@@ -25,8 +52,23 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     mobile: false,
   });
 
+  // Function to check if a field is empty
+  const isEmpty = (value) => {
+    return !value || (Array.isArray(value) && value.length === 0) ||
+      (typeof value === 'string' && value.trim() === '');
+  };
+
   const handleChange = (field, value) => {
-    onUpdate({ ...formData, [field]: value });
+    const updatedForm = {
+      ...formData,
+      [field]: value,
+    };
+
+    if (field === "nationality") {
+      updatedForm.city = "";
+    }
+
+    onUpdate(updatedForm);
     // Reset verification status when email/mobile changes
     if (field === "email" || field === "mobile") {
       setVerificationStatus((prev) => ({
@@ -51,6 +93,24 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
       setVerificationStatus(JSON.parse(savedVerification));
     }
   }, []);
+
+  useEffect(() => {
+    if (initialSocialSanitized.current) return;
+    initialSocialSanitized.current = true;
+
+    const links = Array.isArray(formData.socialLinks)
+      ? formData.socialLinks
+      : [];
+    const sanitized = links.filter((link) => link && link.trim() !== "");
+    const limited = sanitized.slice(0, MAX_SOCIAL_LINKS);
+
+    if (limited.length !== links.length) {
+      onUpdate({
+        ...formData,
+        socialLinks: limited,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const languageOptions = [
     { value: "hindi", label: "Hindi" },
@@ -124,28 +184,69 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
-  // const handlePhoneChange = (phoneData) => {
-  //   const { countryCode, phoneNumber, isValid, fullNumber } = phoneData;
-
-  //   const formattedPhoneNumber = phoneNumber.startsWith(countryCode)
-  //     ? phoneNumber.replace(countryCode, "")
-  //     : phoneNumber;
-
-  //   onUpdate({
-  //     ...formData,
-  //     countryCode: countryCode,
-  //     mobile: formattedPhoneNumber,
-  //   });
-
-  //   // Optionally, you can also set some state to indicate if the phone number is valid
-  //   setIsPhoneValid(isValid);
-  // };
-
   const handleAddSocialLink = () => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? formData.socialLinks
+      : [];
+
+    if (existingLinks.length >= MAX_SOCIAL_LINKS) {
+      toast.error(`You can add up to ${MAX_SOCIAL_LINKS} links.`);
+      return;
+    }
+
+    if (
+      existingLinks.length > 0 &&
+      !existingLinks[existingLinks.length - 1]?.trim()
+    ) {
+      toast.error("Please fill the current link before adding another.");
+      return;
+    }
+
     onUpdate({
       ...formData,
-      socialLinks: [...formData.socialLinks, ""],
+      socialLinks: [...existingLinks, ""],
     });
+  };
+
+  const handleRemoveSocialLink = (index) => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    existingLinks.splice(index, 1);
+    const limitedLinks = existingLinks.slice(0, MAX_SOCIAL_LINKS);
+    onUpdate({
+      ...formData,
+      socialLinks: limitedLinks,
+    });
+  };
+
+  const handleSocialLinkChange = (index, value) => {
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    existingLinks[index] = value;
+    onUpdate({
+      ...formData,
+      socialLinks: existingLinks,
+    });
+  };
+
+  const handleSocialLinkBlur = (index) => {
+    onBlur("socialLinks");
+    const existingLinks = Array.isArray(formData.socialLinks)
+      ? [...formData.socialLinks]
+      : [];
+
+    if (!existingLinks[index] || !existingLinks[index].trim()) {
+      existingLinks.splice(index, 1);
+      const limitedLinks = existingLinks.slice(0, MAX_SOCIAL_LINKS);
+      onUpdate({
+        ...formData,
+        socialLinks: limitedLinks,
+      });
+    }
   };
 
   const handleVerifyClick = async (type) => {
@@ -181,235 +282,122 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     );
   };
 
-  return (
-    <div className="py-6">
-      {/* Bio Description */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <label className="block text-sm font-medium text-gray-700">
-            Bio Description
-          </label>
-          <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
-            <Info className="w-4 h-4 text-gray-400 cursor-help" />
-          </Tooltip>
-        </div>
-        <textarea
-          value={formData.bio}
-          onChange={(e) => handleChange("bio", e.target.value)}
-          
-          onBlur={() => onBlur("bio")}
-          placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
-          rows={4}
-          className={`w-full p-2.5 border ${
-            errors.bio && touched.bio ? "border-red-500" : "border-gray-300"
-          } rounded-lg focus:ring-1 focus:ring-primary`}
-        />
-        <p className="text-sm text-gray-500 mt-1">
-          Your bio is your chance to showcase your expertise and personality.
-          Make it count!
-        </p>
-        {errors.bio && touched.bio && (
-          <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
-        )}
-      </div>
+  const socialLinks = Array.isArray(formData.socialLinks)
+    ? formData.socialLinks.slice(0, MAX_SOCIAL_LINKS)
+    : [];
+  const canAddSocialLink =
+    socialLinks.length < MAX_SOCIAL_LINKS &&
+    socialLinks.every((link) => link && link.trim() !== "");
 
-      {/* Form Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* First Name */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.firstName}
-            onChange={(e) => handleChange("firstName", e.target.value)}
-            onBlur={() => onBlur("firstName")}
-            placeholder="John"
-            className={`w-full p-2.5 border ${
-              errors.firstName && touched.firstName
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.firstName && touched.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-          )}
-        </div>
+  const cityOptions = useMemo(
+    () => getCitiesForNationality(formData.nationality),
+    [formData.nationality]
+  );
 
-        {/* Last Name */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.lastName}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-            onBlur={() => onBlur("lastName")}
-            placeholder="Doe"
-            className={`w-full p-2.5 border ${
-              errors.lastName && touched.lastName
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.lastName && touched.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-          )}
-        </div>
+  const getSelectStyles = (hasError) => ({
+    control: (provided, state) => ({
+      ...provided,
+      minHeight: "42px",
+      borderColor: hasError
+        ? "#ef4444"
+        : state.isFocused
+          ? "#16a34a"
+          : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #16a34a" : "none",
+      backgroundColor: hasError ? "#fef2f2" : provided.backgroundColor,
+      "&:hover": {
+        borderColor: state.isFocused ? "#16a34a" : hasError ? "#ef4444" : "#16a34a",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 20,
+    }),
+  });
 
-        {/* Gender */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Gender <span className="text-red-500">*</span>
-          </label>
+  // Function to render a required field with validation
+  const renderRequiredField = (
+    field,
+    label,
+    placeholder,
+    type = "text",
+    options = null,
+    extraProps = {}
+  ) => {
+    const value = formData[field];
+    const hasError = (errors[field] && touched[field]) || (isEmpty(value) && touched[field]);
+    const isEmptyField = isEmpty(value);
+
+    return (
+      <div className="col-span-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label} <span className="text-red-500">*</span>
+        </label>
+        {type === "select" ? (
           <select
-            value={formData.gender}
-            onChange={(e) => handleChange("gender", e.target.value)}
-            onBlur={() => onBlur("gender")}
-            className={`w-full p-2.5 border ${
-              errors.gender && touched.gender
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            {...extraProps}
           >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="">{placeholder}</option>
+            {options && options.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+                disabled={Boolean(option.disabled)}
+              >
+                {option.label}
+              </option>
+            ))}
           </select>
-          {errors.gender && touched.gender && (
-            <p className="text-red-500 text-sm mt-1">{errors.gender}</p>
-          )}
-        </div>
-
-        {/* Date of Birth */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Date of Birth <span className="text-red-500">*</span>
-          </label>
+        ) : type === "single-select" ? (
+          <Select
+            value={options?.find((option) => option.value === value) || null}
+            onChange={(option) => handleChange(field, option ? option.value : "")}
+            onBlur={() => onBlur(field)}
+            options={options || []}
+            placeholder={placeholder}
+            isDisabled={Boolean(extraProps.disabled)}
+            isClearable
+            classNamePrefix="advizy-select"
+            styles={getSelectStyles(hasError)}
+            menuPlacement="bottom"
+            menuShouldScrollIntoView={false}
+            noOptionsMessage={() => extraProps.noOptionsMessage || "No options"}
+          />
+        ) : type === "textarea" ? (
+          <textarea
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            placeholder={placeholder}
+            rows={4}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+          />
+        ) : type === "date" ? (
           <CustomDatePicker
-            selectedDate={
-              formData.dateOfBirth ? new Date(formData.dateOfBirth) : null
-            }
+            selectedDate={value ? new Date(value) : null}
             onChange={(date) => {
-              handleChange("dateOfBirth", date.toISOString().split("T")[0]);
-              onBlur("dateOfBirth");
+              handleChange(field, date.toISOString().split("T")[0]);
+              onBlur(field);
             }}
             type="dob"
           />
-          {errors.dateOfBirth && touched.dateOfBirth && (
-            <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>
-          )}
-        </div>
-
-        {/* Nationality */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nationality
-          </label>
-          <select
-            value={formData.nationality}
-            onChange={(e) => handleChange("nationality", e.target.value)}
-            onBlur={() => onBlur("nationality")}
-            className={`w-full p-2.5 border ${
-              errors.nationality && touched.nationality
-                ? "border-red-500"
-                : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          >
-            <option value="">Select nationality</option>
-            <option value="in">Indian</option>
-            <option value="cn">Chinese</option>
-            <option value="us">American</option>
-            <option value="id">Indonesian</option>
-            <option value="pk">Pakistani</option>
-            <option value="ng">Nigerian</option>
-            <option value="br">Brazilian</option>
-            <option value="bd">Bangladeshi</option>
-            <option value="ru">Russian</option>
-            <option value="mx">Mexican</option>
-            <option value="jp">Japanese</option>
-            <option value="et">Ethiopian</option>
-            <option value="ph">Filipino</option>
-            <option value="eg">Egyptian</option>
-            <option value="vn">Vietnamese</option>
-            <option value="cd">Congolese</option>
-            <option value="tr">Turkish</option>
-            <option value="ir">Iranian</option>
-            <option value="de">German</option>
-            <option value="th">Thai</option>
-            <option value="gb">British</option>
-            <option value="fr">French</option>
-            <option value="it">Italian</option>
-            <option value="tz">Tanzanian</option>
-            <option value="za">South African</option>
-            <option value="mm">Burmese</option>
-            <option value="ke">Kenyan</option>
-            <option value="kr">South Korean</option>
-            <option value="co">Colombian</option>
-            <option value="es">Spanish</option>
-            <option value="ug">Ugandan</option>
-            <option value="ar">Argentinian</option>
-            <option value="dz">Algerian</option>
-            <option value="sd">Sudanese</option>
-            <option value="ua">Ukrainian</option>
-            <option value="iq">Iraqi</option>
-            <option value="af">Afghan</option>
-            <option value="pl">Polish</option>
-            <option value="ca">Canadian</option>
-            <option value="ma">Moroccan</option>
-            <option value="sa">Saudi Arabian</option>
-            <option value="uz">Uzbekistani</option>
-            <option value="pe">Peruvian</option>
-            <option value="ao">Angolan</option>
-            <option value="my">Malaysian</option>
-            <option value="gh">Ghanaian</option>
-            <option value="mz">Mozambican</option>
-            <option value="ye">Yemeni</option>
-          </select>
-          {errors.nationality && touched.nationality && (
-            <p className="text-red-500 text-sm mt-1">{errors.nationality}</p>
-          )}
-        </div>
-
-        {/* City */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            City
-          </label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => handleChange("city", e.target.value)}
-            onBlur={() => onBlur("city")}
-            placeholder="New Delhi"
-            className={`w-full p-2.5 border ${
-              errors.city && touched.city ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:ring-1 focus:ring-primary`}
-          />
-          {errors.city && touched.city && (
-            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-          )}
-        </div>
-
-        {/* Mobile Number */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Mobile Number
-          </label>
+        ) : type === "phone" ? (
           <div className="flex gap-2">
             <div className="flex-1">
               <input
                 type="tel"
-                value={formData.mobile}
+                value={value}
                 onChange={handlePhoneChange}
-                onBlur={() => onBlur("mobile")}
-                className={`w-full p-2.5 border ${
-                  errors.mobile && touched.mobile ? "border-red-500" : "border-gray-300"
-                } rounded-lg focus:ring-1 focus:ring-primary`}
-                placeholder="Enter 10-digit phone number"
+                onBlur={() => onBlur(field)}
+                className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+                  } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+                placeholder={placeholder}
                 maxLength={10}
               />
             </div>
@@ -418,44 +406,176 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               Verified
             </div>
           </div>
-          {errors.mobile && touched.mobile && (
-            <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
-          )}
-        </div>
-
-        {/* Email Address */}
-        <div className="col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
+        ) : type === "email" ? (
           <div className="flex gap-2">
             <input
               type="email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              onBlur={() => onBlur("email")}
-              placeholder="john@example.com"
-              className={`flex-1 p-2.5 border ${
-                errors.email && touched.email
-                  ? "border-red-500"
-                  : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary`}
+              value={value}
+              onChange={(e) => handleChange(field, e.target.value)}
+              onBlur={() => onBlur(field)}
+              placeholder={placeholder}
+              className={`flex-1 p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+                } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
             />
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
               Verified
             </div>
           </div>
-          {errors.email && touched.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
+        ) : (
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => handleChange(field, e.target.value)}
+            onBlur={() => onBlur(field)}
+            placeholder={placeholder}
+            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
+              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+          />
+        )}
+
+        {hasError && (
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors[field] || `${label} is required`}</span>
+          </div>
+        )}
+
+        {isEmptyField && !hasError && (
+          <div className="mt-1 flex items-center text-amber-600 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{label} is required</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validate all fields, including bio
+    const updatedErrors = { ...errors };
+    const updatedTouched = { ...touched };
+
+    let hasErrors = false;
+
+    if (isEmpty(formData.bio)) {
+      updatedErrors.bio = "Bio description is required.";
+      updatedTouched.bio = true;
+      hasErrors = true;
+    }
+
+    // Check other fields (if not already validated)
+    Object.keys(formData).forEach((field) => {
+      if (isEmpty(formData[field]) && !updatedErrors[field]) {
+        updatedErrors[field] = `${field} is required.`;
+        updatedTouched[field] = true;
+        hasErrors = true;
+      }
+    });
+
+    onUpdate({ ...formData }); // Update form data
+    onBlur("bio"); // Mark bio as touched
+
+    if (hasErrors) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+
+    // Proceed with form submission logic
+    toast.success("All changes are saved.");
+    // ...existing code...
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="py-6">
+      {/* Bio Description */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-1">
+          <label className="block text-sm font-medium text-gray-700">
+            Bio Description<span className="text-red-500">*</span>
+          </label>
+          <Tooltip text="Tell Your Story. This is your chance to connect. Share what you do, why you do it, and how you help people.">
+            <Info className="w-4 h-4 text-gray-400 cursor-help" />
+          </Tooltip>
         </div>
+        <textarea
+          id="bio-field"
+          value={formData.bio}
+          onChange={(e) => handleChange("bio", e.target.value)}
+          onBlur={() => onBlur("bio")}
+          placeholder="Write a short description about yourself. For Example: I am a certified career coach with 5+ years of experience helping professionals navigate career transitions and achieve their goals. I specialize in resume building, interview preparation, and career planning."
+          rows={4}
+          className={`w-full p-2.5 border ${(errors.bio && touched.bio) || (isEmpty(formData.bio) && touched.bio) ? "border-red-500 bg-red-50" : "border-gray-300"
+            } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+        />
+        <p className="text-sm text-gray-500 mt-1">
+          Your bio is your chance to showcase your expertise and personality.
+          Make it count!
+        </p>
+        {(errors.bio && touched.bio) || (isEmpty(formData.bio) && touched.bio) ? (
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors.bio || "Bio description is required"}</span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* First Name */}
+        {renderRequiredField("firstName", "First Name", "John")}
+
+        {/* Last Name */}
+        {renderRequiredField("lastName", "Last Name", "Doe")}
+
+        {/* Gender */}
+        {renderRequiredField(
+          "gender",
+          "Gender",
+          "Select Gender",
+          "select",
+          [
+            { value: "male", label: "Male" },
+            { value: "female", label: "Female" },
+            { value: "other", label: "Other" }
+          ]
+        )}
+
+        {/* Date of Birth */}
+        {renderRequiredField("dateOfBirth", "Date of Birth", "", "date")}
+
+        {/* Nationality */}
+        {renderRequiredField(
+          "nationality",
+          "Nationality",
+          "Select nationality",
+          "single-select",
+          nationalityOptions
+        )}
+
+        {/* City */}
+        {renderRequiredField(
+          "city",
+          "City",
+          formData.nationality ? "Select city" : "Select nationality first",
+          "single-select",
+          formData.nationality ? cityOptions : [],
+          { disabled: !formData.nationality, noOptionsMessage: "No cities available" }
+        )}
+
+        {/* Mobile Number */}
+        {renderRequiredField("mobile", "Mobile Number", "Enter 10-digit phone number", "phone")}
+
+        {/* Email Address */}
+        {renderRequiredField("email", "Email Address", "john@example.com", "email")}
       </div>
 
       {/* Languages Known */}
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Languages Known
+          Languages Known <span className="text-red-500">*</span>
         </label>
         <Select
           name="languages"
@@ -465,10 +585,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           onBlur={() => onBlur("languages")}
           value={formData.languages}
           onChange={(value) => handleChange("languages", value)}
-          className="w-full"
+          className={`w-full ${errors.languages && touched.languages ? "border-red-500 bg-red-50 rounded-lg" : ""}`}
+          components={{
+            Option: CustomOption
+          }}
+          closeMenuOnSelect={false}
+          menuPlacement="bottom"
+          menuShouldScrollIntoView={false}
         />
         {errors.languages && touched.languages && (
-          <p className="text-red-500 text-sm mt-1">{errors.languages}</p>
+          <div className="mt-1 flex items-center text-red-500 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>{errors.languages}</span>
+          </div>
+        )}
+        {isEmpty(formData.languages) && !errors.languages && (
+          <div className="mt-1 flex items-center text-amber-600 text-sm">
+            <AlertCircle className="w-4 h-4 mr-1" />
+            <span>Please select at least one language</span>
+          </div>
         )}
       </div>
 
@@ -481,7 +616,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           <button
             type="button"
             onClick={handleAddSocialLink}
-            className="flex items-center px-4 py-2 gap-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
+            disabled={!canAddSocialLink}
+            className={`flex items-center px-4 py-2 gap-2 rounded-lg transition-colors duration-200 ${canAddSocialLink
+              ? "bg-primary text-white hover:bg-green-600"
+              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
           >
             <span>Add More Link</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -490,19 +629,25 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           </button>
         </div>
         <div className="space-y-4">
-          {formData.socialLinks.map((link, index) => (
-            <input
-              key={index}
-              type="url"
-              value={link}
-              onChange={(e) => {
-                const newLinks = [...formData.socialLinks];
-                newLinks[index] = e.target.value;
-                handleChange("socialLinks", newLinks);
-              }}
-              placeholder="https://linkedin.com/in/username"
-              className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary transition-all duration-200"
-            />
+          {socialLinks.map((link, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <input
+                type="url"
+                value={link}
+                onChange={(e) => handleSocialLinkChange(index, e.target.value)}
+                onBlur={() => handleSocialLinkBlur(index)}
+                placeholder="https://linkedin.com/in/username"
+                className="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-primary transition-all duration-200"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveSocialLink(index)}
+                className="inline-flex items-center justify-center p-2 rounded-md border border-gray-200 text-gray-500 hover:text-red-600 hover:border-red-200 transition-colors"
+                aria-label="Remove social link"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -515,7 +660,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
           contactInfo={contactInfo}
         />
       )}
-    </div>
+    </form>
   );
 };
 

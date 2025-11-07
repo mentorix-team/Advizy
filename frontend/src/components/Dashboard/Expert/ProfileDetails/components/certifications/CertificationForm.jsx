@@ -13,16 +13,18 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     title: initialData?.title || '',
     issue_organization: initialData?.issue_organization || '',
     year: initialData?.year ? new Date(initialData.year) : null,
-    certificates: initialData?.certificates || []
+    certificates: Array.isArray(initialData?.certificates) ? initialData.certificates : []
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        ...initialData,
+        _id: initialData._id || '',
+        title: initialData.title || '',
+        issue_organization: initialData.issue_organization || '',
         year: initialData.year ? new Date(initialData.year) : null,
-        certificates: initialData.certificates || []
+        certificates: Array.isArray(initialData.certificates) ? initialData.certificates : []
       });
     }
   }, [initialData]);
@@ -41,24 +43,33 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
     onSubmit(formDataToSend);
   };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData(prev => ({
-      ...prev,
-      certificates: [...prev.certificates, ...files]
-    }));
-    setShowUploadModal(false);
+  // Updated to handle array of files from modal
+  const handleFileUpload = (files) => {
+    if (files && files.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        certificates: [...(Array.isArray(prev.certificates) ? prev.certificates : []), ...files]
+      }));
+      setShowUploadModal(false);
+    }
   };
 
   const removeFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      certificates: prev.certificates.filter((_, i) => i !== index)
+      certificates: (Array.isArray(prev.certificates) ? prev.certificates : []).filter((_, i) => i !== index)
     }));
   };
 
   const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
+    // Create object URL and open in new tab
+    const fileUrl = URL.createObjectURL(file);
+    window.open(fileUrl, '_blank');
+
+    // Revoke the URL after a short delay to free memory
+    setTimeout(() => {
+      URL.revokeObjectURL(fileUrl);
+    }, 1000);
   };
 
   const handleDateChange = (date) => {
@@ -80,7 +91,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Certification Name
+            Certification Name<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -94,7 +105,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Issuing Organization
+            Issuing Organization<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -108,7 +119,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Issue Date
+            Issue Date<span className="text-red-500">*</span>
           </label>
           <CustomDatePicker
             selectedDate={formData.year}
@@ -119,19 +130,19 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-          Certificate (Optional) – Upload for faster verification and added credibility
+            Certificate (Optional) – Upload for faster verification and added credibility
           </label>
-          
+
           {formData.certificates?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.certificates.map((file, index) => (
-                <div 
-                  key={index}
+                <div
+                  key={`${file.name}-${index}`}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      {file.type.includes('pdf') ? (
+                      {file.type?.includes('pdf') ? (
                         <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -142,6 +153,9 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
                       )}
                     </div>
                     <span className="text-sm text-gray-600">{file.name}</span>
+                    <span className="text-xs text-gray-400">
+                      ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -176,12 +190,12 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
               Upload Files
             </button>
           </div>
-           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
-                                        <FaLightbulb className="mt-1 flex-shrink-0" />
-                                        <p className="text-sm">
-                                        Note: Uploading your certificate is optional, but it helps us verify your profile faster. Your documents are 100% safe and NOT shared or displayed on your profile or anywhere.
-                                        </p>
-                                      </div>
+          <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+            <FaLightbulb className="mt-1 flex-shrink-0" />
+            <p className="text-sm">
+              Note: Uploading your certificate is optional, but it helps us verify your profile faster. Your documents are 100% safe and NOT shared or displayed on your profile or anywhere.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
@@ -205,6 +219,7 @@ export default function CertificationForm({ onSubmit, onCancel, initialData }) {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
+        existingFiles={formData.certificates}
       />
     </div>
   );

@@ -129,15 +129,6 @@ const App = () => {
   const handleAuthPopupClose = () => setShowAuthPopup(false);
 
   useEffect(() => {
-    console.log('🔀 Navigation:', {
-      pathname: location.pathname,
-      search: location.search,
-      key: location.key,
-      historyLength: window.history.length
-    });
-  }, [location]);
-
-  useEffect(() => {
     const excludedPathPatterns = [
       /^\/$/,
       /^\/auth-error$/,
@@ -175,13 +166,24 @@ const App = () => {
   }, [dispatch, location.pathname]);
 
   useEffect(() => {
-    const expertMode = localStorage.getItem("expertMode") === "true";
+    const expertModeEnabled = localStorage.getItem("expertMode") === "true";
+    const currentPath = location.pathname;
+
     if (
-      expertMode &&
-      !location.pathname.startsWith("/dashboard/expert") &&
-      location.pathname !== "/meeting"
+      expertModeEnabled &&
+      !currentPath.startsWith("/dashboard/expert") &&
+      currentPath !== "/meeting"
     ) {
-      navigate("/dashboard/expert/");
+      navigate("/dashboard/expert/home", { replace: true });
+      return;
+    }
+
+    const isDashboardRoot = currentPath === "/dashboard" || currentPath === "/dashboard/";
+    const isUserDashboardRoot =
+      currentPath === "/dashboard/user" || currentPath === "/dashboard/user/";
+
+    if (!expertModeEnabled && (isDashboardRoot || isUserDashboardRoot)) {
+      navigate("/dashboard/user/meetings", { replace: true });
     }
   }, [location.pathname, navigate]);
 

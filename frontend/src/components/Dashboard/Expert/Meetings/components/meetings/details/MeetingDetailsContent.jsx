@@ -1,7 +1,14 @@
 import PropTypes from 'prop-types';
 import { FaStar, FaRegCalendarCheck, FaClock, FaUserAlt, FaClipboardList } from 'react-icons/fa';
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from '@/utils/meetingStatus';
 
 const MeetingDetailsContent = ({ meeting }) => {
+  const statusLabel = getMeetingStatusLabel(meeting);
+  const statusToneClass = getMeetingStatusPillTone(meeting);
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -35,12 +42,10 @@ const MeetingDetailsContent = ({ meeting }) => {
             <div className="flex space-x-4">
               <div>
                 <p className="text-sm text-gray-500">Status</p>
-                <span className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium ${
-                  meeting.sessionStatus === 'Completed' 
-                    ? 'bg-black text-white' 
-                    : 'bg-green-100 text-green-800'
-                }`}>
-                  {meeting.sessionStatus}
+                <span
+                  className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium capitalize ${statusToneClass}`}
+                >
+                  {statusLabel}
                 </span>
               </div>
               <div>

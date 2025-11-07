@@ -9,31 +9,53 @@ function Testimonials() {
   const [sortBy, setSortBy] = useState('Most Recent');
   const [testimonials, setTestimonials] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const testimonialsPerPage = 5;
 
   const dispatch = useDispatch();
   const { expertData } = useSelector((state) => state.expert);
-  const { feedbackofexpert } = useSelector((state) => state.meeting);
+  const { feedbackofexpert, loading: feedbackLoading } = useSelector((state) => state.meeting);
 
   useEffect(() => {
     if (expertData?._id) {
-      dispatch(getfeedbackbyexpertid(expertData._id));
+      setLoading(true);
+      setError(null);
+      dispatch(getfeedbackbyexpertid({ id: expertData._id }))
+        .unwrap()
+        .then(() => {
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error('Error fetching feedback:', err);
+          setError('Failed to load testimonials. Please try again.');
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   }, [dispatch, expertData]);
 
   useEffect(() => {
     if (feedbackofexpert) {
-      // Map feedback data to match testimonial structure
-      const mappedTestimonials = feedbackofexpert.map((feedback) => ({
+      const feedbackArray = Array.isArray(feedbackofexpert) ? feedbackofexpert : [];
+
+      const mappedTestimonials = feedbackArray.map((feedback) => ({
         id: feedback._id,
-        name: feedback.userName,
-        service: feedback.serviceName,
-        comment: feedback.feedback,
-        rating: Number(feedback.rating),
-        date: new Date().toISOString(), // Assuming no date is provided, using current date
+        name: feedback.userName || 'Anonymous User',
+        service: feedback.serviceName || 'General Service',
+        comment: feedback.feedback || 'No comment provided',
+        rating: Number(feedback.rating) || 0,
+        date: feedback.createdAt || new Date().toISOString(),
+        meetingId: feedback.meeting_id,
+        userId: feedback.user_id,
       }));
 
       setTestimonials(mappedTestimonials);
+      setLoading(false);
+    } else {
+      setTestimonials([]);
+      setLoading(false);
     }
   }, [feedbackofexpert]);
 
@@ -70,31 +92,30 @@ function Testimonials() {
   // Analytics Data
   const analytics = useMemo(() => {
     const totalReviews = testimonials.length;
-    const totalRating = testimonials.reduce((sum, t) => sum + t.rating, 0);
-    const averageRating = totalReviews > 0 ? (totalRating / totalReviews).toFixed(1) : '0.0';
+    const validRatings = testimonials.filter(t => t.rating > 0);
+    const totalRating = validRatings.reduce((sum, t) => sum + t.rating, 0);
+    const averageRating = validRatings.length > 0 ? (totalRating / validRatings.length).toFixed(1) : '0.0';
 
-    const previousYearReviews = 8;
-    const growthPercentage = Math.round(((totalReviews - previousYearReviews) / previousYearReviews) * 100);
-
+    // Calculate rating distribution (1-5 stars)
     const distribution = Array(5).fill(0);
-    testimonials.forEach((t) => {
-      if (t.rating && t.rating > 0 && t.rating <= 5) {
+    validRatings.forEach((t) => {
+      if (t.rating >= 1 && t.rating <= 5) {
         distribution[t.rating - 1]++;
       }
     });
 
+    // Create rating distribution for display (5 stars to 1 star)
     const ratingDistribution = distribution.reverse().map((count, index) => ({
       stars: 5 - index,
-      percentage: count.toString(),
-      width: totalReviews > 0 ? `${(count / totalReviews) * 100}%` : '0%',
+      count: count,
+      percentage: validRatings.length > 0 ? Math.round((count / validRatings.length) * 100) : 0,
+      width: validRatings.length > 0 ? `${(count / validRatings.length) * 100}%` : '0%',
     }));
 
     return {
       totalReviews: `${totalReviews}`,
-      growthPercentage,
-      growthText: 'Growth in reviews on this year',
+      validReviews: validRatings.length,
       averageRating: Number(averageRating),
-      ratingPeriod: 'Average rating on this year',
       ratingDistribution,
     };
   }, [testimonials]);
@@ -112,10 +133,72 @@ function Testimonials() {
   const totalPages = Math.ceil(filteredAndSortedTestimonials.length / testimonialsPerPage);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  // Loading state
+  if (loading || feedbackLoading) {
+    return (
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-12">Testimonials</h1>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading testimonials...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-12">Testimonials</h1>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="text-red-500 text-xl mb-4">⚠️</div>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  if (expertData?._id) {
+                    dispatch(getfeedbackbyexpertid({ id: expertData._id }));
+                  }
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-12">Testimonials</h1>
+        <div className="flex justify-between items-center mb-12">
+          <h1 className="text-3xl font-bold text-gray-900">Testimonials</h1>
+          <button
+            onClick={() => {
+              if (expertData?._id) {
+                setLoading(true);
+                dispatch(getfeedbackbyexpertid({ id: expertData._id }));
+              }
+            }}
+            className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Refresh</span>
+          </button>
+        </div>
 
         {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -125,7 +208,7 @@ function Testimonials() {
               <span className="text-4xl font-bold text-gray-900">{analytics.totalReviews}</span>
             </div>
             <p className="text-gray-600 text-xs md:text-sm mt-2">
-              {analytics.growthText}
+              {analytics.validReviews} reviews with ratings
             </p>
           </div>
 
@@ -136,7 +219,7 @@ function Testimonials() {
               <StarRating rating={analytics.averageRating} size="lg" />
             </div>
             <p className="text-gray-600 text-xs md:text-sm mt-2">
-              {analytics.ratingPeriod}
+              Based on {analytics.validReviews} rated reviews
             </p>
           </div>
 
@@ -149,17 +232,26 @@ function Testimonials() {
                     {rating.stars}
                   </span>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: rating.width, backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444' }}></div>
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: rating.width,
+                        backgroundColor: rating.stars > 3 ? '#10B981' : rating.stars > 2 ? '#FBBF24' : '#EF4444'
+                      }}
+                    ></div>
                   </div>
                   <span className="text-xs md:text-sm text-gray-600 w-12">
-                    {rating.percentage}
+                    {rating.count} ({rating.percentage}%)
                   </span>
                 </div>
               ))}
             </div>
+            {analytics.validReviews === 0 && (
+              <p className="text-gray-500 text-sm mt-2">No ratings available yet</p>
+            )}
           </div>
         </div>
-        
+
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <input
@@ -181,9 +273,34 @@ function Testimonials() {
           {currentTestimonials.length > 0 ? currentTestimonials.map((testimonial) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} onRespond={handleRespond} />
           )) : (
-            <div className="p-6 text-center text-gray-500">No testimonials found.</div>
+            <div className="p-6 text-center text-gray-500">
+              {filteredAndSortedTestimonials.length === 0 ?
+                'No testimonials available yet. Your ratings will appear here once customers provide feedback.' :
+                'No testimonials match your search criteria.'
+              }
+            </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <div className="flex space-x-2">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`px-4 py-2 rounded-lg transition-colors ${currentPage === i + 1
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

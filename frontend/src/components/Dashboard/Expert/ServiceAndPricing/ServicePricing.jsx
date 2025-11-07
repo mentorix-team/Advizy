@@ -41,7 +41,7 @@ function ServicePricing() {
   useEffect(() => {
     window.scrollTo(0, 0);
     const hasSeenTour = localStorage.getItem('hasSeenServiceTour');
-    
+
     if (!hasSeenTour) {
       const timer = setTimeout(() => {
         setRunTour(true);
@@ -67,7 +67,7 @@ function ServicePricing() {
     console.log('service.serviceName:', service?.serviceName);
     console.log('service.name:', service?.name);
     console.log('=== END DEBUG ===');
-    
+
     setEditingService(service);
     if (service.title === 'One-on-One Mentoring') {
       console.log('Opening default service modal for:', service);
@@ -78,47 +78,53 @@ function ServicePricing() {
     }
   };
 
-  const handleUpdateService = async (updatedService) => {
+  const handleUpdateService = async (updatedService, meta = {}) => {
     console.log('=== handleUpdateService called ===');
     console.log('Updated service data being sent:', updatedService);
-    
+    console.log('Update meta:', meta);
+
+    const { serviceType, serviceName } = meta;
+
     try {
-      const result = await dispatch(updateServicebyId(updatedService));
-      console.log('Update result:', result);
-      console.log('Result payload (new expert data):', result.payload);
-      
-      if (result.meta.requestStatus === 'fulfilled') {
-        console.log('Service updated successfully, new expert data:', result.payload);
-        console.log('New services from updated expert data:', result.payload.expert?.credentials?.services);
-        
-        // Show success toast
-        toast.success('Service updated successfully', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-        
-        // Force re-render of components
-        setForceUpdate(prev => prev + 1);
-        
-        // Don't close modal immediately - let the success toast show first
-        setTimeout(() => {
-          setEditingService(null);
-          setIsEditDefaultModalOpen(false);
-          setIsEditNonDefaultModalOpen(false);
-        }, 1000); // Give time for the user to see the success message
+      const result = await dispatch(updateServicebyId(updatedService)).unwrap();
+      console.log('Service updated successfully, new expert data:', result);
+      console.log('New services from updated expert data:', result.expert?.credentials?.services);
+
+      const resolvedName = serviceName || updatedService?.serviceName || updatedService?.title || 'Service';
+
+      toast.success(`${resolvedName} updated successfully`, {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
+      setForceUpdate(prev => prev + 1);
+      setEditingService(null);
+
+      if (serviceType === 'default') {
+        setIsEditDefaultModalOpen(false);
+      } else if (serviceType === 'non-default') {
+        setIsEditNonDefaultModalOpen(false);
       } else {
-        console.error('Failed to update service:', result.error);
-        toast.error('Failed to update service. Please try again.', {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        setIsEditDefaultModalOpen(false);
+        setIsEditNonDefaultModalOpen(false);
       }
     } catch (error) {
       console.error('Error updating service:', error);
+      const errorMessage =
+        error?.message ||
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.error ||
+        'Failed to update service. Please try again.';
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -201,9 +207,9 @@ function ServicePricing() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {mentoringService && (
-            <MentoringCard 
+            <MentoringCard
               key={`mentoring-${mentoringService.serviceId || mentoringService._id}-${forceUpdate}-${JSON.stringify(mentoringService.one_on_one || [])}`}
-              service={mentoringService} 
+              service={mentoringService}
               onEdit={(service) => {
                 console.log('MentoringCard onEdit called with:', service);
                 handleEditService(service || mentoringService);

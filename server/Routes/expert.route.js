@@ -35,6 +35,7 @@ import manageService, {
   validatethnumberormobile,
   HelpCenter,
   getSupportRequestsForExpert,
+  handleToggleService,
 } from "../controllers/expert.controller.js";
 import upload from "../middlewares/multer.middleware.js";
 import { verifyInternalToken } from "../middlewares/admin.middleware.js";
@@ -99,14 +100,14 @@ router.post(
 
 router.post(
   "/expertExperience",
-  upload.single("document"),
+  upload.array("documents"),
   isLoggedIn,
   isExpert,
   expertexperience
 );
 router.post(
   "/editExpertExperience",
-  upload.single("document"),
+  upload.array("documents"),
   isLoggedIn,
   isExpert,
   editExpertExperience
@@ -122,21 +123,21 @@ router.post("/expertPayment", isLoggedIn, isExpert, expertPaymentDetails);
 
 router.post(
   "/expertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   expertEducation
 );
 router.post(
   "/singleexpertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   singleexperteducation
 );
 router.post(
   "/editExpertEducation",
-  upload.single("certificate"),
+  upload.array("certificate"),
   isLoggedIn,
   isExpert,
   editSingleExpertEducation
@@ -149,6 +150,9 @@ router.post(
 );
 
 router.post("/adminapproved", adminapproved);
+router.post("/suspendexpert", handleSuspendExpert);
+
+
 router.post("/updateExpertDetails", isLoggedIn, isExpert, updateProfileStatus);
 router.get("/getexperts", getAllExperts);
 router.get("/getServices", isExpert, getExpertServices);
@@ -157,6 +161,7 @@ router.get("/getexpert/by-url/:redirect_url", getExpertByRedirectURL);
 router.post("/createservice", isLoggedIn, isExpert, manageService);
 router.post("/service", isLoggedIn, isExpert, createService);
 router.post("/updateService", isLoggedIn, isExpert, updateService);
+router.post("/handletoggle", isLoggedIn, isExpert, handleToggleService);
 router.post("/deleteService", isExpert, isLoggedIn, deleteService);
 router.post("/service/:serviceId", getService);
 router.get("/sync-algolia", pushExpertsToAlgolia);

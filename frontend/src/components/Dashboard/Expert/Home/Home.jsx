@@ -25,6 +25,7 @@ function Home() {
   const { meetings, feedbackofexpert } = useSelector((state) => state.meeting);
   const { selectedAvailability } = useSelector((state) => state.availability);
 
+  console.log("🏠 Expert Home component rendered");
   console.log("availabilty", selectedAvailability);
   const availability = selectedAvailability?.availability;
 
@@ -158,16 +159,18 @@ function Home() {
     }
   };
 
-  const paidMeetings = meetings
-    ?.filter((meeting) => meeting.isPayed) // Only take paid meetings
-    ?.map(({ amount, daySpecific }) => ({
-      amount: Number(amount), // Convert to number
-      date: daySpecific?.date || "Unknown Date",
-      status: "Paid",
-    }));
+  // Process meetings data for different components
+  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
+
+  // For earnings calculation - simplified data
+  const earningsData = paidMeetings.map(({ amount, daySpecific }) => ({
+    amount: Number(amount),
+    date: daySpecific?.date || "Unknown Date",
+    status: "Paid",
+  }));
 
   const totalEarnings =
-    paidMeetings?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
+    earningsData?.reduce((sum, meeting) => sum + meeting.amount, 0) || 0;
 
   // const earningsData = {
   //   totalEarnings: 45000,
@@ -190,66 +193,143 @@ function Home() {
   //   ],
   // };
 
-  const calculateCompletion = (data) => {
-    if (!data) return 0;
+  const calculateCompletion = (data, availability) => {
+    if (!data) return { percentage: 0, firstIncompleteSection: 'basic' };
 
+    // Define required fields for each section with their weights
     const sections = {
-      basicInfo: [
-        "firstName",
-        "lastName",
-        "gender",
-        "dateOfBirth",
-        "nationality",
-        "country_living",
-        "email",
-        "mobile",
-        "city",
-        "languages",
-        "bio",
-        "socialLinks",
-        "profileImage",
-        "coverImage",
-      ],
-      credentials: [
-        "domain",
-        "niche",
-        "professionalTitle",
-        "skills",
-        "work_experiences",
-        "PaymentDetails",
-        "education",
-        "certifications_courses",
-        "portfolio",
-        "services",
-      ],
+      basic: {
+        fields: [
+          "firstName",
+          "lastName",
+          "bio",
+          "gender",
+          "dateOfBirth",
+          "nationality",
+          "city",
+          "mobile",
+          "email",
+          "languages",
+        ],
+        weight: 17, // Using integers to avoid floating point issues
+      },
+      expertise: {
+        fields: [
+          "domain",
+          "niche",
+          "professionalTitle",
+          "skills",
+        ],
+        weight: 17,
+      },
+      experience: {
+        fields: ["work_experiences"],
+        weight: 17,
+      },
+      education: {
+        fields: ["education"],
+        weight: 17,
+      },
+      certifications: {
+        fields: ["certifications_courses"],
+        weight: 17,
+      },
+      services: {
+        fields: ["services"],
+        weight: 7, // 7% for services
+      },
+      availability: {
+        fields: ["availability"],
+        weight: 7, // 7% for availability
+      },
     };
 
-    let filledCount = 0;
-    let totalFields = 0;
+    let totalPercentage = 0;
+    let firstIncompleteSection = null;
+    let debugInfo = {};
 
-    Object.keys(sections).forEach((section) => {
-      sections[section].forEach((field) => {
-        if (data.credentials && sections.credentials.includes(field)) {
-          if (Array.isArray(data.credentials[field])) {
-            if (data.credentials[field].length > 0) filledCount++;
-          } else if (data.credentials[field]) {
-            filledCount++;
-          }
-        } else {
-          if (Array.isArray(data[field])) {
-            if (data[field].length > 0) filledCount++;
-          } else if (data[field]) {
-            filledCount++;
-          }
-        }
-        totalFields++;
-      });
+    // Check basic section
+    const basicComplete = sections.basic.fields.every(field => {
+      const value = data[field];
+      if (Array.isArray(value)) return value.length > 0;
+      return value && String(value).trim() !== '';
     });
 
-    return Math.round((filledCount / totalFields) * 100);
+    // Check expertise section
+    const expertiseComplete = sections.expertise.fields.every(field => {
+      if (data.credentials) {
+        const value = data.credentials[field];
+        if (Array.isArray(value)) return value.length > 0;
+        return value && String(value).trim() !== '';
+      }
+      return false;
+    });
+
+    // Check experience section
+    const experienceComplete = data.credentials?.work_experiences?.length > 0;
+
+    // Check education section
+    const educationComplete = data.credentials?.education?.length > 0;
+
+    // Check certifications section
+    const certificationsComplete = data.credentials?.certifications_courses?.length > 0;
+
+    // Check if all profile sections are complete (basic, expertise, experience, education, certifications)
+    const profileSectionsComplete = basicComplete && expertiseComplete && experienceComplete && educationComplete && certificationsComplete;
+
+    if (profileSectionsComplete) {
+      totalPercentage += 86; // 86% for completing all profile sections
+      debugInfo.profile = true;
+    }
+
+    // Check services section
+    const servicesComplete = data.credentials?.services?.length > 0;
+    if (servicesComplete) {
+      totalPercentage += 7; // 7% for services
+      debugInfo.services = true;
+    }
+
+    // Check availability section
+    const availabilityComplete = availability?.daySpecific?.some((day) =>
+      day.slots?.some((slot) => slot.startTime)
+    );
+    if (availabilityComplete) {
+      totalPercentage += 7; // 7% for availability
+      debugInfo.availability = true;
+    }
+
+    // Find first incomplete section
+    if (!basicComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'basic';
+    } else if (!expertiseComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'expertise';
+    } else if (!experienceComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'experience';
+    } else if (!educationComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'education';
+    } else if (!certificationsComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'certifications';
+    } else if (!servicesComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'expertise'; // Services are part of expertise tab
+    } else if (!availabilityComplete && firstIncompleteSection === null) {
+      firstIncompleteSection = 'basic'; // Availability might be handled separately, default to basic
+    }
+
+    // If all sections are complete, default to basic
+    if (firstIncompleteSection === null) {
+      firstIncompleteSection = 'basic';
+    }
+
+    // Round to nearest integer
+    const percentage = Math.round(totalPercentage);
+
+    return {
+      percentage,
+      firstIncompleteSection
+    };
   };
 
-  const completionPercentage = calculateCompletion(expertData);
+  const { percentage: completionPercentage, firstIncompleteSection } = calculateCompletion(expertData, availability);
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -294,16 +374,21 @@ function Home() {
             {/* <PerformanceChart /> */}
           </div>
           <div className="space-y-4">
-            <CompleteProfile completion={completionPercentage} />
+            {expertData && availability && (
+              <CompleteProfile
+                completion={completionPercentage}
+                firstIncompleteSection={firstIncompleteSection}
+              />
+            )}
             {/* <RecentEarnings
               totalEarnings={earningsData.totalEarnings}
               earnings={earningsData.earnings}
             /> */}
             <RecentEarnings
               totalEarnings={totalEarnings}
-              earnings={paidMeetings}
+              earnings={earningsData}
             />
-            <ClientFeedback feedback={feedbackofexpert} />
+            <ClientFeedback feedback={feedbackofexpert || []} />
             <RecommendedResources
               resources={resourcesData}
               onViewResource={handleViewResource}

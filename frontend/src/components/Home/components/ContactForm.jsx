@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const ContactForm = () => {
     message: ''
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -31,27 +33,51 @@ const ContactForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-      toast.success('Message sent successfully!', {
-        duration: 3000,
-        position: 'top-right',
-        style: {
-          background: '#169544',
-          color: '#fff',
-          padding: '16px',
-          borderRadius: '10px',
-        },
-      });
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        message: ''
-      });
+      setIsSubmitting(true);
+      try {
+        const response = await axios.post(
+          'http://localhost:5030/api/v1/contact/create',
+          formData
+        );
+        if (response.data.success) {
+          toast.success(response.data.message || 'Message sent successfully!', {
+            duration: 3000,
+            position: 'top-right',
+            style: {
+              background: '#169544',
+              color: '#fff',
+              padding: '16px',
+              borderRadius: '10px',
+            },
+          });
+          // Reset form
+          setFormData({
+            name: '',
+            email: '',
+            message: ''
+          });
+        }
+      } catch (error) {
+        console.error('Error submitting contact form:', error);
+        toast.error('Failed to send message. Please try again later.', {
+          duration: 4000,
+          position: 'top-right',
+          style: {
+            background: '#ef4444',
+            color: '#fff',
+            padding: '16px',
+            borderRadius: '10px',
+          },
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      console.log('⚠️ Form validation failed:', errors);
     }
   };
 
@@ -153,11 +179,14 @@ const ContactForm = () => {
 
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className=" btn-expert w-full px-8 py-4 text-lg font-medium  rounded-lg transition-colors"
+                disabled={isSubmitting}
+                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg text-white ${
+                  isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'
+                } transition-colors`}
               >
-                Send Message
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </motion.button>
             </form>
           </motion.div>

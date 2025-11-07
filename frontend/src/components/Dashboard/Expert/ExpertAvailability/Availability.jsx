@@ -14,11 +14,25 @@ function Availability() {
   const dispatch = useDispatch();
   const { availability, loading, error } = useSelector((state) => state.availability);
   console.log('this is availability',availability)
-  const [activeTab, setActiveTab] = useState('schedule');
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = localStorage.getItem('expertAvailabilityActiveTab');
+    return savedTab || 'schedule';
+  });
   const [runTour, setRunTour] = useState(() => {
     const hasSeenTour = localStorage.getItem('hasSeenAvailabilityTour');
     return !hasSeenTour;
   });
+
+  // Handle tab change and save to local storage
+  const handleTabChange = (newTab) => {
+    // Only reload if the tab is actually changing
+    if (newTab !== activeTab) {
+      // Save the new tab to local storage
+      localStorage.setItem('expertAvailabilityActiveTab', newTab);
+      // Reload the page
+      window.location.reload();
+    }
+  };
 
   const steps = [
     {
@@ -101,7 +115,7 @@ function Availability() {
       />
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-5xl mx-auto">
-          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
           {activeTab === 'schedule' ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 rounded-lg">

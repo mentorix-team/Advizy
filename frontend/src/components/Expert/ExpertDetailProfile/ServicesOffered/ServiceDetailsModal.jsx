@@ -4,9 +4,10 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
-  if (!isOpen) return null;
+  // Hooks must be called unconditionally at the top level
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  if (!isOpen) return null;
   const handleBook = async () => {
     console.log("Dispatching getServicebyid...");
     // const expertId = selectedExpert.expert._id;
@@ -94,7 +95,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
           )}
         </div>
         {/* Duration & Price Section */}
-        
+
 
         {/* Book Button */}
       </div>

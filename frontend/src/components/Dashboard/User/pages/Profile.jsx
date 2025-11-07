@@ -12,13 +12,12 @@ export default function Profile() {
   const { data } = useSelector((state) => state.auth);
   const [showOtpPopup, setShowOtpPopup] = useState(false);
   const [contactInfo, setContactInfo] = useState("");
-  const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
+  const [verificationType, setVerificationType] = useState("email"); // Only email verification
 
   const userData = JSON.parse(data);
-  
+
   // Store the original values for comparison
   const originalEmail = userData.email;
-  const originalPhone = userData.number || "";
 
   const [formData, setFormData] = useState({
     firstName: userData.firstName,
@@ -33,15 +32,13 @@ export default function Profile() {
   // Initialize verification status - auto-verify if matches original data
   const [verificationStatus, setVerificationStatus] = useState({
     email: true, // Auto-verify if using original email
-    phone: Boolean(userData.number), // Auto-verify if original number exists
   });
 
   const [errors, setErrors] = useState({});
-  
+
   // Store previous values for comparison to prevent unnecessary verification resets
   const [prevValues, setPrevValues] = useState({
     email: userData.email,
-    phone: userData.number || "",
   });
 
   useEffect(() => {
@@ -49,34 +46,29 @@ export default function Profile() {
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       setFormData(parsedData);
-      
+
       // Update previous values for comparison
       setPrevValues({
         email: parsedData.email,
-        phone: parsedData.phone
       });
     }
-    
+
     // Load verification status from localStorage, but maintain auto-verification
     const savedVerification = localStorage.getItem("verificationStatus");
     if (savedVerification) {
       const parsedVerification = JSON.parse(savedVerification);
-      
+
       // If email matches original, keep it verified regardless of saved status
       const emailVerified = formData.email === originalEmail ? true : parsedVerification.email;
-      
-      // If phone matches original, keep it verified regardless of saved status
-      const phoneVerified = formData.phone === originalPhone && originalPhone !== "" ? true : parsedVerification.phone;
-      
+
       setVerificationStatus({
         email: emailVerified,
-        phone: phoneVerified
       });
     }
   }, []);
 
-  // Check if both email and phone are verified
-  const isBothVerified = verificationStatus.email && verificationStatus.phone;
+  // Check if email is verified
+  const isEmailVerified = verificationStatus.email;
 
   const interests = [
     { id: "technology", label: "Technology", category: "col1" },
@@ -112,12 +104,18 @@ export default function Profile() {
       newErrors.phone = "Phone number must be 10 digits";
     }
 
-    if (formData.dateOfBirth) {
+    if (!formData.dateOfBirth) {
+      newErrors.dateOfBirth = "Date of birth is required";
+    } else {
       const selectedDate = new Date(formData.dateOfBirth);
       const today = new Date();
       if (selectedDate > today) {
         newErrors.dateOfBirth = "Date of birth cannot be in the future";
       }
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = "Gender is required";
     }
 
     setErrors(newErrors);
@@ -130,31 +128,29 @@ export default function Profile() {
       ...prev,
       [name]: value,
     }));
-    
-    // Only reset verification status if value actually changed from original data
-    if ((name === "email" && value !== originalEmail && value !== prevValues.email) ||
-        (name === "phone" && value !== originalPhone && value !== prevValues.phone)) {
+
+    // Only reset verification status if email value actually changed from original data
+    if (name === "email" && value !== originalEmail && value !== prevValues.email) {
       setVerificationStatus((prev) => ({
         ...prev,
-        [name]: false,
+        email: false,
       }));
-      
+
       // Update previous values for comparison
       setPrevValues(prev => ({
         ...prev,
-        [name]: value
+        email: value
       }));
     }
-    
+
     // Auto-verify if value matches original from user data
-    if ((name === "email" && value === originalEmail) || 
-        (name === "phone" && value === originalPhone && originalPhone !== "")) {
+    if (name === "email" && value === originalEmail) {
       setVerificationStatus(prev => ({
         ...prev,
-        [name]: true
+        email: true
       }));
     }
-    
+
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -167,37 +163,12 @@ export default function Profile() {
     const { value } = e.target;
     const numbers = value.replace(/\D/g, "");
     const truncated = numbers.slice(0, 10);
-    
-    // Store previous phone value before updating
-    const previousPhone = formData.phone;
-    
+
     setFormData((prev) => ({
       ...prev,
       phone: truncated,
     }));
-    
-    // Only reset verification if the value actually changes AND doesn't match original
-    if (truncated !== previousPhone && truncated !== originalPhone) {
-      setVerificationStatus((prev) => ({
-        ...prev,
-        phone: false,
-      }));
-      
-      // Update previous value for future comparison
-      setPrevValues(prev => ({
-        ...prev,
-        phone: truncated
-      }));
-    }
-    
-    // Auto-verify if matches original phone
-    if (truncated === originalPhone && originalPhone !== "") {
-      setVerificationStatus(prev => ({
-        ...prev,
-        phone: true
-      }));
-    }
-    
+
     if (errors.phone) {
       setErrors((prev) => ({
         ...prev,
@@ -206,45 +177,39 @@ export default function Profile() {
     }
   };
 
-  const handleVerify = async (type) => {
-    setVerificationType(type);
-    setContactInfo(type === "email" ? formData.email : formData.phone);
+  const handleVerify = async () => {
+    setContactInfo(formData.email);
     setShowOtpPopup(true);
-    
+
     try {
-      if (type === "email") {
-        await dispatch(generateOtpforValidating(formData.email));
-      }
-      if (type === "phone") {
-        await dispatch(generateOtpforValidating(formData.phone));
-      }
+      await dispatch(generateOtpforValidating(formData.email));
     } catch (error) {
-      toast.error(`Failed to send verification code to your ${type}`);
+      toast.error("Failed to send verification code to your email");
     }
   };
 
   const handleOtpVerificationSuccess = () => {
     setShowOtpPopup(false);
-    
+
     // Update verification status
     const newVerificationStatus = {
       ...verificationStatus,
-      [verificationType]: true
+      email: true
     };
-    
+
     // Update state
     setVerificationStatus(newVerificationStatus);
-    
+
     // Save to localStorage immediately
     localStorage.setItem('verificationStatus', JSON.stringify(newVerificationStatus));
-    
+
     // Update previous values to maintain verification if value changes back
     setPrevValues(prev => ({
       ...prev,
-      [verificationType === "email" ? "email" : "phone"]: formData[verificationType === "email" ? "email" : "phone"]
+      email: formData.email
     }));
-    
-    toast.success(`${verificationType === 'email' ? 'Email' : 'Phone'} verified successfully!`);
+
+    toast.success("Email verified successfully!");
   };
 
   const handleInterestChange = (e) => {
@@ -266,12 +231,11 @@ export default function Profile() {
         "verificationStatus",
         JSON.stringify(verificationStatus)
       );
-      toast.success("Changes saved successfully");
-      
+      // toast.success("Changes saved successfully");
+
       // Update previous values after saving
       setPrevValues({
         email: formData.email,
-        phone: formData.phone
       });
     } else {
       toast.error("Please fix the errors before saving");
@@ -291,20 +255,19 @@ export default function Profile() {
             Keep your profile updated to get the most out of your mentorship
             experience.
           </p>
-          {!isBothVerified && (
+          {!isEmailVerified && (
             <p className="text-amber-600 mt-1 font-medium">
-              Please verify both your email and phone number to save changes.
+              Please verify your email address to save changes.
             </p>
           )}
         </div>
         <button
           onClick={handleSave}
-          disabled={!isBothVerified}
-          className={`w-full sm:w-auto px-4 py-2 rounded-lg transition-colors ${
-            isBothVerified 
-              ? "bg-green-600 text-white hover:bg-green-700" 
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          disabled={!isEmailVerified}
+          className={`w-full sm:w-auto px-4 py-2 rounded-lg transition-colors ${isEmailVerified
+            ? "bg-green-600 text-white hover:bg-green-700"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
         >
           Save Changes
         </button>
@@ -322,7 +285,7 @@ export default function Profile() {
               htmlFor="firstName"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              First Name *
+              First Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -330,9 +293,8 @@ export default function Profile() {
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${
-                errors.firstName ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${errors.firstName ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
               placeholder="Enter your first name"
             />
             {errors.firstName && (
@@ -345,7 +307,7 @@ export default function Profile() {
               htmlFor="lastName"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Last Name *
+              Last Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -353,9 +315,8 @@ export default function Profile() {
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border ${
-                errors.lastName ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${errors.lastName ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
               placeholder="Enter your last name"
             />
             {errors.lastName && (
@@ -368,7 +329,7 @@ export default function Profile() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email Address * {verificationStatus.email && (
+              Email Address <span className="text-red-500">*</span> {verificationStatus.email && (
                 <span className="text-green-600 text-xs ml-1">(Verified)</span>
               )}
             </label>
@@ -380,9 +341,8 @@ export default function Profile() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+                  className={`w-full px-3 py-2 border ${errors.email ? "border-red-500" : "border-gray-300"
+                    } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
                   placeholder="Enter your email address"
                 />
               </div>
@@ -394,13 +354,12 @@ export default function Profile() {
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleVerify("email")}
+                    onClick={handleVerify}
                     disabled={!formData.email || (errors.email ? true : false)}
-                    className={`px-3 py-2 text-sm rounded-lg transition-colors whitespace-nowrap ${
-                      !formData.email || errors.email
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
+                    className={`px-3 py-2 text-sm rounded-lg transition-colors whitespace-nowrap ${!formData.email || errors.email
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
                   >
                     Verify Email
                   </button>
@@ -422,53 +381,21 @@ export default function Profile() {
               htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Phone Number * {verificationStatus.phone && (
-                <span className="text-green-600 text-xs ml-1">(Verified)</span>
-              )}
+              Phone Number <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handlePhoneChange}
-                  className={`w-full px-3 py-2 border ${
-                    errors.phone ? "border-red-500" : "border-gray-300"
-                  } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
-                  placeholder="Enter 10-digit phone number"
-                  maxLength="10"
-                />
-              </div>
-              <div className="flex items-center">
-                {verificationStatus.phone ? (
-                  <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-                    <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-                    Verified
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => handleVerify("phone")}
-                    disabled={formData.phone.length !== 10}
-                    className={`px-3 py-2 text-sm rounded-lg transition-colors whitespace-nowrap ${
-                      formData.phone.length !== 10
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
-                  >
-                    Verify Phone
-                  </button>
-                )}
-              </div>
-            </div>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handlePhoneChange}
+              className={`w-full px-3 py-2 border ${errors.phone ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              placeholder="Enter 10-digit phone number"
+              maxLength="10"
+            />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
-            )}
-            {formData.phone === originalPhone && originalPhone !== "" && (
-              <p className="mt-1 text-xs text-green-600">
-                Using your original phone number (auto-verified)
-              </p>
             )}
           </div>
 
@@ -477,7 +404,7 @@ export default function Profile() {
               htmlFor="dateOfBirth"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Date of Birth
+              Date of Birth <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
@@ -486,9 +413,8 @@ export default function Profile() {
               value={formData.dateOfBirth}
               onChange={handleInputChange}
               max={today}
-              className={`w-full px-3 py-2 border ${
-                errors.dateOfBirth ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
+              className={`w-full px-3 py-2 border ${errors.dateOfBirth ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
             />
             {errors.dateOfBirth && (
               <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth}</p>
@@ -500,14 +426,15 @@ export default function Profile() {
               htmlFor="gender"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Gender
+              Gender <span className="text-red-500">*</span>
             </label>
             <select
               id="gender"
               name="gender"
               value={formData.gender}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className={`w-full px-3 py-2 border ${errors.gender ? "border-red-500" : "border-gray-300"
+                } rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent`}
             >
               <option value="">Select gender</option>
               <option value="male">Male</option>
@@ -515,6 +442,9 @@ export default function Profile() {
               <option value="other">Other</option>
               <option value="prefer-not-to-say">Prefer not to say</option>
             </select>
+            {errors.gender && (
+              <p className="mt-1 text-sm text-red-500">{errors.gender}</p>
+            )}
           </div>
         </div>
       </div>

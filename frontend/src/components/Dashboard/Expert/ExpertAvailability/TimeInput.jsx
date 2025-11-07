@@ -37,11 +37,10 @@ export function TimeInput({ value, onChange, disabled }) {
     <div className="relative inline-block" ref={dropdownRef}>
       <button
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-[120px] px-2 py-1.5 text-sm text-left border rounded-md flex items-center justify-between ${
-          disabled
-            ? "bg-gray-50 text-gray-400 border-gray-200"
-            : "bg-white text-gray-900 border-gray-300 hover:border-gray-400"
-        }`}
+        className={`w-[120px] px-2 py-1.5 text-sm text-left border rounded-md flex items-center justify-between ${disabled
+          ? "bg-gray-50 text-gray-400 border-gray-200"
+          : "bg-white text-gray-900 border-gray-300 hover:border-gray-400"
+          }`}
       >
         <div className="flex items-center">
           <svg
@@ -67,9 +66,8 @@ export function TimeInput({ value, onChange, disabled }) {
               <button
                 key={time}
                 onClick={() => handleTimeChange(time)}
-                className={`w-100 px-2 py-1 text-left text-sm hover:bg-gray-50 ${
-                  value === time ? "bg-gray-100 font-medium" : ""
-                }`}
+                className={`w-100 px-2 py-1 text-left text-sm hover:bg-gray-50 ${value === time ? "bg-gray-100 font-medium" : ""
+                  }`}
               >
                 {time}
               </button>
@@ -82,89 +80,142 @@ export function TimeInput({ value, onChange, disabled }) {
 }
 
 const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndChange }) => {
-  const timeOptions = generateTimeIntervals();
+  // Parse the initial times to extract hour:minute and AM/PM
+  const parseTime = (timeString) => {
+    if (!timeString) return { hourMinute: '', ampm: 'AM' };
 
-  // Normalize time value to ensure consistent format
-  const normalizeTime = (time) => {
-    if (!time) return '';
-    
-    // If already in correct format (e.g., "12:00 AM"), return as is
-    if (/\d{1,2}:\d{2} [AP]M/.test(time)) {
-      return time;
-    }
-    
-    // Try to parse as 24-hour format "HH:MM" or "HH:MM:SS"
-    const match = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-    if (match) {
-      let hours = parseInt(match[1]);
-      const minutes = match[2];
-      const ampm = hours < 12 ? 'AM' : 'PM';
-      hours = hours % 12 || 12;
-      return `${hours}:${minutes} ${ampm}`;
-    }
-    
-    // If we can't parse, try to see if it's one of our generated options
-    const found = timeOptions.find(option => option === time);
-    if (found) {
-      return found;
-    }
-    
-    // If still not found, try to convert from Date object
-    try {
-      const date = new Date(`1970-01-01T${time}`);
-      if (!isNaN(date.getTime())) {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const ampm = hours < 12 ? 'AM' : 'PM';
-        const hours12 = hours % 12 || 12;
-        const minutesStr = minutes.toString().padStart(2, '0');
-        return `${hours12}:${minutesStr} ${ampm}`;
-      }
-    } catch (e) {
-      // Ignore parsing errors
-    }
-    
-    return time; // fallback
+    const parts = timeString.trim().split(' ');
+    const timePart = parts[0] || '';
+    // Remove leading zero from hour (01:45 -> 1:45)
+    const normalizedTime = timePart.replace(/^0/, '');
+
+    return {
+      hourMinute: normalizedTime || '',
+      ampm: parts[1] || 'AM'
+    };
   };
 
-  const normalizedStartTime = normalizeTime(startTime);
-  const normalizedEndTime = normalizeTime(endTime);
+  const [startHourMinute, setStartHourMinute] = useState(parseTime(startTime).hourMinute);
+  const [startAmPm, setStartAmPm] = useState(parseTime(startTime).ampm);
+  const [endHourMinute, setEndHourMinute] = useState(parseTime(endTime).hourMinute);
+  const [endAmPm, setEndAmPm] = useState(parseTime(endTime).ampm);
+
+  // Sync state with props when they change (e.g., after reload or data refresh)
+  useEffect(() => {
+    console.log(`🔄 TimeRangePicker props updated - startTime: ${startTime}, endTime: ${endTime}`);
+    const parsedStart = parseTime(startTime);
+    const parsedEnd = parseTime(endTime);
+    setStartHourMinute(parsedStart.hourMinute);
+    setStartAmPm(parsedStart.ampm);
+    setEndHourMinute(parsedEnd.hourMinute);
+    setEndAmPm(parsedEnd.ampm);
+  }, [startTime, endTime]);
+
+  // Handle changes to start time hour:minute
+  const handleStartHourMinuteChange = (hourMinute) => {
+    if (hourMinute) {
+      setStartHourMinute(hourMinute);
+      const fullTime = `${hourMinute} ${startAmPm}`;
+      console.log(`🕐 Start time changed: ${fullTime}`);
+      onStartChange(fullTime);
+    }
+  };
+
+  // Handle changes to start time AM/PM
+  const handleStartAmPmChange = (ampm) => {
+    setStartAmPm(ampm);
+    const fullTime = `${startHourMinute} ${ampm}`;
+    console.log(`🕐 Start AM/PM changed: ${fullTime}`);
+    onStartChange(fullTime);
+  };
+
+  // Handle changes to end time hour:minute
+  const handleEndHourMinuteChange = (hourMinute) => {
+    if (hourMinute) {
+      setEndHourMinute(hourMinute);
+      const fullTime = `${hourMinute} ${endAmPm}`;
+      console.log(`🕐 End time changed: ${fullTime}`);
+      onEndChange(fullTime);
+    }
+  };
+
+  // Handle changes to end time AM/PM
+  const handleEndAmPmChange = (ampm) => {
+    setEndAmPm(ampm);
+    const fullTime = `${endHourMinute} ${ampm}`;
+    console.log(`🕐 End AM/PM changed: ${fullTime}`);
+    onEndChange(fullTime);
+  };
 
   return (
     <div className="flex items-center gap-2">
       <select
-        value={normalizedStartTime}
-        onChange={(e) => onStartChange(e.target.value)}
+        value={startHourMinute}
+        onChange={(e) => handleStartHourMinuteChange(e.target.value)}
         disabled={disabled}
-        className="form-select border border-gray-300 rounded-md"
+        className="form-select border border-gray-300 rounded-md "
       >
         <option value="" disabled>
-          Start Time
+          Start
         </option>
-        {timeOptions.map((time) => (
+        {generateTimeOptions().map((time) => (
           <option key={time} value={time}>
             {time}
           </option>
         ))}
       </select>
-      <span>to</span>
       <select
-        value={normalizedEndTime}
-        onChange={(e) => onEndChange(e.target.value)}
+        value={startAmPm}
+        onChange={(e) => handleStartAmPmChange(e.target.value)}
         disabled={disabled}
-        className="form-select border border-gray-300 rounded-md"
+        className="form-select border border-gray-300 rounded-md "
+      >
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+      <span className="text-gray-600">to</span>
+      <select
+        value={endHourMinute}
+        onChange={(e) => handleEndHourMinuteChange(e.target.value)}
+        disabled={disabled}
+        className="form-select border border-gray-300 rounded-md "
       >
         <option value="" disabled>
-          End Time
+          End
         </option>
-        {timeOptions.map((time) => (
+        {generateTimeOptions().map((time) => (
           <option key={time} value={time}>
             {time}
           </option>
         ))}
+      </select>
+      <select
+        value={endAmPm}
+        onChange={(e) => handleEndAmPmChange(e.target.value)}
+        disabled={disabled}
+        className="form-select border border-gray-300 rounded-md "
+      >
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
       </select>
     </div>
   );
+}
+
+// Helper to generate time options in 15-minute intervals (12-hour format without AM/PM)
+function generateTimeOptions() {
+  const times = [];
+
+  // Loop through all 12 hours
+  for (let hour = 1; hour <= 12; hour++) {
+    // Loop through minutes in 15-minute increments (0, 15, 30, 45)
+    for (let min = 0; min < 60; min += 15) {
+      const minuteStr = min.toString().padStart(2, '0');
+      times.push(`${hour}:${minuteStr}`);
+    }
+  }
+
+  return times;
 }
 
 export default TimeRangePicker;

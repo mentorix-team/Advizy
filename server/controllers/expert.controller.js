@@ -16,6 +16,69 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const normalizeSocialLinksInput = (rawLinks) => {
+  if (!rawLinks) return [];
+
+  const collected = new Set();
+
+  const processValue = (value) => {
+    if (!value) return;
+
+    if (Array.isArray(value)) {
+      value.forEach(processValue);
+      return;
+    }
+
+    if (typeof value !== "string") return;
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const looksLikeJsonArray =
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"));
+
+    if (looksLikeJsonArray) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // Fall through and treat as literal string if JSON.parse fails
+      }
+    }
+
+    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      try {
+        const unwrapped = JSON.parse(trimmed);
+        processValue(unwrapped);
+        return;
+      } catch (error) {
+        // Ignore and use trimmed string as-is
+      }
+    }
+
+    collected.add(trimmed);
+  };
+
+  processValue(rawLinks);
+
+  return Array.from(collected);
+};
+
+const sanitizeExpertForResponse = (expertDoc) => {
+  if (!expertDoc) return expertDoc;
+
+  const expertObj =
+    typeof expertDoc.toObject === "function"
+      ? expertDoc.toObject()
+      : { ...expertDoc };
+
+  expertObj.socialLinks = normalizeSocialLinksInput(expertObj.socialLinks);
+
+  return expertObj;
+};
+
 const expertBasicDetails = async (req, res, next) => {
   console.log("Response coming");
   try {
@@ -34,6 +97,7 @@ const expertBasicDetails = async (req, res, next) => {
       socialLinks,
     } = req.body;
 
+    const normalizedSocialLinks = normalizeSocialLinksInput(socialLinks);
     const user_id = req.user.id;
     console.log("aasdfs", req.user.id);
     console.log("this is user id befor", user_id);
@@ -84,7 +148,8 @@ const expertBasicDetails = async (req, res, next) => {
       expertbasic.countryCode = countryCode;
       expertbasic.languages = languages; // Use the parsed languages array
       expertbasic.bio = bio;
-      expertbasic.socialLinks = socialLinks;
+      expertbasic.socialLinks = normalizedSocialLinks;
+      expertbasic.markModified("socialLinks");
     } else {
       console.log("No existing expert found, creating new...");
       isNewExpert = true; // Mark as a new expert
@@ -101,7 +166,7 @@ const expertBasicDetails = async (req, res, next) => {
         countryCode,
         languages, // Use the parsed languages array
         bio,
-        socialLinks,
+        socialLinks: normalizedSocialLinks,
         redirect_url: "",
         profileImage: { public_id: "Dummy", secure_url: "Dummy" },
         coverImage: { public_id: "Dummy", secure_url: "Dummy" },
@@ -191,6 +256,7 @@ const expertBasicDetails = async (req, res, next) => {
 
     // Check if the image data is actually saved
     const savedExpert = await ExpertBasics.findOne({ user_id });
+    const sanitizedExpert = sanitizeExpertForResponse(savedExpert);
     console.log("Saved expert details in DB:", savedExpert);
 
     // Generate token
@@ -206,7 +272,7 @@ const expertBasicDetails = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Expert created/updated successfully",
-      expertbasic: savedExpert,
+      expertbasic: sanitizedExpert,
     });
   } catch (error) {
     console.error("Error in expertBasicDetails:", error);
@@ -262,10 +328,11 @@ const expertImages = async (req, res, next) => {
     }
 
     await expertbasic.save();
+    const sanitizedExpert = sanitizeExpertForResponse(expertbasic);
     res.status(200).json({
       success: true,
       message: "Images updated",
-      expertbasic,
+      expertbasic: sanitizedExpert,
     });
   } catch (error) {
     return next(new AppError(error, 503));
@@ -301,10 +368,11 @@ const expertCredentialsDetails = async (req, res, next) => {
 
     await expertBasics.save();
     console.log("THis is expert saved", expertBasics);
+    const sanitizedExpert = sanitizeExpertForResponse(expertBasics);
     res.status(200).json({
       success: true,
       message: "Expert credentials updated successfully",
-      expert: expertBasics,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(new AppError(error.message || "Server error", 500));
@@ -438,6 +506,43 @@ const adminapproved = async (req, res, next) => {
   } catch (error) {
     console.log("Error:", error);
     return next(new AppError(error.message, 501));
+  }
+};
+
+const handleSuspendExpert = async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    console.log("Suspending expert with ID:", id);
+
+    // Check if expert exists in the database
+    const expert = await ExpertBasics.findById(id);
+
+    if (!expert) {
+      return next(new AppError("Expert not found", 404));
+    }
+
+    console.log("Expert found, proceeding with deletion...");
+
+    // Delete the expert from MongoDB
+    await ExpertBasics.findByIdAndDelete(id);
+
+    // If you're using Algolia, you might want to remove from there too
+    // await client.deleteObject({
+    //   indexName: "experts_index",
+    //   objectID: id
+    // });
+
+    console.log("Expert suspended/deleted successfully");
+
+    return res.status(200).json({
+      success: true,
+      message: "Expert suspended and deleted successfully",
+      deletedExpertId: id
+    });
+
+  } catch (error) {
+    console.log("Error:", error);
+    return next(new AppError(error.message, 500));
   }
 };
 
@@ -587,15 +692,13 @@ const deleteExpertCertificate = async (req, res, next) => {
 };
 
 const expertEducation = async (req, res, next) => {
-  console.log(req.body);
-  const { educations } = req.body; // Expecting an array of experiences from the frontend
+  const { educations } = req.body;
   const expert_id = req.expert.id;
-  // Validate the incoming data
+
   if (!Array.isArray(educations) || educations.length === 0) {
     return next(new AppError("Education array is required", 500));
   }
 
-  // Validate each experience object
   for (const edu of educations) {
     const { degree, institution, passing_year } = edu;
     if (!degree || !institution || !passing_year) {
@@ -605,57 +708,53 @@ const expertEducation = async (req, res, next) => {
     }
   }
 
+  const parseCertificateArray = (value) => {
+    if (!value) return [];
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        return parsed ? [parsed] : [];
+      } catch (parseError) {
+        return [];
+      }
+    }
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === "object") {
+      return [value];
+    }
+    return [];
+  };
+
   try {
-    // Find expert credentials
     const expertCredentials = await ExpertCredentials.findOne({ expert_id });
 
     if (!expertCredentials) {
       return next(new AppError("Expert credentials not found", 404));
     }
 
-    // Process each experience
     const processedEducation = [];
     for (const edu of educations) {
       const { degree, institution, passing_year, certificate } = edu;
+      const certificates = parseCertificateArray(certificate);
 
       const educationData = {
         degree,
         institution,
         passing_year,
-        certificate: {
-          public_id: certificate?.public_id || degree, // Default to company name if no public_id
-          secure_url:
-            certificate?.secure_url ||
-            "cloudinary://916367985651227:kWEPTClb0C0UOAsICG1sGTrg7qE@deafm48ba", // Replace with a default URL if missing
-        },
       };
 
-      console.log("this is file", req.file);
-      // Handle file uploads, if any
-      if (req.file) {
-        // Handle file upload to Cloudinary (for PDF or other files)
-        if (req.file.mimetype === "application/pdf") {
-          const result = await cloudinary.v2.uploader.upload(req.file.path, {
-            folder: "Advizy",
-            resource_type: "raw", // Specify non-image type for PDFs
-          });
-          educationData.certificate.public_id = result.public_id;
-          educationData.certificate.secure_url = result.secure_url;
-        } else {
-          throw new Error("Invalid file type. Please upload a PDF.");
-        }
-      } else if (!certificate || Object.keys(certificate).length === 0) {
-        // If no file was uploaded and no certificate object is provided, set default
-        educationData.certificate = {
-          public_id: degree, // Set a default public_id (you can customize this)
-          secure_url: "default_certificate_url", // Replace with actual URL if necessary
-        };
+      if (certificates.length > 0) {
+        educationData.certificate = certificates;
       }
 
       processedEducation.push(educationData);
     }
 
-    // Add processed experiences to the expert's credentials
     expertCredentials.education.push(...processedEducation);
     await expertCredentials.save();
 
@@ -670,9 +769,28 @@ const expertEducation = async (req, res, next) => {
 
 const singleexperteducation = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body); // Debugging log
+    const parseCertificateArray = (value) => {
+      if (!value) return [];
+      if (typeof value === "string") {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+          return parsed ? [parsed] : [];
+        } catch (parseError) {
+          return [];
+        }
+      }
+      if (Array.isArray(value)) {
+        return value;
+      }
+      if (typeof value === "object") {
+        return [value];
+      }
+      return [];
+    };
 
-    // Extract fields from request body (assuming it's sent as form-data)
     const { degree, institution, passingYear } = req.body;
     const expert_id = req.expert.id;
 
@@ -685,7 +803,6 @@ const singleexperteducation = async (req, res, next) => {
       );
     }
 
-    // Fetch expert
     const expert = await ExpertBasics.findById(expert_id);
     if (!expert) {
       return next(new AppError("Expert not found", 404));
@@ -695,38 +812,42 @@ const singleexperteducation = async (req, res, next) => {
       expert.credentials = { education: [] };
     }
 
-    // Prepare education data
     const educationEntry = {
       degree,
       institution,
       passingYear,
-      certificate: {
-        public_id: "dummy",
-        secure_url: "dummy",
-      },
     };
 
-    // Handle certificate file if uploaded
-    if (req.file) {
-      try {
-        console.log("Uploading file to Cloudinary...");
-        const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "Advizy",
-          resource_type: "raw",
-        });
+    const providedCertificates = parseCertificateArray(req.body.certificate);
 
-        if (result) {
-          educationEntry.certificate.public_id = result.public_id;
-          educationEntry.certificate.secure_url = result.secure_url;
+    const uploadedCertificates = [];
+    if (Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            folder: "Advizy",
+            resource_type: "raw",
+          });
+
+          if (result) {
+            uploadedCertificates.push({
+              public_id: result.public_id,
+              secure_url: result.secure_url,
+            });
+          }
+        } catch (error) {
+          return next(
+            new AppError("Error uploading certificate: " + error.message, 500)
+          );
         }
-      } catch (error) {
-        return next(
-          new AppError("Error uploading certificate: " + error.message, 501)
-        );
       }
     }
 
-    // Save education entry
+    const combinedCertificates = [...providedCertificates, ...uploadedCertificates];
+    if (combinedCertificates.length > 0) {
+      educationEntry.certificate = combinedCertificates;
+    }
+
     expert.credentials.education.push(educationEntry);
     await expert.save();
 
@@ -736,17 +857,47 @@ const singleexperteducation = async (req, res, next) => {
       expert,
     });
   } catch (error) {
-    console.log("Error:", error);
-    return next(new AppError(error.message, 501));
+    return next(new AppError(error.message, 500));
   }
 };
+
 const editSingleExpertEducation = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body);
-    const { _id, degree, institution, passingYear } = req.body;
+    const parseCertificateArray = (value) => {
+      if (!value) return [];
+      if (typeof value === "string") {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+          return parsed ? [parsed] : [];
+        } catch (parseError) {
+          return [];
+        }
+      }
+      if (Array.isArray(value)) {
+        return value;
+      }
+      if (typeof value === "object") {
+        return [value];
+      }
+      return [];
+    };
+
+    const {
+      _id,
+      degree,
+      institution,
+      passingYear,
+      removeCertificate,
+    } = req.body;
     const expert_id = req.expert.id;
 
-    // Validate required fields
+    if (!_id) {
+      return next(new AppError("Education entry ID is required", 400));
+    }
+
     if (!degree || !institution || !passingYear) {
       return next(
         new AppError(
@@ -756,20 +907,17 @@ const editSingleExpertEducation = async (req, res, next) => {
       );
     }
 
-    // Fetch the expert
     const expert = await ExpertBasics.findById(expert_id);
     if (!expert) {
       return next(new AppError("Expert not found", 404));
     }
 
-    // Check if credentials and education exist
-    if (!expert.credentials || !expert.credentials.education) {
+    if (!expert.credentials || !Array.isArray(expert.credentials.education)) {
       return next(
         new AppError("No education records found for this expert", 404)
       );
     }
 
-    // Find the education entry
     const educationIndex = expert.credentials.education.findIndex(
       (edu) => edu._id.toString() === _id
     );
@@ -778,34 +926,95 @@ const editSingleExpertEducation = async (req, res, next) => {
       return next(new AppError("Education entry not found", 404));
     }
 
-    // Update the education entry
-    expert.credentials.education[educationIndex].degree = degree;
-    expert.credentials.education[educationIndex].institution = institution;
-    expert.credentials.education[educationIndex].passingYear = passingYear;
+    const educationEntry = expert.credentials.education[educationIndex];
 
-    // Handle certificate if provided (assuming it's already in Cloudinary format)
-    if (req.file) {
-      try {
-        console.log("Uploading file to Cloudinary...");
-        const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "Advizy",
-          resource_type: "raw",
-        });
+    educationEntry.degree = degree;
+    educationEntry.institution = institution;
+    educationEntry.passingYear = passingYear;
 
-        if (result) {
-          educationEntry.certificate = {
-            public_id: result.public_id,
-            secure_url: result.secure_url,
-          };
+    const shouldRemoveCertificate =
+      removeCertificate === "true" || removeCertificate === true;
+
+    const incomingCertificates = parseCertificateArray(
+      req.body.existingCertificate ?? req.body.certificate
+    );
+
+    const currentCertificates = Array.isArray(educationEntry.certificate)
+      ? educationEntry.certificate
+      : educationEntry.certificate
+        ? [educationEntry.certificate]
+        : [];
+
+    const certificatesToKeep = [];
+    const providedIds = new Set(
+      incomingCertificates
+        .map((doc) => doc?.public_id)
+        .filter((id) => typeof id === "string")
+    );
+
+    if (shouldRemoveCertificate) {
+      for (const doc of currentCertificates) {
+        if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
         }
-      } catch (error) {
-        return next(
-          new AppError("Error uploading certificate: " + error.message, 501)
-        );
+      }
+    } else if (providedIds.size > 0) {
+      for (const doc of currentCertificates) {
+        if (doc?.public_id && providedIds.has(doc.public_id)) {
+          certificatesToKeep.push(doc);
+          providedIds.delete(doc.public_id);
+        } else if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        }
+      }
+    } else if (incomingCertificates.length === 0) {
+      for (const doc of currentCertificates) {
+        if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        }
       }
     }
 
-    // Save the updated expert document
+    const orphanPayloadDocs = incomingCertificates.filter(
+      (doc) => !doc?.public_id && doc?.secure_url
+    );
+    if (orphanPayloadDocs.length > 0) {
+      certificatesToKeep.push(...orphanPayloadDocs);
+    }
+
+    const uploadedCertificates = [];
+    if (Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            folder: "Advizy",
+            resource_type: "raw",
+          });
+
+          if (result) {
+            uploadedCertificates.push({
+              public_id: result.public_id,
+              secure_url: result.secure_url,
+            });
+          }
+        } catch (error) {
+          return next(
+            new AppError("Error uploading certificate: " + error.message, 500)
+          );
+        }
+      }
+    }
+
+    const resultingCertificates = shouldRemoveCertificate
+      ? uploadedCertificates
+      : [...certificatesToKeep, ...uploadedCertificates];
+
+    if (resultingCertificates.length > 0) {
+      educationEntry.certificate = resultingCertificates;
+    } else {
+      delete educationEntry.certificate;
+    }
+
     await expert.save();
 
     return res.status(200).json({
@@ -814,90 +1023,110 @@ const editSingleExpertEducation = async (req, res, next) => {
       expert,
     });
   } catch (error) {
-    console.log("Error:", error);
-    return next(new AppError(error.message, 501));
+    return next(new AppError(error.message, 500));
   }
 };
 const deleteExpertEducation = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body); // Debugging log
+    const { _id } = req.body;
+    const expert_id = req.expert.id;
 
-    const { _id } = req.body; // Get the education _id
-    const expert_id = req.expert.id; // Get the expert ID from token
-
-    // Validate required fields
     if (!_id) {
       return next(new AppError("Education ID (_id) is required", 400));
     }
 
-    // Fetch expert document from the database
     const expert = await ExpertBasics.findById(expert_id);
     if (!expert) {
       return next(new AppError("Expert not found", 404));
     }
 
-    // Ensure the expert has education records
     if (!expert.credentials || !Array.isArray(expert.credentials.education)) {
       return next(
         new AppError("No education records found for this expert", 404)
       );
     }
 
-    // Find the education entry by _id
     const educationIndex = expert.credentials.education.findIndex(
       (edu) => edu._id.toString() === _id
     );
 
-    // Validate if the education exists
     if (educationIndex === -1) {
       return next(new AppError("Education entry not found", 404));
     }
 
-    // Get the specific education entry
     const educationToDelete = expert.credentials.education[educationIndex];
 
-    // If the education has a certificate file uploaded to Cloudinary, delete it
-    if (educationToDelete.certificate?.public_id) {
-      try {
-        console.log("Deleting file from Cloudinary...");
-        await cloudinary.v2.uploader.destroy(
-          educationToDelete.certificate.public_id
-        );
-      } catch (error) {
-        return next(
-          new AppError("Error deleting certificate file: " + error.message, 501)
-        );
+    const certificates = Array.isArray(educationToDelete.certificate)
+      ? educationToDelete.certificate
+      : educationToDelete.certificate
+        ? [educationToDelete.certificate]
+        : [];
+
+    for (const doc of certificates) {
+      if (doc?.public_id) {
+        try {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        } catch (error) {
+          return next(
+            new AppError(
+              "Error deleting certificate file: " + error.message,
+              501
+            )
+          );
+        }
       }
     }
 
-    // Remove the education from the array
     expert.credentials.education.splice(educationIndex, 1);
-
-    // Save the updated expert document
     await expert.save();
 
-    // Respond with success
     return res.status(200).json({
       success: true,
       message: "Education deleted successfully",
       expert,
     });
   } catch (error) {
-    console.error("Error:", error);
     return next(new AppError(error.message, 501));
   }
 };
 
 const expertexperience = async (req, res, next) => {
   try {
-    let experiences = req.body; // Expecting an array but receiving an object
+    const parseDocumentArray = (value) => {
+      if (!value) return [];
+      if (typeof value === "string") {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+          return parsed ? [parsed] : [];
+        } catch (parseError) {
+          return [];
+        }
+      }
+      if (Array.isArray(value)) {
+        return value;
+      }
+      if (typeof value === "object") {
+        return [value];
+      }
+      return [];
+    };
 
-    console.log("Received Experience Data:", req.body);
+    let experiencesPayload = req.body?.experiences ?? req.body;
 
-    // Ensure experiences is always an array
-    if (!Array.isArray(experiences)) {
-      experiences = [experiences]; // Convert single object to array
+    if (typeof experiencesPayload === "string") {
+      try {
+        experiencesPayload = JSON.parse(experiencesPayload);
+      } catch (parseError) {
+        experiencesPayload = {};
+      }
     }
+
+    const experiences = Array.isArray(experiencesPayload)
+      ? experiencesPayload
+      : [experiencesPayload];
 
     if (experiences.length === 0) {
       return next(new AppError("Experience data must be an array", 400));
@@ -905,24 +1134,45 @@ const expertexperience = async (req, res, next) => {
 
     const expert_id = req.expert.id;
 
-    // Fetch the expert
     const expert = await ExpertBasics.findById(expert_id);
     if (!expert) {
       return next(new AppError("Expert not found", 404));
     }
 
-    // Ensure credentials and work_experiences exist
     if (!expert.credentials) {
       expert.credentials = { work_experiences: [] };
     } else if (!Array.isArray(expert.credentials.work_experiences)) {
       expert.credentials.work_experiences = [];
     }
 
-    // Process each experience entry
+    const uploadedDocuments = [];
+    if (Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            folder: "Advizy",
+            resource_type: "raw",
+          });
+
+          if (result) {
+            uploadedDocuments.push({
+              public_id: result.public_id,
+              secure_url: result.secure_url,
+            });
+          }
+        } catch (uploadError) {
+          return next(new AppError("Error uploading document", 500));
+        }
+      }
+    }
+
     for (const exp of experiences) {
+      if (!exp) {
+        continue;
+      }
+
       let { companyName, jobTitle, startDate, endDate, currentlyWork } = exp;
 
-      // Convert `currentlyWork` from string to boolean if needed
       currentlyWork = currentlyWork === true || currentlyWork === "true";
 
       if (
@@ -939,44 +1189,22 @@ const expertexperience = async (req, res, next) => {
         );
       }
 
+      const existingDocuments = parseDocumentArray(
+        exp.existingDocuments ?? exp.documents
+      );
+
       const experienceData = {
         companyName,
         jobTitle,
         startDate,
         endDate: currentlyWork ? null : endDate,
         currentlyWork,
-        documents: {
-          public_id: companyName,
-          secure_url: "default-cloudinary-url",
-        },
+        documents: [...existingDocuments, ...uploadedDocuments],
       };
 
-      // Handle document upload, if file is provided
-      if (req.files && req.files[companyName]) {
-        try {
-          console.log(`Uploading file for ${companyName}...`);
-          const result = await cloudinary.v2.uploader.upload(
-            req.files[companyName].path,
-            {
-              folder: "Advizy",
-              resource_type: "raw",
-            }
-          );
-
-          if (result) {
-            experienceData.documents.public_id = result.public_id;
-            experienceData.documents.secure_url = result.secure_url;
-          }
-        } catch (error) {
-          return next(new AppError("Error uploading document", 500));
-        }
-      }
-
-      // Add to work_experiences array
       expert.credentials.work_experiences.push(experienceData);
     }
 
-    // Save the updated expert document
     await expert.save();
 
     return res.status(200).json({
@@ -990,18 +1218,44 @@ const expertexperience = async (req, res, next) => {
 };
 const editExpertExperience = async (req, res, next) => {
   try {
-    console.log("Received Request Body:", req.body);
+    const parseDocumentArray = (value) => {
+      if (!value) return [];
+      if (typeof value === "string") {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+          return parsed ? [parsed] : [];
+        } catch (parseError) {
+          return [];
+        }
+      }
+      if (Array.isArray(value)) {
+        return value;
+      }
+      if (typeof value === "object") {
+        return [value];
+      }
+      return [];
+    };
 
-    const { companyName, jobTitle, startDate, endDate, currentlyWork, _id } =
-      req.body;
+    const {
+      companyName,
+      jobTitle,
+      startDate,
+      endDate,
+      currentlyWork,
+      _id,
+      removeDocument,
+    } = req.body;
     const expert_id = req.expert.id;
 
-    // Validate required fields
     if (
       !companyName ||
       !jobTitle ||
       !startDate ||
-      (currentlyWork !== true && !endDate)
+      (currentlyWork !== true && currentlyWork !== "true" && !endDate)
     ) {
       return next(
         new AppError(
@@ -1011,13 +1265,11 @@ const editExpertExperience = async (req, res, next) => {
       );
     }
 
-    // Fetch the expert
     const expert = await ExpertBasics.findById(expert_id);
     if (!expert) {
       return next(new AppError("Expert not found", 404));
     }
 
-    // Ensure credentials and work_experiences exist
     if (
       !expert.credentials ||
       !Array.isArray(expert.credentials.work_experiences)
@@ -1027,51 +1279,106 @@ const editExpertExperience = async (req, res, next) => {
       );
     }
 
-    // Find the experience index
     const experienceIndex = expert.credentials.work_experiences.findIndex(
       (experience) => experience._id.toString() === _id
     );
 
-    // ✅ **Check if experience exists**
     if (experienceIndex === -1) {
       return next(new AppError("Experience not found", 404));
     }
 
-    // ✅ **Get the experience object to update**
     const experienceEntry =
       expert.credentials.work_experiences[experienceIndex];
 
-    // Update the fields
+    const normalizedCurrentlyWork =
+      currentlyWork === true || currentlyWork === "true";
+
     experienceEntry.companyName = companyName;
     experienceEntry.jobTitle = jobTitle;
     experienceEntry.startDate = startDate;
-    experienceEntry.endDate = currentlyWork ? null : endDate;
-    experienceEntry.currentlyWork =
-      currentlyWork === true || currentlyWork === "true";
+    experienceEntry.endDate = normalizedCurrentlyWork ? null : endDate;
+    experienceEntry.currentlyWork = normalizedCurrentlyWork;
 
-    // Handle document upload if a new file is provided
-    if (req.file) {
-      try {
-        console.log(`Uploading new file for ${companyName}...`);
-        const result = await cloudinary.v2.uploader.upload(req.file.path, {
-          folder: "Advizy",
-          resource_type: "raw",
-        });
+    const existingDocumentsPayload = parseDocumentArray(
+      req.body.existingDocuments ?? req.body.documents
+    );
 
-        if (result) {
-          experienceEntry.document = {
-            public_id: result.public_id,
-            secure_url: result.secure_url,
-          };
+    const currentDocuments = Array.isArray(experienceEntry.documents)
+      ? experienceEntry.documents
+      : experienceEntry.documents
+        ? [experienceEntry.documents]
+        : [];
+
+    const documentsToKeep = [];
+    const providedIds = new Set(
+      existingDocumentsPayload
+        .map((doc) => doc?.public_id)
+        .filter((id) => typeof id === "string")
+    );
+
+    if (removeDocument === "true" || removeDocument === true) {
+      for (const doc of currentDocuments) {
+        if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
         }
-      } catch (error) {
-        return next(
-          new AppError("Error uploading document: " + error.message, 500)
-        );
+      }
+    } else if (providedIds.size > 0) {
+      for (const doc of currentDocuments) {
+        if (doc?.public_id && providedIds.has(doc.public_id)) {
+          documentsToKeep.push(doc);
+          providedIds.delete(doc.public_id);
+        } else if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        }
+      }
+    } else if (existingDocumentsPayload.length === 0) {
+      for (const doc of currentDocuments) {
+        if (doc?.public_id) {
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        }
       }
     }
 
-    // Save the updated expert document
+    const orphanPayloadDocs = existingDocumentsPayload.filter(
+      (doc) => !doc?.public_id && doc?.secure_url
+    );
+    if (orphanPayloadDocs.length > 0) {
+      documentsToKeep.push(...orphanPayloadDocs);
+    }
+
+    const newlyUploadedDocs = [];
+    if (Array.isArray(req.files)) {
+      for (const file of req.files) {
+        try {
+          const result = await cloudinary.v2.uploader.upload(file.path, {
+            folder: "Advizy",
+            resource_type: "raw",
+          });
+
+          if (result) {
+            newlyUploadedDocs.push({
+              public_id: result.public_id,
+              secure_url: result.secure_url,
+            });
+          }
+        } catch (uploadError) {
+          return next(
+            new AppError(
+              "Error uploading document: " + uploadError.message,
+              500
+            )
+          );
+        }
+      }
+    }
+
+    const resultingDocuments =
+      removeDocument === "true" || removeDocument === true
+        ? newlyUploadedDocs
+        : [...documentsToKeep, ...newlyUploadedDocs];
+
+    experienceEntry.documents = resultingDocuments;
+
     await expert.save();
 
     return res.status(200).json({
@@ -1080,7 +1387,6 @@ const editExpertExperience = async (req, res, next) => {
       expert,
     });
   } catch (error) {
-    console.log("Error:", error);
     return next(new AppError(error.message, 500));
   }
 };
@@ -1115,16 +1421,25 @@ const deleteExpertExperience = async (req, res, next) => {
     const experienceToDelete =
       expert.credentials.work_experiences[experienceIndex];
     // If the experience has a document uploaded, delete it from Cloudinary
-    if (experienceToDelete.documents?.public_id) {
-      try {
-        console.log("Deleting file from Cloudinary...");
-        await cloudinary.v2.uploader.destroy(
-          experienceToDelete.documents.public_id
-        );
-      } catch (error) {
-        return next(
-          new AppError("Error deleting document file: " + error.message, 501)
-        );
+    const documentsToRemove = Array.isArray(experienceToDelete.documents)
+      ? experienceToDelete.documents
+      : experienceToDelete.documents
+        ? [experienceToDelete.documents]
+        : [];
+
+    for (const doc of documentsToRemove) {
+      if (doc?.public_id) {
+        try {
+          console.log("Deleting file from Cloudinary...");
+          await cloudinary.v2.uploader.destroy(doc.public_id);
+        } catch (error) {
+          return next(
+            new AppError(
+              "Error deleting document file: " + error.message,
+              501
+            )
+          );
+        }
       }
     }
 
@@ -1189,7 +1504,6 @@ const createService = async (req, res, next) => {
       if (
         !title ||
         !shortDescription ||
-        !detailedDescription ||
         !duration ||
         !price
       ) {
@@ -1201,7 +1515,7 @@ const createService = async (req, res, next) => {
       const newService = {
         title,
         shortDescription,
-        detailedDescription,
+        detailedDescription: detailedDescription || "",
         duration,
         price,
         features: [], // Default empty array for features
@@ -1297,7 +1611,6 @@ const manageService = async (req, res, next) => {
       if (
         !title ||
         !shortDescription ||
-        !detailedDescription ||
         !duration ||
         !price
       ) {
@@ -1309,7 +1622,7 @@ const manageService = async (req, res, next) => {
       const newService = {
         title,
         shortDescription,
-        detailedDescription,
+        detailedDescription: detailedDescription || "",
         duration,
         price,
         features: Array.isArray(features) ? features : [], // Ensure features is an array
@@ -1343,13 +1656,13 @@ const manageService = async (req, res, next) => {
     }
 
     await expert.save();
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: title
         ? "Service created successfully"
         : "Feature(s) added successfully",
-      expert,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     console.error("Error managing service:", error);
@@ -1357,7 +1670,25 @@ const manageService = async (req, res, next) => {
   }
 };
 const deleteService = async (req, res, next) => {
-  const serviceId = Object.keys(req.body)[0]; // Extract serviceId
+  let serviceId =
+    req.body?.serviceId ||
+    req.body?.id ||
+    req.body?.service_id ||
+    null;
+
+  if (!serviceId && req.body && typeof req.body === "object") {
+    const dynamicKeys = Object.keys(req.body).filter(
+      (key) => !["serviceId", "id", "service_id"].includes(key)
+    );
+    if (dynamicKeys.length > 0) {
+      serviceId = dynamicKeys[0];
+    }
+  }
+
+  if (!serviceId) {
+    return next(new AppError("Service ID is required", 400));
+  }
+
   const expertId = req.expert.id;
 
   console.log("Received delete request for serviceId:", serviceId);
@@ -1373,9 +1704,10 @@ const deleteService = async (req, res, next) => {
       return next(new AppError("No services found to delete", 404));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service._id.toString() === serviceId // Ensure proper matching
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return mongoId === String(serviceId) || service.serviceId === String(serviceId);
+    });
 
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 405));
@@ -1383,11 +1715,11 @@ const deleteService = async (req, res, next) => {
 
     expert.credentials.services.splice(serviceIndex, 1);
     await expert.save();
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: "Service deleted successfully",
-      expert,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     console.error("Error deleting service:", error);
@@ -1406,6 +1738,7 @@ const updateService = async (req, res, next) => {
     features,
   } = req.body;
   const serviceId = id; // Ensure correct ID mapping
+  const serviceIdStr = serviceId ? String(serviceId) : undefined;
   const expertId = req.expert.id;
 
   console.log("This is req.body", req.body);
@@ -1420,9 +1753,10 @@ const updateService = async (req, res, next) => {
       return next(new AppError("No services found", 406));
     }
 
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service.serviceId === serviceId
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return service.serviceId === serviceId || mongoId === serviceIdStr;
+    });
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 401));
     }
@@ -1432,36 +1766,66 @@ const updateService = async (req, res, next) => {
     // Check if the service is "One-on-One Mentoring"
     if (serviceName === "One-on-One Mentoring") {
       // Update only relevant fields for One-on-One Mentoring
-      if (hourlyRate) service.hourlyRate = hourlyRate;
-      if (shortDescription) service.shortDescription = shortDescription;
-      if (detailedDescription)
+      if (typeof hourlyRate !== "undefined") service.hourlyRate = hourlyRate;
+      if (typeof shortDescription !== "undefined")
+        service.shortDescription = shortDescription;
+      if (typeof detailedDescription !== "undefined")
         service.detailedDescription = detailedDescription;
       if (Array.isArray(features)) service.features = features;
 
       // Update one_on_one field with timeSlots data
       if (Array.isArray(timeSlots)) {
-        service.one_on_one = timeSlots.map((slot) => ({
-          duration: slot.duration,
-          price: slot.price,
-          enabled: slot.enabled ?? false, // Ensure default value for enabled
+        const normalizedSlots = timeSlots.map((slot) => ({
+          duration: Number(slot.duration),
+          price: Number(slot.price),
+          enabled: Boolean(slot.enabled),
         }));
+
+        service.one_on_one = normalizedSlots;
+        service.timeSlots = normalizedSlots;
+
+        const primarySlot =
+          normalizedSlots.find((slot) => slot.enabled) || normalizedSlots[0];
+        if (primarySlot) {
+          service.duration = primarySlot.duration;
+          service.price = primarySlot.price;
+        }
       }
     } else {
       // Default behavior for other services
-      if (serviceName) service.title = serviceName;
-      if (shortDescription) service.shortDescription = shortDescription;
-      if (detailedDescription)
+      if (typeof serviceName !== "undefined") {
+        service.title = serviceName;
+        service.serviceName = serviceName;
+      }
+      if (typeof shortDescription !== "undefined")
+        service.shortDescription = shortDescription;
+      if (typeof detailedDescription !== "undefined")
         service.detailedDescription = detailedDescription;
       if (Array.isArray(features)) service.features = features;
-      if (Array.isArray(timeSlots)) service.timeSlots = timeSlots;
+      if (Array.isArray(timeSlots)) {
+        const normalizedSlots = timeSlots.map((slot) => ({
+          duration: Number(slot.duration),
+          price: Number(slot.price),
+          enabled: Boolean(slot.enabled),
+        }));
+
+        service.timeSlots = normalizedSlots;
+
+        const primarySlot =
+          normalizedSlots.find((slot) => slot.enabled) || normalizedSlots[0];
+        if (primarySlot) {
+          service.duration = primarySlot.duration;
+          service.price = primarySlot.price;
+        }
+      }
     }
 
     await expert.save();
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: "Service updated successfully",
-      expert,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     console.error("Error updating service:", error);
@@ -1489,11 +1853,11 @@ const getService = async (req, res, next) => {
     if (!service) {
       return next(new AppError("Service not found", 404));
     }
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: `Service with ${serviceId} fetched successfully`,
-      expert,
+      expert: sanitizedExpert,
       service,
     });
   } catch (error) {
@@ -1566,11 +1930,11 @@ const extpertPortfolioDetails = async (req, res, next) => {
 
     // Save updated data
     await expertBasics.save();
-
+    const sanitizedExpert = sanitizeExpertForResponse(expertBasics);
     return res.status(200).json({
       success: true,
       message: "Portfolio added successfully",
-      expert: expertBasics,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(
@@ -1878,10 +2242,11 @@ const getExpertById = async (req, res, next) => {
       return next(new AppError("Expert Not Found", 404)); // 404 Not Found
     }
 
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: `User with id ${id}`,
-      expert: expert.toObject(),
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(
@@ -1899,11 +2264,11 @@ const getExpertByRedirectURL = async (req, res, next) => {
     if (!expert) {
       return next(new AppError("Expert Not Found", 404)); // 404 Not Found
     }
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     return res.status(200).json({
       success: true,
       message: `User with redirect_url ${redirect_url}`,
-      expert: expert.toObject(),
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(
@@ -2085,8 +2450,20 @@ const handleToggleService = async (req, res, next) => {
   try {
     console.log("Raw request body:", req.body); // Debugging line
 
-    // Extract the first key from req.body
-    const serviceId = Object.keys(req.body)[0];
+    let serviceId =
+      req.body?.serviceId ||
+      req.body?.id ||
+      req.body?.service_id ||
+      null;
+
+    if (!serviceId && req.body && typeof req.body === "object") {
+      const dynamicKeys = Object.keys(req.body).filter(
+        (key) => !["serviceId", "id", "service_id"].includes(key)
+      );
+      if (dynamicKeys.length > 0) {
+        serviceId = dynamicKeys[0];
+      }
+    }
 
     if (!serviceId) {
       return next(new AppError("Service ID is required", 400));
@@ -2103,9 +2480,10 @@ const handleToggleService = async (req, res, next) => {
     }
 
     // Find the index of the service in the services array
-    const serviceIndex = expert.credentials.services.findIndex(
-      (service) => service.serviceId === serviceId
-    );
+    const serviceIndex = expert.credentials.services.findIndex((service) => {
+      const mongoId = service?._id ? String(service._id) : undefined;
+      return service.serviceId === serviceId || mongoId === String(serviceId);
+    });
 
     if (serviceIndex === -1) {
       return next(new AppError("Service not found", 404));
@@ -2130,11 +2508,11 @@ const handleToggleService = async (req, res, next) => {
 
     // Log the updated expert document
     console.log("Updated Expert Document:", expert);
-
+    const sanitizedExpert = sanitizeExpertForResponse(expert);
     res.status(200).json({
       success: true,
       message: "Service toggle updated successfully",
-      expert,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(new AppError(error, 503));
@@ -2152,34 +2530,17 @@ const getExpert = async (req, res, next) => {
     if (!expertbasic) {
       return next(new AppError("Expert details not found", 502));
     }
-
+    const sanitizedExpert = sanitizeExpertForResponse(expertbasic);
     res.status(200).json({
       success: true,
       message: "expert details",
-      expert: expertbasic,
+      expert: sanitizedExpert,
     });
   } catch (error) {
     return next(new AppError(error, 400));
   }
 };
 
-const handleSuspendExpert = async (req, res, next) => {
-  try {
-    const { id } = req.body;
-    const expert = await ExpertBasics.findByIdAndDelete(id);
-
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "EXpert data deleted",
-    });
-  } catch (error) {
-    return next(new AppError(error, 503));
-  }
-};
 
 const HelpCenter = async (req, res) => {
   try {
@@ -2262,9 +2623,12 @@ export {
   pushExpertsToAlgolia,
   generateOtpForVerifying,
   validatethnumberormobile,
+
   adminapproved,
-  getAllExpertswithoutfilter,
   handleSuspendExpert,
+
+  getAllExpertswithoutfilter,
+  handleToggleService,
 
   // help center
   HelpCenter,

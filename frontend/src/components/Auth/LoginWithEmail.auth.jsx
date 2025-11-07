@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { IoIosClose } from "react-icons/io";
+import { FcGoogle } from "react-icons/fc";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loginaccount } from "../../Redux/Slices/authSlice";
-import PasswordInput from "@/utils/PasswordInput/InputPassword.util";
+import LoginPasswordInput from "@/utils/PasswordInput/LoginPasswordInput.util";
 
 const LoginWithEmail = ({ onClose, onSwitchView }) => {
   const [logindata, setlogindata] = useState({
@@ -82,48 +84,48 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     return !Object.values(newErrors).some((error) => error);
   };
 
-  async function login(event) {
-    event.preventDefault();
+  // Unified submit handler — prevents default form submit (page reload),
+  // awaits the login dispatch, and only closes/navigates on success.
+  const handleSubmit = async (event) => {
+    event?.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    const response = await dispatch(loginaccount(logindata));
-    console.log("Login response:", response);
+    try {
+      // Await the thunk so we can inspect the result synchronously
+      const result = await dispatch(loginaccount(logindata)).unwrap();
+      console.log("Login result:", result);
 
-    if (response?.payload?.success) {
-      // Get redirectURL from sessionStorage
-      const redirectURL = sessionStorage.getItem("redirectURL");
-      console.log("🎯 Login Success - Retrieved redirectURL:", redirectURL);
+      if (result?.success) {
+        const redirectURL = sessionStorage.getItem("redirectURL");
+        // Close popup first
+        onClose();
 
-      // Close popup first
-      onClose();
-
-      // Always redirect to stored URL, never to home page
-      if (redirectURL && redirectURL.trim() !== "") {
-        console.log("🚀 Navigating to stored redirectURL:", redirectURL);
-        // Clear it after use
-        sessionStorage.removeItem("redirectURL");
-        console.log("🧹 Cleaned up redirectURL from sessionStorage");
-        navigate(redirectURL);
-      } else {
-        // Fallback: if no redirectURL stored, stay on current page or go to user dashboard
-        console.log("⚠️ No redirectURL found, staying on current page");
-        const currentPath = location.pathname;
-        if (currentPath === "/" || currentPath.includes("auth")) {
-          // Only redirect to dashboard if we're on home or auth pages
-          navigate("/dashboard/user/meetings");
+        if (redirectURL && redirectURL.trim() !== "") {
+          sessionStorage.removeItem("redirectURL");
+          navigate(redirectURL);
+        } else {
+          const currentPath = location.pathname;
+          if (currentPath === "/" || currentPath.includes("auth")) {
+            navigate("/dashboard/user/meetings");
+          }
         }
-        // Otherwise, stay on current page (don't navigate)
+      } else {
+        // Explicit failure path: show inline error and keep modal open
+        setErrors((prev) => ({ ...prev, password: "Wrong email or password" }));
+        setTouched({ email: true, password: true });
       }
+    } catch (err) {
+      // Unwrap errors from thunk or network issues
+      console.error("Login error:", err);
+      setErrors((prev) => ({ ...prev, password: err?.message || "Login failed" }));
+      setTouched({ email: true, password: true });
+    } finally {
+      setlogindata({ email: "", password: "" });
     }
-
-    setlogindata({
-      email: "",
-      password: "",
-    });
-  }
+  };
 
   // Google login handler
   const handleGoogleSignup = (event) => {
@@ -151,33 +153,30 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md px-4 py-8 overflow-auto">
-      <div className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-lg p-6 overflow-auto">
-        <button
+      <div className="relative w-full max-w-xl max-h-xl bg-white rounded-3xl shadow-lg p-6 overflow-auto">
+        <IoIosClose
+          className="hover:cursor-pointer hover:bg-gray-100 rounded-full hover:shadow-md absolute top-6 right-6 text-black hover:text-black text-4xl font-bold"
           onClick={handleCloseClick}
-          className="absolute top-4 right-8 text-black hover:text-black text-3xl font-bold"
-          aria-label="Close"
-        >
-          &times;
-        </button>
+        />
 
         <h2 className="text-2xl font-semibold text-gray-900 mb-2 text-center">
           Log In
         </h2>
 
-        <div className="text-sm text-gray-500 text-right mb-6">
+        <div className="text-sm text-gray-500 text-center mb-6">
           <span>Don't have an account? </span>
           <button
-            className="text-black hover:underline"
+            className="text-gray-700 font-medium tracking-tight hover:underline"
             onClick={() => onSwitchView("SignupWithEmail")}
           >
             Sign Up
           </button>
         </div>
 
-        <form onSubmit={login} className="w-80 max-w-md mx-auto">
-          <div className="mb-2">
-            <label className="block text-gray-700 text-sm font-medium mb-1">
-              Email address*
+  <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto flex flex-col gap-2">
+          <div className="">
+            <label className="block text-gray-700 text-sm md:text-base font-medium mb-1">
+              Email address
             </label>
             <input
               type="email"
@@ -186,36 +185,32 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
               value={logindata.email}
               onChange={handleUserInput}
               onBlur={handleBlur}
-              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 autofill:bg-gray-50 autofill:text-gray-900 ${touched.email && errors.email
-                  ? "border-red-500 bg-red-50"
-                  : "border-gray-300"
-                }`}
+              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 text-sm placeholder:text-sm `}
             />
-            {touched.email && errors.email && (
+            {/* {touched.email && errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-            )}
+            )} */}
           </div>
 
-          <div className="mb-2 relative">
-            <PasswordInput
-              label="Password*"
+          <div className="relative">
+            <LoginPasswordInput
+              label="Password"
               name="password"
-              showPasswordConditions="true"
               value={logindata.password}
               onChange={handleUserInput}
               onBlur={handleBlur}
               error={touched.password && errors.password}
               placeholder="Enter your password"
             />
-            {touched.password && errors.password && (
+            {/* {touched.password && errors.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-            )}
+            )} */}
           </div>
 
-          <div className="text-right mb-3">
+          <div className="text-right mb-2">
             <button
               type="button"
-              className="text-black underline"
+              className="text-gray-500 tracking-tight font-medium text-sm hover:text-gray-700 hover:underline"
               onClick={() => onSwitchView("ForgotPassword")}
             >
               Forgot Password?
@@ -224,7 +219,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
           <button
             type="submit"
-            className="w-full bg-[#169544] text-white py-2 rounded-lg hover:bg-green-700 transition-colors mb-2"
+            className="w-full bg-[#169544] text-white py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-green-700 transition-colors mb-2"
           >
             Log In
           </button>
@@ -238,20 +233,16 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
           <div className="flex flex-col gap-4">
             <button
               type="button"
-              className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black hover:bg-gray-100 transition-colors"
+              className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black shadow-sm hover:shadow-md hover:bg-gray-100 transition-colors"
               onClick={handleGoogleSignup}
             >
-              <img
-                src="https://img.icons8.com/color/24/000000/google-logo.png"
-                alt="Google Logo"
-                className="w-6 h-6"
-              />
+              <FcGoogle size={24} />
               Login with Google
             </button>
           </div>
         </form>
 
-        <p className="text-xs sm:text-sm px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
+        <p className="text-xs px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
           By joining, you agree to the Advizy Terms of Service and to
           occasionally receive emails from us. Please read our Privacy Policy to
           learn how we use your personal data.

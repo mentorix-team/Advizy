@@ -4,37 +4,42 @@ import { refreshToken } from "@/Redux/Slices/authSlice";
 
 // Set BASE_URL depending on environment
 const BASE_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://advizy.onrender.com/api/v1"
-    : "http://localhost:5030/api/v1";
+    process.env.NODE_ENV === "production"
+        ? "https://advizy.onrender.com/api/v1"
+        : "http://localhost:5030/api/v1";
 
 const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: true, // send cookies
-  maxRedirects: 5,
-  validateStatus: function (status) {
-    return status >= 200 && status < 400; // Treat 302 as success
-  },
+    baseURL: BASE_URL,
+    withCredentials: true, // send cookies
+    maxRedirects: 5,
+    validateStatus: function (status) {
+        return status >= 200 && status < 400; // Treat 302 as success
+    },
 });
 
 // Response Interceptor to handle expired tokens
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config || {};
+        const status = error.response?.status;
+        const url = originalRequest.url || "";
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+        // Do not attempt refresh for clearly public endpoints
+        const isPublicEndpoint = /meeting\/getfeedbackbyexpertid|calendar\/public|expert\/public/i.test(url);
 
-      try {
-        await store.dispatch(refreshToken()); // refresh the token
-        return axiosInstance(originalRequest); // retry request
-      } catch (err) {
-        return Promise.reject(err);
-      }
+        if (!isPublicEndpoint && status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true; // Prevents infinite loops
+            try {
+                await store.dispatch(refreshToken()); // Refresh the token via cookies
+                return axiosInstance(originalRequest); // Retry the failed request
+            } catch (err) {
+                return Promise.reject(err);
+            }
+        }
+
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 export default axiosInstance;

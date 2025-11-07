@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
 import debounce from "lodash/debounce";
+import instantsearch from "instantsearch.js";
+import { configure } from "instantsearch.js/es/widgets";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { FaUser } from "react-icons/fa";
 import {
   ChevronDown,
   LogOut,
@@ -41,6 +44,19 @@ const NavbarWithSearch = () => {
   const [query, setQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const { redirect_url } = useParams();
+  const dropdownTimeoutRef = useRef(null);
+  const hoverTimeoutRef = useRef(null);
+  const { data } = useSelector((state) => state.auth);
+
+
+  let parsedData;
+  try {
+    parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    parsedData = data;
+  }
+
 
   // Initialize expert mode and data from localStorage
   useEffect(() => {
@@ -163,6 +179,33 @@ const NavbarWithSearch = () => {
     setShowDropdown(false);
   };
 
+  const handleMouseEnter = () => {
+    // Clear any existing timeout to prevent conflicts
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a timeout to open the dropdown after 300ms
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(true);
+    }, 300); // 300ms delay
+  };
+
+  const handleMouseLeave = () => {
+    // Clear the opening timeout if mouse leaves before delay completes
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a timeout before closing the dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // 200ms delay before closing
+  };
+
   // Domain matching function
   const getDomainMatch = (searchQuery) => {
     if (!searchQuery || searchQuery.trim() === "") return null;
@@ -239,6 +282,43 @@ const NavbarWithSearch = () => {
   const renderSearchResults = () => {
     const domainMatch = getDomainMatch(query);
 
+    // helper: format domain to readable text
+    const formatDomain = (domain) => {
+      if (!domain) return '';
+      return String(domain).replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    };
+
+    // helper: compute matched niche/skills for a hit (prefer highlights, then query filter, then fallback)
+    const getMatchedNiche = (hit) => {
+      try {
+        // 1) Highlight result from Algolia if present
+        if (hit._highlightResult && hit._highlightResult.niche) {
+          const hl = hit._highlightResult.niche;
+          const items = Array.isArray(hl) ? hl.map((i) => i.value).filter(Boolean) : (hl && hl.value ? [hl.value] : []);
+          if (items.length > 0) return items.map((s) => String(s).replace(/_/g, ' '));
+        }
+
+        // 2) If niche is an array, try to match current query
+        const q = query ? String(query).toLowerCase().trim() : '';
+        if (Array.isArray(hit.niche) && q) {
+          const filtered = hit.niche.filter((s) => String(s).toLowerCase().includes(q));
+          if (filtered.length > 0) return filtered.map((s) => String(s).replace(/_/g, ' '));
+        }
+
+        // 3) If niche is a string and contains query
+        if (typeof hit.niche === 'string' && q) {
+          if (String(hit.niche).toLowerCase().includes(q)) return [String(hit.niche).replace(/_/g, ' ')];
+        }
+
+        // 4) fallback: return all niches formatted
+        if (Array.isArray(hit.niche) && hit.niche.length > 0) return hit.niche.map((s) => String(s).replace(/_/g, ' '));
+        if (typeof hit.niche === 'string' && hit.niche.trim() !== '') return [String(hit.niche).replace(/_/g, ' ')];
+      } catch (e) {
+        // ignore and fallback
+      }
+      return [];
+    };
+
     // Filter experts by domain if a domain is matched
     let domainExperts = [];
     if (domainMatch && hits.length > 0) {
@@ -288,7 +368,58 @@ const NavbarWithSearch = () => {
             <div className="px-4 py-2 text-xs text-gray-500 font-semibold">
               {domainMatch.label} Experts
             </div>
-            {domainExperts.map((hit) => (
+            {domainExperts.map((hit) => {
+              const matched = getMatchedNiche(hit);
+              const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+              const domainText = formatDomain(hit.domain);
+              const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}` : (domainText || nicheText);
+              return (
+                <div
+                  key={getRedirect(hit)}
+                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
+                >
+                  <div className="flex items-center space-x-3">
+                    {hit.profileImage ? (
+                      <img
+                        src={hit.profileImage}
+                        alt={hit.name || 'Expert'}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-500" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-medium flex items-center gap-2 flex-wrap">
+                        <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                        {hit.redirect_url && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            @{hit.username}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate max-w-">
+                        {expertiseDisplay || 'Expert'}
+                      </div> 
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              );
+            })}
+          </>
+        )}
+
+        {/* If no domain match, show regular expert results */}
+        {!domainMatch && hits.length > 0 && (
+          hits.map((hit) => {
+            const matched = getMatchedNiche(hit);
+            const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+            const domainText = formatDomain(hit.domain);
+            const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}`.trim() : (domainText || nicheText);
+            return (
               <div
                 key={getRedirect(hit)}
                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
@@ -316,53 +447,14 @@ const NavbarWithSearch = () => {
                       )}
                     </div>
                     <div className="text-sm text-gray-500 truncate max-w-[220px]">
-                      {hit.professionalTitle || hit.expertise || 'Expert'}
+                      {expertiseDisplay || 'Expert'}
                     </div>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </div>
-            ))}
-          </>
-        )}
-
-        {/* If no domain match, show regular expert results */}
-        {!domainMatch && hits.length > 0 && (
-          hits.map((hit) => (
-            <div
-              key={getRedirect(hit)}
-              className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
-              onMouseDown={(e) => { e.preventDefault(); openExpertProfile(getRedirect(hit)); }}
-            >
-              <div className="flex items-center space-x-3">
-                {hit.profileImage ? (
-                  <img
-                    src={hit.profileImage}
-                    alt={hit.name || 'Expert'}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User className="w-5 h-5 text-gray-500" />
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <div className="font-medium flex items-center gap-2 flex-wrap">
-                    <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
-                    {hit.redirect_url && (
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        @{hit.username}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-500 truncate max-w-[220px]">
-                    {hit.professionalTitle || hit.expertise || 'Expert'}
-                  </div>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </div>
-          ))
+            );
+          })
         )}
 
         {/* No results message */}
@@ -377,15 +469,17 @@ const NavbarWithSearch = () => {
 
   // User dropdown component
   const UserDropdown = () => (
-    <div className="relative">
+    <div
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none p-2 rounded-md"
       >
         <span className="text-sm font-medium">
-          <CircleUserRound className="w-5 h-5" />
+          <FaUser className="w-5 h-5" />
         </span>
-        <ChevronDown className="w-4 h-4" />
       </button>
       <AnimatePresence>
         {isDropdownOpen && (
@@ -395,6 +489,8 @@ const NavbarWithSearch = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
+            onMouseEnter={handleMouseEnter} // Keep dropdown open when hovering over it
+            onMouseLeave={handleMouseLeave} // Close when leaving dropdown
           >
             {isExpertMode ? (
               <>
@@ -415,9 +511,17 @@ const NavbarWithSearch = () => {
               </>
             ) : (
               <>
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <p className='text-sm font-medium text-gray-900 truncate'>
+                    {parsedData?.firstName} {parsedData?.lastName}
+                  </p>
+                  <p className='text-xs text-gray-500 truncate'>
+                    User
+                  </p>
+                </div>
                 <a
                   href="/dashboard/user/meetings"
-                  className="z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  className=" z-50 flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   User Dashboard

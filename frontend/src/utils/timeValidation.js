@@ -45,15 +45,19 @@ export function convertTo24Hour(time) {
     hours = 0;
   }
 
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
 
 export function convert24To12Hour(time24) {
-  let [hourStr, minute] = time24.split(":");
+  if (!time24) return "";
+  const [hourStr, minute] = time24.split(":");
   let hour = parseInt(hourStr, 10);
+
+  // Determine AM/PM BEFORE converting the hour
   const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12; // convert 0 or 12 to 12
+
+  // Convert to 12-hour format (0 becomes 12 for midnight, 13+ becomes 1-11)
+  hour = hour % 12 || 12;
+
   return `${hour}:${minute} ${ampm}`;
 }

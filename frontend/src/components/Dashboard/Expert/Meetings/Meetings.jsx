@@ -19,6 +19,91 @@ import {
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import {
+  extractMeetingStatus,
+  getMeetingStatusLabel,
+} from "@/utils/meetingStatus";
+
+const to24HourTime = (timeString = "") => {
+  const trimmed = timeString.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const [timePart, periodPart] = trimmed.split(/\s+/);
+  if (!timePart) {
+    return null;
+  }
+
+  const [rawHours, rawMinutes = "00"] = timePart.split(":");
+  const minutesPart = rawMinutes.includes(":") ? rawMinutes.split(":")[0] : rawMinutes;
+  const minutes = minutesPart.padStart(2, "0");
+
+  let hours = Number(rawHours);
+  if (Number.isNaN(hours)) {
+    return null;
+  }
+
+  const period = periodPart ? periodPart.toUpperCase() : null;
+  if (period === "PM" && hours !== 12) {
+    hours += 12;
+  } else if (period === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  return `${hours.toString().padStart(2, "0")}:${minutes}`;
+};
+
+const getMeetingEndTimestamp = (meeting) => {
+  const meetingDateString = meeting?.daySpecific?.date;
+  if (!meetingDateString) {
+    return 0;
+  }
+
+  const baseDate = new Date(meetingDateString);
+  if (Number.isNaN(baseDate.getTime())) {
+    return 0;
+  }
+
+  const endTimeString =
+    meeting?.daySpecific?.slot?.endTime || meeting?.daySpecific?.slot?.startTime;
+  const time24 = to24HourTime(endTimeString);
+
+  if (!time24) {
+    return baseDate.getTime();
+  }
+
+  const datePart = baseDate.toISOString().split("T")[0];
+  const combined = new Date(`${datePart}T${time24}:00`);
+  const timestamp = combined.getTime();
+
+  return Number.isNaN(timestamp) ? baseDate.getTime() : timestamp;
+};
+
+const getMeetingStartTimestamp = (meeting) => {
+  const meetingDateString = meeting?.daySpecific?.date;
+  if (!meetingDateString) {
+    return 0;
+  }
+
+  const baseDate = new Date(meetingDateString);
+  if (Number.isNaN(baseDate.getTime())) {
+    return 0;
+  }
+
+  const startTimeString = meeting?.daySpecific?.slot?.startTime;
+  const time24 = to24HourTime(startTimeString);
+
+  if (!time24) {
+    return baseDate.getTime();
+  }
+
+  const datePart = baseDate.toISOString().split("T")[0];
+  const combined = new Date(`${datePart}T${time24}:00`);
+  const timestamp = combined.getTime();
+
+  return Number.isNaN(timestamp) ? baseDate.getTime() : timestamp;
+};
 
 function Meetings() {
   const { meetings } = useSelector((state) => state.meeting);
@@ -40,32 +125,44 @@ function Meetings() {
     dispatch(getMeetingByExpertId());
   }, [dispatch]);
 
+  useEffect(() => {
+    console.log("Expert Meetings - All meetings from Redux:", meetings);
+    if (meetings[0]) {
+      console.log("Expert Meetings - First meeting sample:", meetings[0]);
+    }
+  }, [meetings]);
+
   const today = dayjs().format("YYYY-MM-DD");
 
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
 
-  // Assign sessionStatus dynamically
-  // In your Meetings component
+  // Assign sessionStatus dynamically based on backend status updates
   const categorizedMeetings = paidMeetings.map((meeting) => {
-    const meetingEndDateTime = dayjs(`${meeting.daySpecific.date} ${meeting.daySpecific.slot.endTime}`, 'YYYY-MM-DD hh:mm A');
-    const now = dayjs();
+    const normalizedStatus = extractMeetingStatus(meeting);
     return {
       ...meeting,
-      sessionStatus: meetingEndDateTime.isBefore(now) ? "Completed" : "Not Completed",
+      sessionStatus: getMeetingStatusLabel(meeting),
+      normalizedStatus,
     };
   });
 
-  const todaysMeetings = categorizedMeetings.filter(
-    (meeting) => meeting.daySpecific.date === today
-  );
+  const todaysMeetings = categorizedMeetings
+    .filter((meeting) => meeting.daySpecific.date === today)
+    .sort(
+      (a, b) => getMeetingStartTimestamp(a) - getMeetingStartTimestamp(b)
+    );
   console.log("Todays", todaysMeetings);
-  const upcomingMeetings = categorizedMeetings.filter(
-    (meeting) => meeting.daySpecific.date > today
-  );
+  const upcomingMeetings = categorizedMeetings
+    .filter((meeting) => meeting.daySpecific.date > today)
+    .sort(
+      (a, b) => getMeetingStartTimestamp(a) - getMeetingStartTimestamp(b)
+    );
   console.log("upcoming", upcomingMeetings);
-  const pastMeetings = categorizedMeetings.filter(
-    (meeting) => meeting.daySpecific.date < today
-  );
+  const pastMeetings = categorizedMeetings
+    .filter((meeting) => meeting.daySpecific.date < today)
+    .sort(
+      (a, b) => getMeetingEndTimestamp(b) - getMeetingEndTimestamp(a)
+    );
   console.log("past", pastMeetings);
 
   // Select meetings based on activeTab
@@ -144,6 +241,7 @@ function Meetings() {
   };
 
   const handleViewDetails = (meeting) => {
+    console.log("Expert Meetings - Meeting selected for details:", meeting);
     setSelectedMeeting(meeting);
   };
 

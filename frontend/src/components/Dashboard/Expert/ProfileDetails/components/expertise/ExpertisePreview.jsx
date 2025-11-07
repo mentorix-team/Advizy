@@ -3,82 +3,93 @@ import PropTypes from "prop-types";
 
 export default function ExpertisePreview({ formData }) {
   console.log(formData);
-  
+
   return (
-    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 mb-6 shadow-sm border border-green-100">
-      <div className="flex items-center mb-5">
-        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-green-800">Expertise Preview</h2>
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+      <div className="border-b border-gray-200 px-6 py-4">
+        <h2 className="text-lg font-semibold text-gray-900">Expertise Information</h2>
       </div>
-      
-      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-        <div className="space-y-4">
+
+      <div className="p-6">
+        <div className="space-y-6">
           {/* Professional Title */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Professional Title</span>
-            <span className="text-lg font-semibold text-gray-800 mt-1">
-              {formData.professionalTitle || 'Not specified'}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium text-gray-700">Professional Title</label>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-900 capitalize">
+                {formData.professionalTitle || 'Not specified'}
+              </p>
+            </div>
           </div>
-          
+
           {/* Domain */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Domain</span>
-            <span className="text-lg font-medium text-gray-800 mt-1">
-              {formData.domain || 'Not specified'}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium text-gray-700">Domain</label>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-900 capitalize">
+                {formData.domain || 'Not specified'}
+              </p>
+            </div>
           </div>
-          
+
           {/* Niche */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Niche</span>
-            <div className="mt-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium text-gray-700">Niche</label>
+            </div>
+            <div className="md:col-span-2">
               {formData.niche && formData.niche.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {formData.niche.map((nicheItem) => (
+                  {formData.niche.map((nicheItem, index) => (
                     <span
-                      key={nicheItem}
-                      className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium"
+                      key={index}
+                      className="text-sm text-gray-900 capitalize"
                     >
-                      {nicheItem}
+                      {nicheItem}{index < formData.niche.length - 1 ? ',' : ''}
                     </span>
                   ))}
                 </div>
               ) : (
-                <span className="text-gray-500 italic">Not specified</span>
+                <p className="text-sm text-gray-500">Not specified</p>
               )}
             </div>
           </div>
-          
+
           {/* Experience */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Experience</span>
-            <span className="text-lg font-medium text-gray-800 mt-1">
-              {formData.experienceYears ? `${formData.experienceYears} years` : 'Not specified'}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium text-gray-700">Years of Experience</label>
+            </div>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-900">
+                {formData.experienceYears ? `${formData.experienceYears} Years` : 'Not specified'}
+              </p>
+            </div>
           </div>
-          
+
           {/* Skills */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">Skills</span>
-            <div className="mt-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1">
+              <label className="text-sm font-medium text-gray-700">Skills</label>
+            </div>
+            <div className="md:col-span-2">
               {formData.skills && formData.skills.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {formData.skills.map((skill) => (
+                  {formData.skills.map((skill, index) => (
                     <span
-                      key={skill}
-                      className="px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm font-medium"
+                      key={index}
+                      className="text-sm text-gray-900 capitalize"
                     >
-                      {skill}
+                      {skill}{index < formData.skills.length - 1 ? ',' : ''}
                     </span>
                   ))}
                 </div>
               ) : (
-                <span className="text-gray-500 italic">Not specified</span>
+                <p className="text-sm text-gray-500">Not specified</p>
               )}
             </div>
           </div>

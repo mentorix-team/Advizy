@@ -72,12 +72,13 @@ const ServiceCard = ({ service }) => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         service={{
-          title,
-          shortDescription,
-          detailedDescription,
-          duration,
-          price,
-          serviceId
+          title: service.title,
+          shortDescription: service.shortDescription,
+          detailedDescription: service.detailedDescription,
+          duration: service.duration,
+          price: service.price,
+          serviceId: service.serviceId,
+          features: service.features,
         }}
         expertId={expertObj?._id}
       />

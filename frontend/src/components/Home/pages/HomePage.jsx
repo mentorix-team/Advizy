@@ -291,68 +291,69 @@ function HomePage() {
             height: "120vh",
           }}
         />
-        {/* Hero Section */}
-        <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
-          <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)]"
-            >
+        /* Hero Section */
+          <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
+            <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)]"
               >
-                <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
-                  Find Your Right
-                  <motion.span
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
-                    className="text-[#169544] tracking-wide"
-                  >
-                    {" Mentor "}
-                  </motion.span>
-                </motion.h1>
-                <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
-                  Your Growth, success, clarity start here. Find the right
-                  guidance for your journey.
-                </motion.p>
-                <motion.button
-                  onClick={() => setIsModalOpen(true)}
-                  className="btn-expert"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center w-full"
                 >
-                  Find a Mentor
-                </motion.button>
-              </motion.div>
-              <motion.div
-                id="category-grid"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
+            <motion.h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 sm:mt-4 leading-tight">
+              Find Your Right
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="text-[#169544] tracking-wide"
               >
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-                  {categories.map((category, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      onClick={() => handleHomeCategorySelect(category)}
-                      className="cursor-pointer"
-                    >
-                      <CategoryCard {...category} />
-                    </motion.div>
-                  ))}
-                </div>
+                {" Mentor "}
+              </motion.span>
+            </motion.h1>
+            <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
+              Your Growth, success, clarity start here. Find the right
+              guidance for your journey.
+            </motion.p>
+            <motion.button
+              onClick={() => setIsModalOpen(true)}
+              className="btn-expert"
+              style={{ height: "48px" }}
+              whileHover={{ scale: 1.05, height: 48 }}
+              whileTap={{ scale: 0.95, height: 48 }}
+            >
+              Find a Mentor
+            </motion.button>
+                </motion.div>
+                <motion.div
+            id="category-grid"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-10 sm:mt-16 w-full max-w-5xl mx-auto px-2 sm:px-4"
+                >
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+              {categories.map((category, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handleHomeCategorySelect(category)}
+                  className="cursor-pointer"
+                >
+                  <CategoryCard {...category} />
+                </motion.div>
+              ))}
+            </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
           </div>
-        </div>
-        {/* Rest of the sections */}
+          {/* Rest of the sections */}
         <div className="relative w-full">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12 mt-10">
@@ -375,7 +376,7 @@ function HomePage() {
             <CTASection onOpenSearchModal={() => setIsModalOpen(true)} />
           </div>
         </div>
-        <Footer />
+  <Footer onOpenSearchModal={() => setIsModalOpen(true)} />
       </div>
       <SearchModal
         isOpen={isModalOpen}

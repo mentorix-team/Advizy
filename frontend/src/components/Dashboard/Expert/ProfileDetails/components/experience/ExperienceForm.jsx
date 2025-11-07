@@ -1,14 +1,119 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import CustomDatePicker from '../CustomDatePicker';
-import ImageUploadModal from '../ImageUploadModal';
-import { FaEye, FaTrash,FaLightbulb} from 'react-icons/fa';
-import { useDispatch } from 'react-redux';
-import { ExperienceFormSubmit } from '@/Redux/Slices/expert.Slice';
+import { FaEye, FaTrash, FaLightbulb } from 'react-icons/fa';
 import DocumentUploadModal from '../services/DocumentUploadModal';
 
+const normalizeDocuments = (documents) => {
+  if (!documents) return [];
+  if (Array.isArray(documents)) return documents;
+  if (typeof documents === 'string') {
+    try {
+      const parsed = JSON.parse(documents);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (error) {
+      console.error('Error parsing documents JSON:', error);
+      return [];
+    }
+  }
+  return [documents];
+};
+
+const getDocumentDisplayName = (doc) => {
+  if (!doc) return '';
+
+  // Handle File objects (newly uploaded)
+  if (doc instanceof File) return doc.name;
+
+  // Handle server response objects with secure_url (Cloudinary)
+  if (typeof doc === 'object' && doc.secure_url) {
+    // Extract filename from URL, removing query parameters
+    const urlParts = doc.secure_url.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    const cleanFilename = filename.split('?')[0]; // Remove query params
+
+    // If it's a generic ID, try to get original filename
+    if (doc.original_filename) {
+      return doc.original_filename;
+    }
+
+    // Create a user-friendly name from the clean filename
+    if (cleanFilename && cleanFilename.length > 10) {
+      return cleanFilename.length > 30 ?
+        cleanFilename.substring(0, 30) + '...' :
+        cleanFilename;
+    }
+
+    return 'Document.pdf';
+  }
+
+  // Handle simple URL strings
+  if (typeof doc === 'string' && doc.startsWith('http')) {
+    const urlParts = doc.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    return filename.split('?')[0] || 'Document.pdf';
+  }
+
+  return String(doc);
+};
+
+const isPdfDoc = (doc) => {
+  if (!doc) return false;
+
+  // Check File objects
+  if (doc instanceof File) {
+    return doc.type?.toLowerCase().includes('pdf');
+  }
+
+  // Check server response objects
+  if (typeof doc === 'object' && doc.secure_url) {
+    return doc.secure_url.toLowerCase().includes('.pdf') ||
+      doc.format?.toLowerCase() === 'pdf' ||
+      doc.resource_type === 'raw'; // Cloudinary uses 'raw' for PDFs
+  }
+
+  // Check URL strings
+  if (typeof doc === 'string') {
+    return doc.toLowerCase().includes('.pdf');
+  }
+
+  return false;
+};
+
+const openDocument = (doc) => {
+  if (!doc) return;
+
+  try {
+    // Handle File objects (newly uploaded files)
+    if (doc instanceof File) {
+      const url = URL.createObjectURL(doc);
+      window.open(url, '_blank');
+      // Clean up the URL after opening to prevent memory leaks
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      return;
+    }
+
+    // Handle server response objects with secure_url
+    if (typeof doc === 'object' && doc.secure_url) {
+      window.open(doc.secure_url, '_blank');
+      return;
+    }
+
+    // Handle direct URL strings
+    if (typeof doc === 'string' && doc.startsWith('http')) {
+      window.open(doc, '_blank');
+      return;
+    }
+
+    console.warn('Unable to open document - unsupported format:', doc);
+    alert('Unable to open document. Please try again.');
+  } catch (error) {
+    console.error('Error opening document:', error);
+    alert('Unable to open document. Please try again.');
+  }
+};
+
 export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
-  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     _id: initialData?._id || '',
     companyName: initialData?.companyName || '',
@@ -16,48 +121,43 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
     startDate: initialData?.startDate ? new Date(initialData.startDate) : null,
     endDate: initialData?.endDate ? new Date(initialData.endDate) : null,
     currentlyWork: initialData?.currentlyWork || false,
-    documents: initialData?.documents || []
+    documents: normalizeDocuments(initialData?.documents || initialData?.document)
   });
   const [showUploadModal, setShowUploadModal] = useState(false);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      console.log("Selected file:", file);
-      setFormData((prev) => ({
-        ...prev,
-        document: file,
-      }));
-    }
-  };
+  const initialDocumentsRef = useRef(normalizeDocuments(initialData?.documents || initialData?.document));
 
   useEffect(() => {
     if (initialData) {
       setFormData({
-        ...initialData,
-        // Ensure we create new Date objects from the initial data
+        _id: initialData._id || '',
+        companyName: initialData.companyName || '',
+        jobTitle: initialData.jobTitle || '',
         startDate: initialData.startDate ? new Date(initialData.startDate) : null,
-        endDate: initialData.endDate ? new Date(initialData.endDate) : null
+        endDate: initialData.endDate ? new Date(initialData.endDate) : null,
+        currentlyWork: initialData.currentlyWork || false,
+        documents: normalizeDocuments(initialData.documents || initialData.document)
       });
+      initialDocumentsRef.current = normalizeDocuments(initialData.documents || initialData.document);
     }
   }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    const formDataToSend = {
+    const normalizedDocuments = normalizeDocuments(formData.documents);
+    const submissionPayload = {
       _id: formData._id,
-      companyName: formData.companyName,
+      companyName: formData.companyName.trim(),
       currentlyWork: formData.currentlyWork,
-      endDate: formData.endDate,
-      jobTitle: formData.jobTitle,
+      endDate: formData.currentlyWork ? null : formData.endDate,
+      jobTitle: formData.jobTitle.trim(),
       startDate: formData.startDate,
-      documents: formData.documents
+      documents: normalizedDocuments,
+      removeDocument:
+        initialDocumentsRef.current.length > 0 && normalizedDocuments.length === 0,
     };
-  
-    console.log('submitting FormData', formDataToSend);
-    onSubmit(formDataToSend);
-  };  
+
+    onSubmit(submissionPayload);
+  };
 
   const handleDateChange = (field, date) => {
     // Ensure we're working with valid Date objects
@@ -69,10 +169,13 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+    const incomingFiles = Array.from(e.target?.files || []);
+    if (incomingFiles.length === 0) return;
+
+    // Store all uploaded files, not just the first one
     setFormData(prev => ({
       ...prev,
-      documents: [...prev.documents, ...files]
+      documents: [...(prev.documents || []), ...incomingFiles],
     }));
     setShowUploadModal(false);
   };
@@ -80,12 +183,8 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   const removeFile = (index) => {
     setFormData(prev => ({
       ...prev,
-      documents: prev.documents.filter((_, i) => i !== index)
+      documents: (prev.documents || []).filter((_, i) => i !== index)
     }));
-  };
-
-  const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
   };
 
   const handleCurrentlyWorkChange = (e) => {
@@ -109,7 +208,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Company Name
+            Company Name<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -123,7 +222,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
         <div className="text-left">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Job Title
+            Job Title<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -138,7 +237,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-left">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Date
+              Start Date<span className="text-red-500">*</span>
             </label>
             <CustomDatePicker
               selectedDate={formData.startDate}
@@ -149,7 +248,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
           <div className="text-left">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Date
+              End Date<span className="text-red-500">*</span>
             </label>
             <CustomDatePicker
               selectedDate={formData.endDate}
@@ -178,17 +277,17 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Supporting Documents (Optional)
           </label>
-          
+
           {formData.documents?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.documents.map((file, index) => (
-                <div 
+                <div
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      {file.type.includes('pdf') ? (
+                      {isPdfDoc(file) ? (
                         <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -198,12 +297,12 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
                         </svg>
                       )}
                     </div>
-                    <span className="text-sm text-gray-600">{file.name}</span>
+                    <span className="text-sm text-gray-600" title={getDocumentDisplayName(file)}>{getDocumentDisplayName(file)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => viewFile(file)}
+                      onClick={() => openDocument(file)}
                       className="p-1.5 text-gray-600 hover:text-primary transition-colors"
                     >
                       <FaEye className="w-4 h-4" />
@@ -234,11 +333,11 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
             </button>
           </div>
           <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
-                              <FaLightbulb className="mt-1 flex-shrink-0" />
-                              <p className="text-sm">
-                              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
-                              </p>
-                            </div>
+            <FaLightbulb className="mt-1 flex-shrink-0" />
+            <p className="text-sm">
+              Note: While documents are optional, adding them can help us verify your profile faster! ✅ Your documents are completely safe with us. We DON’T share them anywhere, not even on your profile – they’re only for verification.
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4 mt-6">
@@ -262,7 +361,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
-      /> 
+      />
     </div>
   );
 }

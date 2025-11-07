@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { ArrowBigDown, ArrowBigDownDash, Briefcase, ChevronDown, Info, Lightbulb } from "lucide-react";
+import {
+  ArrowBigDown,
+  ArrowBigDownDash,
+  Briefcase,
+  ChevronDown,
+  Info,
+  Lightbulb,
+} from "lucide-react";
 import { domainOptions, nicheOptions } from "@/utils/Options";
 
 const Tooltip = ({ text, children }) => {
@@ -29,7 +36,13 @@ const Tooltip = ({ text, children }) => {
 };
 
 
-export default function ProfessionalDetails({ formData, setFormData }) {
+export default function ProfessionalDetails({
+  formData,
+  setFormData,
+  errors = {},
+  touched = {},
+  onBlur = () => { },
+}) {
   const [showNicheDropdown, setShowNicheDropdown] = useState(false);
 
   const handleNicheCheckboxChange = (value) => {
@@ -38,7 +51,10 @@ export default function ProfessionalDetails({ formData, setFormData }) {
       : [...(formData.niche || []), value];
 
     setFormData({ ...formData, niche: updatedNiche });
+    onBlur("niche");
   };
+
+  const getFieldError = (field) => (touched[field] && errors[field] ? errors[field] : "");
 
   return (
     <div className="bg-white rounded-lg p-6 mb-6">
@@ -51,7 +67,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="What's your main field? Select the one that defines your work best.">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Domain of Expertise
+              Domain of Expertise<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <select
@@ -59,7 +75,11 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             onChange={(e) =>
               setFormData({ ...formData, domain: e.target.value, niche: [] })
             }
-            className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
+            onBlur={() => onBlur("domain")}
+            className={`w-full p-2 border rounded-lg focus:ring-primary focus:border-primary ${getFieldError("domain")
+              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+              : ""
+              }`}
           >
             <option value="">Select domain</option>
             {domainOptions.map((domain) => (
@@ -68,12 +88,15 @@ export default function ProfessionalDetails({ formData, setFormData }) {
               </option>
             ))}
           </select>
+          {getFieldError("domain") && (
+            <p className="mt-1 text-sm text-red-600">{getFieldError("domain")}</p>
+          )}
         </div>
 
         <div className="text-left relative">
           <Tooltip text="Pick or add at least two skills that highlight your expertise. (The more relevant, the better!)">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Niche & Skills
+              Niche & Skills<span className="text-red-500">*</span>
             </label>
           </Tooltip>
 
@@ -81,7 +104,11 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             type="button"
             onClick={() => setShowNicheDropdown(!showNicheDropdown)}
             disabled={!formData.domain}
-            className="w-full flex justify-between items-center text-left p-2 border rounded-lg focus:ring-primary focus:border-primary bg-white"
+            className={`w-full flex justify-between items-center text-left p-2 border rounded-lg focus:ring-primary focus:border-primary bg-white ${getFieldError("niche")
+              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+              : ""
+              }`}
+            onBlur={() => onBlur("niche")}
           >
             {formData.niche?.length
               ? nicheOptions[formData.domain]
@@ -93,6 +120,9 @@ export default function ProfessionalDetails({ formData, setFormData }) {
               <ChevronDown size={16} className="inline-block ml-1" />
             </label>
           </button>
+          {getFieldError("niche") && (
+            <p className="mt-1 text-sm text-red-600">{getFieldError("niche")}</p>
+          )}
 
           {showNicheDropdown && formData.domain && (
             <div className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto bg-white border rounded-lg shadow-md p-2">
@@ -123,7 +153,7 @@ export default function ProfessionalDetails({ formData, setFormData }) {
         <div className="text-left">
           <Tooltip text="This is how clients will see you. Keep it clear and professional. (e.g., Career Strategist | Startup Mentor)">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Professional Title
+              Professional Title<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <input
@@ -132,15 +162,24 @@ export default function ProfessionalDetails({ formData, setFormData }) {
             onChange={(e) =>
               setFormData({ ...formData, professionalTitle: e.target.value })
             }
+            onBlur={() => onBlur("professionalTitle")}
             placeholder="e.g. Senior Software Engineer"
-            className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
+            className={`w-full p-2 border rounded-lg focus:ring-primary focus:border-primary ${getFieldError("professionalTitle")
+              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+              : ""
+              }`}
           />
+          {getFieldError("professionalTitle") && (
+            <p className="mt-1 text-sm text-red-600">
+              {getFieldError("professionalTitle")}
+            </p>
+          )}
         </div>
 
         <div className="text-left">
           <Tooltip text="Showcase your journey—how long have you been in this field?">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Years of Work Experience
+              Years of Work Experience<span className="text-red-500">*</span>
             </label>
           </Tooltip>
           <input
@@ -154,10 +193,19 @@ export default function ProfessionalDetails({ formData, setFormData }) {
                   : "",
               })
             }
+            onBlur={() => onBlur("experienceYears")}
             placeholder="Enter years of experience"
             min="0"
-            className="w-full p-2 border rounded-lg focus:ring-primary focus:border-primary"
+            className={`w-full p-2 border rounded-lg focus:ring-primary focus:border-primary ${getFieldError("experienceYears")
+              ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+              : ""
+              }`}
           />
+          {getFieldError("experienceYears") && (
+            <p className="mt-1 text-sm text-red-600">
+              {getFieldError("experienceYears")}
+            </p>
+          )}
         </div>
         <div className="mt-6 flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
           <Lightbulb size={20} className="mt-1 flex-shrink-0" />
@@ -181,7 +229,16 @@ ProfessionalDetails.propTypes = {
     domain: PropTypes.string,
     niche: PropTypes.arrayOf(PropTypes.string),
     professionalTitle: PropTypes.string,
-    experienceYears: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    experienceYears: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }).isRequired,
-  setFormData: PropTypes.func.isRequired
+  setFormData: PropTypes.func.isRequired,
+  errors: PropTypes.object,
+  touched: PropTypes.object,
+  onBlur: PropTypes.func,
+};
+
+ProfessionalDetails.defaultProps = {
+  errors: {},
+  touched: {},
+  onBlur: () => { },
 };

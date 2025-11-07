@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SearchModal from '../components/SearchModal';
 import { useNavigate } from 'react-router-dom';
+// import { POSITION, position } from 'html2canvas/dist/types/css/property-descriptors/position';
 
 const Image3D = ({ src, alt }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -490,18 +491,19 @@ const AboutPage = () => {
             </motion.p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <motion.button
+              <button
                 onClick={handleExplorePage}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 20 }} 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.4 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="btn-expert"
+                style={{ transformOrigin: 'center center' }}
+                className="bg-[#169544] text-white px-8 py-4 rounded-lg font-medium hover:bg-[#0f7a34] transition-colors h-12 flex items-center justify-center"
               >
-                Find an Mentor
-              </motion.button>
+                Find a Mentor
+              </button>
 
               <motion.button
                 onClick={handleExpertOnboarding}
@@ -511,7 +513,8 @@ const AboutPage = () => {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                style={{ transformOrigin: 'center center' }}
+                className="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors h-12 flex items-center justify-center"
               >
                 Share your Expertise
               </motion.button>

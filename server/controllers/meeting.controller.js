@@ -26,6 +26,20 @@ const createMeetingToken = async (req, res, next) => {
       return next(new AppError('All fields are mandatory', 400));
     }
 
+    // Check for duplicate booking - same expert, date, and time slot
+    const existingBooking = await Meeting.findOne({
+      expertId,
+      'daySpecific.date': daySpecific.date,
+      'daySpecific.slot.startTime': daySpecific.slot.startTime,
+      'daySpecific.slot.endTime': daySpecific.slot.endTime,
+      isPayed: true,
+      status: { $in: ['scheduled', 'ongoing', 'rescheduled'] } // Only check active bookings that are paid
+    });
+
+    if (existingBooking) {
+      return next(new AppError('This time slot is already booked. Please select a different time.', 409));
+    }
+
     // Create the meeting object with date and times as strings (no Date conversion)
     const meeting = new Meeting({
       userId,
@@ -50,6 +64,7 @@ const createMeetingToken = async (req, res, next) => {
     const token = meeting.generateToken();
 
     // Store the token in a cookie
+    const isDev = process.env.NODE_ENV === "production";
     res.cookie('meetingToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -145,7 +160,7 @@ const payedForMeeting = async (req, res, next) => {
     console.log("Request Body:", req.body);
 
     const { id } = req.meeting;
-    const { amount, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const { amount, razorpay_payment_id, razorpay_order_id, razorpay_signature, message } = req.body;
 
     if (!amount || !razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return next(new AppError("All payment fields are required", 401));
@@ -154,6 +169,9 @@ const payedForMeeting = async (req, res, next) => {
     // Find meeting
     const meeting = await Meeting.findById(id);
     if (!meeting) return next(new AppError("Meeting not found", 404));
+    if (meeting.isPayed) {
+      return next(new AppError("Payment has already been processed for this meeting", 409));
+    }
     const user = await User.findById(meeting.userId);
     const { expertId, daySpecific } = meeting;
     const expertt = await ExpertBasics.findById(expertId)
@@ -208,7 +226,16 @@ const payedForMeeting = async (req, res, next) => {
 
     console.log("Matching Date Found:", matchingDateEntry);
 
-    // Step 4: Update the matched slot with meeting ID
+    // Step 4: Ensure the specific time window is still free before marking it as booked
+    const slotAlreadyReserved = matchingDateEntry.slots?.some((existingSlot) => (
+      existingSlot.startTime === meetingStartTimeIST &&
+      existingSlot.endTime === meetingEndTimeIST
+    ));
+
+    if (slotAlreadyReserved) {
+      return next(new AppError("This slot is no longer available.", 409));
+    }
+
     matchingDateEntry.slots.push({
       startTime: meetingStartTimeIST,
       endTime: meetingEndTimeIST,
@@ -223,6 +250,12 @@ const payedForMeeting = async (req, res, next) => {
     meeting.razorpay_order_id = razorpay_order_id;
     meeting.razorpay_signature = razorpay_signature;
     meeting.isPayed = true;
+    meeting.status = 'scheduled';
+    // Save the message if provided
+    if (message) {
+      meeting.message = message;
+      console.log("Razorpay: Message saved to meeting:", message);
+    }
     await meeting.save();
 
     const expert = await ExpertBasics.findById(expertId);
@@ -325,10 +358,22 @@ const getMeetingById = async (req, res, next) => {
       return next(new AppError('Meeting not found', 404)); // meeting not found
     }
 
+    // Fetch associated feedback for this meeting
+    const feedback = await Feedback.findOne({ meeting_id: id });
+
+    // Add feedback data to meeting object
+    const meetingWithFeedback = {
+      ...meeting.toObject(),
+      feedback: feedback ? {
+        rating: feedback.rating,
+        feedback: feedback.feedback
+      } : null
+    };
+
     res.status(200).json({
       status: true,
       message: 'Meeting fetched successfully',
-      meeting,
+      meeting: meetingWithFeedback,
     });
   } catch (error) {
     console.error('Error fetching meeting by ID:', error);
@@ -341,15 +386,83 @@ const getMeetingByUserId = async (req, res, next) => {
   if (!userId) {
     return next(new AppError('user not registered', 500))
   }
-  const meeting = await Meeting.find({ userId }).lean()
-  if (!meeting) {
-    return next(new AppError('this user doesn have any meeting', 500));
+
+  try {
+    // Get all meetings for the user
+    const meetings = await Meeting.find({ userId }).lean();
+
+    if (!meetings || meetings.length === 0) {
+      return next(new AppError('this user doesn have any meeting', 500));
+    }
+
+    // Update meeting statuses based on current time
+    const now = new Date();
+    const updatedMeetings = await Promise.all(
+      meetings.map(async (meeting) => {
+        try {
+          // Parse meeting date and end time
+          const meetingDate = new Date(meeting.daySpecific.date);
+          const endTimeString = meeting.daySpecific.slot.endTime;
+
+          // Convert 12-hour format to 24-hour if needed
+          let endTime24;
+          if (endTimeString.includes('PM') || endTimeString.includes('AM')) {
+            const [time, period] = endTimeString.split(' ');
+            const [hours, minutes] = time.split(':');
+            let hour24 = parseInt(hours);
+
+            if (period === 'PM' && hour24 !== 12) {
+              hour24 += 12;
+            } else if (period === 'AM' && hour24 === 12) {
+              hour24 = 0;
+            }
+
+            endTime24 = `${hour24.toString().padStart(2, '0')}:${minutes}`;
+          } else {
+            endTime24 = endTimeString;
+          }
+
+          // Create meeting end datetime
+          const meetingDateStr = meetingDate.toISOString().split('T')[0];
+          const meetingEnd = new Date(`${meetingDateStr}T${endTime24}:00`);
+
+          // Update status if meeting has ended and status is still scheduled
+          if (meetingEnd < now && meeting.status === 'scheduled') {
+            await Meeting.findByIdAndUpdate(meeting._id, { status: 'completed' });
+            return { ...meeting, status: 'completed' };
+          }
+
+          return meeting;
+        } catch (error) {
+          console.error('Error updating meeting status:', error);
+          return meeting;
+        }
+      })
+    );
+
+    // Get feedback for all meetings
+    const meetingsWithFeedback = await Promise.all(
+      updatedMeetings.map(async (meeting) => {
+        const feedback = await Feedback.findOne({ meeting_id: meeting._id });
+        return {
+          ...meeting,
+          feedback: feedback ? {
+            rating: feedback.rating,
+            feedback: feedback.feedback
+          } : null
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `All meetings of user with ${userId}`,
+      meeting: meetingsWithFeedback
+    })
+  } catch (error) {
+    console.error('Error fetching meetings by user ID:', error);
+    return next(new AppError(error.message || 'Server error', 500));
   }
-  return res.status(200).json({
-    success: true,
-    message: `Alll meetings of user with ${userId}`,
-    meeting
-  })
 }
 
 const getMeetingByExpertId = async (req, res, next) => {
@@ -357,15 +470,83 @@ const getMeetingByExpertId = async (req, res, next) => {
   if (!expertId) {
     return next(new AppError('expert not registered', 500))
   }
-  const meeting = await Meeting.find({ expertId }).lean()
-  if (!meeting) {
-    return next(new AppError('this user doesn have any meeting', 500));
+
+  try {
+    // Get all meetings for the expert
+    const meetings = await Meeting.find({ expertId }).lean();
+
+    if (!meetings || meetings.length === 0) {
+      return next(new AppError('this expert doesn have any meeting', 500));
+    }
+
+    // Update meeting statuses based on current time
+    const now = new Date();
+    const updatedMeetings = await Promise.all(
+      meetings.map(async (meeting) => {
+        try {
+          // Parse meeting date and end time
+          const meetingDate = new Date(meeting.daySpecific.date);
+          const endTimeString = meeting.daySpecific.slot.endTime;
+
+          // Convert 12-hour format to 24-hour if needed
+          let endTime24;
+          if (endTimeString.includes('PM') || endTimeString.includes('AM')) {
+            const [time, period] = endTimeString.split(' ');
+            const [hours, minutes] = time.split(':');
+            let hour24 = parseInt(hours);
+
+            if (period === 'PM' && hour24 !== 12) {
+              hour24 += 12;
+            } else if (period === 'AM' && hour24 === 12) {
+              hour24 = 0;
+            }
+
+            endTime24 = `${hour24.toString().padStart(2, '0')}:${minutes}`;
+          } else {
+            endTime24 = endTimeString;
+          }
+
+          // Create meeting end datetime
+          const meetingDateStr = meetingDate.toISOString().split('T')[0];
+          const meetingEnd = new Date(`${meetingDateStr}T${endTime24}:00`);
+
+          // Update status if meeting has ended and status is still scheduled
+          if (meetingEnd < now && meeting.status === 'scheduled') {
+            await Meeting.findByIdAndUpdate(meeting._id, { status: 'completed' });
+            return { ...meeting, status: 'completed' };
+          }
+
+          return meeting;
+        } catch (error) {
+          console.error('Error updating meeting status:', error);
+          return meeting;
+        }
+      })
+    );
+
+    // Get feedback for all meetings
+    const meetingsWithFeedback = await Promise.all(
+      updatedMeetings.map(async (meeting) => {
+        const feedback = await Feedback.findOne({ meeting_id: meeting._id });
+        return {
+          ...meeting,
+          feedback: feedback ? {
+            rating: feedback.rating,
+            feedback: feedback.feedback
+          } : null
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `All meetings of expert with ${expertId}`,
+      meeting: meetingsWithFeedback
+    })
+  } catch (error) {
+    console.error('Error fetching meetings by expert ID:', error);
+    return next(new AppError(error.message || 'Server error', 500));
   }
-  return res.status(200).json({
-    success: true,
-    message: `Alll meetings of expert with ${expertId}`,
-    meeting
-  })
 }
 
 const createVideocall = async (req, res, next) => {
@@ -815,6 +996,54 @@ const checkPresetExists = async (req, res, next) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to send meeting reminder emails
+const sendMeetingReminder = async (meeting, user, expert) => {
+  try {
+    // Prepare template data
+    const fullDate = moment(meeting.daySpecific.date);
+    const month = fullDate.format("MMMM");
+    const datee = fullDate.format("DD");
+    const day = fullDate.format("dddd");
+
+    // User reminder email
+    const userTemplatePath = path.join(__dirname, "./EmailTemplates/userMeetingReminder.html");
+    let userEmailTemplate = fs.readFileSync(userTemplatePath, "utf8");
+
+    userEmailTemplate = userEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+    userEmailTemplate = userEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+    userEmailTemplate = userEmailTemplate.replace(/{USERNAME}/g, user.firstName);
+    userEmailTemplate = userEmailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+    userEmailTemplate = userEmailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+    userEmailTemplate = userEmailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+    userEmailTemplate = userEmailTemplate.replace(/{MONTH}/g, month);
+    userEmailTemplate = userEmailTemplate.replace(/{DATE}/g, datee);
+    userEmailTemplate = userEmailTemplate.replace(/{DAY}/g, day);
+
+    // Expert reminder email
+    const expertTemplatePath = path.join(__dirname, "./EmailTemplates/expertMeetingReminder.html");
+    let expertEmailTemplate = fs.readFileSync(expertTemplatePath, "utf8");
+
+    expertEmailTemplate = expertEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{USERNAME}/g, user.firstName);
+    expertEmailTemplate = expertEmailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
+    expertEmailTemplate = expertEmailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+    expertEmailTemplate = expertEmailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+    expertEmailTemplate = expertEmailTemplate.replace(/{MONTH}/g, month);
+    expertEmailTemplate = expertEmailTemplate.replace(/{DATE}/g, datee);
+    expertEmailTemplate = expertEmailTemplate.replace(/{DAY}/g, day);
+    expertEmailTemplate = expertEmailTemplate.replace(/{CLIENTMESSAGE}/g, meeting.message || "No message from client.");
+
+    // Send emails
+    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate, true);
+    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate, true);
+
+    console.log(`Meeting reminders sent for meeting ${meeting._id}`);
+  } catch (error) {
+    console.error("Error sending meeting reminder:", error);
+  }
+};
+
 
 const rescheduleMeetingExpert = async (req, res, next) => {
   const { id } = req.expert;
@@ -1133,6 +1362,128 @@ const getthemeet = async (req, res, next) => {
     return next(new AppError(error.message, 505))
   }
 }
+
+// Send meeting reminders for meetings starting in 15 minutes
+const sendMeetingReminders = async (req, res, next) => {
+  try {
+    console.log("Checking for meetings starting in 15 minutes...");
+
+    // Get current time and add 15 minutes
+    const now = moment().tz("Asia/Kolkata");
+    const reminderTime = now.clone().add(15, 'minutes');
+
+    // Format time for comparison
+    const reminderDate = reminderTime.format("YYYY-MM-DD");
+    const reminderHour = reminderTime.format("HH:mm");
+
+    console.log(`Looking for meetings on ${reminderDate} at ${reminderHour}`);
+
+    // Find meetings scheduled to start in 15 minutes
+    const upcomingMeetings = await Meeting.find({
+      isPayed: true,
+      status: 'scheduled',
+      'daySpecific.date': reminderDate
+    });
+
+    console.log(`Found ${upcomingMeetings.length} meetings for today`);
+
+    for (const meeting of upcomingMeetings) {
+      const meetingStartTime = moment(meeting.daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
+
+      // Check if this meeting starts in 15 minutes (within a 1-minute window)
+      const timeDiff = moment(`${reminderDate} ${meetingStartTime}`).diff(moment(`${reminderDate} ${reminderHour}`), 'minutes');
+
+      if (Math.abs(timeDiff) <= 1) { // Within 1 minute window
+        console.log(`Sending reminder for meeting: ${meeting._id}`);
+
+        // Get user and expert details
+        const user = await User.findById(meeting.userId);
+        const expert = await ExpertBasics.findById(meeting.expertId);
+
+        if (user && expert) {
+          await sendMeetingReminder(meeting, user, expert);
+        }
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Meeting reminders processed successfully",
+      processed: upcomingMeetings.length
+    });
+  } catch (error) {
+    console.error("Error in sendMeetingReminders:", error);
+    next(new AppError("Failed to send meeting reminders", 500));
+  }
+};
+
+// Send reminder for a specific meeting (manual trigger)
+const sendSingleMeetingReminder = async (req, res, next) => {
+  try {
+    const { meetingId } = req.body;
+
+    if (!meetingId) {
+      return next(new AppError("Meeting ID is required", 400));
+    }
+
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      return next(new AppError("Meeting not found", 404));
+    }
+
+    const user = await User.findById(meeting.userId);
+    const expert = await ExpertBasics.findById(meeting.expertId);
+
+    if (!user || !expert) {
+      return next(new AppError("User or Expert not found", 404));
+    }
+
+    await sendMeetingReminder(meeting, user, expert);
+
+    res.status(200).json({
+      success: true,
+      message: "Meeting reminder sent successfully",
+      meetingId: meeting._id
+    });
+  } catch (error) {
+    console.error("Error in sendSingleMeetingReminder:", error);
+    next(new AppError("Failed to send meeting reminder", 500));
+  }
+};
+
+// Get booked slots for a specific expert and date
+const getBookedSlots = async (req, res, next) => {
+  try {
+    const { expertId, date } = req.query;
+
+    if (!expertId || !date) {
+      return next(new AppError('Expert ID and date are required', 400));
+    }
+
+    // Find all booked meetings for the expert on the specified date
+    const bookedMeetings = await Meeting.find({
+      expertId,
+      'daySpecific.date': date,
+      isPayed: true,
+      status: { $in: ['scheduled', 'ongoing', 'rescheduled'] } // Only active bookings that are paid
+    }).select('daySpecific.slot');
+
+    // Extract just the time slots
+    const bookedSlots = bookedMeetings.map(meeting => ({
+      startTime: meeting.daySpecific.slot.startTime,
+      endTime: meeting.daySpecific.slot.endTime
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: 'Booked slots retrieved successfully',
+      bookedSlots
+    });
+  } catch (error) {
+    console.log(error);
+    return next(new AppError(error.message, 500));
+  }
+};
 
 export {
   createMeetingToken,

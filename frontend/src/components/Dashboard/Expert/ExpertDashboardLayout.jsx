@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
+import { FaUser } from "react-icons/fa";
+import { FaUserTie } from "react-icons/fa6";
 import {
   ChevronDown,
   LogOut,
@@ -40,6 +42,8 @@ const ExpertDashboardLayout = () => {
   const [isAuthPopupOpen, setAuthPopupOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const { data } = useSelector((state) => state.auth);
+  const dropdownTimeoutRef = useRef(null);
+
 
   let parsedData;
   try {
@@ -154,27 +158,47 @@ const ExpertDashboardLayout = () => {
     }
 
     if (newMode) {
-      navigate("/dashboard/expert/");
+      navigate("/dashboard/expert/home");
     } else {
       navigate("/");
     }
     setIsMobileMenuOpen(false);
   };
 
+  const handleMouseEnter = () => {
+    // Clear any existing timeout to prevent premature closing
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a timeout to close the dropdown after a short delay
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // Adjust delay as needed
+  }
+
   // Update the UserDropdown component condition
   const UserDropdown = () => {
     const shouldShowExpertMode = isExpertMode || isCurrentlyInExpertDashboard();
-    
+
     return (
-      <div className="relative user-dropdown">
+      <div className="relative user-dropdown"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}>
         <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="flex items-center gap-1 text-gray-600 hover:text-primary transition-colors duration-200"
+          className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200 focus:outline-none p-2 rounded-md"
         >
-          <div className="flex items-center gap-2">
-            <CircleUserRound className="w-7 h-7" strokeWidth={1.5} />
-            <ChevronDown className="w-4 h-4" />
-          </div>
+          <span className="text-sm font-medium">
+            {isExpertMode ? (
+              <FaUserTie className="w-5 h-5" />
+            ) : (
+              <FaUser className="w-5 h-5" />
+            )}
+
+          </span>
         </button>
 
         <AnimatePresence>
@@ -319,15 +343,14 @@ const ExpertDashboardLayout = () => {
       <aside
         id="mobile-sidebar"
         className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          } bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
+          } bg-green-50 border-r border-gray-200 lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
               <NavLink
-                to="/dashboard/expert"
-                end
+                to="/dashboard/expert/home"
                 className={({ isActive }) =>
                   `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out  ${isActive
                     ? "bg-[#d6fae2] font-semibold text-green-900"
@@ -401,7 +424,7 @@ const ExpertDashboardLayout = () => {
                 <span className="ms-3">Meetings</span>
               </NavLink>
             </li>
-            <li>
+            {/* <li>
               <NavLink
                 to="/dashboard/expert/clients"
                 className={({ isActive }) =>
@@ -414,7 +437,7 @@ const ExpertDashboardLayout = () => {
                 <Users className="w-5 h-5" />
                 <span className="ms-3">Client-session</span>
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to="/dashboard/expert/payments"
@@ -475,7 +498,7 @@ const ExpertDashboardLayout = () => {
         </div>
       </aside>
 
-      <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
+      <main className="lg:ml-64 pt-20 bg-[#f6f7f7]">
         <div className="mx-auto px-4">
           <Outlet />
         </div>

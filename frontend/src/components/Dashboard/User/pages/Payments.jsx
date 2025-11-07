@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import clsx from "clsx";
 import toast, { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { createRoot } from "react-dom/client";
 import { getMeetingByUserId } from "@/Redux/Slices/meetingSlice";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { getInvoiceOrderId, getInvoiceTransactionId } from "@/utils/invoice";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -12,24 +17,63 @@ export default function Payments() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { meetings } = useSelector((state) => state.meeting);
   const { data } = useSelector((state) => state.auth);
 
-  // Filter meetings where isPayed is true
-  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed) || [];
+  // Filter meetings where isPayed is true and sort by payment time (most recent first)
+  const paidMeetings = meetings?.filter((meeting) => meeting.isPayed)
+    .sort((a, b) => {
+      // Try to get payment timestamp - check multiple possible fields
+      let timestampA, timestampB;
+
+      // Option 1: Check for explicit payment timestamp fields
+      if (a.paymentDate && b.paymentDate) {
+        timestampA = new Date(a.paymentDate);
+        timestampB = new Date(b.paymentDate);
+      }
+      // Option 2: Check for updatedAt (likely when payment was processed)
+      else if (a.updatedAt && b.updatedAt) {
+        timestampA = new Date(a.updatedAt);
+        timestampB = new Date(b.updatedAt);
+      }
+      // Option 3: Check for createdAt 
+      else if (a.createdAt && b.createdAt) {
+        timestampA = new Date(a.createdAt);
+        timestampB = new Date(b.createdAt);
+      }
+      // Option 4: Extract timestamp from MongoDB ObjectId
+      else if (a._id && b._id) {
+        // MongoDB ObjectId contains timestamp in first 4 bytes
+        timestampA = new Date(parseInt(a._id.substring(0, 8), 16) * 1000);
+        timestampB = new Date(parseInt(b._id.substring(0, 8), 16) * 1000);
+      }
+      // Fallback: use meeting date
+      else {
+        timestampA = new Date(a.daySpecific?.date || 0);
+        timestampB = new Date(b.daySpecific?.date || 0);
+      }
+
+      // Sort in descending order (most recent payments first)
+      return timestampB - timestampA;
+    }) || [];
 
   const payments = paidMeetings.map((meeting) => ({
-    id: meeting.razorpay_payment_id, // Use actual transaction ID
+    id: meeting.razorpay_payment_id || meeting.paymentId || meeting.transactionId || meeting._id,
+    meeting,
     expert: meeting.expertName,
     service: meeting.serviceName,
     timeSlot: {
-      date: meeting.daySpecific.date,
-      time: `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`,
+      date: meeting.daySpecific?.date,
+      time:
+        meeting.daySpecific?.slot?.startTime && meeting.daySpecific?.slot?.endTime
+          ? `${meeting.daySpecific.slot.startTime} - ${meeting.daySpecific.slot.endTime}`
+          : meeting.daySpecific?.slot?.startTime || meeting.daySpecific?.slot?.endTime || "-",
     },
     amount: meeting.amount,
-    status: "paid", // Since we are filtering only paid meetings
+    status: "paid",
   }));
-  console.log("This is payments", payments);
+
   const filteredPayments = payments.filter(
     (payment) =>
       payment.expert?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,15 +127,337 @@ export default function Payments() {
     }
   };
 
-  const handleDownloadInvoice = () => {
-    toast.success("Invoice downloaded successfully", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
+  const handleDownloadInvoice = async (meeting) => {
+    if (!meeting?._id) {
+      toast.error("Unable to download invoice for this payment.");
+      return;
+    }
+
+    try {
+      // Create an offscreen container
+      const tempContainer = document.createElement("div");
+      tempContainer.style.position = "fixed";
+      tempContainer.style.left = "-9999px";
+      tempContainer.style.top = "0";
+      document.body.appendChild(tempContainer);
+
+      const invoiceContent = renderInvoiceContent(meeting);
+      const root = createRoot(tempContainer);
+      root.render(invoiceContent);
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Capture the invoice with proper scale and background
+      const canvas = await html2canvas(tempContainer.firstChild, {
+        scale: 3, // higher scale = sharper PDF
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 800,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // Create PDF with correct proportions
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Center if shorter than A4
+      const yOffset = imgHeight < pdfHeight ? (pdfHeight - imgHeight) / 2 : 0;
+      pdf.addImage(imgData, "PNG", 0, yOffset, imgWidth, imgHeight, "", "FAST");
+
+      const filename = getInvoiceOrderId(meeting);
+      pdf.save(`${filename !== "N/A" ? filename : "invoice"}.pdf`);
+
+      root.unmount();
+      document.body.removeChild(tempContainer);
+
+    } catch (error) {
+      console.error("Failed to download invoice:", error);
+      toast.error("Unable to download invoice. Please try again.");
+    }
+  };
+
+  const renderInvoiceContent = (meeting) => {
+    const { daySpecific } = meeting || {};
+    const { date, slot } = daySpecific || {};
+    const { startTime, endTime } = slot || {};
+
+    // Calculate duration in minutes
+    const calculateDuration = () => {
+      if (!startTime || !endTime) return "N/A";
+
+      const start = new Date(`1970-01-01T${startTime}`);
+      const end = new Date(`1970-01-01T${endTime}`);
+      const diffMs = end - start;
+      const diffMins = Math.floor(diffMs / 60000);
+
+      return `${diffMins} minutes`;
+    };
+
+    const amount = Number(meeting.amount ?? 0);
+    const addOns = 20.00; // Placeholder value as in PDF
+    const discount = 10.00; // Placeholder value as in PDF
+    const totalPaid = amount; // In the PDF, total paid is the base price
+
+    // Format date to match PDF style
+    const formatDate = (dateString) => {
+      if (!dateString) return "N/A";
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    };
+
+    // Format time to match PDF style
+    // Handles inputs like "13:30", "11:00 AM", "11:00AM" and normalizes them to e.g. "11:00 AM"
+    const formatTime = (timeString) => {
+      if (!timeString) return "N/A";
+      const trimmed = String(timeString).trim();
+
+      // If string already contains AM/PM (case-insensitive), normalize spacing and casing
+      const ampmMatch = trimmed.match(/(am|pm)$/i);
+      if (ampmMatch) {
+        // Capture hour and minute and am/pm even if there's no space (e.g. "11:00AM")
+        const m = trimmed.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+        if (m) {
+          const h = parseInt(m[1], 10);
+          const min = m[2];
+          const ap = m[3].toUpperCase();
+          const displayHour = h % 12 || 12;
+          return `${displayHour}:${min} ${ap}`;
+        }
+        // Fallback: return trimmed value uppercased for AM/PM
+        return trimmed.replace(/\s+/, ' ').toUpperCase();
+      }
+
+      // Otherwise assume 24-hour like "13:30" or "9:05"
+      const parts = trimmed.split(':');
+      if (parts.length < 2) return trimmed;
+      const hours = parseInt(parts[0], 10);
+      let minutes = parts[1];
+      // If minutes contains seconds or stray text, just take first two chars
+      minutes = minutes.slice(0, 2);
+      if (isNaN(hours)) return trimmed;
+      const ap = hours >= 12 ? 'PM' : 'AM';
+      const displayHour = hours % 12 || 12;
+      return `${displayHour}:${minutes} ${ap}`;
+    };
+
+    // Format date for session date display
+    const formatSessionDate = (dateString) => {
+      if (!dateString) return "Not specified";
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    };
+
+    return (
+      <div
+        id="invoice-content"
+        style={{
+          width: "186mm",
+          minHeight: "282mm",
+          padding: "12mm 16mm",
+          backgroundColor: "white",
+          fontFamily: "Inter, sans-serif",
+          color: "#111827",
+          margin: "0 auto",
+          fontSize: "0.88rem",
+          lineHeight: "1.55",
+        }}
+        className="font-sans text-gray-800"
+      >
+        {/* Print-specific style */}
+        <style>
+          {`
+          @media print {
+            html, body {
+              margin: 0;
+              padding: 0;
+              width: 210mm;
+              height: 297mm;
+            }
+            body * {
+              visibility: hidden;
+            }
+            #invoice-content,
+            #invoice-content * {
+              visibility: visible;
+            }
+            #invoice-content {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: calc(100% - 12mm);
+              max-width: 100%;
+              padding: 10mm 14mm !important;
+              box-shadow: none !important;
+              margin: 0 !important;
+            }
+            nav, header, footer, .navbar, .no-print {
+              display: none !important;
+            }
+            @page {
+              margin: 0;
+              size: A4;
+            }
+          }
+          @media screen {
+            #invoice-content {
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+          }
+        `}
+        </style>
+
+        {/* Header */}
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Advizy</h1>
+          <h2 className="text-lg font-semibold text-gray-800 mb-2">Order Confirmation</h2>
+          <p className="text-xs text-gray-600">Thank you for your booking.</p>
+        </div>
+
+        <hr className="border-gray-200 mb-4" />
+
+        {/* Order Details & Customer */}
+        <div className="grid grid-cols-2 gap-x-8 mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Order Details</h3>
+            <div className="space-y-1 text-xs">
+              <div>
+                <span className="text-gray-600">Order ID: </span>
+                <span className="font-medium text-gray-900">{getInvoiceOrderId(meeting)}</span>
+              </div>
+              <div>
+                <span className="text-gray-600">Date: </span>
+                <span className="font-medium text-gray-900">
+                  {formatDate(meeting.createdAt) || formatDate(date) || "N/A"}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-600">Status: </span>
+                <span className="font-semibold text-green-600">Confirmed</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Customer</h3>
+            <p className="text-xs font-medium text-gray-900">{meeting.userName || "Guest user"}</p>
+          </div>
+        </div>
+
+        {/* Service Details */}
+        <div className="bg-gray-50 border border-gray-100 rounded-md p-4 mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Service Details</h3>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Expert:</span>
+              <span className="font-medium text-gray-900">{meeting.expertName || "N/A"}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Session Date:</span>
+              <span className="font-medium text-gray-900">{formatSessionDate(date)}</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Service:</span>
+              <span className="font-medium text-gray-900">
+                {meeting.serviceName || "Consultation"}
+              </span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-gray-600 mb-0.5">Session Time:</span>
+              <span className="font-medium text-gray-900">
+                {startTime ? formatTime(startTime) : "N/A"} - {endTime ? formatTime(endTime) : "N/A"}
+              </span>
+            </div>
+            {/* <div className="flex flex-col col-span-2">
+              <span className="text-gray-600 mb-0.5">Time Duration:</span>
+              <span className="font-medium text-gray-900">{calculateDuration()}</span>
+            </div> */}
+          </div>
+        </div>
+
+        {/* Payment Summary */}
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3">Payment Summary</h3>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between">
+              <span className="text-gray-900">Base Price</span>
+              <span className="text-gray-900 text-right">₹{amount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-900">Add-ons</span>
+              <span className="text-gray-900 text-right">₹{addOns.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-900">Discount</span>
+              <span className="text-green-600 text-right">-₹{discount.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <hr className="border-gray-200 mb-3" />
+
+        {/* Total Paid */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-base font-semibold text-gray-900">Total Paid</h3>
+          <span className="text-xl font-bold text-gray-900">₹{totalPaid.toFixed(2)}</span>
+        </div>
+
+        {/* Payment Successful */}
+        <div className="bg-green-50 border border-green-200 rounded-md pt-1 p-3.5 mb-4">
+          <div className="flex items-center gap-2.5">
+            <svg
+              className="h-4 w-4 text-green-600 flex-shrink-0"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div className="flex-1">
+              <h4 className="text-xs font-semibold text-green-800">
+                Payment Successful
+              </h4>
+              <p className="text-xs text-green-700">
+                Transaction ID: {getInvoiceTransactionId(meeting)} | Method: Credit Card
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-[10px] text-gray-500 space-y-0.5 pt-3 border-t border-gray-200">
+          <p>
+            For cancellation and refund policy:{" "}
+            <a href="/refund-policy" className="text-blue-600">
+              Cancellation & Refund Policy
+            </a>
+          </p>
+          <p>
+            Questions? Contact support at{" "}
+            <a href="mailto:support@advizy.com" className="text-blue-600">
+              support@advizy.com
+            </a>
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -211,8 +577,8 @@ export default function Payments() {
                           payment.status === "paid"
                             ? "bg-green-100 text-green-800"
                             : payment.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         )}
                       >
                         {payment.status.charAt(0).toUpperCase() +
@@ -222,7 +588,7 @@ export default function Payments() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <button
-                      onClick={handleDownloadInvoice}
+                      onClick={() => handleDownloadInvoice(payment.meeting)}
                       className="inline-flex items-center justify-center text-green-600 hover:text-green-700"
                     >
                       <svg
@@ -272,22 +638,20 @@ export default function Payments() {
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-                currentPage === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${currentPage === 1
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               Previous
             </button>
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-                currentPage === totalPages
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${currentPage === totalPages
+                ? "text-gray-300 cursor-not-allowed"
+                : "text-gray-700 hover:bg-gray-50"
+                }`}
             >
               Next
             </button>
@@ -309,22 +673,20 @@ export default function Payments() {
                 <button
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === 1
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                    }`}
                 >
                   <AiOutlineLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
-                    currentPage === totalPages
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-gray-500 hover:bg-gray-50"
-                  }`}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-50"
+                    }`}
                 >
                   <AiOutlineRight className="w-5 h-5" />
                 </button>

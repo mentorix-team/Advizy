@@ -4,21 +4,100 @@ import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 
 const ExperienceList = ({ experiences = [], onEdit, onDelete, onAddClick }) => {
   const formatDate = (dateInput) => {
-    console.log("This is date",dateInput)
-    if (!dateInput) return ''; // Handle null/undefined
-  
+    if (!dateInput) return '';
+
     try {
       const date = dateInput instanceof Date ? dateInput : parseISO(dateInput);
       return format(date, 'MMM yyyy');
     } catch (error) {
       console.error('Date parsing error:', error);
-      return String(dateInput); // Return raw value as fallback
+      return String(dateInput);
     }
   };
-  
 
-  const viewFile = (file) => {
-    window.open(URL.createObjectURL(file), '_blank');
+  const normalizeDocuments = (documents) => {
+    if (!documents) return [];
+    if (Array.isArray(documents)) return documents;
+    if (typeof documents === 'string') {
+      try {
+        const parsed = JSON.parse(documents);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch (error) {
+        console.error('Error parsing documents JSON:', error);
+        return [];
+      }
+    }
+    return [documents];
+  };
+
+  const getDisplayName = (file) => {
+    if (!file) return '';
+
+    // Handle File objects (newly uploaded)
+    if (file instanceof File) return file.name;
+
+    // Handle server response objects with secure_url (Cloudinary)
+    if (typeof file === 'object' && file.secure_url) {
+      // Extract filename from URL, removing query parameters and hashes
+      const urlParts = file.secure_url.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      const cleanFilename = filename.split('?')[0]; // Remove query params
+
+      // If it's a generic ID, try to get original filename
+      if (file.original_filename) {
+        return file.original_filename;
+      }
+
+      // Create a user-friendly name from the clean filename
+      if (cleanFilename && cleanFilename.length > 10) {
+        return cleanFilename.length > 30 ?
+          cleanFilename.substring(0, 30) + '...' :
+          cleanFilename;
+      }
+
+      return 'Document.pdf';
+    }
+
+    // Handle simple URL strings
+    if (typeof file === 'string' && file.startsWith('http')) {
+      const urlParts = file.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      return filename.split('?')[0] || 'Document.pdf';
+    }
+
+    return String(file);
+  };
+
+  const openDocument = (file) => {
+    if (!file) return;
+
+    try {
+      // Handle File objects (newly uploaded files)
+      if (file instanceof File) {
+        const url = URL.createObjectURL(file);
+        window.open(url, '_blank');
+        // Clean up the URL after opening to prevent memory leaks
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
+
+      // Handle server response objects with secure_url
+      if (typeof file === 'object' && file.secure_url) {
+        window.open(file.secure_url, '_blank');
+        return;
+      }
+
+      // Handle direct URL strings
+      if (typeof file === 'string' && file.startsWith('http')) {
+        window.open(file, '_blank');
+        return;
+      }
+
+      console.warn('Unable to open document - unsupported format:', file);
+    } catch (error) {
+      console.error('Error opening document:', error);
+      alert('Unable to open document. Please try again.');
+    }
   };
 
   return (
@@ -40,7 +119,7 @@ const ExperienceList = ({ experiences = [], onEdit, onDelete, onAddClick }) => {
           </svg>
           <h2 className="text-lg sm:text-xl font-semibold">Experience</h2>
         </div>
-  
+
         {/* Add Experience Button */}
         <button
           onClick={onAddClick}
@@ -50,50 +129,56 @@ const ExperienceList = ({ experiences = [], onEdit, onDelete, onAddClick }) => {
           <span>Add Experience</span>
         </button>
       </div>
-      
-      {experiences && experiences.length > 0 ? (
-        experiences.map((experience, index) => (
-          <div key={index} className="flex justify-between items-start mb-4 p-4 border rounded-lg hover:shadow-md transition-all duration-200">
-            <div>
-              <h3 className="text-black font-medium">{experience.companyName}</h3>
-              <p className="text-gray-600">{experience.jobTitle}</p>
-              <p className="text-gray-500">
-                {formatDate(experience.startDate)} - {experience.currentlyWork ? 'Present' : formatDate(experience.endDate)}
-              </p>
 
-              {/* Documents Section */}
-              {experience.documents && experience.documents.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {experience.documents.map((file, fileIndex) => (
-                    <div key={fileIndex} className="flex items-center gap-2">
-                      <button
-                        onClick={() => viewFile(file)}
-                        className="flex items-center gap-2 text-primary hover:text-green-600 transition-colors duration-200"
-                      >
-                        <FaEye className="w-4 h-4" />
-                        <span className="text-sm">{file.name}</span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+      {experiences && experiences.length > 0 ? (
+        experiences.map((experience, index) => {
+          const documents = normalizeDocuments(
+            experience.documents ?? experience.document
+          );
+
+          return (
+            <div key={index} className="flex justify-between items-start mb-4 p-4 border rounded-lg hover:shadow-md transition-all duration-200">
+              <div>
+                <h3 className="text-black font-medium">{experience.companyName}</h3>
+                <p className="text-gray-600">{experience.jobTitle}</p>
+                <p className="text-gray-500">
+                  {formatDate(experience.startDate)} - {experience.currentlyWork ? 'Present' : formatDate(experience.endDate)}
+                </p>
+
+                {/* Documents Section */}
+                {documents.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {documents.map((file, fileIndex) => (
+                      <div key={fileIndex} className="flex items-center gap-2">
+                        <button
+                          onClick={() => openDocument(file)}
+                          className="flex items-center gap-2 text-primary hover:text-green-600 transition-colors duration-200"
+                        >
+                          <FaEye className="w-4 h-4" />
+                          <span className="text-sm" title={getDisplayName(file)}>{getDisplayName(file)}</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => onEdit(index)}
+                  className="p-2 text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-200"
+                >
+                  <FaEdit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onDelete(index)}
+                  className="p-2 text-gray-500 hover:text-red-500 transform hover:scale-110 transition-all duration-200"
+                >
+                  <FaTrash className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => onEdit(index)}
-                className="p-2 text-gray-500 hover:text-primary transform hover:scale-110 transition-all duration-200"
-              >
-                <FaEdit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => onDelete(index)}
-                className="p-2 text-gray-500 hover:text-red-500 transform hover:scale-110 transition-all duration-200"
-              >
-                <FaTrash className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         <p className="text-gray-500 text-center">Add Your Work Experience</p>
       )}

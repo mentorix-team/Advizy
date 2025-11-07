@@ -2,13 +2,22 @@ import PropTypes from 'prop-types';
 import Modal from '../../modals/Modal';
 import { useState } from 'react';
 import { FaStar } from 'react-icons/fa';
+import { BsClock } from 'react-icons/bs';
+import { HiOutlineVideoCamera } from 'react-icons/hi';
+import { IoMdClose } from 'react-icons/io';
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from "@/utils/meetingStatus";
 
 const PastMeetingDetailsModal = ({ isOpen, onClose, meeting }) => {
   const [activeTab, setActiveTab] = useState('details');
 
   if (!meeting) return null;
 
-  const isPastMeeting = meeting.sessionStatus === 'Completed' || meeting.sessionStatus === 'Cancelled';
+  const statusLabel = getMeetingStatusLabel(meeting);
+  const statusToneClass = getMeetingStatusPillTone(meeting);
+  const isPastMeeting = ['Completed', 'Cancelled'].includes(statusLabel);
 
   return (
     <Modal
@@ -24,21 +33,19 @@ const PastMeetingDetailsModal = ({ isOpen, onClose, meeting }) => {
         <div className="flex space-x-4 border-b">
           <button
             onClick={() => setActiveTab('details')}
-            className={`px-4 py-2 text-sm font-medium -mb-px ${
-              activeTab === 'details'
+            className={`px-4 py-2 text-sm font-medium -mb-px ${activeTab === 'details'
                 ? 'border-b-2 border-blue-500 text-gray-900'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Details
           </button>
           <button
             onClick={() => setActiveTab('notes')}
-            className={`px-4 py-2 text-sm font-medium -mb-px ${
-              activeTab === 'notes'
+            className={`px-4 py-2 text-sm font-medium -mb-px ${activeTab === 'notes'
                 ? 'border-b-2 border-blue-500 text-gray-900'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Notes
           </button>
@@ -65,25 +72,18 @@ const PastMeetingDetailsModal = ({ isOpen, onClose, meeting }) => {
             <div className="grid grid-cols-2 gap-x-6">
               <div>
                 <h3 className="text-sm text-gray-500">Status</h3>
-                <span className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium ${
-                  meeting.sessionStatus === 'Completed'
-                    ? 'bg-black text-white'
-                    : meeting.sessionStatus === 'Cancelled'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-green-100 text-green-800'
-                }`}>
-                  {meeting.sessionStatus}
+                <span className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium capitalize ${statusToneClass}`}>
+                  {statusLabel}
                 </span>
               </div>
               <div>
                 <h3 className="text-sm text-gray-500">Payment Status</h3>
-                <span className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium ${
-                  meeting.paymentStatus === 'Paid'
+                <span className={`inline-flex mt-1 px-3 py-1 rounded-full text-sm font-medium ${meeting.paymentStatus === 'Paid'
                     ? 'bg-green-100 text-green-800'
                     : meeting.paymentStatus === 'Refunded'
-                    ? 'bg-orange-100 text-orange-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                      ? 'bg-orange-100 text-orange-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
                   {meeting.paymentStatus}
                 </span>
               </div>

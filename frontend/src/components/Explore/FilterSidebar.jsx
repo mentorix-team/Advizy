@@ -8,7 +8,7 @@ import {
 import { X } from "lucide-react";
 import "../../index.css";
 
-const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
+const FilterSidebar = ({ selectedDomain, onApplyFilters, onCloseSidebar }) => {
   const INITIAL_FILTERS = {
     selectedNiches: [],
     priceRange: [1, 100000],
@@ -25,7 +25,6 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
   const [selectedDurations, setSelectedDurations] = useState([]);
   const [sorting, setSorting] = useState("");
   const [showAllNiches, setShowAllNiches] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
@@ -105,6 +104,10 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
       sorting,
     };
     onApplyFilters(filters);
+    // Close sidebar after applying filters
+    if (onCloseSidebar) {
+      onCloseSidebar();
+    }
   };
 
   const handlePriceChange = (index, value) => {
@@ -164,8 +167,8 @@ const FilterSidebar = ({ selectedDomain, onApplyFilters }) => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Filters</h2>
         <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="md:hidden text-gray-500"
+          onClick={onCloseSidebar}
+          className="text-gray-500 hover:text-gray-700 transition-colors"
         >
           <X className="h-5 w-5" />
         </button>

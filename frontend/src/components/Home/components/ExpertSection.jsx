@@ -1,17 +1,84 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import ExpertCard from "./ExpertCard";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import ExpertHomeCard from "@/components/LoadingSkeleton/ExpertHomeCard";
+import { getfeedbackbyexpertid } from "@/Redux/Slices/meetingSlice";
 
 const ExpertSection = ({ title, subtitle, experts, link }) => {
   const sectionRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { loading, error } = useSelector((state) => state.expert);
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const [expertRatings, setExpertRatings] = useState({});
   useEffect(() => {
     setIsLoading(loading);
   }, [loading]);
+
+  const calculateRatingData = (feedbackArray) => {
+    if (!Array.isArray(feedbackArray) || feedbackArray.length === 0) {
+      return { averageRating: 0, totalRatings: 0 };
+    }
+
+    // Map feedback to normalize ratings, matching Testimonial.jsx logic
+    const mappedFeedback = feedbackArray.map((feedback) => ({
+      ...feedback,
+      rating: Number(feedback.rating) || 0,
+    }));
+
+    // Filter for valid ratings (> 0), matching Testimonial.jsx logic
+    const validRatings = mappedFeedback.filter(t => t.rating > 0);
+
+    if (validRatings.length === 0) {
+      return { averageRating: 0, totalRatings: 0 };
+    }
+
+    const totalRating = validRatings.reduce((sum, t) => sum + t.rating, 0);
+    const averageRating = validRatings.length > 0 ? (totalRating / validRatings.length).toFixed(1) : '0.0';
+
+    return {
+      averageRating: Number(averageRating),
+      totalRatings: validRatings.length,
+    };
+  };
+
+  useEffect(() => {
+    const fetchExpertFeedback = async () => {
+      if (!experts || experts.length === 0) return;
+
+      console.log('Fetching feedback for experts:', experts.length);
+      console.log('Sample expert structure:', experts[0]);
+      const ratingsMap = {};
+
+      // Batch fetch feedback for all experts
+      const feedbackPromises = experts.map(async (expert) => {
+        try {
+          console.log(`Fetching feedback for expert ${expert.id}...`);
+          const response = await dispatch(getfeedbackbyexpertid({ id: expert.id })).unwrap();
+          console.log(`Feedback response for expert ${expert.id}:`, response);
+
+          // Handle the response structure - the feedback is in response.feedback
+          const feedback = Array.isArray(response?.feedback) ? response.feedback : Array.isArray(response) ? response : [];
+          console.log(`Processed feedback for expert ${expert.id}:`, feedback);
+
+          const ratingData = calculateRatingData(feedback);
+          console.log(`Rating data for expert ${expert.id}:`, ratingData);
+
+          ratingsMap[expert.id] = ratingData;
+        } catch (error) {
+          console.error(`Error fetching feedback for expert ${expert.id}:`, error);
+          ratingsMap[expert.id] = { averageRating: 0, totalRatings: 0 };
+        }
+      });
+
+      await Promise.all(feedbackPromises);
+      console.log('Final ratings map:', ratingsMap);
+      setExpertRatings(ratingsMap);
+    };
+
+    fetchExpertFeedback();
+  }, [experts, dispatch]);
   const cardsPerView = {
     mobile: 1,
     desktop: 4, // Changed from 3 to 4
@@ -227,13 +294,24 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
                   }}
                   className="relative flex-shrink-0"
                   style={{
-                    width: `calc(${100 / visibleCards}% - ${
-                      (16 * (visibleCards - 1)) / visibleCards
-                    }px)`,
+                    width: `calc(${100 / visibleCards}% - ${(16 * (visibleCards - 1)) / visibleCards
+                      }px)`,
                     margin: window.innerWidth < 768 ? "0 auto" : "initial",
                   }}
                 >
-                  <ExpertCard expert={expert} />
+                  <ExpertCard
+                    expert={expert}
+                    displayRating={
+                      expertRatings[expert.id]?.averageRating ||
+                      expert.averageRating ||
+                      0
+                    }
+                    displayTotalRatings={
+                      expertRatings[expert.id]?.totalRatings ||
+                      expert.totalRatings ||
+                      0
+                    }
+                  />
                 </motion.div>
               ))}
             </motion.div>

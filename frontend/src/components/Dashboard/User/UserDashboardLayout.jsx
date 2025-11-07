@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/Redux/Slices/authSlice";
 import AuthPopup from "@/components/Auth/AuthPopup.auth";
 import { ChevronDown, LogOut, User, CircleUserRound, Video, BadgeIndianRupee, User as UserPen, MessageSquareText, LayoutDashboard, Home, UserCheck, Menu, X, PanelRightCloseIcon, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaUser } from "react-icons/fa";
+import { FaUserTie } from "react-icons/fa6";
 
 const UserDashboardLayout = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -17,6 +19,16 @@ const UserDashboardLayout = () => {
   const userName = useSelector((state) => state.auth.user?.name || "User");
   const dispatch = useDispatch();
   const location = useLocation();
+  const dropdownTimeoutRef = useRef(null);
+  const { data } = useSelector((state) => state.auth);
+
+  let parsedData;
+    try {
+      parsedData = typeof data === "string" ? JSON.parse(data) : data;
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      parsedData = data;
+    }
 
   const isLinkActive = (path) => {
     return location.pathname === path;
@@ -71,16 +83,35 @@ const UserDashboardLayout = () => {
     }
   };
 
+  const handleMouseEnter = () => {
+    // Clear any existing timeout to prevent conflicts
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a timeout before closing the dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 200); // 200ms delay before closing
+  };
+
   const UserDropdown = () => (
-    <div className="relative">
+    <div className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}>
       <button
-        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors duration-200"
       >
         <span className="text-sm font-medium">
-          <CircleUserRound className="w-5 h-5" />
+          {isExpertMode ? (
+            <FaUserTie className="w-5 h-5" />
+          ) : (
+            <FaUser className="w-5 h-5" />
+          )}
         </span>
-        <ChevronDown className="w-4 h-4" />
       </button>
 
       <AnimatePresence>
@@ -92,6 +123,14 @@ const UserDashboardLayout = () => {
             transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-100"
           >
+            <div className="px-4 py-2 border-b border-gray-200">
+              <p className='text-sm font-medium text-gray-900 truncate'>
+                {parsedData?.firstName} {parsedData?.lastName}
+              </p>
+              <p className='text-xs text-gray-500 truncate'>
+                User
+              </p>
+            </div>
             <a
               href="/"
               className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
@@ -139,22 +178,20 @@ const UserDashboardLayout = () => {
               <div className="hidden lg:flex items-center gap-6">
                 <a
                   href="/about-us"
-                  className={`transition-colors duration-200 text-base font-medium ${
-                    isLinkActive("/about-us")
+                  className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/about-us")
                       ? "text-primary underline underline-offset-4"
                       : "text-gray-600 hover:text-primary"
-                  }`}
+                    }`}
                 >
                   About Us
                 </a>
                 {!isExpertMode && (
                   <a
                     href="/become-expert"
-                    className={`transition-colors duration-200 text-base font-medium ${
-                      isLinkActive("/become-expert")
+                    className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/become-expert")
                         ? "text-primary underline underline-offset-4"
                         : "text-gray-600 hover:text-primary"
-                    }`}
+                      }`}
                   >
                     Share Your Expertise
                   </a>
@@ -211,7 +248,7 @@ const UserDashboardLayout = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 sm:hidden"
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -219,9 +256,8 @@ const UserDashboardLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-green-50 border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700 ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        } sm:translate-x-0`}
+        className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-green-50 border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-green-50 dark:bg-gray-800">
@@ -230,10 +266,9 @@ const UserDashboardLayout = () => {
               <NavLink
                 to="/dashboard/user/meetings"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -245,10 +280,9 @@ const UserDashboardLayout = () => {
               <NavLink
                 to="/dashboard/user/payments"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -260,10 +294,9 @@ const UserDashboardLayout = () => {
               <NavLink
                 to="/dashboard/user/profile"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -275,10 +308,9 @@ const UserDashboardLayout = () => {
               <NavLink
                 to="/dashboard/user/chats"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -290,10 +322,9 @@ const UserDashboardLayout = () => {
               <NavLink
                 to="/dashboard/user/favourites"
                 className={({ isActive }) =>
-                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${
-                    isActive
-                      ? "bg-[#d6fae2] font-semibold text-green-900"
-                      : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
+                  `flex items-center p-2 rounded-lg transition-colors duration-150 ease-in-out ${isActive
+                    ? "bg-[#d6fae2] font-semibold text-green-900"
+                    : "text-gray-900 hover:bg-[#d6fae2] dark:text-white dark:hover:bg-gray-700"
                   }`
                 }
               >
@@ -306,7 +337,7 @@ const UserDashboardLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="sm:ml-64 pt-20 bg-[#f6f7f7]">
+      <main className="lg:ml-64 pt-20 bg-[#f6f7f7]">
         <div className="mx-auto px-4">
           <Outlet />
         </div>

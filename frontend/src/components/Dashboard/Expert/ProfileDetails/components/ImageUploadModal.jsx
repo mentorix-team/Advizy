@@ -1,7 +1,18 @@
 import React from 'react';
 import Modal from './Modal';
 
-const ImageUploadModal = ({ isOpen, onClose, type, onUpload }) => {
+const ImageUploadModal = ({
+  isOpen,
+  onClose,
+  type,
+  onUpload,
+  onEdit,
+  onRemove,
+  canEdit = false,
+  canRemove = false,
+}) => {
+  const inputId = type === 'cover' ? 'cover-file-upload' : 'profile-file-upload';
+
   return (
     <Modal
       isOpen={isOpen}
@@ -16,12 +27,12 @@ const ImageUploadModal = ({ isOpen, onClose, type, onUpload }) => {
             <input
               type="file"
               className="hidden"
-              id="file-upload"
+              id={inputId}
               accept="image/*"
               onChange={onUpload}
             />
             <label
-              htmlFor="file-upload"
+              htmlFor={inputId}
               className="cursor-pointer bg-white rounded-md font-medium text-primary hover:text-green-600"
             >
               Choose File
@@ -29,6 +40,29 @@ const ImageUploadModal = ({ isOpen, onClose, type, onUpload }) => {
             <p className="text-xs text-gray-500">No file chosen</p>
           </div>
         </div>
+
+        {(canEdit || canRemove) && (
+          <div className="mt-6 space-y-3">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="w-full px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors"
+              >
+                Edit Current Image
+              </button>
+            )}
+            {canRemove && (
+              <button
+                type="button"
+                onClick={onRemove}
+                className="w-full px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Remove Image
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </Modal>
   );

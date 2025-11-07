@@ -14,6 +14,10 @@ export default function RecentEarnings({
   // Limit to maximum 4 earnings
   const limitedEarnings = earnings.slice(0, 3);
 
+  // Calculate total earnings from the earnings array if totalEarnings is 0 or not provided
+  const calculatedTotal = earnings.reduce((sum, earning) => sum + (earning.amount || 0), 0);
+  const displayTotal = totalEarnings || calculatedTotal;
+
   const onEarnings = () => {
     navigate("/dashboard/expert/payments");
   };
@@ -42,7 +46,7 @@ export default function RecentEarnings({
           <BiTrendingUp className="text-green-500" size={20} />
         </div>
         <h3 className="text-xl sm:text-2xl font-bold">
-          {formatCurrency(totalEarnings)}
+          {formatCurrency(displayTotal)}
         </h3>
       </div>
 

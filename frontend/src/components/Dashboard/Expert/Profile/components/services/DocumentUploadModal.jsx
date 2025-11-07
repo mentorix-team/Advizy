@@ -10,23 +10,55 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   const [error, setError] = useState('');
   const initializedRef = React.useRef(false);
 
+  // Helper function to truncate long file names
+  const truncateFileName = (fileName, maxLength = 25) => {
+    if (fileName.length <= maxLength) return fileName;
+
+    const extension = fileName.split('.').pop();
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+
+    // Keep extension and truncate the name part
+    const truncatedName = nameWithoutExt.substring(0, maxLength - extension.length - 3) + '...';
+    return truncatedName + '.' + extension;
+  };
+
+  // Helper function to format file size
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   useEffect(() => {
     if (!isOpen) {
-      setFiles([]);
-      setError('');
+      if (files.length > 0 || error) {
+        setFiles([]);
+        setError('');
+      }
       initializedRef.current = false;
-    } else if (existingFiles.length > 0 && !initializedRef.current) {
+      return;
+    }
+
+    if (isOpen && existingFiles?.length > 0 && !initializedRef.current) {
       setFiles(existingFiles.map(file => ({
         file,
         preview: URL.createObjectURL(file)
       })));
       initializedRef.current = true;
     }
-  }, [isOpen, existingFiles]);
+  }, [isOpen, existingFiles?.length]);
 
   const validateFile = (file) => {
+    console.log(`Validating file: ${file.name}, size: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+
     if (file.size > DOCUMENT_MAX_FILE_SIZE) {
-      return 'File size must be less than 50MB';
+      const maxSizeMB = DOCUMENT_MAX_FILE_SIZE / 1024 / 1024;
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      return `File size (${fileSizeMB} MB) exceeds the maximum limit of ${maxSizeMB} MB`;
     }
 
     const allowedTypes = [
@@ -43,6 +75,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   };
 
   const onDrop = useCallback(async (acceptedFiles) => {
+    console.log('Files dropped:', { accepted: acceptedFiles.length });
     setError('');
     try {
       for (const file of acceptedFiles) {
@@ -51,13 +84,14 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
           throw new Error(validationError);
         }
       }
-      
       const newFiles = acceptedFiles.map(file => ({
         file,
         preview: URL.createObjectURL(file)
       }));
       setFiles(prevFiles => [...prevFiles, ...newFiles]);
+      console.log(`Successfully added ${acceptedFiles.length} files`);
     } catch (err) {
+      console.error('File validation error:', err);
       setError(err.toString());
     }
   }, []);
@@ -124,18 +158,20 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
         {files.length > 0 && (
           <div className="mb-6 space-y-3">
             {files.map((file, index) => (
-              <div 
-                key={index} 
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100"
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 min-w-0"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <FaFileAlt className="w-5 h-5 text-gray-500" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">{file.file.name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-700 truncate" title={file.file.name}>
+                      {truncateFileName(file.file.name)}
+                    </p>
                     <p className="text-xs text-gray-500">
-                      {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                      {formatFileSize(file.file.size)}
                     </p>
                   </div>
                 </div>
@@ -155,8 +191,8 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
         <div
           {...getRootProps()}
           className={`border-2 border-dashed rounded-xl p-8 transition-all cursor-pointer
-            ${isDragActive 
-              ? 'border-primary bg-primary/5' 
+            ${isDragActive
+              ? 'border-primary bg-primary/5'
               : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
             }`}
         >

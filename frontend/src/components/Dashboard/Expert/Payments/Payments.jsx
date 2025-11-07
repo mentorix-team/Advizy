@@ -27,10 +27,10 @@ export default function Payments() {
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
 
   const summary = {
-    totalBalance: paidMeetings.reduce((sum, meeting) => sum + parseFloat(meeting.amount), 0),
-    withdrawable: paidMeetings.filter(meeting => meeting.isPayed).reduce((sum, meeting) => sum + parseFloat(meeting.amount), 0),
+    totalBalance: paidMeetings.reduce((sum, meeting) => sum + parseFloat(meeting.amount || 0), 0),
+    withdrawable: paidMeetings.filter(meeting => meeting.isPayed).reduce((sum, meeting) => sum + (parseFloat(meeting.amount) || 0), 0),
     pending: 0, // Assuming no pending payments in your data
-    lifetime: paidMeetings.reduce((sum, meeting) => sum + parseFloat(meeting.amount), 0)
+    lifetime: paidMeetings.reduce((sum, meeting) => sum + parseFloat(meeting.amount || 0), 0)
   };
 
   const filteredData = paidMeetings.filter((meeting) => {
@@ -133,7 +133,7 @@ export default function Payments() {
       </div>
 
       {/* Tabs and Actions */}
-      <div className="flex justify-between items-center mb-6">
+      {/* <div className="flex justify-between items-center mb-6">
         <div className="flex gap-4">
           <button
             onClick={() => handleTabChange('transactions')}
@@ -147,7 +147,7 @@ export default function Payments() {
             Transactions
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Search and Filters */}
       <div className="mb-6">

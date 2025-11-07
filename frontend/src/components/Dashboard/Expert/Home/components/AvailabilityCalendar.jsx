@@ -18,6 +18,7 @@ export default function AvailabilityCalendar({
   }
 
   console.log("🔹 Received meetings data:", meetings); // LOGGING MEETINGS DATA
+  console.log("🔹 Number of meetings:", meetings?.length || 0);
 
   const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -43,11 +44,22 @@ export default function AvailabilityCalendar({
     onDateSelect(date);
   };
 
-  // ✅ FILTER MEETINGS FOR SELECTED DATE WITH LOGS
+  // ✅ FILTER MEETINGS FOR SELECTED DATE WITH IMPROVED LOGS
   const filteredMeetings = meetings.filter(meeting => {
-    console.log("Checking meeting:", meeting);
+    console.log("📋 Checking meeting:", {
+      id: meeting._id,
+      userName: meeting.userName,
+      daySpecific: meeting.daySpecific,
+      isPayed: meeting.isPayed
+    });
 
     let daySpecificData = meeting.daySpecific;
+
+    // Handle different daySpecific formats
+    if (!daySpecificData) {
+      console.warn("⚠️ No daySpecific data found for meeting:", meeting._id);
+      return false;
+    }
 
     // Ensure daySpecific is always an array
     if (!Array.isArray(daySpecificData)) {
@@ -55,18 +67,31 @@ export default function AvailabilityCalendar({
       daySpecificData = [daySpecificData]; // Convert object to array
     }
 
-    return daySpecificData.some(daySpec => {
-      const meetingDate = new Date(daySpec?.date).toDateString();
-      const selectedDateString = selectedDate.toDateString();
+    const hasMatchingDate = daySpecificData.some(daySpec => {
+      if (!daySpec || !daySpec.date) {
+        console.warn("⚠️ Invalid daySpec data:", daySpec);
+        return false;
+      }
 
-      console.log(
-        "🕵️‍♂️ Comparing Dates:",
-        "Meeting Date:", meetingDate,
-        "| Selected Date:", selectedDateString
-      );
+      try {
+        const meetingDate = new Date(daySpec.date).toDateString();
+        const selectedDateString = selectedDate.toDateString();
 
-      return meetingDate === selectedDateString && daySpec.slot?.startTime;
+        console.log(
+          "🕵️‍♂️ Comparing Dates:",
+          "Meeting Date:", meetingDate,
+          "| Selected Date:", selectedDateString,
+          "| Has Slot:", !!daySpec.slot?.startTime
+        );
+
+        return meetingDate === selectedDateString && daySpec.slot?.startTime;
+      } catch (error) {
+        console.error("❌ Error parsing date:", daySpec.date, error);
+        return false;
+      }
     });
+
+    return hasMatchingDate;
   });
 
   console.log("✅ Meetings found for", selectedDate.toDateString(), ":", filteredMeetings);
@@ -106,16 +131,24 @@ export default function AvailabilityCalendar({
               const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
 
               const hasMeetings = meetings.some(meeting => {
+                if (!meeting.daySpecific) return false;
+                
                 let daySpecificData = meeting.daySpecific;
 
                 if (!Array.isArray(daySpecificData)) {
                   daySpecificData = [daySpecificData];
                 }
 
-                return daySpecificData.some(daySpec =>
-                  new Date(daySpec?.date).toDateString() === date.toDateString() &&
-                  daySpec.slot?.startTime
-                );
+                return daySpecificData.some(daySpec => {
+                  if (!daySpec?.date || !daySpec.slot?.startTime) return false;
+                  
+                  try {
+                    return new Date(daySpec.date).toDateString() === date.toDateString();
+                  } catch (error) {
+                    console.warn("Invalid date in meeting:", daySpec.date);
+                    return false;
+                  }
+                });
               });
 
               const isToday = new Date().toDateString() === date.toDateString();
@@ -154,26 +187,34 @@ export default function AvailabilityCalendar({
                   daySpecificData = [daySpecificData];
                 }
 
-                return daySpecificData.map((daySpec, index) => {
-                  const { startTime, endTime, userName } = daySpec.slot;
-                  return startTime ? (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0">
-                          <BiTime className="text-gray-400" size={20} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">
-                              {startTime} - {endTime}
-                            </span>
+                return daySpecificData
+                  .filter(daySpec => daySpec?.slot?.startTime) // Only show slots with valid time
+                  .map((daySpec, index) => {
+                    const { startTime, endTime } = daySpec.slot || {};
+                    
+                    return startTime ? (
+                      <div key={`${meeting._id}-${index}`} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0">
+                            <BiTime className="text-gray-400" size={20} />
                           </div>
-                          <div className="text-sm text-gray-600">{meeting.userName || 'Unknown Client'}</div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {startTime} - {endTime || 'N/A'}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {meeting.userName || 'Unknown Client'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {meeting.serviceName || 'Session'}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : null;
-                });
+                    ) : null;
+                  });
               })
             ) : (
               <p className="text-gray-500 text-sm">No meetings scheduled for this day.</p>

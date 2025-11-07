@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Reminder - Client Session Starting Soon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        body, table, td, div, p, h1, h2 {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Date card styles */
+        .date-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            width: 120px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        .month {
+            background: #169544;
+            color: white;
+            padding: 4px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .day-num {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 8px 0;
+            color: #2d3748;
+        }
+
+        .day-name {
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 14px;
+            padding-bottom: 8px;
+        }
+
+        /* Button styles */
+        .button {
+            background: #169544;
+            color: white !important;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            display: inline-block;
+            border: none;
+        }
+
+        /* Timeline styles */
+        .timeline-event {
+            padding: 16px;
+            border-left: 2px solid #169544;
+            margin: 16px 0;
+            background: #F5FEF8;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Expert reminder alert */
+        .expert-reminder-alert {
+            background: linear-gradient(135deg, #3B82F6, #60A5FA);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        /* Responsive styles */
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            .mobile-stack {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            .mobile-center {
+                text-align: center !important;
+            }
+            
+            .date-card {
+                margin: 0 auto 20px !important;
+            }
+            
+            .button {
+                display: block !important;
+                width: 80% !important;
+                margin: 10px auto !important;
+                text-align: center !important;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: #f7fafc; margin: 0; padding: 20px;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+            <td align="center">
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800" style="background: white; border-radius: 12px;">
+                    
+                    <!-- Expert Reminder Alert Banner -->
+                    <tr>
+                        <td class="expert-reminder-alert">
+                            📞 Expert Reminder: Your client session starts in 15 minutes!
+                        </td>
+                    </tr>
+
+                    <!-- Header Section -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                <tr>
+                                    <td class="mobile-stack" style="vertical-align: top; padding-right: 40px; width: 120px;">
+                                        <div class="date-card">
+                                            <div class="month">{MONTH}</div>
+                                            <div class="day-num">{DATE}</div>
+                                            <div class="day-name">{DAY}</div>
+                                        </div>
+                                    </td>
+                                    <td class="mobile-stack">
+                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">📋 Client Session Starting Soon</h1>
+                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation with <strong>{USERNAME}</strong> for <strong>{SERVICENAME}</strong> is starting soon!</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Session Details Section -->
+                    <tr>
+                        <td style="padding: 40px; border-top: 1px solid #e2e8f0;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                <tr>
+                                    <td class="mobile-stack">
+                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">⏰ Session Ready - Starting in 15 Minutes!</h2>
+                                        
+                                        <div class="timeline-event">
+                                            <strong style="color: #2d3748;">⏰ {STARTTIME} - {ENDTIME} (IST)</strong>
+                                            <div style="margin-top: 8px;">📝 Service: {SERVICENAME}</div>
+                                        </div>
+
+                                        <div class="timeline-event">
+                                            <div style="color: #718096;">👤 Client Session With</div>
+                                            <strong style="color: #2d3748;">{USERNAME}</strong>
+                                        </div>
+
+                                        <div class="timeline-event" style="background: #EFF6FF; border-left: 2px solid #3B82F6;">
+                                            <div style="color: #1E40AF; font-weight: 600; margin-bottom: 12px;">💬 Client Message</div>
+                                            <div style="color: #1E3A8A; font-size: 14px;">
+                                                {CLIENTMESSAGE}
+                                            </div>
+                                        </div>
+
+                                        <div class="timeline-event" style="background: #F0FDF4; border-left: 2px solid #15803D;">
+                                            <div style="color: #15803D; font-weight: 600; margin-bottom: 12px;">✅ Expert Pre-Session Checklist</div>
+                                            <div style="color: #166534; font-size: 14px;">
+                                                <div>🎥 Test camera and audio setup</div>
+                                                <div>📝 Review client's service requirements</div>
+                                                <div>🗂️ Prepare relevant materials or documents</div>
+                                                <div>🌐 Ensure stable internet connection</div>
+                                            </div>
+                                        </div>
+
+                                        <div style="margin-top: 24px; text-align: center;">
+                                            <a href="http://localhost:5173/dashboard/expert/meetings" class="button" style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥 Start Meeting Session</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Professional Tips Section -->
+                    <tr>
+                        <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #FFFBEB;">
+                            <h3 style="color: #D97706; font-size: 18px; margin-bottom: 12px;">💡 Session Tips for Success</h3>
+                            <div style="color: #92400E; font-size: 14px; text-align: left; max-width: 500px; margin: 0 auto;">
+                                <div style="margin-bottom: 8px;">• Start with a warm welcome and introduction</div>
+                                <div style="margin-bottom: 8px;">• Confirm the client's specific needs and objectives</div>
+                                <div style="margin-bottom: 8px;">• Keep track of time to ensure all topics are covered</div>
+                                <div style="margin-bottom: 8px;">• End with clear next steps or recommendations</div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer Section -->
+                    <tr>
+                        <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="color: #4a5568; font-size: 14px;">Your client is counting on your expertise. Deliver an exceptional session!</p>
+                            <div style="margin-top: 32px; background-color: #f8f8f8;">
+                                <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
+                                <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
+                                    This is an automated reminder. You're receiving this because you have an upcoming client session.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -8,7 +8,14 @@ import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import sendEmail from "../utils/sendEmail.js";
 import dotenv from 'dotenv'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -321,6 +328,9 @@ export const success = async (req, res) => {
       sessionDoc.metaData = { ...(sessionDoc.metaData || {}), ...body };
       await sessionDoc.save();
 
+      // Declare meeting variable outside try block so it's accessible later
+      let meeting = null;
+
       // 4) Update the meeting record to mark as paid and create video call
       try {
         // Find the meeting record using the serviceId, expertId, userId, and date
@@ -332,7 +342,7 @@ export const success = async (req, res) => {
         });
 
         // Try to find meeting with multiple date format approaches
-        let meeting = await Meeting.findOne({
+        meeting = await Meeting.findOne({
           serviceId: sessionDoc.serviceId,
           expertId: sessionDoc.expertId,
           userId: sessionDoc.userId,
@@ -359,6 +369,11 @@ export const success = async (req, res) => {
           meeting.isPayed = true;
           meeting.amount = sessionDoc.amount;
           meeting.razorpay_payment_id = payuMoneyId;
+          // Save the message from the payment session to the meeting
+          if (sessionDoc.message) {
+            meeting.message = sessionDoc.message;
+            console.log("PayU: Message saved to meeting:", sessionDoc.message);
+          }
 
           // Create video call using Dyte API
           // Create video call using Dyte API
@@ -465,30 +480,43 @@ export const success = async (req, res) => {
             await notification.save();
             console.log("Notification created successfully");
 
-            // Send emails
+            // Send emails to expert and user
             const user = await User.findById(meeting.userId);
-            // if (user && expert) {
-            //   const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
-            //   let emailTemplate = fs.readFileSync(templatePath, "utf8");
-            //   const fullDate = moment(meeting.daySpecific.date);
-            //   const month = fullDate.format("MMMM");
-            //   const datee = fullDate.format("DD");
-            //   const day = fullDate.format("dddd");
+            if (user && expert) {
+              try {
+                const templatePath = path.join(__dirname, "./EmailTemplates/bookingconfirmation.html");
+                let emailTemplate = fs.readFileSync(templatePath, "utf8");
+                const fullDate = moment(meeting.daySpecific.date);
+                const month = fullDate.format("MMMM");
+                const datee = fullDate.format("DD");
+                const day = fullDate.format("dddd");
 
-            //   emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
-            //   emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
-            //   emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
-            //   emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, meeting.daySpecific.date);
-            //   emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
-            //   emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
-            //   emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
-            //   emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
-            //   emailTemplate = emailTemplate.replace(/{DAY}/g, day);
+                // Replace all placeholders in the email template
+                emailTemplate = emailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
+                emailTemplate = emailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
+                emailTemplate = emailTemplate.replace(/{USERNAME}/g, user.firstName);
+                emailTemplate = emailTemplate.replace(/{MEETINGDATE}/g, moment(meeting.daySpecific.date).format("YYYY-MM-DD"));
+                emailTemplate = emailTemplate.replace(/{STARTTIME}/g, meeting.daySpecific.slot.startTime);
+                emailTemplate = emailTemplate.replace(/{ENDTIME}/g, meeting.daySpecific.slot.endTime);
+                emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
+                emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
+                emailTemplate = emailTemplate.replace(/{DAY}/g, day);
 
-            //   await sendEmail(expert.email, "Meeting Booked", emailTemplate, true);
-            //   await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
-            //   console.log("Emails sent successfully");
-            // }
+                // Send email to expert
+                await sendEmail(expert.email, "New Booking Confirmed - Meeting Details", emailTemplate, true);
+                console.log("Email sent to expert successfully:", expert.email);
+
+                // Send email to user as well
+                await sendEmail(user.email, "Booking Confirmed - Meeting Details", emailTemplate, true);
+                console.log("Email sent to user successfully:", user.email);
+
+              } catch (emailError) {
+                console.error("Error sending emails:", emailError);
+                // Continue with payment processing even if email sending fails
+              }
+            } else {
+              console.log("User or expert not found for email sending");
+            }
           } catch (availabilityError) {
             console.error("Error updating availability:", availabilityError);
             // Continue with payment processing even if availability update fails
@@ -520,10 +548,27 @@ export const success = async (req, res) => {
         { strict: false }
       );
 
+      // Fetch booking details to include in redirect URL
+      let bookingDetailsParams = '';
+      if (meeting) {
+        const bookingDetails = {
+          expertImage: encodeURIComponent(meeting.expertImage || ''),
+          expertName: encodeURIComponent(meeting.expertName || ''),
+          serviceName: encodeURIComponent(meeting.serviceName || ''),
+          duration: encodeURIComponent(meeting.duration || ''),
+          amount: encodeURIComponent(meeting.amount || ''),
+          date: encodeURIComponent(meeting.daySpecific?.date || ''),
+          startTime: encodeURIComponent(meeting.daySpecific?.slot?.startTime || ''),
+          endTime: encodeURIComponent(meeting.daySpecific?.slot?.endTime || '')
+        };
+
+        bookingDetailsParams = `&expertImage=${bookingDetails.expertImage}&expertName=${bookingDetails.expertName}&serviceName=${bookingDetails.serviceName}&duration=${bookingDetails.duration}&amount=${bookingDetails.amount}&date=${bookingDetails.date}&startTime=${bookingDetails.startTime}&endTime=${bookingDetails.endTime}`;
+      }
+
       return res.status(302).redirect(
         `${FRONTEND_URL}/payu-payment-success?sessionId=${encodeURIComponent(
           sessionDoc.sessionId
-        )}&token=${encodeURIComponent(successToken)}`
+        )}&token=${encodeURIComponent(successToken)}${bookingDetailsParams}`
       );
     } else if (body.sessionId && body.token) {
       console.log("Processing frontend verification request");

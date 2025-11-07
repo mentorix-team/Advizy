@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "react-hot-toast";
 import ProfileHeader from "./components/ProfileHeader";
 import ProfileTabs from "./components/ProfileTabs";
 import BasicInfo from "./components/BasicInfo";
-import ExpertiseTab from "./components/expertise/ExpertiseTab";
+import ExpertiseTab, { validateProfessionalDetailsData } from "./components/expertise/ExpertiseTab";
 import EducationTab from "./components/education/EducationTab";
 import PreviewApp from "./components/preview/src/App";
 import {
@@ -18,6 +19,58 @@ import ExperienceTab from "./components/experience/ExperienceTab";
 // import Spinner from '@/LoadingSkeleton/Spinner';
 import Spinner from "@/components/LoadingSkeleton/Spinner";
 
+const normalizeSocialLinks = (rawLinks) => {
+  if (!rawLinks) return [];
+
+  const collected = new Set();
+
+  const processValue = (value) => {
+    if (!value) return;
+
+    if (Array.isArray(value)) {
+      value.forEach(processValue);
+      return;
+    }
+
+    if (typeof value !== "string") {
+      return;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const looksJsonArray =
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"));
+
+    if (looksJsonArray) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // treat as raw string when parsing fails
+      }
+    }
+
+    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        processValue(parsed);
+        return;
+      } catch (error) {
+        // Fallback to trimmed literal value
+      }
+    }
+
+    collected.add(trimmed);
+  };
+
+  processValue(rawLinks);
+
+  return Array.from(collected);
+};
+
 function App() {
   const tabs = [
     "basic",
@@ -26,6 +79,7 @@ function App() {
     "experience",
     "certifications",
   ];
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { expertData, loading, error } = useSelector((state) => state.expert);
   const { selectedExpert } = useSelector((state) => state.expert);
@@ -35,8 +89,18 @@ function App() {
   const [showPreview, setShowPreview] = useState(false);
   const [profileImage, setProfileImage] = useState("");
   const [coverImage, setCoverImage] = useState("");
+  const pageRef = useRef(null);
+  const headerRef = useRef(null);
+  const headerInitialTopRef = useRef(null);
+  const scrollAnimationFrame = useRef(null);
+  const expertiseTabRef = useRef(null);
+  const [isHeaderFixed, setIsHeaderFixed] = useState(false);
+  const [headerStyle, setHeaderStyle] = useState({});
+  const [navbarHeight, setNavbarHeight] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [expertiseValidationKey, setExpertiseValidationKey] = useState(0);
   const [enabledTabs, setEnabledTabs] = useState([
     "basic",
     "certifications",
@@ -46,8 +110,141 @@ function App() {
   ]);
   let expert = null;
   useEffect(() => {
-    dispatch(getmeasexpert());
+    // Add delay to prevent race conditions with auth
+    const timer = setTimeout(() => {
+      const isLoggedIn = localStorage.getItem("isLoggedIn");
+      const lastTokenRefresh = sessionStorage.getItem('lastTokenRefresh');
+      const now = Date.now();
+
+      // Only call if logged in and not recently refreshing
+      if (isLoggedIn && isLoggedIn !== 'false' &&
+        (!lastTokenRefresh || (now - parseInt(lastTokenRefresh)) > 1000)) {
+        dispatch(getmeasexpert());
+      }
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timer);
   }, [dispatch]);
+
+  // Calculate navbar height
+  useEffect(() => {
+    const calculateNavbarHeight = () => {
+      const navbar = document.querySelector('nav, .navbar, [role="navigation"]') ||
+        document.querySelector('header') ||
+        document.querySelector('[class*="nav"]') ||
+        document.querySelector('[class*="header"]');
+
+      let height = 64; // Default fallback
+      if (navbar) {
+        const navbarRect = navbar.getBoundingClientRect();
+        height = navbarRect.height;
+      }
+      setNavbarHeight(height);
+    };
+
+    calculateNavbarHeight();
+    window.addEventListener('resize', calculateNavbarHeight);
+
+    return () => {
+      window.removeEventListener('resize', calculateNavbarHeight);
+    };
+  }, []);
+
+  // Track header height for spacer sizing
+  useEffect(() => {
+    if (!headerRef.current) return;
+
+    const updateHeight = () => {
+      if (headerRef.current) {
+        const { height } = headerRef.current.getBoundingClientRect();
+        setHeaderHeight(height);
+      }
+    };
+
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(headerRef.current);
+
+    window.addEventListener("resize", updateHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
+
+  // Handle scroll event to fix header position smoothly
+  useEffect(() => {
+    const updateHeaderPosition = () => {
+      if (!headerRef.current || !pageRef.current) return;
+
+      const pageRect = pageRef.current.getBoundingClientRect();
+      const scrollY = window.scrollY;
+
+      if (!headerInitialTopRef.current || !isHeaderFixed) {
+        const headerAbsoluteTop =
+          headerRef.current.getBoundingClientRect().top + scrollY;
+        headerInitialTopRef.current = headerAbsoluteTop;
+      }
+
+      const triggerPoint =
+        (headerInitialTopRef.current || 0) - navbarHeight;
+      const shouldFix = scrollY >= triggerPoint - 1;
+
+      if (shouldFix && !isHeaderFixed) {
+        setIsHeaderFixed(true);
+        setHeaderStyle({
+          position: "fixed",
+          top: `${navbarHeight}px`,
+          left: `${pageRect.left + window.scrollX}px`,
+          width: `${pageRect.width}px`,
+          zIndex: 40,
+          backgroundColor: "#f9fafb",
+          borderBottom: "1px solid #e5e7eb",
+          boxShadow: "0 5px 15px -5px rgba(15, 23, 42, 0.25)",
+          transition:
+            "top 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease",
+          willChange: "transform, left, width",
+          transform: "translateZ(0)",
+        });
+      } else if (!shouldFix && isHeaderFixed) {
+        setIsHeaderFixed(false);
+        headerInitialTopRef.current = null;
+        setHeaderStyle({});
+      } else if (isHeaderFixed) {
+        setHeaderStyle((prev) => ({
+          ...prev,
+          left: `${pageRect.left + window.scrollX}px`,
+          width: `${pageRect.width}px`,
+        }));
+      }
+    };
+
+    const handleScrollOrResize = () => {
+      if (scrollAnimationFrame.current) {
+        cancelAnimationFrame(scrollAnimationFrame.current);
+      }
+
+      scrollAnimationFrame.current = requestAnimationFrame(() => {
+        updateHeaderPosition();
+        scrollAnimationFrame.current = null;
+      });
+    };
+
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
+    window.addEventListener("resize", handleScrollOrResize);
+    updateHeaderPosition();
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize);
+      window.removeEventListener("resize", handleScrollOrResize);
+      if (scrollAnimationFrame.current) {
+        cancelAnimationFrame(scrollAnimationFrame.current);
+        scrollAnimationFrame.current = null;
+      }
+    };
+  }, [navbarHeight, isHeaderFixed]);
 
   if (expertData) {
     if (typeof expertData === "string") {
@@ -84,13 +281,13 @@ function App() {
       //   : [],
       languages: expert?.languages
         ? expert.languages.flatMap((lang) =>
-            typeof lang === "string" ? JSON.parse(lang) : lang
-          )
+          typeof lang === "string" ? JSON.parse(lang) : lang
+        )
         : [],
-      socialLinks:
-        expert?.socialLinks?.length && typeof expert.socialLinks[0] === "string"
-          ? JSON.parse(expert.socialLinks[0])
-          : expert?.socialLinks || [""],
+      socialLinks: (() => {
+        const normalizedLinks = normalizeSocialLinks(expert?.socialLinks);
+        return normalizedLinks.length > 0 ? normalizedLinks : [];
+      })(),
       coverImage: expert?.coverImage?.secure_url || coverImage || "",
       profileImage: expert?.profileImage?.secure_url || profileImage || "",
     },
@@ -138,6 +335,7 @@ function App() {
 
     if (!basic.firstName.trim()) newErrors.firstName = "First name is required";
     if (!basic.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!basic.bio.trim()) newErrors.bio = "Bio description is required";
     if (!basic.gender) newErrors.gender = "Gender is required";
     if (!basic.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required";
     if (!basic.nationality) newErrors.nationality = "Nationality is required";
@@ -147,6 +345,9 @@ function App() {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(basic.email)) {
       newErrors.email = "Invalid email format";
+    }
+    if (!Array.isArray(basic.languages) || basic.languages.length === 0) {
+      newErrors.languages = "Please select at least one language";
     }
 
     setErrors(newErrors);
@@ -198,68 +399,73 @@ function App() {
     const currentIndex = tabs.indexOf(activeTab);
 
     if (activeTab === "basic") {
-      if (validateBasicInfo()) {
-        const requiredFields = [
-          "firstName",
-          "lastName",
-          "gender",
-          "dateOfBirth",
-          "nationality",
-          "city",
-          "mobile",
-          "email",
-        ];
-        const allTouched = {};
-        requiredFields.forEach((field) => {
-          allTouched[field] = true;
-        });
-        setTouched(allTouched);
-        // console.log("profile image ",formData.basic.profileImage)
-        const basicData = new FormData();
-        basicData.append("firstName", formData.basic.firstName);
-        basicData.append("lastName", formData.basic.lastName);
-        basicData.append("city", formData.basic.city);
-        basicData.append("bio", formData.basic.bio);
-        basicData.append("gender", formData.basic.gender);
-        basicData.append("dateOfBirth", formData.basic.dateOfBirth);
-        basicData.append("email", formData.basic.email);
-        basicData.append("countryCode", formData.basic.countryCode);
-        basicData.append("mobile", formData.basic.mobile);
-        basicData.append("nationality", formData.basic.nationality);
-        basicData.append("languages", JSON.stringify(formData.basic.languages));
-        basicData.append(
-          "socialLinks",
-          JSON.stringify(formData.basic.socialLinks)
-        );
-        basicData.append("coverImage", formData.basic.coverImage);
-        basicData.append("profileImage", formData.basic.profileImage);
+      const requiredFields = [
+        "firstName",
+        "lastName",
+        "gender",
+        "dateOfBirth",
+        "nationality",
+        "city",
+        "mobile",
+        "email",
+        "languages",
+      ];
+      const touchedUpdate = requiredFields.reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {});
+      setTouched((prev) => ({ ...prev, ...touchedUpdate }));
 
-        try {
-          const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
-          if (response.success) {
-            setEnabledTabs((prev) => [...prev, "expertise"]); // Enable the next tab
-            toast.success("Basic information submitted successfully!", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
-          } else {
-            toast.error("Failed to submit basic information", {
-              position: "top-right",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
-            return;
-          }
-        } catch (error) {
-          console.error("Error submitting basic form:", error);
-          toast.error("An error occurred while submitting the form", {
+      const isBasicValid = validateBasicInfo();
+      if (!isBasicValid) {
+        toast.error("Please complete all required basic details before proceeding.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
+      }
+
+      // console.log("profile image ",formData.basic.profileImage)
+      const basicData = new FormData();
+      basicData.append("firstName", formData.basic.firstName);
+      basicData.append("lastName", formData.basic.lastName);
+      basicData.append("city", formData.basic.city);
+      basicData.append("bio", formData.basic.bio);
+      basicData.append("gender", formData.basic.gender);
+      basicData.append("dateOfBirth", formData.basic.dateOfBirth);
+      basicData.append("email", formData.basic.email);
+      basicData.append("countryCode", formData.basic.countryCode);
+      basicData.append("mobile", formData.basic.mobile);
+      basicData.append("nationality", formData.basic.nationality);
+      basicData.append("languages", JSON.stringify(formData.basic.languages));
+      const sanitizedSocialLinks = normalizeSocialLinks(
+        formData.basic.socialLinks
+      );
+      basicData.append(
+        "socialLinks",
+        JSON.stringify(sanitizedSocialLinks)
+      );
+      basicData.append("coverImage", formData.basic.coverImage);
+      basicData.append("profileImage", formData.basic.profileImage);
+
+      try {
+        const response = await dispatch(basicFormSubmit(basicData)).unwrap(); // Use `unwrap` to get the response directly
+        if (response.success) {
+          setEnabledTabs((prev) => [...prev, "expertise"]); // Enable the next tab
+          toast.success("Basic information submitted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        } else {
+          toast.error("Failed to submit basic information", {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -269,15 +475,46 @@ function App() {
           });
           return;
         }
+      } catch (error) {
+        console.error("Error submitting basic form:", error);
+        toast.error("An error occurred while submitting the form", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
       }
     }
 
     if (activeTab === "expertise") {
-      setEnabledTabs((prev) => [...prev, "education"]);
-      console.log(
-        "This is the data to be sent for expertise",
-        formData.expertise
+      const expertiseValid =
+        (expertiseTabRef.current &&
+          expertiseTabRef.current.validateAndTouch?.()) ||
+        validateProfessionalDetailsData(formData.expertise).isValid;
+
+      if (!expertiseValid) {
+        toast.error("Please complete your professional details before proceeding.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
+        if (!expertiseTabRef.current) {
+          setExpertiseValidationKey(Date.now());
+        }
+        return;
+      }
+
+      setEnabledTabs((prev) =>
+        prev.includes("education") ? prev : [...prev, "education"]
       );
+
       dispatch(professionalFormSubmit(formData.expertise));
       toast.success("Changes saved successfully!", {
         position: "top-right",
@@ -356,12 +593,14 @@ function App() {
           draggable: true,
         });
       }
+      navigate("/dashboard/expert/home");
     }
 
     if (currentIndex < tabs.length - 1) {
       const nextTab = tabs[currentIndex + 1];
       setActiveTab(nextTab);
       localStorage.setItem("activeTab", nextTab); // Store in localStorage
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -372,6 +611,7 @@ function App() {
       setEnabledTabs((prev) => [...prev, nextTab]);
       setActiveTab(nextTab);
       localStorage.setItem('activeTab', nextTab);
+      window.scrollTo({ top: 0, behavior: "smooth" });
       toast.success("Skipped to next section", {
         position: "top-right",
         autoClose: 3000,
@@ -389,27 +629,127 @@ function App() {
       const prevTab = tabs[currentIndex - 1];
       setActiveTab(prevTab);
       localStorage.setItem("activeTab", prevTab); // Store in localStorage
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  const handleSaveAll = () => {
-    const updatedFormData = {
-      ...formData,
-      basic: {
-        ...formData.basic,
-        profileImage,
-        coverImage,
-      },
-    };
-    console.log("Saving all data:", updatedFormData);
-    toast.success("All changes saved successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    });
+  const handleSaveAll = async () => {
+    try {
+      const requiredFields = [
+        "firstName",
+        "lastName",
+        "bio",
+        "gender",
+        "dateOfBirth",
+        "nationality",
+        "city",
+        "mobile",
+        "email",
+        "languages",
+      ];
+      const touchedUpdate = requiredFields.reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {});
+      setTouched((prev) => ({ ...prev, ...touchedUpdate }));
+
+      const basicIsValid = validateBasicInfo();
+      if (!basicIsValid) {
+        setActiveTab("basic");
+        toast.error("Please fill in all required basic details before saving.", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        return;
+      }
+
+      // Save basic info
+      const basicData = new FormData();
+      basicData.append("firstName", formData.basic.firstName);
+      basicData.append("lastName", formData.basic.lastName);
+      basicData.append("city", formData.basic.city);
+      basicData.append("bio", formData.basic.bio);
+      basicData.append("gender", formData.basic.gender);
+      basicData.append("dateOfBirth", formData.basic.dateOfBirth);
+      basicData.append("email", formData.basic.email);
+      basicData.append("countryCode", formData.basic.countryCode);
+      basicData.append("mobile", formData.basic.mobile);
+      basicData.append("nationality", formData.basic.nationality);
+      basicData.append("languages", JSON.stringify(formData.basic.languages));
+      const sanitizedSocialLinks = normalizeSocialLinks(
+        formData.basic.socialLinks
+      );
+      basicData.append("socialLinks", JSON.stringify(sanitizedSocialLinks));
+
+      // Handle images properly
+      if (formData.basic.coverImage instanceof File) {
+        basicData.append("coverImage", formData.basic.coverImage);
+      }
+      if (formData.basic.profileImage instanceof File) {
+        basicData.append("profileImage", formData.basic.profileImage);
+      }
+
+      const basicResponse = await dispatch(basicFormSubmit(basicData)).unwrap();
+
+      if (basicResponse.success) {
+        const { isValid: expertiseIsValid } =
+          validateProfessionalDetailsData(formData.expertise);
+
+        if (!expertiseIsValid) {
+          if (expertiseTabRef.current) {
+            expertiseTabRef.current.validateAndTouch?.();
+          } else {
+            setExpertiseValidationKey(Date.now());
+          }
+
+          setActiveTab("expertise");
+          toast.error(
+            "Please fill in all required professional details before saving.",
+            {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            }
+          );
+          return;
+        }
+
+        if (expertiseTabRef.current) {
+          expertiseTabRef.current.validateAndTouch?.();
+        }
+
+        // Save expertise info
+        await dispatch(professionalFormSubmit(formData.expertise)).unwrap();
+
+        toast.success("All changes saved successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        throw new Error("Failed to save basic information");
+      }
+    } catch (error) {
+      console.error("Error saving all data:", error);
+      toast.error("Failed to save changes. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    }
   };
 
   if (loading) {
@@ -439,27 +779,44 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster position="top-right" />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            Edit Profile
-          </h1>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-            <button
-              onClick={() => setShowPreview(true)}
-              className="px-4 py-2 border rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 w-full sm:w-auto"
-            >
-              <span className="text-gray-600">👁️</span>
-              Preview
-            </button>
-            <button
-              onClick={handleSaveAll}
-              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 w-full sm:w-auto"
-            >
-              Save Changes
-            </button>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8" ref={pageRef}>
+        {/* Header section that will become fixed on scroll */}
+        <div
+          ref={headerRef}
+          className={`py-4 border-b border-gray-200 shadow-sm transition-all duration-300 ${isHeaderFixed ? '' : 'bg-gray-50 mb-6'
+            }`}
+          style={headerStyle}
+        >
+          <div className={`flex pl-4 flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isHeaderFixed ? 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8' : ''
+            }`}>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+              Edit Profile
+            </h1>
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+              <button
+                onClick={() => setShowPreview(true)}
+                className="px-4 py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-white transition-colors w-full sm:w-auto bg-white"
+              >
+                <span className="text-gray-600">👁️</span>
+                Preview
+              </button>
+              <button
+                onClick={handleSaveAll}
+                className="px-4 py-2 pr-4 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Add spacer div to prevent content from being hidden under the fixed header */}
+        {isHeaderFixed && (
+          <div
+            aria-hidden="true"
+            style={{ height: headerHeight || 96 }}
+          />
+        )}
 
         <div className="bg-white rounded-lg shadow">
           <ProfileHeader
@@ -489,8 +846,10 @@ function App() {
             )}
             {activeTab === "expertise" && enabledTabs.includes("expertise") && (
               <ExpertiseTab
+                ref={expertiseTabRef}
                 formData={formData.expertise}
                 onUpdate={(data) => handleUpdateFormData("expertise", data)}
+                forceValidationKey={expertiseValidationKey}
               />
             )}
             {activeTab === "education" && enabledTabs.includes("education") && (
@@ -522,11 +881,10 @@ function App() {
           <button
             onClick={handlePrevious}
             disabled={activeTab === "basic"}
-            className={`px-4 sm:px-6 py-2 border rounded-lg ${
-              activeTab === "basic"
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "hover:bg-gray-50"
-            }`}
+            className={`px-4 sm:px-6 py-2 border rounded-lg ${activeTab === "basic"
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "hover:bg-gray-50"
+              }`}
           >
             Previous
           </button>
@@ -541,13 +899,12 @@ function App() {
             )}
             <button
               onClick={handleNext}
-              className={`px-4 sm:px-6 py-2 ${
-                activeTab === "certifications"
-                  ? "bg-primary text-white hover:bg-green-600"
-                  : "bg-primary text-white hover:bg-green-600"
-              } rounded-lg`}
+              className={`px-4 sm:px-6 py-2 ${activeTab === "certifications"
+                ? "bg-primary text-white hover:bg-green-600"
+                : "bg-primary text-white hover:bg-green-600"
+                } rounded-lg`}
             >
-              {activeTab === "certifications" ? "Save" : "Next"}
+              {activeTab === "certifications" ? "Save" : "Save & Next"}
             </button>
           </div>
         </div>

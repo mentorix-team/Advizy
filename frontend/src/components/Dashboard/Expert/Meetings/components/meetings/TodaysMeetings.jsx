@@ -2,9 +2,13 @@ import PropTypes from "prop-types";
 import { BsClock } from "react-icons/bs";
 import { CalendarIcon } from "@/icons/Icons";
 import NoData from "@/NoData";
+import {
+  getMeetingStatusLabel,
+  getMeetingStatusPillTone,
+} from "@/utils/meetingStatus";
 
 const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
-  
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
       <div className="p-4 border-b border-gray-200">
@@ -46,57 +50,58 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
                   </td>
                 </tr>
               ) : (
-                meetings.map((meeting, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-3 md:px-6 py-4">
-                      <span className="text-xs md:text-sm font-medium text-gray-900">
-                        {meeting.userName}
-                      </span>
-                      {/* <div className="md:hidden text-xs text-gray-500 mt-1">
+                meetings.map((meeting, index) => {
+                  const statusLabel = getMeetingStatusLabel(meeting);
+                  const toneClass = getMeetingStatusPillTone(meeting);
+
+                  return (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-3 md:px-6 py-4">
+                        <span className="text-xs md:text-sm font-medium text-gray-900">
+                          {meeting.userName}
+                        </span>
+                        {/* <div className="md:hidden text-xs text-gray-500 mt-1">
                         <BsClock className="inline text-[#16A348] mr-1" />
                         {meeting.time}
                       </div> */}
-                    </td>
-                    <td className="hidden sm:table-cell px-3 md:px-6 py-4">
-                      <span className="text-xs md:text-sm text-gray-900">
-                        {meeting.serviceName}
-                      </span>
-                    </td>
-                    <td className="hidden md:table-cell px-3 md:px-6 py-4">
-                      <div className="flex items-center text-xs md:text-sm text-gray-900">
-                        <BsClock className="text-[#16A348] mr-2" />
-                        {meeting?.daySpecific?.slot?.startTime || "N/A"}
-                      </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-4">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs md:text-sm rounded-full font-medium ${
-                          meeting.sessionStatus === "Completed"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {meeting.sessionStatus}
-                      </span>
-                    </td>
-                    <td className="px-3 md:px-6 py-4">
-                      <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-                        <button
-                          onClick={() => onStartMeeting(meeting)}
-                          className="bg-green-600 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-md hover:bg-green-700 transition-colors text-xs md:text-sm font-medium whitespace-nowrap"
+                      </td>
+                      <td className="hidden sm:table-cell px-3 md:px-6 py-4">
+                        <span className="text-xs md:text-sm text-gray-900">
+                          {meeting.serviceName}
+                        </span>
+                      </td>
+                      <td className="hidden md:table-cell px-3 md:px-6 py-4">
+                        <div className="flex items-center text-xs md:text-sm text-gray-900">
+                          <BsClock className="text-[#16A348] mr-2" />
+                          {meeting?.daySpecific?.slot?.startTime || "N/A"}
+                        </div>
+                      </td>
+                      <td className="px-3 md:px-6 py-4">
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs md:text-sm rounded-full font-medium capitalize ${toneClass}`}
                         >
-                          Start
-                        </button>
-                        <button
-                          onClick={() => onViewDetails(meeting)}
-                          className="text-black border border-gray-300 px-3 md:px-4 py-1.5 md:py-2 rounded-md hover:text-[#16A348] text-xs md:text-sm font-medium whitespace-nowrap hover:border hover:border-[#16A348]"
-                        >
-                          Details
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          {statusLabel}
+                        </span>
+                      </td>
+                      <td className="px-3 md:px-6 py-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                          <button
+                            onClick={() => onStartMeeting(meeting)}
+                            className="bg-green-600 text-white px-3 md:px-6 py-1.5 md:py-2 rounded-md hover:bg-green-700 transition-colors text-xs md:text-sm font-medium whitespace-nowrap"
+                          >
+                            Start
+                          </button>
+                          <button
+                            onClick={() => onViewDetails(meeting)}
+                            className="text-black border border-gray-300 px-3 md:px-4 py-1.5 md:py-2 rounded-md hover:text-[#16A348] text-xs md:text-sm font-medium whitespace-nowrap hover:border hover:border-[#16A348]"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -109,10 +114,15 @@ const TodaysMeetings = ({ meetings, onStartMeeting, onViewDetails }) => {
 TodaysMeetings.propTypes = {
   meetings: PropTypes.arrayOf(
     PropTypes.shape({
-      client: PropTypes.string.isRequired,
-      service: PropTypes.string.isRequired,
-      time: PropTypes.string.isRequired,
-      sessionStatus: PropTypes.string.isRequired,
+      userName: PropTypes.string,
+      serviceName: PropTypes.string,
+      daySpecific: PropTypes.shape({
+        slot: PropTypes.shape({
+          startTime: PropTypes.string,
+        }),
+      }),
+      status: PropTypes.string,
+      sessionStatus: PropTypes.string,
     })
   ).isRequired,
   onStartMeeting: PropTypes.func.isRequired,
