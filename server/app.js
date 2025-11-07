@@ -28,18 +28,19 @@ app.use(
   cors({
     origin: [
       process.env.frontendurl,
+      "https://www.advizy.in",
+      "https://advizy.in",
       "https://www.admin.advizy.in",
       "https://advizy.onrender.com",
       "http://localhost:5173",
       "http://localhost:8001",
       "http://localhost:5030",
       "http://advizy-adminpanel.onrender.com",
-      // "http://localhost:5030",
-      "*",
     ], // Allow frontend
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 
@@ -55,6 +56,9 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use("/ping", (req, res) => {
   res.send("pong");
