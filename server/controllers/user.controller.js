@@ -1142,58 +1142,68 @@ const validate_otp_mobile = async (req, res, next) => {
 };
 
 const generate_otp_with_email = async (req, res, next) => {
-  const { email } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    return next(new AppError("User not found", 500));
-  }
-
-  // Extract user details
-  const { firstName, lastName } = user;
-
-  // Generate OTP and save it to the user document
-  const otp = user.generateVerifyToken(); // Generates OTP
-  await user.save();
-
-  const subject = "Verify Your Email - Advizy";
-
-  // Read the email template file
-  const templatePath = path.join(
-    __dirname,
-    "./EmailTemplates/verifyaccount.html"
-  );
-  let emailTemplate = fs.readFileSync(templatePath, "utf8");
-
-  // Replace placeholders with dynamic values
-  emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
-  emailTemplate = emailTemplate.replace(
-    "{{USER_NAME}}",
-    `${firstName} ${lastName}`
-  );
-
   try {
-    await sendEmail(email, subject, emailTemplate);
+    const { email } = req.body;
 
-    // Store email in an HTTP-only cookie for temporary use
-    res.cookie("email", email, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "None",
-      maxAge: 5 * 60 * 1000, // 5 minutes expiry
-    });
+    if (!email) {
+      return next(new AppError("Email is required", 400));
+    }
 
-    res.status(200).json({
-      success: true,
-      message: `Verification OTP has been sent to ${email}`,
-    });
-  } catch (error) {
-    // Clean up OTP fields in case of email failure
-    user.otptoken = undefined;
-    user.otpexpiry = undefined;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
+
+    // Extract user details
+    const { firstName, lastName } = user;
+
+    // Generate OTP and save it to the user document
+    const otp = user.generateVerifyToken(); // Generates OTP
     await user.save();
 
-    return next(new AppError("Failed to send verification OTP email", 500));
+    const subject = "Verify Your Email - Advizy";
+
+    // Read the email template file
+    const templatePath = path.join(
+      __dirname,
+      "./EmailTemplates/verifyaccount.html"
+    );
+    let emailTemplate = fs.readFileSync(templatePath, "utf8");
+
+    // Replace placeholders with dynamic values
+    emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
+    emailTemplate = emailTemplate.replace(
+      "{{USER_NAME}}",
+      `${firstName} ${lastName}`
+    );
+
+    try {
+      await sendEmail(email, subject, emailTemplate);
+
+      // Store email in an HTTP-only cookie for temporary use
+      res.cookie("email", email, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        maxAge: 5 * 60 * 1000, // 5 minutes expiry
+      });
+
+      res.status(200).json({
+        success: true,
+        message: `Verification OTP has been sent to ${email}`,
+      });
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      // Clean up OTP fields in case of email failure
+      user.otptoken = undefined;
+      user.otpexpiry = undefined;
+      await user.save();
+
+      return next(new AppError("Failed to send verification OTP email. Please try again.", 500));
+    }
+  } catch (error) {
+    console.error("Error in generate_otp_with_email:", error);
+    return next(new AppError(error.message || "Server error", 500));
   }
 };
 
