@@ -58,7 +58,7 @@ const ContactUs = () => {
 
       try {
         const response = await axios.post(
-          "http://localhost:5030/api/v1/contact/create",
+          "https://advizy.onrender.com/api/v1/contact/create",
           formData
         );
 
@@ -70,7 +70,7 @@ const ContactUs = () => {
             email: formData.email,
             message: formData.message
           });
-          
+
           toast.success(response.data.message || "Message sent successfully!", {
             duration: 3000,
             position: "top-right",
@@ -88,16 +88,16 @@ const ContactUs = () => {
             email: "",
             message: "",
           });
-          
+
           console.log("🎉 Form reset successfully");
         }
       } catch (error) {
         console.error("❌ Error submitting contact form:", error);
         console.error("Error details:", error.response?.data || error.message);
-        
-        const errorMessage = error.response?.data?.message || 
-                           "Failed to send message. Please try again later.";
-        
+
+        const errorMessage = error.response?.data?.message ||
+          "Failed to send message. Please try again later.";
+
         toast.error(errorMessage, {
           duration: 4000,
           position: "top-right",
@@ -287,9 +287,8 @@ const ContactUs = () => {
                   disabled={isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors ${
-                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </motion.button>

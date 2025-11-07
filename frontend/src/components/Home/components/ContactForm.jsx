@@ -14,17 +14,17 @@ const ContactForm = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required';
     }
@@ -40,7 +40,7 @@ const ContactForm = () => {
       setIsSubmitting(true);
       try {
         const response = await axios.post(
-          'http://localhost:5030/api/v1/contact/create',
+          'https://advizy.onrender.com/api/v1/contact/create',
           formData
         );
         if (response.data.success) {
@@ -108,7 +108,7 @@ const ContactForm = () => {
             className="w-full"
           >
             <div className="relative w-full aspect-square sm:aspect-[4/3] lg:aspect-square">
-              <img 
+              <img
                 src="https://i.postimg.cc/Qt0hChwW/5114855-1-Photoroom-2.png"
                 alt="Contact Support"
                 className="w-full h-full object-cover object-center rounded-2xl"
@@ -136,9 +136,8 @@ const ContactForm = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your Name"
-                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                    errors.name ? 'border-red-500' : 'border-gray-200'
-                  } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.name ? 'border-red-500' : 'border-gray-200'
+                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-500">{errors.name}</p>
@@ -152,9 +151,8 @@ const ContactForm = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Your Email"
-                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                    errors.email ? 'border-red-500' : 'border-gray-200'
-                  } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.email ? 'border-red-500' : 'border-gray-200'
+                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors`}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-500">{errors.email}</p>
@@ -168,9 +166,8 @@ const ContactForm = () => {
                   onChange={handleChange}
                   placeholder="Your Message"
                   rows="4"
-                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${
-                    errors.message ? 'border-red-500' : 'border-gray-200'
-                  } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none`}
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-50 border ${errors.message ? 'border-red-500' : 'border-gray-200'
+                    } focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors resize-none`}
                 />
                 {errors.message && (
                   <p className="mt-1 text-sm text-red-500">{errors.message}</p>
@@ -182,9 +179,8 @@ const ContactForm = () => {
                 disabled={isSubmitting}
                 whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg text-white ${
-                  isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'
-                } transition-colors`}
+                className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg text-white ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark'
+                  } transition-colors`}
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </motion.button>

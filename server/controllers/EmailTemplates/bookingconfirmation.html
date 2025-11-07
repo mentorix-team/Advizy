@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Reset styles */
-        body, table, td, div, p, h1, h2 {
+        body,
+        table,
+        td,
+        div,
+        p,
+        h1,
+        h2 {
             margin: 0;
             padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -30,7 +37,7 @@
             border-radius: 10px;
             width: 120px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
         }
 
         .month {
@@ -84,21 +91,21 @@
                 width: 100% !important;
                 margin: 0 !important;
             }
-            
+
             .mobile-stack {
                 display: block !important;
                 width: 100% !important;
                 padding: 0 !important;
             }
-            
+
             .mobile-center {
                 text-align: center !important;
             }
-            
+
             .date-card {
                 margin: 0 auto 20px !important;
             }
-            
+
             .button {
                 display: block !important;
                 width: 80% !important;
@@ -108,17 +115,20 @@
         }
     </style>
 </head>
+
 <body style="background-color: #f7fafc; margin: 0; padding: 20px;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
             <td align="center">
-                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800" style="background: white; border-radius: 12px;">
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800"
+                    style="background: white; border-radius: 12px;">
                     <!-- Header Section -->
                     <tr>
                         <td style="padding: 40px;">
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
-                                    <td class="mobile-stack" style="vertical-align: top; padding-right: 40px; width: 120px;">
+                                    <td class="mobile-stack"
+                                        style="vertical-align: top; padding-right: 40px; width: 120px;">
                                         <div class="date-card">
                                             <div class="month">{MONTH}</div>
                                             <div class="day-num">{DATE}</div>
@@ -126,7 +136,8 @@
                                         </div>
                                     </td>
                                     <td class="mobile-stack">
-                                        <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a202c;">Topic : {SERVICENAME} : {EXPERTNAME}</h1>
+                                        <h1 style="font-size: 24px; margin-bottom: 24px; color: #1a202c;">Topic :
+                                            {SERVICENAME} : {EXPERTNAME}</h1>
                                         <!-- <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                             <tr>
                                                 <td style="padding: 8px 0; color: #718096; width: 80px;">When</td>
@@ -152,8 +163,9 @@
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
                                     <td class="mobile-stack">
-                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">Your booking has been confirmed</h2>
-                                        
+                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">Your booking
+                                            has been confirmed</h2>
+
                                         <div class="timeline-event">
                                             <strong style="color: #2d3748;">{STARTTIME} - {ENDTIME} (IST)</strong>
                                             <div style="margin-top: 8px;">Topic : {SERVICENAME}</div>
@@ -163,7 +175,7 @@
                                             <strong style="color: #2d3748;">{EXPERTNAME} - {USERNAME}</strong>
                                         </div>
                                         <div style="margin-top: 24px; text-align: center;">
-                                            <a href="http://localhost:5173/dashboard" class="button">Go to Dashboard</a>
+                                            <a href="https://advizy.in/dashboard" class="button">Go to Dashboard</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -175,7 +187,8 @@
                     <tr>
                         <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
                             <!-- <a href="#" class="button">Reschedule</a> -->
-                            <p style="color: #4a5568; font-size: 14px;">You can reschedule your Session anytime before the expert's notice period begins.</p>
+                            <p style="color: #4a5568; font-size: 14px;">You can reschedule your Session anytime before
+                                the expert's notice period begins.</p>
                             <div style="margin-top: 32px; background-color: #f8f8f8;">
                                 <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
                                 <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
@@ -189,4 +202,5 @@
         </tr>
     </table>
 </body>
+
 </html>

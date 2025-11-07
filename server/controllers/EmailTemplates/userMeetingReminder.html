@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Reset styles */
-        body, table, td, div, p, h1, h2 {
+        body,
+        table,
+        td,
+        div,
+        p,
+        h1,
+        h2 {
             margin: 0;
             padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -30,7 +37,7 @@
             border-radius: 10px;
             width: 120px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
         }
 
         .month {
@@ -95,21 +102,21 @@
                 width: 100% !important;
                 margin: 0 !important;
             }
-            
+
             .mobile-stack {
                 display: block !important;
                 width: 100% !important;
                 padding: 0 !important;
             }
-            
+
             .mobile-center {
                 text-align: center !important;
             }
-            
+
             .date-card {
                 margin: 0 auto 20px !important;
             }
-            
+
             .button {
                 display: block !important;
                 width: 80% !important;
@@ -119,12 +126,14 @@
         }
     </style>
 </head>
+
 <body style="background-color: #f7fafc; margin: 0; padding: 20px;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
             <td align="center">
-                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800" style="background: white; border-radius: 12px;">
-                    
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800"
+                    style="background: white; border-radius: 12px;">
+
                     <!-- Reminder Alert Banner -->
                     <tr>
                         <td class="reminder-alert">
@@ -137,7 +146,8 @@
                         <td style="padding: 40px;">
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
-                                    <td class="mobile-stack" style="vertical-align: top; padding-right: 40px; width: 120px;">
+                                    <td class="mobile-stack"
+                                        style="vertical-align: top; padding-right: 40px; width: 120px;">
                                         <div class="date-card">
                                             <div class="month">{MONTH}</div>
                                             <div class="day-num">{DATE}</div>
@@ -145,8 +155,10 @@
                                         </div>
                                     </td>
                                     <td class="mobile-stack">
-                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">⏰ Ready for Your Meeting?</h1>
-                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation with <strong>{EXPERTNAME}</strong> is starting soon!</p>
+                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">⏰ Ready for
+                                            Your Meeting?</h1>
+                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation
+                                            with <strong>{EXPERTNAME}</strong> is starting soon!</p>
                                     </td>
                                 </tr>
                             </table>
@@ -159,8 +171,9 @@
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
                                     <td class="mobile-stack">
-                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">📋 Meeting Details - Starting in 15 Minutes!</h2>
-                                        
+                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">📋 Meeting
+                                            Details - Starting in 15 Minutes!</h2>
+
                                         <div class="timeline-event">
                                             <strong style="color: #2d3748;">⏰ {STARTTIME} - {ENDTIME} (IST)</strong>
                                             <div style="margin-top: 8px;">📝 Topic: {SERVICENAME}</div>
@@ -171,8 +184,10 @@
                                             <strong style="color: #2d3748;">{EXPERTNAME}</strong>
                                         </div>
 
-                                        <div class="timeline-event" style="background: #FFF7ED; border-left: 2px solid #EA580C;">
-                                            <div style="color: #EA580C; font-weight: 600; margin-bottom: 12px;">📝 Pre-Meeting Checklist</div>
+                                        <div class="timeline-event"
+                                            style="background: #FFF7ED; border-left: 2px solid #EA580C;">
+                                            <div style="color: #EA580C; font-weight: 600; margin-bottom: 12px;">📝
+                                                Pre-Meeting Checklist</div>
                                             <div style="color: #9A3412; font-size: 14px;">
                                                 <div>✅ Test your camera and microphone</div>
                                                 <div>✅ Find a quiet, well-lit space</div>
@@ -182,7 +197,9 @@
                                         </div>
 
                                         <div style="margin-top: 24px; text-align: center;">
-                                            <a href="http://localhost:5173/dashboard" class="button" style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥 Join Meeting Room</a>
+                                            <a href="https://advizy.in/dashboard" class="button"
+                                                style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥
+                                                Join Meeting Room</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -192,23 +209,28 @@
 
                     <!-- Support Section -->
                     <tr>
-                        <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #F8FAFC;">
+                        <td
+                            style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #F8FAFC;">
                             <h3 style="color: #2d3748; font-size: 18px; margin-bottom: 12px;">Need Help?</h3>
                             <p style="color: #4a5568; font-size: 14px; margin-bottom: 16px;">
-                                If you're having trouble joining or have technical issues, our support team is here to help.
+                                If you're having trouble joining or have technical issues, our support team is here to
+                                help.
                             </p>
-                            <a href="mailto:support@advizy.com" style="color: #169544; text-decoration: none; font-weight: 500;">📧 Contact Support</a>
+                            <a href="mailto:support@advizy.com"
+                                style="color: #169544; text-decoration: none; font-weight: 500;">📧 Contact Support</a>
                         </td>
                     </tr>
 
                     <!-- Footer Section -->
                     <tr>
                         <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="color: #4a5568; font-size: 14px;">Don't miss your important meeting! Join on time for the best experience.</p>
+                            <p style="color: #4a5568; font-size: 14px;">Don't miss your important meeting! Join on time
+                                for the best experience.</p>
                             <div style="margin-top: 32px; background-color: #f8f8f8;">
                                 <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
                                 <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
-                                    This is an automated reminder. You're receiving this because you have an upcoming meeting.
+                                    This is an automated reminder. You're receiving this because you have an upcoming
+                                    meeting.
                                 </p>
                             </div>
                         </td>
@@ -218,4 +240,5 @@
         </tr>
     </table>
 </body>
+
 </html>

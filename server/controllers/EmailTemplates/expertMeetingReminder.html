@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Reset styles */
-        body, table, td, div, p, h1, h2 {
+        body,
+        table,
+        td,
+        div,
+        p,
+        h1,
+        h2 {
             margin: 0;
             padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -30,7 +37,7 @@
             border-radius: 10px;
             width: 120px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
         }
 
         .month {
@@ -95,21 +102,21 @@
                 width: 100% !important;
                 margin: 0 !important;
             }
-            
+
             .mobile-stack {
                 display: block !important;
                 width: 100% !important;
                 padding: 0 !important;
             }
-            
+
             .mobile-center {
                 text-align: center !important;
             }
-            
+
             .date-card {
                 margin: 0 auto 20px !important;
             }
-            
+
             .button {
                 display: block !important;
                 width: 80% !important;
@@ -119,12 +126,14 @@
         }
     </style>
 </head>
+
 <body style="background-color: #f7fafc; margin: 0; padding: 20px;">
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
             <td align="center">
-                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800" style="background: white; border-radius: 12px;">
-                    
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="800"
+                    style="background: white; border-radius: 12px;">
+
                     <!-- Expert Reminder Alert Banner -->
                     <tr>
                         <td class="expert-reminder-alert">
@@ -137,7 +146,8 @@
                         <td style="padding: 40px;">
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
-                                    <td class="mobile-stack" style="vertical-align: top; padding-right: 40px; width: 120px;">
+                                    <td class="mobile-stack"
+                                        style="vertical-align: top; padding-right: 40px; width: 120px;">
                                         <div class="date-card">
                                             <div class="month">{MONTH}</div>
                                             <div class="day-num">{DATE}</div>
@@ -145,8 +155,11 @@
                                         </div>
                                     </td>
                                     <td class="mobile-stack">
-                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">📋 Client Session Starting Soon</h1>
-                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation with <strong>{USERNAME}</strong> for <strong>{SERVICENAME}</strong> is starting soon!</p>
+                                        <h1 style="font-size: 24px; margin-bottom: 16px; color: #1a202c;">📋 Client
+                                            Session Starting Soon</h1>
+                                        <p style="color: #4a5568; font-size: 16px; margin-bottom: 0;">Your consultation
+                                            with <strong>{USERNAME}</strong> for <strong>{SERVICENAME}</strong> is
+                                            starting soon!</p>
                                     </td>
                                 </tr>
                             </table>
@@ -159,8 +172,9 @@
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                 <tr>
                                     <td class="mobile-stack">
-                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">⏰ Session Ready - Starting in 15 Minutes!</h2>
-                                        
+                                        <h2 style="color: #2d3748; font-size: 22px; margin-bottom: 24px;">⏰ Session
+                                            Ready - Starting in 15 Minutes!</h2>
+
                                         <div class="timeline-event">
                                             <strong style="color: #2d3748;">⏰ {STARTTIME} - {ENDTIME} (IST)</strong>
                                             <div style="margin-top: 8px;">📝 Service: {SERVICENAME}</div>
@@ -171,15 +185,19 @@
                                             <strong style="color: #2d3748;">{USERNAME}</strong>
                                         </div>
 
-                                        <div class="timeline-event" style="background: #EFF6FF; border-left: 2px solid #3B82F6;">
-                                            <div style="color: #1E40AF; font-weight: 600; margin-bottom: 12px;">💬 Client Message</div>
+                                        <div class="timeline-event"
+                                            style="background: #EFF6FF; border-left: 2px solid #3B82F6;">
+                                            <div style="color: #1E40AF; font-weight: 600; margin-bottom: 12px;">💬
+                                                Client Message</div>
                                             <div style="color: #1E3A8A; font-size: 14px;">
                                                 {CLIENTMESSAGE}
                                             </div>
                                         </div>
 
-                                        <div class="timeline-event" style="background: #F0FDF4; border-left: 2px solid #15803D;">
-                                            <div style="color: #15803D; font-weight: 600; margin-bottom: 12px;">✅ Expert Pre-Session Checklist</div>
+                                        <div class="timeline-event"
+                                            style="background: #F0FDF4; border-left: 2px solid #15803D;">
+                                            <div style="color: #15803D; font-weight: 600; margin-bottom: 12px;">✅ Expert
+                                                Pre-Session Checklist</div>
                                             <div style="color: #166534; font-size: 14px;">
                                                 <div>🎥 Test camera and audio setup</div>
                                                 <div>📝 Review client's service requirements</div>
@@ -189,7 +207,9 @@
                                         </div>
 
                                         <div style="margin-top: 24px; text-align: center;">
-                                            <a href="http://localhost:5173/dashboard/expert/meetings" class="button" style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥 Start Meeting Session</a>
+                                            <a href="https://advizy.in/dashboard/expert/meetings" class="button"
+                                                style="background: #169544; font-size: 16px; padding: 16px 32px;">🎥
+                                                Start Meeting Session</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -199,12 +219,17 @@
 
                     <!-- Professional Tips Section -->
                     <tr>
-                        <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #FFFBEB;">
-                            <h3 style="color: #D97706; font-size: 18px; margin-bottom: 12px;">💡 Session Tips for Success</h3>
-                            <div style="color: #92400E; font-size: 14px; text-align: left; max-width: 500px; margin: 0 auto;">
+                        <td
+                            style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0; background: #FFFBEB;">
+                            <h3 style="color: #D97706; font-size: 18px; margin-bottom: 12px;">💡 Session Tips for
+                                Success</h3>
+                            <div
+                                style="color: #92400E; font-size: 14px; text-align: left; max-width: 500px; margin: 0 auto;">
                                 <div style="margin-bottom: 8px;">• Start with a warm welcome and introduction</div>
-                                <div style="margin-bottom: 8px;">• Confirm the client's specific needs and objectives</div>
-                                <div style="margin-bottom: 8px;">• Keep track of time to ensure all topics are covered</div>
+                                <div style="margin-bottom: 8px;">• Confirm the client's specific needs and objectives
+                                </div>
+                                <div style="margin-bottom: 8px;">• Keep track of time to ensure all topics are covered
+                                </div>
                                 <div style="margin-bottom: 8px;">• End with clear next steps or recommendations</div>
                             </div>
                         </td>
@@ -213,11 +238,13 @@
                     <!-- Footer Section -->
                     <tr>
                         <td style="padding: 32px; text-align: center; border-top: 1px solid #e2e8f0;">
-                            <p style="color: #4a5568; font-size: 14px;">Your client is counting on your expertise. Deliver an exceptional session!</p>
+                            <p style="color: #4a5568; font-size: 14px;">Your client is counting on your expertise.
+                                Deliver an exceptional session!</p>
                             <div style="margin-top: 32px; background-color: #f8f8f8;">
                                 <p style="color: #4a5568; margin: 0;">© 2025 Advizy. All rights reserved.</p>
                                 <p style="color: #718096; margin: 8px 0 0; font-size: 12px;">
-                                    This is an automated reminder. You're receiving this because you have an upcoming client session.
+                                    This is an automated reminder. You're receiving this because you have an upcoming
+                                    client session.
                                 </p>
                             </div>
                         </td>
@@ -227,4 +254,5 @@
         </tr>
     </table>
 </body>
+
 </html>
