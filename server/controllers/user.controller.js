@@ -691,6 +691,72 @@ const login_with_otp = async (req, res, next) => {
   }
 };
 
+// Refresh access token using refresh token cookie
+const refresh_token = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+    const expertRefreshToken = req.cookies?.expertRefreshToken;
+
+    const mask = (t) => (t && typeof t === 'string' ? `${t.slice(0, 6)}...${t.slice(-6)}` : '');
+    console.log('refresh_token called; cookies keys:', Object.keys(req.cookies || {}));
+    console.log('refresh_token: refreshToken=', mask(refreshToken), ' expertRefreshToken=', mask(expertRefreshToken));
+
+    if (!refreshToken && !expertRefreshToken) {
+      return res.status(403).json({ success: false, message: 'Refresh token missing' });
+    }
+
+    // Use environment secrets when available, fallback to legacy hardcoded secrets
+    const jwtSecret = process.env.JWT_SECRET || "R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=";
+    const expertJwtSecret = process.env.EXPERT_JWT_SECRET || "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=";
+
+    let payload = null;
+    try {
+      if (refreshToken) {
+        payload = jwt.verify(refreshToken, jwtSecret);
+      } else {
+        payload = jwt.verify(expertRefreshToken, expertJwtSecret);
+      }
+    } catch (verifyErr) {
+      console.error('Refresh token verification failed:', verifyErr && verifyErr.message);
+      // Clear possibly-invalid cookies to avoid repeated attempts
+      try {
+        res.clearCookie('refreshToken');
+        res.clearCookie('expertRefreshToken');
+      } catch (e) {
+        console.warn('Failed to clear cookies after invalid refresh token', e && e.message);
+      }
+      return res.status(403).json({ success: false, message: 'Invalid or expired refresh token' });
+    }
+
+    // Find user by id in payload
+    const userId = payload?.id || payload?._id || payload?.userId;
+    if (!userId) {
+      console.error('Refresh token payload missing id:', payload);
+      return res.status(403).json({ success: false, message: 'Invalid token payload' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Generate a new access token and set cookie
+    const newAccessToken = user.generateJWTToken({ expiresIn: '1d' });
+    res.cookie('token', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    console.log('Issued new access token for user:', user._id.toString());
+    return res.status(200).json({ success: true, message: 'Token refreshed', user });
+  } catch (error) {
+    console.error('Error in refresh_token:', error && error.message);
+    return next(new AppError(error.message || 'Failed to refresh token', 500));
+  }
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
