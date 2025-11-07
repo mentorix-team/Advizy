@@ -28,4 +28,5 @@ const sendEmail = async function(email, subject, message) {
     }
 };
 
+//just to make a new commit
 export default sendEmail;
