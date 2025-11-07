@@ -294,8 +294,11 @@ const payedForMeeting = async (req, res, next) => {
     emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
     emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
     emailTemplate = emailTemplate.replace(/{DAY}/g, day);
-    await sendEmail(expertt.email, "Meeting Booked", emailTemplate, true);
-    await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
+    
+    console.log("Sending booking confirmation emails...");
+    await sendEmail(expertt.email, "Meeting Booked", emailTemplate);
+    await sendEmail(user.email, "Meeting Booked", emailTemplate);
+    console.log("Booking confirmation emails sent successfully");
 
     // Send response
     res.status(200).json({
@@ -1035,8 +1038,8 @@ const sendMeetingReminder = async (meeting, user, expert) => {
     expertEmailTemplate = expertEmailTemplate.replace(/{CLIENTMESSAGE}/g, meeting.message || "No message from client.");
 
     // Send emails
-    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate, true);
-    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate, true);
+    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate);
+    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate);
 
     console.log(`Meeting reminders sent for meeting ${meeting._id}`);
   } catch (error) {
@@ -1244,7 +1247,7 @@ const updateMeetingDirectly = async (req, res, next) => {
     const email = expert.email
     console.log("This is the mail", expert.email);
 
-    await sendEmail(email, "Meetint Rescheduled Directly", emailTemplate, true);
+    await sendEmail(email, "Meeting Rescheduled Directly", emailTemplate);
 
     res.status(200).json({
       success: true,

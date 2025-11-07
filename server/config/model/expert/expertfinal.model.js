@@ -15,7 +15,47 @@ const ExpertBasicsSchema = new Schema({
   nationality: { type: String },
   country_living: { type: String },
   email: { type: String },
-  mobile: { type: Number },
+  mobile: { 
+    type: Number,
+    validate: {
+      validator: async function(value) {
+        if (!value) return true; // Allow null/undefined
+        
+        // Check if number exists in Expert collection (excluding current document)
+        const ExpertBasics = this.constructor;
+        const existingExpert = await ExpertBasics.findOne({ 
+          mobile: value, 
+          _id: { $ne: this._id } 
+        });
+        
+        if (existingExpert) {
+          // Mobile exists for another expert
+          // Allow only if they belong to the same user
+          if (this.user_id && existingExpert.user_id && 
+              this.user_id.toString() === existingExpert.user_id.toString()) {
+            return true; // Same user, allow it
+          }
+          return false; // Different users, reject
+        }
+        
+        // Check if number exists in User collection
+        const User = (await import('../user.model.js')).default;
+        const existingUser = await User.findOne({ number: value });
+        
+        if (existingUser) {
+          // Number exists in user collection
+          // Allow only if this expert belongs to that user
+          if (this.user_id && this.user_id.toString() === existingUser._id.toString()) {
+            return true; // Same person, allow it
+          }
+          return false; // Different person, reject
+        }
+        
+        return true; // Number doesn't exist anywhere, allow it
+      },
+      message: 'This phone number is already registered with another account'
+    }
+  },
   countryCode:{type:String},
   city: { type: String },
   languages: {

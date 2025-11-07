@@ -25,7 +25,39 @@ const userSchema = new Schema(
     number: {
       type: Number,
       sparse: true,
-      unique: true, // Ensure mobile number is unique 
+      validate: {
+        validator: async function(value) {
+          if (!value) return true; // Allow null/undefined
+          
+          // Check if number exists in User collection (excluding current document)
+          const User = this.constructor;
+          const existingUser = await User.findOne({ 
+            number: value, 
+            _id: { $ne: this._id } 
+          });
+          
+          if (existingUser) {
+            // Number exists for another user
+            return false;
+          }
+          
+          // Check if number exists in Expert collection
+          const { ExpertBasics } = await import('./expert/expertfinal.model.js');
+          const existingExpert = await ExpertBasics.findOne({ mobile: value });
+          
+          if (existingExpert) {
+            // Number exists in expert collection
+            // Allow only if the expert belongs to this user
+            if (existingExpert.user_id && existingExpert.user_id.toString() === this._id.toString()) {
+              return true; // Same person, allow it
+            }
+            return false; // Different person, reject
+          }
+          
+          return true; // Number doesn't exist anywhere, allow it
+        },
+        message: 'This phone number is already registered with another account'
+      }
     },
     password: {
       type: String,

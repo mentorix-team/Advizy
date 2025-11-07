@@ -855,7 +855,7 @@ const generate_otp_for_Signup = async (req, res, next) => {
     );
 
     // Send email
-    await sendEmail(email, "Your OTP Code", emailTemplate, true);
+    await sendEmail(email, "Your OTP Code", emailTemplate);
 
     return res.status(200).json({
       success: true,
@@ -916,7 +916,7 @@ const regenerate_otp = async (req, res, next) => {
     );
 
     // Send email
-    await sendEmail(email, "Your OTP Code", emailTemplate, true);
+    await sendEmail(email, "Your OTP Code", emailTemplate);
     return res.status(200).json({
       success: true,
       message: "A new OTP has been sent to your email.",

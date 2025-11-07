@@ -2410,7 +2410,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       let emailTemplate = fs.readFileSync(templatePath, "utf8");
 
       emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
-      await sendEmail(inputKey, "Your OTP Code", emailTemplate, true);
+      await sendEmail(inputKey, "Your OTP Code", emailTemplate);
       return res.status(200).json({
         success: true,
         message: "OTP sent to email",

@@ -503,11 +503,11 @@ export const success = async (req, res) => {
                 emailTemplate = emailTemplate.replace(/{DAY}/g, day);
 
                 // Send email to expert
-                await sendEmail(expert.email, "New Booking Confirmed - Meeting Details", emailTemplate, true);
+                await sendEmail(expert.email, "New Booking Confirmed - Meeting Details", emailTemplate);
                 console.log("Email sent to expert successfully:", expert.email);
 
                 // Send email to user as well
-                await sendEmail(user.email, "Booking Confirmed - Meeting Details", emailTemplate, true);
+                await sendEmail(user.email, "Booking Confirmed - Meeting Details", emailTemplate);
                 console.log("Email sent to user successfully:", user.email);
 
               } catch (emailError) {
