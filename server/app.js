@@ -30,6 +30,8 @@ app.use(
       "http://localhost:5173",
       "http://localhost:8001",
       "http://localhost:5030",
+      "https://advizy.onrender.com",
+      "https://www.advizy.in",
       // "http://advizy-adminpanel.onrender.com",
       // "http://localhost:5030",
       "*",
