@@ -1143,32 +1143,47 @@ const validate_otp_mobile = async (req, res, next) => {
 
 const generate_otp_with_email = async (req, res, next) => {
   try {
+    console.log("=== generate_otp_with_email called ===");
+    console.log("Request body:", req.body);
+    
     const { email } = req.body;
 
     if (!email) {
+      console.log("Error: Email is missing");
       return next(new AppError("Email is required", 400));
     }
 
+    console.log("Finding user with email:", email);
     const user = await User.findOne({ email });
+    
     if (!user) {
+      console.log("Error: User not found for email:", email);
       return next(new AppError("User not found", 404));
     }
+
+    console.log("User found:", { id: user._id, email: user.email, firstName: user.firstName });
 
     // Extract user details
     const { firstName, lastName } = user;
 
     // Generate OTP and save it to the user document
+    console.log("Generating OTP...");
     const otp = user.generateVerifyToken(); // Generates OTP
+    console.log("OTP generated, saving user...");
     await user.save();
+    console.log("User saved with OTP");
 
     const subject = "Verify Your Email - Advizy";
 
     // Read the email template file
+    console.log("Reading email template...");
     const templatePath = path.join(
       __dirname,
       "./EmailTemplates/verifyaccount.html"
     );
+    console.log("Template path:", templatePath);
     let emailTemplate = fs.readFileSync(templatePath, "utf8");
+    console.log("Template loaded, length:", emailTemplate.length);
 
     // Replace placeholders with dynamic values
     emailTemplate = emailTemplate.replace("{OTP_CODE}", otp);
@@ -1177,8 +1192,10 @@ const generate_otp_with_email = async (req, res, next) => {
       `${firstName} ${lastName}`
     );
 
+    console.log("Sending email to:", email);
     try {
       await sendEmail(email, subject, emailTemplate);
+      console.log("Email sent successfully");
 
       // Store email in an HTTP-only cookie for temporary use
       res.cookie("email", email, {
@@ -1193,7 +1210,9 @@ const generate_otp_with_email = async (req, res, next) => {
         message: `Verification OTP has been sent to ${email}`,
       });
     } catch (emailError) {
-      console.error("Error sending email:", emailError);
+      console.error("=== Error sending email ===");
+      console.error("Email error details:", emailError);
+      console.error("Email error stack:", emailError.stack);
       // Clean up OTP fields in case of email failure
       user.otptoken = undefined;
       user.otpexpiry = undefined;
@@ -1202,7 +1221,10 @@ const generate_otp_with_email = async (req, res, next) => {
       return next(new AppError("Failed to send verification OTP email. Please try again.", 500));
     }
   } catch (error) {
-    console.error("Error in generate_otp_with_email:", error);
+    console.error("=== Error in generate_otp_with_email ===");
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("Full error object:", error);
     return next(new AppError(error.message || "Server error", 500));
   }
 };
