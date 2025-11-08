@@ -1,41 +1,53 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import FilterSidebar from "./FilterSidebar";
 import DomainBar from "./DomainBar";
 import ExpertList from "./ExpertList";
-import { useSearchParams } from "react-router-dom";
 import { domainOptions } from "@/utils/Options";
 import NavbarWithoutSearchModal from "../Home/components/NavbarWithoutSearchModal";
 
 const Homees = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
-  const domainFromUrl = useMemo(() => {
-    const categoryValue = searchParams.get("category");
-    return domainOptions.find((opt) => opt.value === categoryValue) || null;
-  }, [searchParams]);
-
-  const [selectedDomain, setSelectedDomain] = useState(domainFromUrl);
-  const [filters, setFilters] = useState(() => ({
-    selectedDomain: domainFromUrl,
+  const [selectedDomain, setSelectedDomain] = useState(null);
+  const [filters, setFilters] = useState({
+    selectedDomain: null,
     selectedNiches: [],
     priceRange: [1, 100000],
     selectedLanguages: [],
     selectedRatings: [],
     selectedDurations: [],
-  }));
+  });
   const [sorting, setSorting] = useState("highest-rated"); // Default to highest-rated sort
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  // Log whenever filters or domain change dynamically
+  // Sync the selected domain with the query string so the first fetch uses the correct filters
   useEffect(() => {
-    console.log("Updated Filters:", filters);
-  }, [filters]);
+    const params = new URLSearchParams(location.search);
+    const categoryValue = params.get("category");
+    const domain = domainOptions.find((opt) => opt.value === categoryValue) || null;
 
-  useEffect(() => {
-    console.log("Selected Domain:", selectedDomain);
-  }, [selectedDomain]);
+    setSelectedDomain((prev) => {
+      if (prev?.value === domain?.value) {
+        return prev;
+      }
+      return domain;
+    });
+
+    setFilters((prev) => {
+      if (prev.selectedDomain?.value === domain?.value) {
+        return prev;
+      }
+      return {
+        ...prev,
+        selectedDomain: domain,
+      };
+    });
+
+    setInitialized(true);
+  }, [location.search]);
 
   // Update filters whenever selectedDomain changes
   const updateDomain = (domain) => {
@@ -47,25 +59,6 @@ const Homees = () => {
 
     navigate(`/explore?category=${domain.value}`);
   };
-
-  useEffect(() => {
-    setSelectedDomain((prev) => {
-      if (prev?.value === domainFromUrl?.value) {
-        return prev;
-      }
-      return domainFromUrl;
-    });
-
-    setFilters((prev) => {
-      if (prev.selectedDomain?.value === domainFromUrl?.value) {
-        return prev;
-      }
-      return {
-        ...prev,
-        selectedDomain: domainFromUrl,
-      };
-    });
-  }, [domainFromUrl]);
 
   // Update filters whenever selectedDomain changes
   // useEffect(() => {
@@ -102,6 +95,7 @@ const Homees = () => {
       selectedDurations: [],
     });
     setSorting("highest-rated"); // Reset to highest-rated sort instead of empty
+    navigate("/explore", { replace: true });
   };
 
   const toggleSidebar = () => {
@@ -165,11 +159,13 @@ const Homees = () => {
         )}
         {/* Content Area - Always full width now */}
         <div className="w-full p-4 md:p-6">
-          <ExpertList
-            filters={filters}
-            sorting={sorting}
-            key={filters.selectedDomain?.value || "all"}
-          />
+          {initialized && (
+            <ExpertList
+              filters={filters}
+              sorting={sorting}
+              key={filters.selectedDomain?.value || "all"}
+            />
+          )}
         </div>
       </div>
     </div>
