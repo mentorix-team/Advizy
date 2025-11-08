@@ -17,14 +17,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 // Cookie options tuned for local dev (http://localhost) and production (https)
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = process.env.NODE_ENV !== "development";
 const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
   httpOnly: true,
   // Secure cookies cannot be set or sent over http. In dev we use http, so keep false.
   secure: !isDev, // true in production, false in development
   // On localhost, ports differ but it's still same-site; Lax works and avoids None+Secure requirement
-  sameSite:"None",
+  sameSite: isDev ? "None" : "Lax",
 };
 
 const googleAuth = passport.authenticate("google", {
@@ -102,14 +102,14 @@ const handleGoogleCallback = async (req, res, next) => {
     res.cookie("token", accessToken, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 70 * 24 * 60 * 60 * 1000, // 70 days
     });
 
@@ -133,14 +133,14 @@ const handleGoogleCallback = async (req, res, next) => {
       res.cookie("expertToken", expertAccessToken, {
         httpOnly: true,
         secure: !isDev,
-        sameSite:"None",
+        sameSite: isDev ? "None" : "Lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
         httpOnly: true,
         secure: !isDev,
-        sameSite:"None",
+        sameSite: isDev ? "None" : "Lax",
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
       });
     }
@@ -317,14 +317,14 @@ const login = async (req, res, next) => {
     res.cookie("token", accessToken, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -340,14 +340,14 @@ const login = async (req, res, next) => {
       res.cookie("expertToken", expertToken, {
         httpOnly: true,
         secure: !isDev,
-        sameSite:"None",
+        sameSite: isDev ? "None" : "Lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
         httpOnly: true,
         secure: !isDev,
-        sameSite:"None",
+        sameSite: isDev ? "None" : "Lax",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
     }
@@ -370,7 +370,7 @@ const logout = async (req, res, next) => {
     res.cookie("token", null, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 0,
     });
 
@@ -378,7 +378,7 @@ const logout = async (req, res, next) => {
     res.cookie("refreshToken", null, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 0,
     });
 
@@ -386,7 +386,7 @@ const logout = async (req, res, next) => {
     res.cookie("expertToken", null, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 0,
     });
 
@@ -394,7 +394,7 @@ const logout = async (req, res, next) => {
     res.cookie("expertRefreshToken", null, {
       httpOnly: true,
       secure: !isDev,
-      sameSite:"None",
+      sameSite: isDev ? "None" : "Lax",
       maxAge: 0,
     });
 
