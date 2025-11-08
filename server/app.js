@@ -50,7 +50,12 @@ app.use(
     secret: "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",
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set secure to true in production with HTTPS
+    cookie: { 
+      secure: process.env.NODE_ENV === "production", // true in production with HTTPS
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // "None" for cross-origin in production
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   })
 );
 

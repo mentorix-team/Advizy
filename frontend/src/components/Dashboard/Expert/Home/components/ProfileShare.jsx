@@ -42,7 +42,7 @@ const ProfileShare = ({ expert }) => {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const redirect_url = expert?.redirect_url;
-  const profileUrl = `https://advizy.in/expert/${redirect_url}`;
+  const profileUrl = `https://www.advizy.in/expert/${redirect_url}`;
 
   const handleCopy = async () => {
     try {
