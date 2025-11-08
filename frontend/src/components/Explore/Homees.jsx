@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import FilterSidebar from "./FilterSidebar";
 import DomainBar from "./DomainBar";
@@ -10,15 +10,21 @@ import NavbarWithoutSearchModal from "../Home/components/NavbarWithoutSearchModa
 const Homees = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [selectedDomain, setSelectedDomain] = useState(null);
-  const [filters, setFilters] = useState({
-    selectedDomain: null,
+
+  const domainFromUrl = useMemo(() => {
+    const categoryValue = searchParams.get("category");
+    return domainOptions.find((opt) => opt.value === categoryValue) || null;
+  }, [searchParams]);
+
+  const [selectedDomain, setSelectedDomain] = useState(domainFromUrl);
+  const [filters, setFilters] = useState(() => ({
+    selectedDomain: domainFromUrl,
     selectedNiches: [],
     priceRange: [1, 100000],
     selectedLanguages: [],
     selectedRatings: [],
     selectedDurations: [],
-  });
+  }));
   const [sorting, setSorting] = useState("highest-rated"); // Default to highest-rated sort
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -43,17 +49,23 @@ const Homees = () => {
   };
 
   useEffect(() => {
-    const categoryFromUrl = searchParams.get("category");
-    const domain = domainOptions.find((opt) => opt.value === categoryFromUrl);
-    if (domain) {
-      setSelectedDomain(domain);
-      setFilters((prev) => ({
+    setSelectedDomain((prev) => {
+      if (prev?.value === domainFromUrl?.value) {
+        return prev;
+      }
+      return domainFromUrl;
+    });
+
+    setFilters((prev) => {
+      if (prev.selectedDomain?.value === domainFromUrl?.value) {
+        return prev;
+      }
+      return {
         ...prev,
-        selectedDomain: domain,
-      }));
-      // DO NOT navigate here!
-    }
-  }, [searchParams]);
+        selectedDomain: domainFromUrl,
+      };
+    });
+  }, [domainFromUrl]);
 
   // Update filters whenever selectedDomain changes
   // useEffect(() => {
@@ -71,9 +83,9 @@ const Homees = () => {
   };
 
   // Check if any filters are active (excluding selectedDomain)
-  const hasActiveFilters = 
+  const hasActiveFilters =
     filters.selectedNiches.length > 0 ||
-    filters.priceRange[0] !== 1 || 
+    filters.priceRange[0] !== 1 ||
     filters.priceRange[1] !== 100000 ||
     filters.selectedLanguages.length > 0 ||
     filters.selectedRatings.length > 0 ||
@@ -135,9 +147,8 @@ const Homees = () => {
         {/* Reduced padding-top for mobile */}
         {/* Sidebar - Now controlled by button click */}
         <div
-          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40 ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
         >
           <FilterSidebar
             selectedDomain={selectedDomain}
