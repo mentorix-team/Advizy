@@ -64,10 +64,10 @@ const createMeetingToken = async (req, res, next) => {
     const token = meeting.generateToken();
 
     // Store the token in a cookie
-    const isDev = process.env.NODE_ENV === "production";
+    // const isDev = process.env.NODE_ENV === "production";
     res.cookie('meetingToken', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 1000 * 60 * 60, // 1 hour expiration time
     });

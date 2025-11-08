@@ -20,9 +20,9 @@ import mongoose from "mongoose";
 
 const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
-  httpOnly: true,
+  // httpOnly: true,
   // Secure cookies cannot be set or sent over http. In dev we use http, so keep false.
-  secure: process.env.NODE_ENV === "production", // true in production, false in development
+  secure: true, // true in production, false in development
   // On localhost, ports differ but it's still same-site; Lax works and avoids None+Secure requirement
   sameSite: "None",
 };
@@ -100,15 +100,15 @@ const handleGoogleCallback = async (req, res, next) => {
 
     // Set Cookies
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 70 * 24 * 60 * 60 * 1000, // 70 days
     });
@@ -131,15 +131,15 @@ const handleGoogleCallback = async (req, res, next) => {
 
       // Set Expert Tokens in Cookies
       res.cookie("expertToken", expertAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
       });
@@ -315,15 +315,15 @@ const login = async (req, res, next) => {
 
     // ✅ Store User Tokens in HTTP-only Cookies
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -338,15 +338,15 @@ const login = async (req, res, next) => {
       });
 
       res.cookie("expertToken", expertToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.cookie("expertRefreshToken", expertRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
@@ -368,32 +368,32 @@ const logout = async (req, res, next) => {
   try {
     // ✅ Clear Access Token
     res.cookie("token", null, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 0,
     });
 
     // ✅ Clear Refresh Token
     res.cookie("refreshToken", null, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 0,
     });
 
     // ✅ Clear Expert Token
     res.cookie("expertToken", null, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 0,
     });
 
     // ✅ Clear Expert Refresh Token
     res.cookie("expertRefreshToken", null, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 0,
     });
@@ -638,16 +638,16 @@ const login_with_otp = async (req, res, next) => {
 
     // Set User Access Token (1 day)
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     // Set User Refresh Token (30 days)
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -661,16 +661,16 @@ const login_with_otp = async (req, res, next) => {
 
       // Set Expert Access Token (7 days)
       res.cookie("expertToken", expertAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       // Set Expert Refresh Token (30 days)
       res.cookie("expertRefreshToken", expertRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
@@ -746,8 +746,8 @@ const refresh_token = async (req, res, next) => {
 
     const newAccessToken = user.generateJWTToken({ expiresIn: "1d" });
     res.cookie("token", newAccessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -762,8 +762,8 @@ const refresh_token = async (req, res, next) => {
           if (expert) {
             const newExpertToken = expert.generateExpertToken({ expiresIn: "7d" });
             res.cookie("expertToken", newExpertToken, {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
+              // httpOnly: true,
+              secure: true,
               sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
               maxAge: 7 * 24 * 60 * 60 * 1000,
             });
@@ -825,9 +825,9 @@ const generate_otp_for_Signup = async (req, res, next) => {
 
     // Store user details and OTP in cookies securely
     res.cookie("otpToken", otpToken, {
-      httpOnly: true,
+      // httpOnly: true,
       maxAge: 10 * 60 * 1000, // 10 minutes
-      secure: process.env.NODE_ENV === "production", // Only secure in production
+      secure: true, // Only secure in production
       sameSite: "None",
     });
 
@@ -835,8 +835,8 @@ const generate_otp_for_Signup = async (req, res, next) => {
       "tempUser",
       JSON.stringify({ firstName, lastName, email, password }),
       {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
       }
     );
@@ -896,8 +896,8 @@ const regenerate_otp = async (req, res, next) => {
     const otpToken = bcrypt.hashSync(otp, 10);
 
     res.cookie("otpToken", otpToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 10 * 60 * 1000,
     });
@@ -983,15 +983,15 @@ const validate_otp_email = async (req, res, next) => {
 
     // ✅ Store Refresh Token in an HTTP-only cookie
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -1038,8 +1038,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
     const otpToken = bcrypt.hashSync(otp, 10);
 
     res.cookie("otpToken", otpToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 10 * 60 * 1000,
     });
@@ -1047,8 +1047,8 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
       "tempUser",
       { firstName, lastName, countryCode, number, password },
       {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
       }
     );
@@ -1117,15 +1117,15 @@ const validate_otp_mobile = async (req, res, next) => {
 
     // ✅ Store Refresh Token in an HTTP-only cookie
     res.cookie("token", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -1182,8 +1182,8 @@ const generate_otp_with_email = async (req, res, next) => {
 
       // Store email in an HTTP-only cookie for temporary use
       res.cookie("email", email, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // httpOnly: true,
+        secure: true,
         sameSite: "None",
         maxAge: 5 * 60 * 1000, // 5 minutes expiry
       });
@@ -1225,8 +1225,8 @@ const forgot_with_otp_email = async (req, res, next) => {
     await user.save();
 
     const cookieOption = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // httpOnly: true,
+      secure: true,
       sameSite: "None",
       maxAge: 15 * 60 * 1000,
     };
