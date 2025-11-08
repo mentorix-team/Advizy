@@ -263,7 +263,7 @@ const expertBasicDetails = async (req, res, next) => {
     const expertToken = expertbasic.generateExpertToken();
 
     res.cookie("expertToken", expertToken, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -1561,7 +1561,7 @@ const createService = async (req, res, next) => {
 
     // Set the updated token in the cookie
     res.cookie("expertToken", updatedExpertToken, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -2374,7 +2374,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otpToken = bcrypt.hashSync(otp, 10);
 
       res.cookie("otpToken", otpToken, {
-        httpOnly: true,
+        // httpOnly: true,
         maxAge: 10 * 60 * 1000,
         secure: process.env.NODE_ENV === "production",
         sameSite: "None",
@@ -2397,7 +2397,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otpToken = bcrypt.hashSync(otp, 10);
 
       res.cookie("otpToken", otpToken, {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "None",
         maxAge: 10 * 60 * 1000,
