@@ -76,9 +76,9 @@ const Homees = () => {
   };
 
   // Check if any filters are active (excluding selectedDomain)
-  const hasActiveFilters =
+  const hasActiveFilters = 
     filters.selectedNiches.length > 0 ||
-    filters.priceRange[0] !== 1 ||
+    filters.priceRange[0] !== 1 || 
     filters.priceRange[1] !== 100000 ||
     filters.selectedLanguages.length > 0 ||
     filters.selectedRatings.length > 0 ||
@@ -141,8 +141,9 @@ const Homees = () => {
         {/* Reduced padding-top for mobile */}
         {/* Sidebar - Now controlled by button click */}
         <div
-          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed left-0 top-28 md:top-32 h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)] w-80 md:w-80 overflow-y-auto border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out z-40 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
           <FilterSidebar
             selectedDomain={selectedDomain}
