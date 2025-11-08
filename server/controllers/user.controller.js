@@ -20,11 +20,10 @@ import mongoose from "mongoose";
 
 const cookieOption = {
   maxAge: 15 * 24 * 60 * 60 * 1000,
-  // httpOnly: true,
-  // Secure cookies cannot be set or sent over http. In dev we use http, so keep false.
-  secure: true, // true in production, false in development
-  // On localhost, ports differ but it's still same-site; Lax works and avoids None+Secure requirement
-  sameSite: "None",
+  httpOnly: true,
+  // Use secure cookies only in production (HTTPS). Lax in dev avoids needing Secure+None.
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 };
 
 const googleAuth = passport.authenticate("google", {
