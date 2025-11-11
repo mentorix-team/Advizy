@@ -141,7 +141,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
       console.log("📌 redirectURL already exists:", existingRedirectURL);
     }
     
-    window.open(`http://localhost:5030/api/v1/user/auth/google`, "_self");
+    window.open(`https://advizy.onrender.com/api/v1/user/auth/google`, "_self");
   };
 
   const handleCloseClick = (event) => {
