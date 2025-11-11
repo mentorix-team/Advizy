@@ -2374,7 +2374,7 @@ const generateOtpForVerifying = async (req, res, next) => {
       const otpToken = bcrypt.hashSync(otp, 10);
 
       res.cookie("otpToken", otpToken, {
-        // httpOnly: true,
+        httpOnly: true,
         maxAge: 10 * 60 * 1000,
         secure: true,
         sameSite: "None",
