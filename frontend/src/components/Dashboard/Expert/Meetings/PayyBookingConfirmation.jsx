@@ -23,7 +23,7 @@ const PayyBookingConfirmation = () => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m ${remainingSeconds}s`;
     } else if (minutes > 0) {
@@ -49,7 +49,7 @@ const PayyBookingConfirmation = () => {
     }
   };
 
-  console.log('Extracted booking data from URL:', bookingData);
+  // console.log('Extracted booking data from URL:', bookingData);
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
     if (!isFirstVisit) {
@@ -134,7 +134,7 @@ const PayyBookingConfirmation = () => {
               {/* Decorative Background Elements */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100 to-transparent rounded-full opacity-30 -translate-y-16 translate-x-16"></div>
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-100 to-transparent rounded-full opacity-30 translate-y-12 -translate-x-12"></div>
-              
+
               {/* Expert Header */}
               <div className="relative z-10 flex items-center justify-between mb-4">
                 <div className="flex items-center">

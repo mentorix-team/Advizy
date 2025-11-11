@@ -127,7 +127,7 @@ export default function Meetings() {
   const { data: userData } = useSelector((state) => state.auth);
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
 
-  console.log("All paid meetings:", paidMeetings);
+  // console.log("All paid meetings:", paidMeetings);
 
   // Handle rating submission
   const handleRate = async (meetingId, { rating, feedback }) => {
@@ -240,13 +240,13 @@ export default function Meetings() {
         meetingDate.setHours(0, 0, 0, 0); // Normalize to start of day
 
         // Log current time and meeting details for debugging
-        console.log(`\nProcessing meeting: ${meeting._id}`);
-        console.log(`Meeting status: ${normalizedStatus}`);
-        console.log(`Now: ${now.toString()}`);
-        console.log(`Today start: ${todayStart.toString()}`);
-        console.log(`Meeting date: ${meetingDate.toString()}`);
-        console.log(`Meeting end time: ${meetingEnd.toString()}`);
-        console.log(`Is past? Date check: ${meetingDate < todayStart}, Time check: ${meetingDate.toDateString() === now.toDateString() && meetingEnd < now}`);
+        // console.log(`\nProcessing meeting: ${meeting._id}`);
+        // console.log(`Meeting status: ${normalizedStatus}`);
+        // console.log(`Now: ${now.toString()}`);
+        // console.log(`Today start: ${todayStart.toString()}`);
+        // console.log(`Meeting date: ${meetingDate.toString()}`);
+        // console.log(`Meeting end time: ${meetingEnd.toString()}`);
+        // console.log(`Is past? Date check: ${meetingDate < todayStart}, Time check: ${meetingDate.toDateString() === now.toDateString() && meetingEnd < now}`);
 
         // Check meeting status first - if it's completed, cancelled, or no-show, it's past
         if ([
@@ -256,7 +256,7 @@ export default function Meetings() {
           "attended",
           "not-attended",
         ].includes(normalizedStatus)) {
-          console.log(`--> PAST (status: ${normalizedStatus})`);
+          // console.log(`--> PAST (status: ${normalizedStatus})`);
           acc.past.push(meeting);
           return acc;
         }
@@ -264,12 +264,12 @@ export default function Meetings() {
         // Check if meeting is in the past (either date is before today OR end time has passed if today)
         if (meetingDate < todayStart) {
           // Meeting date is before today
-          console.log(`--> PAST (date before today)`);
+          // console.log(`--> PAST (date before today)`);
           acc.past.push(meeting);
           return acc;
         } else if (meetingDate.toDateString() === now.toDateString() && meetingEnd < now) {
           // Meeting is today but end time has passed
-          console.log(`--> PAST (today's meeting that ended)`);
+          // console.log(`--> PAST (today's meeting that ended)`);
           acc.past.push(meeting);
           return acc;
         }
@@ -278,7 +278,7 @@ export default function Meetings() {
         // Check if meeting is today (and not in past)
         const isToday = meetingDate.toDateString() === now.toDateString();
         if (isToday) {
-          console.log(`--> TODAY (upcoming/ongoing)`);
+          // console.log(`--> TODAY (upcoming/ongoing)`);
           acc.today.push(meeting);
           return acc;
         }
@@ -289,7 +289,7 @@ export default function Meetings() {
         tomorrow.setHours(0, 0, 0, 0);
         const isTomorrow = meetingDate.toDateString() === tomorrow.toDateString();
         if (isTomorrow) {
-          console.log(`--> TOMORROW`);
+          // console.log(`--> TOMORROW`);
           acc.tomorrow.push(meeting);
           return acc;
         }
@@ -299,14 +299,14 @@ export default function Meetings() {
         nextWeek.setDate(now.getDate() + 7);
         nextWeek.setHours(0, 0, 0, 0);
         if (meetingDate > tomorrow && meetingDate <= nextWeek) {
-          console.log(`--> NEXT WEEK`);
+          // console.log(`--> NEXT WEEK`);
           acc.nextWeek.push(meeting);
           return acc;
         }
 
         // All other future meetings
         if (meetingDate > now) {
-          console.log(`--> UPCOMING (beyond next week)`);
+          // console.log(`--> UPCOMING (beyond next week)`);
           acc.upcoming.push(meeting);
           return acc;
         }

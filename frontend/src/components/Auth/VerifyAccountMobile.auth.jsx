@@ -16,9 +16,9 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    console.log("Submitted OTP:", otp);
-  
+
+    // console.log("Submitted OTP:", otp);
+
     if (otp.length !== 6) {
       toast.error("Please enter a 6-digit OTP.", {
         position: "top-right",
@@ -30,15 +30,15 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
       });
       return;
     }
-  
+
     setIsSubmitting(true); // Disable the button to prevent multiple submissions
-  
-    const response = await dispatch(validateOtpMobile( {otp} ));
-  
+
+    const response = await dispatch(validateOtpMobile({ otp }));
+
     setIsSubmitting(false); // Re-enable the button after processing
-  
+
     if (response?.payload?.success) {
-      toast.success("OTP validated successfully!",{
+      toast.success("OTP validated successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -48,7 +48,7 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
       });
       onSwitchView("NextStep");
     } else {
-      toast.error(response?.payload?.message || "Invalid or expired OTP.",{
+      toast.error(response?.payload?.message || "Invalid or expired OTP.", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -58,7 +58,7 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
       });
     }
   };
-  
+
 
   const handleResendOTP = async () => {
     setIsResending(true); // Disable the button to prevent multiple clicks
@@ -68,7 +68,7 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
     setIsResending(false); // Re-enable the button after processing
 
     if (response?.payload?.success) {
-      toast.success("OTP resent successfully!",{
+      toast.success("OTP resent successfully!", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -77,7 +77,7 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
         draggable: true,
       });
     } else {
-      toast.error(response?.payload?.message || "Failed to resend OTP.",{
+      toast.error(response?.payload?.message || "Failed to resend OTP.", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -122,9 +122,8 @@ const VerifyAccountMobile = ({ onClose, onSwitchView, contactInfo }) => {
 
           <button
             type="submit"
-            className={`w-80 h-12 mt-8 bg-[#169544] text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-80 h-12 mt-8 bg-[#169544] text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-700 ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Validating..." : "Continue"}

@@ -133,7 +133,7 @@ const SignupWithMobile = ({ onClose, onSwitchView }) => {
     setIsLoading(true); // Set loading to true
 
     try {
-      console.log(signupData);
+      // console.log(signupData);
       const otpResponse = await dispatch(
         signupUsingMobile(signupData)
       ).unwrap();
@@ -193,11 +193,10 @@ const SignupWithMobile = ({ onClose, onSwitchView }) => {
                 value={signupData.firstName}
                 onChange={handleUserInput}
                 onBlur={handleBlur}
-                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${
-                  touched.firstName && errors.firstName
+                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${touched.firstName && errors.firstName
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {touched.firstName && errors.firstName && (
                 <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
@@ -214,11 +213,10 @@ const SignupWithMobile = ({ onClose, onSwitchView }) => {
                 value={signupData.lastName}
                 onChange={handleUserInput}
                 onBlur={handleBlur}
-                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${
-                  touched.lastName && errors.lastName
+                className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 ${touched.lastName && errors.lastName
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {touched.lastName && errors.lastName && (
                 <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>

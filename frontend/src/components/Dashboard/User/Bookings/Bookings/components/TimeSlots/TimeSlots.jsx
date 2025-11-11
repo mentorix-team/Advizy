@@ -17,7 +17,7 @@ function TimeSlots({ selectedDate }) {
   const handleBooking = () => {
     if (selectedTime) {
       // Handle booking logic
-      console.log('Booking for:', selectedDate, selectedTime)
+      // console.log('Booking for:', selectedDate, selectedTime)
     }
   }
 
@@ -56,7 +56,7 @@ function TimeSlots({ selectedDate }) {
         </div>
       )}
 
-      <BookingButton 
+      <BookingButton
         selectedTime={selectedTime}
         onClick={handleBooking}
       />

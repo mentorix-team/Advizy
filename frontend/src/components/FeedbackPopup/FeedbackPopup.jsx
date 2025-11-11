@@ -9,7 +9,7 @@ const FeedbackPopup = ({ onClose }) => {
     if (rating === 0 || feedback.trim() === "") {
       setError("Please provide a rating and feedback.");
     } else {
-      console.log("Rating:", rating, "Feedback:", feedback);
+      // console.log("Rating:", rating, "Feedback:", feedback);
       setError("");
       onClose();
     }
@@ -62,11 +62,10 @@ const FeedbackPopup = ({ onClose }) => {
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
         <button
-          className={`w-full py-2 rounded mt-4 ${
-            rating > 0 && feedback.trim()
+          className={`w-full py-2 rounded mt-4 ${rating > 0 && feedback.trim()
               ? "bg-green-600 text-white hover:bg-green-700"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+            }`}
           onClick={handleSubmit}
           disabled={rating === 0 || feedback.trim() === ""}
         >

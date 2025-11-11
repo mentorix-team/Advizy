@@ -11,13 +11,13 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     const storedData = localStorage.getItem('certifications');
 
     if (!storedData) {
-      console.log("LocalStorage is empty, using formData:", formData);
+      // console.log("LocalStorage is empty, using formData:", formData);
       return Array.isArray(formData) ? formData : [formData]; // Ensure formData is an array
     }
 
     try {
       const parsedCertification = JSON.parse(storedData);
-      console.log("Parsed data from localStorage:", parsedCertification);
+      // console.log("Parsed data from localStorage:", parsedCertification);
       return Array.isArray(parsedCertification) ? parsedCertification : formData;
     } catch (error) {
       console.error("Error parsing certifications from localStorage:", error);
@@ -104,8 +104,8 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       return;
     }
 
-    console.log("Editing certification at index:", index);
-    console.log("Selected certification:", selectedCerti);
+    // console.log("Editing certification at index:", index);
+    // console.log("Selected certification:", selectedCerti);
 
     setCertificateToEdit(selectedCerti);
     setEditingIndex(index);
@@ -113,7 +113,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
   };
 
   const handleUpdateCertification = async (updatedCertification) => {
-    console.log("Before updating, certificateToEdit:", certificateToEdit);
+    // console.log("Before updating, certificateToEdit:", certificateToEdit);
 
     if (!certificateToEdit || !certificateToEdit._id) {
       console.error("Certificate entry ID is missing. Setting it manually.");
@@ -140,7 +140,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
       certificates: updatedCertification.certificates || certificateToEdit.certificates || []
     };
 
-    console.log("Updating certificate with Data:", dataToUpdate);
+    // console.log("Updating certificate with Data:", dataToUpdate);
 
     try {
       const response = await dispatch(EditCertificate(dataToUpdate)).unwrap();
@@ -193,7 +193,7 @@ export default function CertificationsTab({ formData = [], onUpdate }) {
     try {
       // Dispatch deleteCerti action with the certification to be deleted
       const response = await dispatch(deleteCerti(certificationToDelete)).unwrap(); // Unwrap to handle success or failure
-      console.log('Certification deleted successfully:', response);
+      // console.log('Certification deleted successfully:', response);
 
       // Remove the certification from local state
       const updatedCertifications = certifications.filter((_, i) => i !== index);

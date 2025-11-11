@@ -18,7 +18,7 @@ const GoogleRedirectHandler = () => {
         const expertParam = searchParams.get("expert");
         // Capture any existing redirectURL (set earlier by ProtectedRoute / manual login trigger)
         let redirectURL = sessionStorage.getItem("redirectURL");
-        console.log("🔍 GoogleRedirectHandler: Found redirectURL in sessionStorage:", redirectURL);
+        // console.log("🔍 GoogleRedirectHandler: Found redirectURL in sessionStorage:", redirectURL);
 
         // If none was set (user started OAuth directly from some page), store the current location hash/search
         if (!redirectURL) {
@@ -52,23 +52,23 @@ const GoogleRedirectHandler = () => {
         }
 
         await dispatch(googleLogin({ user, expert, token }));
-        console.log("✅ Google login dispatched successfully");
-        console.log("🎯 Final redirectURL to navigate to:", redirectURL);
-        
+        // console.log("✅ Google login dispatched successfully");
+        // console.log("🎯 Final redirectURL to navigate to:", redirectURL);
+
         // Always redirect to stored URL, never to home page
-        if (redirectURL && 
-            redirectURL.trim() !== "" && 
-            redirectURL !== '/google-auth-success') {
-          console.log("➡️ Navigating to redirectURL:", redirectURL);
+        if (redirectURL &&
+          redirectURL.trim() !== "" &&
+          redirectURL !== '/google-auth-success') {
+          // console.log("➡️ Navigating to redirectURL:", redirectURL);
           navigate(redirectURL);
         } else {
           // Fallback: go to user dashboard instead of home
-          console.log("📊 No valid redirectURL, navigating to dashboard");
+          // console.log("📊 No valid redirectURL, navigating to dashboard");
           navigate("/dashboard/user/meetings");
         }
-        
+
         // Clean up all redirect-related items
-        console.log("🧹 Cleaning up sessionStorage redirect items");
+        // console.log("🧹 Cleaning up sessionStorage redirect items");
         sessionStorage.removeItem("redirectURL");
         sessionStorage.removeItem("postOAuthOrigin");
         sessionStorage.removeItem("preOAuthPath");

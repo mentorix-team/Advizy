@@ -191,11 +191,11 @@ function App() {
     // }
 
     // Log validation data for debugging
-    console.log("Validation Check:", {
-      mobile: basic.mobile,
-      countryCode: basic.countryCode,
-      hasError: !!newErrors.mobile,
-    });
+    // console.log("Validation Check:", {
+    //   mobile: basic.mobile,
+    //   countryCode: basic.countryCode,
+    //   hasError: !!newErrors.mobile,
+    // });
 
     // Email validation
     if (!basic.email.trim()) {
@@ -240,11 +240,11 @@ function App() {
 
   const handleNext = async () => {
     // Log form data before validation
-    console.log("Form Data before validation:", formData.basic);
+    // console.log("Form Data before validation:", formData.basic);
 
     // Validate all fields and show all errors
     const validationErrors = validateBasicInfo();
-    console.log("Validation Errors:", validationErrors);
+    // console.log("Validation Errors:", validationErrors);
     setErrors(validationErrors);
 
     // Mark all fields as touched to show all errors
@@ -391,7 +391,7 @@ function App() {
             // onClick={handleNext}
             // disabled={loadingState}
             onClick={() => {
-              console.log("Current Form Data:", formData.basic); // Add this for debugging
+              // console.log("Current Form Data:", formData.basic); // Add this for debugging
               handleNext();
             }}
             disabled={loadingState}

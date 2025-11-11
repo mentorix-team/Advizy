@@ -27,10 +27,10 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const { data } = useSelector((state) => state.auth)
 
   // Debug: Log meeting data to see if rating is included
-  console.log("Meeting data in MeetingCard:", meeting);
-  console.log("Meeting rating field:", meeting?.rating);
-  console.log("Meeting feedback field:", meeting?.feedback);
-  console.log("All meeting keys:", Object.keys(meeting || {}));
+  // console.log("Meeting data in MeetingCard:", meeting);
+  // console.log("Meeting rating field:", meeting?.rating);
+  // console.log("Meeting feedback field:", meeting?.feedback);
+  // console.log("All meeting keys:", Object.keys(meeting || {}));
 
   let userData;
   try {
@@ -40,7 +40,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
     userData = null;
   }
 
-  console.log("This is my user data:", userData);
+  // console.log("This is my user data:", userData);
   const handleSubmitRating = () => {
     if (onRate) {
       onRate(meeting._id, { rating, feedback });
@@ -53,8 +53,8 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
 
   const handleJoinCall = async (meeting) => {
     try {
-      console.log(meeting);
-      console.log("This is user videocall id ", meeting.videoCallId);
+      // console.log(meeting);
+      // console.log("This is user videocall id ", meeting.videoCallId);
       const meetingId = meeting.videoCallId;
       const startTime = meeting.daySpecific.slot.startTime
       const endTime = meeting.daySpecific.slot.endTime
@@ -72,14 +72,14 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
         preset_name: "group_call_participant",
       };
 
-      console.log("Preset Name being sent:", joinCallData.preset_name);
+      // console.log("Preset Name being sent:", joinCallData.preset_name);
 
       const response = await dispatch(addvideoparticipant(joinCallData));
-      console.log("this is response", response.payload)
+      // console.log("this is response", response.payload)
       if (response?.payload?.data?.data?.token) {
         const authToken = response.payload.data.data.token;
 
-        console.log("Auth Token received:", authToken);
+        // console.log("Auth Token received:", authToken);
 
         // Navigate to meeting page with authToken
         navigate("/meeting", { state: { authToken, meetingId, startTime, endTime, id, serviceName, expertName, userName, expert_id, user_id } });

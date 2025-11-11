@@ -37,18 +37,18 @@ const AuthPopup = ({ isOpen, onClose }) => {
   }, [isLoggedIn]);
 
   const handleClosePopup = () => {
-    console.log("AuthPopup: Closing popup");
+    // console.log("AuthPopup: Closing popup");
     setView("LoginWithEmail");
     onClose();
-    
+
     // Small delay to allow ProtectedRoute to detect the popup was closed
     setTimeout(() => {
-      console.log("AuthPopup: Popup closed, ProtectedRoute should detect this");
+      // console.log("AuthPopup: Popup closed, ProtectedRoute should detect this");
     }, 100);
   };
 
   const handleSwitchView = (newView) => {
-    console.log("Switching View:", newView);
+    // console.log("Switching View:", newView);
     setView(newView);
   };
 

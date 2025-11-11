@@ -24,9 +24,9 @@ const DAYS = [
 
 function WeeklyAvailability({ availability }) {
   const dispatch = useDispatch();
-  
-  console.log("🔍 WeeklyAvailability received availability:", availability);
-  
+
+  // console.log("🔍 WeeklyAvailability received availability:", availability);
+
   const [days, setDays] = useState(() => {
     if (
       availability &&
@@ -34,36 +34,36 @@ function WeeklyAvailability({ availability }) {
       availability[0].daySpecific
     ) {
       const apiDays = availability[0].daySpecific;
-      
-      console.log("📊 Processing apiDays:", apiDays);
+
+      // console.log("📊 Processing apiDays:", apiDays);
 
       return DAYS.map((day) => {
         const matchedDay = apiDays.find((d) => d.day === day.name);
-        
-        console.log(`🔎 Processing day ${day.name}:`, matchedDay);
+
+        // console.log(`🔎 Processing day ${day.name}:`, matchedDay);
 
         if (matchedDay && matchedDay.slots && matchedDay.slots.length > 0) {
           // Populate slots dynamically
           const processedSlots = matchedDay.slots.map((slot, index) => {
-            console.log(`⏰ Processing slot for ${day.name}:`, slot);
-            
+            // console.log(`⏰ Processing slot for ${day.name}:`, slot);
+
             const startTime = slot.startTime.includes("AM") || slot.startTime.includes("PM")
               ? slot.startTime
               : convert24To12Hour(slot.startTime);
-              
+
             const endTime = slot.endTime.includes("AM") || slot.endTime.includes("PM")
               ? slot.endTime
               : convert24To12Hour(slot.endTime);
-              
-            console.log(`⏰ Converted times for ${day.name}: ${slot.startTime} -> ${startTime}, ${slot.endTime} -> ${endTime}`);
-            
+
+            // console.log(`⏰ Converted times for ${day.name}: ${slot.startTime} -> ${startTime}, ${slot.endTime} -> ${endTime}`);
+
             return {
               id: index + 1,
               start: startTime,
               end: endTime,
             };
           });
-          
+
           return {
             ...day,
             enabled: true,
@@ -230,9 +230,9 @@ function WeeklyAvailability({ availability }) {
             slots: day.slots.map((slot) => {
               const startTime24 = convertTo24Hour(slot.start);
               const endTime24 = convertTo24Hour(slot.end);
-              
-              console.log(`💾 Converting for save: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
-              
+
+              // console.log(`💾 Converting for save: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
+
               return {
                 startTime: startTime24,
                 endTime: endTime24,
@@ -243,11 +243,11 @@ function WeeklyAvailability({ availability }) {
         });
 
       const result = await dispatch(addAvailability({ data }));
-      console.log("Dispatched data with dates:", data);
-      
+      // console.log("Dispatched data with dates:", data);
+
       // Check if the save was successful and reload the page
       if (result.type === 'availability/addAvailability/fulfilled') {
-        console.log("✅ Weekly availability saved successfully, reloading page...");
+        // console.log("✅ Weekly availability saved successfully, reloading page...");
         window.location.reload();
       }
     } catch (error) {
@@ -270,10 +270,9 @@ function WeeklyAvailability({ availability }) {
           onClick={handleSaveChanges}
           disabled={isSaving}
           className={`px-4 py-2 rounded-md text-sm font-medium text-white transition-colors w-full sm:w-auto
-            ${
-              isSaving
-                ? "bg-green-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
+            ${isSaving
+              ? "bg-green-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
             }`}
         >
           {isSaving ? "Saving..." : "Save Changes"}

@@ -161,7 +161,7 @@ const ExpertCard = ({ expert, displayRating, displayTotalRatings }) => {
   const totalRatings = displayTotalRatings || 0;
 
   // Debug logging
-  console.log(`Expert ${expert.name} - Rating: ${displayRating}, Total: ${displayTotalRatings}`);
+  // console.log(`Expert ${expert.name} - Rating: ${displayRating}, Total: ${displayTotalRatings}`);
 
   return (
     <motion.div

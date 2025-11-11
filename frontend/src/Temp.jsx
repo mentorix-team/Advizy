@@ -11,7 +11,7 @@ const HelpCenter = () => {
     if (typeof expertData === "string") {
       try {
         expert = JSON.parse(expertData);
-        console.log("This is expertData", expert);
+        // console.log("This is expertData", expert);
       } catch (error) {
         console.error("Error parsing expertData:", error);
         expert = null; // Handle parsing errors safely
@@ -31,9 +31,9 @@ const HelpCenter = () => {
 
         <h2>here is ur data:</h2>
         <input type="text"
-        value={`${expert?.firstName} ${expert?.lastName}`} />
-        <input type="text" 
-        value={`${expert?.countryCode} ${expert?.mobile}`}/>
+          value={`${expert?.firstName} ${expert?.lastName}`} />
+        <input type="text"
+          value={`${expert?.countryCode} ${expert?.mobile}`} />
 
       </p>
     </div>

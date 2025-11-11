@@ -7,7 +7,7 @@ const PriceBreakdownModal = ({ isOpen, onClose, amount }) => {
   const platformFee = Math.round(amount * 0.2); // 20% platform fee
   const netEarning = baseRate - platformFee;
 
-  console.log(amount);
+  // console.log(amount);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">

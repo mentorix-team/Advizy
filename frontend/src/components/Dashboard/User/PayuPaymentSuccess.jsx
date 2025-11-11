@@ -12,7 +12,7 @@ const PayuPaymentSuccess = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Safely get the payu state with a fallback to an empty object
   const payuState = useSelector((state) => state.payu || {});
   const { loading: verifyLoading, error: verifyError, verificationResult } = payuState;
@@ -34,7 +34,7 @@ const PayuPaymentSuccess = () => {
     if (verificationResult) {
       setLoading(false);
       // Handle successful payment verification
-      console.log('Payment verified successfully:', verificationResult);
+      // console.log('Payment verified successfully:', verificationResult);
     }
   }, [verificationResult]);
 

@@ -9,6 +9,8 @@ import { SearchX, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ITEMS_PER_PAGE = 8; // 4 rows × 2 columns
 
+const DEFAULT_PRICE_RANGE = [1, 100000];
+
 const ExpertList = ({ filters, sorting }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -30,39 +32,53 @@ const ExpertList = ({ filters, sorting }) => {
   const paginatedExperts = experts.slice(startIndex, endIndex);
 
   useEffect(() => {
+    const hasCustomPriceRange = Array.isArray(filters.priceRange)
+      ? filters.priceRange[0] !== DEFAULT_PRICE_RANGE[0] ||
+      filters.priceRange[1] !== DEFAULT_PRICE_RANGE[1]
+      : false;
+
+    const normalizedDurations = Array.isArray(filters.selectedDurations)
+      ? filters.selectedDurations
+        .map((duration) => parseInt(duration, 10))
+        .filter((duration) => !Number.isNaN(duration))
+      : [];
+
     const queryParams = {
       domain: filters.selectedDomain?.value || "",
       niches: filters.selectedNiches || [],
-      priceMin: filters.priceRange?.[0] || 200,
-      priceMax: filters.priceRange?.[1] || 100000,
       languages: filters.selectedLanguages || [],
       ratings: filters.selectedRatings || [],
-      durations: filters.selectedDurations || [],
-      sorting: sorting || "highest-rated", // Default to highest-rated sort when no sorting is specified
+      durations: normalizedDurations,
+      sorting: sorting || "highest-rated",
     };
-    
-    console.log("ExpertList: Sending query with filters:", filters);
-    console.log("ExpertList: Sending query params:", queryParams);
-    
+
+    if (hasCustomPriceRange) {
+      queryParams.priceMin = filters.priceRange?.[0];
+      queryParams.priceMax = filters.priceRange?.[1];
+    }
+
+    // console.log("ExpertList: Sending query with filters:", filters);
+    // console.log("ExpertList: Sending query params:", queryParams);
+
     const cleanedQueryParams = Object.fromEntries(
       Object.entries(queryParams).filter(([key, value]) => {
         if (Array.isArray(value)) {
           return value.length > 0;
         }
         // Keep domain even if it's empty string to get all experts
-        if (key === 'domain') {
+        if (key === "domain") {
           return true;
         }
         // Keep sorting even if it's empty to maintain default behavior
-        if (key === 'sorting') {
+        if (key === "sorting") {
           return true;
         }
         return value !== "";
       })
     );
-    
+
     console.log("ExpertList: Final cleaned query params:", cleanedQueryParams);
-    
+
     dispatch(getAllExperts(cleanedQueryParams));
     prevFiltersRef.current = filters;
     setCurrentPage(1);
@@ -89,12 +105,15 @@ const ExpertList = ({ filters, sorting }) => {
       const batchSize = 5;
       for (let i = 0; i < experts.length; i += batchSize) {
         const batch = experts.slice(i, i + batchSize);
-        const batchPromises = batch.map(expert => {
+        const batchPromises = batch.map((expert) => {
           if (expert._id) {
             return dispatch(getfeedbackbyexpertid({ id: expert._id }))
               .unwrap()
-              .then(result => ({ expertId: expert._id, feedback: toFeedbackArray(result) }))
-              .catch(error => {
+              .then((result) => ({
+                expertId: expert._id,
+                feedback: toFeedbackArray(result),
+              }))
+              .catch((error) => {
                 console.error(`Error fetching feedback for expert ${expert._id}:`, error);
                 return { expertId: expert._id, feedback: [] };
               });
@@ -103,7 +122,7 @@ const ExpertList = ({ filters, sorting }) => {
         });
 
         const batchResults = await Promise.all(batchPromises);
-        batchResults.forEach(result => {
+        batchResults.forEach((result) => {
           feedbackData[result.expertId] = result.feedback;
         });
       }

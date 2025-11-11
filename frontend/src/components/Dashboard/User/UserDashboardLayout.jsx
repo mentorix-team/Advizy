@@ -23,12 +23,12 @@ const UserDashboardLayout = () => {
   const { data } = useSelector((state) => state.auth);
 
   let parsedData;
-    try {
-      parsedData = typeof data === "string" ? JSON.parse(data) : data;
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-      parsedData = data;
-    }
+  try {
+    parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    parsedData = data;
+  }
 
   const isLinkActive = (path) => {
     return location.pathname === path;
@@ -75,10 +75,10 @@ const UserDashboardLayout = () => {
     }
 
     if (newMode) {
-      console.log("Navigating to Expert Dashboard");
+      // console.log("Navigating to Expert Dashboard");
       navigate("/dashboard/expert/");
     } else {
-      console.log("Navigating to Landing Page");
+      // console.log("Navigating to Landing Page");
       navigate("/");
     }
   };
@@ -179,8 +179,8 @@ const UserDashboardLayout = () => {
                 <a
                   href="/about-us"
                   className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/about-us")
-                      ? "text-primary underline underline-offset-4"
-                      : "text-gray-600 hover:text-primary"
+                    ? "text-primary underline underline-offset-4"
+                    : "text-gray-600 hover:text-primary"
                     }`}
                 >
                   About Us
@@ -189,8 +189,8 @@ const UserDashboardLayout = () => {
                   <a
                     href="/become-expert"
                     className={`transition-colors duration-200 text-base font-medium ${isLinkActive("/become-expert")
-                        ? "text-primary underline underline-offset-4"
-                        : "text-gray-600 hover:text-primary"
+                      ? "text-primary underline underline-offset-4"
+                      : "text-gray-600 hover:text-primary"
                       }`}
                   >
                     Share Your Expertise

@@ -8,10 +8,10 @@ const ServicesOffered = ({ services = [] }) => {
   // const services = expertData?.credentials?.services || []; // Fallback to empty array if not available
   const mentoringService = services.find(service => service.title === "One-on-One Mentoring" && service.showMore);
   const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring" && service.showMore);
-  console.log('thhis is ', filteredServices)
+  // console.log('thhis is ', filteredServices)
   useEffect(() => {
-    console.log('Expert Data:', expertData);
-    console.log('Services:', services);
+    // console.log('Expert Data:', expertData);
+    // console.log('Services:', services);
   }, [expertData, services]);
 
   return (

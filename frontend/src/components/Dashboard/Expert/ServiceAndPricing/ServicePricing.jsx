@@ -27,16 +27,16 @@ function ServicePricing() {
   const filteredServices = services.filter(service => service.title !== "One-on-One Mentoring");
 
   // Debug logging for services
-  console.log('=== SERVICES DEBUG ===');
-  console.log('All services:', services);
-  console.log('Number of services:', services.length);
+  // console.log('=== SERVICES DEBUG ===');
+  // console.log('All services:', services);
+  // console.log('Number of services:', services.length);
   if (services.length > 0) {
-    console.log('First service structure:', services[0]);
-    console.log('First service keys:', Object.keys(services[0] || {}));
+    //   console.log('First service structure:', services[0]);
+    //   console.log('First service keys:', Object.keys(services[0] || {}));
   }
-  console.log('Mentoring service:', mentoringService);
-  console.log('Filtered services:', filteredServices);
-  console.log('=== END SERVICES DEBUG ===');
+  // console.log('Mentoring service:', mentoringService);
+  // console.log('Filtered services:', filteredServices);
+  // console.log('=== END SERVICES DEBUG ===');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -51,44 +51,44 @@ function ServicePricing() {
   }, []);
 
   useEffect(() => {
-    console.log('Expert Data changed:', expertData);
-    console.log('Services:', services);
-    console.log('Mentoring Service:', mentoringService);
-    console.log('Filtered Services:', filteredServices);
+    // console.log('Expert Data changed:', expertData);
+    // console.log('Services:', services);
+    // console.log('Mentoring Service:', mentoringService);
+    // console.log('Filtered Services:', filteredServices);
   }, [expertData, services, mentoringService, filteredServices]);
 
   const handleEditService = (service) => {
-    console.log('=== DEBUGGING handleEditService ===');
-    console.log('Received service object:', service);
-    console.log('Service type:', typeof service);
-    console.log('Service keys:', Object.keys(service || {}));
-    console.log('Service values:', Object.values(service || {}));
-    console.log('service.title:', service?.title);
-    console.log('service.serviceName:', service?.serviceName);
-    console.log('service.name:', service?.name);
-    console.log('=== END DEBUG ===');
+    // console.log('=== DEBUGGING handleEditService ===');
+    // console.log('Received service object:', service);
+    // console.log('Service type:', typeof service);
+    // console.log('Service keys:', Object.keys(service || {}));
+    // console.log('Service values:', Object.values(service || {}));
+    // console.log('service.title:', service?.title);
+    // console.log('service.serviceName:', service?.serviceName);
+    // console.log('service.name:', service?.name);
+    // console.log('=== END DEBUG ===');
 
     setEditingService(service);
     if (service.title === 'One-on-One Mentoring') {
-      console.log('Opening default service modal for:', service);
+      // console.log('Opening default service modal for:', service);
       setIsEditDefaultModalOpen(true);
     } else {
-      console.log('Opening non-default service modal for:', service);
+      // console.log('Opening non-default service modal for:', service);
       setIsEditNonDefaultModalOpen(true);
     }
   };
 
   const handleUpdateService = async (updatedService, meta = {}) => {
-    console.log('=== handleUpdateService called ===');
-    console.log('Updated service data being sent:', updatedService);
-    console.log('Update meta:', meta);
+    // console.log('=== handleUpdateService called ===');
+    // console.log('Updated service data being sent:', updatedService);
+    // console.log('Update meta:', meta);
 
     const { serviceType, serviceName } = meta;
 
     try {
       const result = await dispatch(updateServicebyId(updatedService)).unwrap();
-      console.log('Service updated successfully, new expert data:', result);
-      console.log('New services from updated expert data:', result.expert?.credentials?.services);
+      // console.log('Service updated successfully, new expert data:', result);
+      // console.log('New services from updated expert data:', result.expert?.credentials?.services);
 
       const resolvedName = serviceName || updatedService?.serviceName || updatedService?.title || 'Service';
 
@@ -211,7 +211,7 @@ function ServicePricing() {
               key={`mentoring-${mentoringService.serviceId || mentoringService._id}-${forceUpdate}-${JSON.stringify(mentoringService.one_on_one || [])}`}
               service={mentoringService}
               onEdit={(service) => {
-                console.log('MentoringCard onEdit called with:', service);
+                // console.log('MentoringCard onEdit called with:', service);
                 handleEditService(service || mentoringService);
               }}
               setSteps={setSteps}
@@ -224,7 +224,7 @@ function ServicePricing() {
                 service={service}
                 isDefault={service.id === "default"}
                 onEdit={(serviceToEdit) => {
-                  console.log('ServiceCard onEdit called with:', serviceToEdit);
+                  // console.log('ServiceCard onEdit called with:', serviceToEdit);
                   handleEditService(serviceToEdit || service);
                 }}
               />
@@ -247,7 +247,7 @@ function ServicePricing() {
         key={`non-default-${editingService?.serviceId || editingService?._id || 'new'}`}
         isOpen={isEditNonDefaultModalOpen}
         onClose={() => {
-          console.log('Closing non-default service modal');
+          // console.log('Closing non-default service modal');
           setIsEditNonDefaultModalOpen(false);
           setEditingService(null);
         }}
@@ -259,7 +259,7 @@ function ServicePricing() {
         key={`default-${editingService?.serviceId || editingService?._id || 'new'}`}
         isOpen={isEditDefaultModalOpen}
         onClose={() => {
-          console.log('Closing default service modal');
+          // console.log('Closing default service modal');
           setIsEditDefaultModalOpen(false);
           setEditingService(null);
         }}

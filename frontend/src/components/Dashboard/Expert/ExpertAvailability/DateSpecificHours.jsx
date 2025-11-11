@@ -43,7 +43,7 @@ const convertTo12Hour = (time24) => {
 };
 
 function DateSpecificHours({ availability }) {
-  console.log("this is availability at specifuc", availability);
+  // console.log("this is availability at specifuc", availability);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [dates, setDates] = useState([]);
   const [errors, setErrors] = useState({});
@@ -80,12 +80,12 @@ function DateSpecificHours({ availability }) {
     // Compare by date string (YYYY-MM-DD) in the selected timezone
     const dateString = getDateStringInTimezone(date, selectedTimezone);
 
-    console.log(`🔍 Checking if date is blocked: ${dateString}`);
+    // console.log(`🔍 Checking if date is blocked: ${dateString}`);
 
     // Check blocked dates from Redux state
     const isBlockedFromRedux = blockedDatesFromAvailability.some((blockedDate) => {
       const blockedDateString = getDateStringInTimezone(blockedDate, selectedTimezone);
-      console.log(`  📅 Comparing: "${dateString}" vs blocked "${blockedDateString}"`);
+      // console.log(`  📅 Comparing: "${dateString}" vs blocked "${blockedDateString}"`);
       return dateString === blockedDateString;
     });
 
@@ -96,7 +96,7 @@ function DateSpecificHours({ availability }) {
     });
 
     const result = isBlockedFromRedux || isBlockedFromContext;
-    console.log(`  ✅ Is blocked? ${result}`);
+    // console.log(`  ✅ Is blocked? ${result}`);
 
     return result;
   };
@@ -115,7 +115,7 @@ function DateSpecificHours({ availability }) {
           // Extract just the date part using the selected timezone
           const dateString = getDateStringInTimezone(dateObj, selectedTimezone);
 
-          console.log(`✅ Loading date from DB: ${specificDate.date} -> ${dateString} (timezone: ${selectedTimezone})`);
+          // console.log(`✅ Loading date from DB: ${specificDate.date} -> ${dateString} (timezone: ${selectedTimezone})`);
 
           return {
             id: dateString, // Use consistent date string as ID
@@ -126,7 +126,7 @@ function DateSpecificHours({ availability }) {
               const startTime12 = convertTo12Hour(slot.startTime);
               const endTime12 = convertTo12Hour(slot.endTime);
 
-              console.log(`⏰ Loading slot: ${slot.startTime} -> ${startTime12}, ${slot.endTime} -> ${endTime12}`);
+              // console.log(`⏰ Loading slot: ${slot.startTime} -> ${startTime12}, ${slot.endTime} -> ${endTime12}`);
 
               return {
                 id: Date.now() + Math.random(),
@@ -139,14 +139,14 @@ function DateSpecificHours({ availability }) {
       );
       setDates(formattedDates);
       setOriginalDates(formattedDates); // Store original dates for comparison
-      console.log("✅ Loaded dates from availability:", formattedDates);
+      // console.log("✅ Loaded dates from availability:", formattedDates);
     }
   }, [availability, selectedTimezone]);
 
   const handleAddDate = (selectedDate) => {
     // Use timezone-aware date string
     const dateString = getDateStringInTimezone(selectedDate, selectedTimezone);
-    console.log(`📅 Adding date: ${selectedDate.toISOString()} -> ${dateString} (timezone: ${selectedTimezone})`);
+    // console.log(`📅 Adding date: ${selectedDate.toISOString()} -> ${dateString} (timezone: ${selectedTimezone})`);
 
     const newDate = {
       id: dateString, // Use consistent date string format
@@ -191,10 +191,10 @@ function DateSpecificHours({ availability }) {
   };
 
   const handleRemoveDate = (dateId) => {
-    console.log("🗑️ Removing date:", dateId);
+    // console.log("🗑️ Removing date:", dateId);
     setDates((prevDates) => {
       const updated = prevDates.filter((date) => date.id !== dateId);
-      console.log("📋 Remaining dates after removal:", updated);
+      // console.log("📋 Remaining dates after removal:", updated);
       return updated;
     });
   };
@@ -230,10 +230,10 @@ function DateSpecificHours({ availability }) {
   };
 
   const handleSave = async () => {
-    console.log("💾 Saving date-specific hours...");
-    console.log("📊 Current dates state:", dates);
-    console.log("📊 Original dates state:", originalDates);
-    console.log("🌍 Using timezone:", selectedTimezone);
+    // console.log("💾 Saving date-specific hours...");
+    // console.log("📊 Current dates state:", dates);
+    // console.log("📊 Original dates state:", originalDates);
+    // console.log("🌍 Using timezone:", selectedTimezone);
 
     // Validate: Check for dates without slots
     const datesWithoutSlots = dates.filter((date) => date.slots.length === 0);
@@ -268,14 +268,14 @@ function DateSpecificHours({ availability }) {
     // Only include dates that have at least one slot
     const datesWithSlots = dates.filter((date) => date.slots.length > 0);
 
-    console.log("📊 Dates with slots:", datesWithSlots);
-    console.log("📊 Dates without slots (will be removed):", dates.filter((date) => date.slots.length === 0));
+    // console.log("📊 Dates with slots:", datesWithSlots);
+    // console.log("📊 Dates without slots (will be removed):", dates.filter((date) => date.slots.length === 0));
 
     // Format the data to send to backend
     const formattedData = datesWithSlots.map((date) => {
       // Convert the local date to ISO string at midnight in the selected timezone
       const dateStringInTz = getDateStringInTimezone(date.date, selectedTimezone);
-      console.log(`📅 Processing date: ${date.date.toLocaleDateString()} -> ${dateStringInTz}`);
+      // console.log(`📅 Processing date: ${date.date.toLocaleDateString()} -> ${dateStringInTz}`);
 
       return {
         date: dateStringInTz, // Send as YYYY-MM-DD string instead of ISO timestamp
@@ -284,7 +284,7 @@ function DateSpecificHours({ availability }) {
           const startTime24 = convertTo24Hour(slot.start);
           const endTime24 = convertTo24Hour(slot.end);
 
-          console.log(`  ⏰ Slot: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
+          // console.log(`  ⏰ Slot: ${slot.start} -> ${startTime24}, ${slot.end} -> ${endTime24}`);
 
           return {
             startTime: startTime24,
@@ -302,11 +302,11 @@ function DateSpecificHours({ availability }) {
     );
 
     if (deletedDates.length > 0) {
-      console.log("🗑️ Deleted dates detected:", deletedDates);
+      // console.log("🗑️ Deleted dates detected:", deletedDates);
     }
 
-    console.log("📤 Final formatted data to send to API:", JSON.stringify(formattedData, null, 2));
-    console.log("🔢 Sending", formattedData.length, "dates to backend (deleted:", deletedDates.length, ")");
+    // console.log("📤 Final formatted data to send to API:", JSON.stringify(formattedData, null, 2));
+    // console.log("🔢 Sending", formattedData.length, "dates to backend (deleted:", deletedDates.length, ")");
 
     // Create payload with explicit data
     const payload = {
@@ -314,15 +314,15 @@ function DateSpecificHours({ availability }) {
       deletedDates: deletedDates // Send deleted dates info for debugging
     };
 
-    console.log("📦 Full payload:", payload);
+    // console.log("📦 Full payload:", payload);
 
     // Dispatch with additional deleted dates info
     const result = await dispatch(addSpecificDates(formattedData));
 
     // Check if the save was successful and reload the page
     if (result.type === 'availability/addSpecificDates/fulfilled') {
-      console.log("✅ Date-specific hours saved successfully, reloading page...");
-      
+      // console.log("✅ Date-specific hours saved successfully, reloading page...");
+
       // Update originalDates to reflect current state
       setOriginalDates(datesWithSlots);
 
@@ -519,8 +519,8 @@ function DateSpecificHours({ availability }) {
                 // Additional check to ensure we're not accidentally highlighting today's date
                 const today = new Date();
                 const isToday = date.getFullYear() === today.getFullYear() &&
-                               date.getMonth() === today.getMonth() &&
-                               date.getDate() === today.getDate();
+                  date.getMonth() === today.getMonth() &&
+                  date.getDate() === today.getDate();
 
                 if (isToday && !isAlreadySelected) {
                   return "hover:bg-gray-100 rounded-md bg-white !bg-white";

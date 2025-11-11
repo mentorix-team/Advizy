@@ -72,19 +72,19 @@ const App = () => {
     const originalClear = sessionStorage.clear;
 
     sessionStorage.setItem = function (key, value) {
-      console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
+      // console.log(`🟢 SessionStorage SET: ${key} = ${value}`);
       console.trace(); // This will show you exactly where setItem is called from
       return originalSetItem.apply(this, arguments);
     };
 
     sessionStorage.removeItem = function (key) {
-      console.log(`🔴 SessionStorage REMOVE: ${key}`);
+      // console.log(`🔴 SessionStorage REMOVE: ${key}`);
       console.trace(); // This will show you exactly where removeItem is called from
       return originalRemoveItem.apply(this, arguments);
     };
 
     sessionStorage.clear = function () {
-      console.log(`💥 SessionStorage CLEARED`);
+      // console.log(`💥 SessionStorage CLEARED`);
       console.trace(); // This will show you exactly where clear is called from
       return originalClear.apply(this, arguments);
     };
@@ -113,13 +113,13 @@ const App = () => {
   // }, [isLoggedIn]);
 
   const handleAuthPopupOpen = () => {
-    console.log("handleAuthPopupOpen called");
+    // console.log("handleAuthPopupOpen called");
     try {
       const currentURL = location.pathname + location.search;
-      console.log("💾 Storing current URL for redirect:", currentURL);
+      // console.log("💾 Storing current URL for redirect:", currentURL);
       // Always store the current URL when login is triggered
       sessionStorage.setItem("redirectURL", currentURL);
-      console.log("✅ redirectURL stored successfully");
+      // console.log("✅ redirectURL stored successfully");
     } catch (e) {
       console.warn("Failed to set redirectURL:", e);
     }

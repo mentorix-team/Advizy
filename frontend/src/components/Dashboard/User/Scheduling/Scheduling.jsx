@@ -13,7 +13,7 @@ import Navbar from "@/components/Home/components/Navbar";
 import SearchModal from "@/components/Home/components/SearchModal";
 import { ArrowLeft } from "lucide-react";
 
-function Scheduling() { 
+function Scheduling() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,7 +53,7 @@ function Scheduling() {
   useEffect(() => {
     if (!selectedExpert && serviceId) {
       dispatch(getServiceWithExpertByServiceId(serviceId)).then((res) => {
-        console.log("[Scheduling] Fetched expert + service:", res?.payload);
+        // console.log("[Scheduling] Fetched expert + service:", res?.payload);
       });
     }
   }, [dispatch, selectedExpert, serviceId]);
@@ -110,7 +110,7 @@ function Scheduling() {
   const expert = {
     image: selectedExpert.profileImage?.secure_url || "https://via.placeholder.com/100",
     name: selectedExpert.firstName + " " + selectedExpert.lastName,
-    title: Array.isArray(selectedExpert.credentials?.professionalTitle) 
+    title: Array.isArray(selectedExpert.credentials?.professionalTitle)
       ? selectedExpert.credentials?.professionalTitle[0] || "No Title Provided"
       : selectedExpert.credentials?.professionalTitle || "No Title Provided",
     sessionDuration,
@@ -120,41 +120,41 @@ function Scheduling() {
   };
 
   // 📊 COMPREHENSIVE DATA LOG - All Scheduling Data in One Place
-  console.log("=== [SCHEDULING COMPLETE DATA] ===", {
-    "URL & Navigation": {
-      serviceId,
-      locationState: location.state,
-      duration,
-      price,
-    },
-    "Redux State": {
-      selectedExpert,
-      selectedService,
-      selectedAvailability,
-      expertLoading,
-      availabilityLoading,
-      expertError,
-      availabilityError,
-    },
-    "Availability Structure": {
-      availability: selectedAvailability?.availability,
-      blockedDates: selectedAvailability?.availability?.blockedDates,//check
-      daySpecific: selectedAvailability?.availability?.daySpecific,//check[0]?.
-    },
-    "User Data": userData,
-    "Calculated Values": {
-      defaultSlot,
-      sessionDuration,
-      sessionPrice,
-    },
-    "Professional Title": {
-      raw: selectedExpert?.credentials?.professionalTitle,
-      isArray: Array.isArray(selectedExpert?.credentials?.professionalTitle),
-      processed: expert.title,
-    },
-    "Final Expert Object": expert,
-    "Component Ready": !!(selectedExpert && selectedService && selectedAvailability?.availability),
-  });
+  // console.log("=== [SCHEDULING COMPLETE DATA] ===", {
+  //   "URL & Navigation": {
+  //     serviceId,
+  //     locationState: location.state,
+  //     duration,
+  //     price,
+  //   },
+  //   "Redux State": {
+  //     selectedExpert,
+  //     selectedService,
+  //     selectedAvailability,
+  //     expertLoading,
+  //     availabilityLoading,
+  //     expertError,
+  //     availabilityError,
+  //   },
+  //   "Availability Structure": {
+  //     availability: selectedAvailability?.availability,
+  //     blockedDates: selectedAvailability?.availability?.blockedDates,//check
+  //     daySpecific: selectedAvailability?.availability?.daySpecific,//check[0]?.
+  //   },
+  //   "User Data": userData,
+  //   "Calculated Values": {
+  //     defaultSlot,
+  //     sessionDuration,
+  //     sessionPrice,
+  //   },
+  //   "Professional Title": {
+  //     raw: selectedExpert?.credentials?.professionalTitle,
+  //     isArray: Array.isArray(selectedExpert?.credentials?.professionalTitle),
+  //     processed: expert.title,
+  //   },
+  //   "Final Expert Object": expert,
+  //   "Component Ready": !!(selectedExpert && selectedService && selectedAvailability?.availability),
+  // });
 
   const handleModalCategorySelect = (category) => {
     if (category.value) {

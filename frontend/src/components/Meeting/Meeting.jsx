@@ -4,7 +4,7 @@ import { useDyteClient, DyteProvider } from "@dytesdk/react-web-core";
 import { useDispatch, useSelector } from "react-redux";
 import MyMeetingUI from "./MyMeetingUI";
 import dayjs from "dayjs";  // Import dayjs for time handling
-import customParseFormat from "dayjs/plugin/customParseFormat"; 
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getthemeet, givefeedback, kickAllparticipant } from "@/Redux/Slices/meetingSlice";
 import { IoClose } from "react-icons/io5";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
@@ -16,10 +16,10 @@ dayjs.extend(customParseFormat);
 export default function Meeting() {
   const location = useLocation();
   const dispatch = useDispatch();
-  
-  const { authToken,meetingId ,startTime,endTime,id,serviceName,expertName,userName,expert_id,user_id} = location.state || {};
-  const {currentMeeting} = useSelector((state)=>state.meeting)
-  console.log('This is meeting',currentMeeting);
+
+  const { authToken, meetingId, startTime, endTime, id, serviceName, expertName, userName, expert_id, user_id } = location.state || {};
+  const { currentMeeting } = useSelector((state) => state.meeting)
+  // console.log('This is meeting',currentMeeting);
   const [meeting, initMeeting] = useDyteClient();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,21 +28,21 @@ export default function Meeting() {
   const [feedback, setFeedback] = useState('');
   // const [meeting, setMeeting] = useState(null);
 
-  console.log("Auth Token:", authToken);
-  console.log("Meeting ID:", meetingId);
-  console.log("End Time (raw):", endTime);
-  console.log("id:", id);
+  // console.log("Auth Token:", authToken);
+  // console.log("Meeting ID:", meetingId);
+  // console.log("End Time (raw):", endTime);
+  // console.log("id:", id);
 
-  useEffect(()=>{
-    const response = dispatch(getthemeet({id}))
-  },[dispatch])
+  useEffect(() => {
+    const response = dispatch(getthemeet({ id }))
+  }, [dispatch])
 
   const handleSubmitRating = async () => {
     if (!rating) {
       alert("Please provide a rating before submitting.");
       return;
     }
-  
+
     try {
       const response = await dispatch(
         givefeedback({
@@ -56,9 +56,9 @@ export default function Meeting() {
           serviceName,
         })
       );
-  
-      console.log("Feedback Response:", response);
-  
+
+      // console.log("Feedback Response:", response);
+
       if (response?.payload?.success) {
         alert("Feedback submitted successfully!");
         setIsRatingModalOpen(false);
@@ -70,7 +70,7 @@ export default function Meeting() {
       alert("Something went wrong. Please try again later.");
     }
   };
-  
+
 
   useEffect(() => {
     if (!authToken) {
@@ -79,7 +79,7 @@ export default function Meeting() {
       return;
     }
 
-    console.log("Initializing meeting with token:", authToken);
+    // console.log("Initializing meeting with token:", authToken);
 
     initMeeting({
       authToken,
@@ -89,7 +89,7 @@ export default function Meeting() {
       },
     })
       .then(() => {
-        console.log("Meeting initialized successfully.");
+        // console.log("Meeting initialized successfully.");
         setLoading(false);
       })
       .catch((err) => {
@@ -109,10 +109,10 @@ export default function Meeting() {
       const timeUntilFiveMinBefore = fiveMinutesBeforeEnd.diff(now, "milliseconds");
       const timeUntilEnd = meetingEndTime.diff(now, "milliseconds");
 
-      console.log("Meeting End Time:", meetingEndTime.format());
-      console.log("5 Min Warning Time:", fiveMinutesBeforeEnd.format());
-      console.log("Time until 5-minute warning (ms):", timeUntilFiveMinBefore);
-      console.log("Time until meeting ends (ms):", timeUntilEnd);
+      // console.log("Meeting End Time:", meetingEndTime.format());
+      // console.log("5 Min Warning Time:", fiveMinutesBeforeEnd.format());
+      // console.log("Time until 5-minute warning (ms):", timeUntilFiveMinBefore);
+      // console.log("Time until meeting ends (ms):", timeUntilEnd);
 
       // Notify 5 minutes before meeting ends
       if (timeUntilFiveMinBefore > 0) {
@@ -134,15 +134,15 @@ export default function Meeting() {
 
       if (timeUntilEnd > 0) {
         setTimeout(() => {
-          console.log("Meeting ended. Handling post-meeting actions...");
+          // console.log("Meeting ended. Handling post-meeting actions...");
 
           if (isMeetingUser) {
-            console.log("User or expert as participant detected. Kicking all participants and opening feedback modal.");
+            // console.log("User or expert as participant detected. Kicking all participants and opening feedback modal.");
 
             dispatch(kickAllparticipant({ id: meetingId }))
               .then((response) => {
                 if (response?.payload?.success) {
-                  console.log("Participants kicked successfully");
+                  // console.log("Participants kicked successfully");
                   setIsRatingModalOpen(true); // Open feedback modal
                 }
               })
@@ -151,7 +151,7 @@ export default function Meeting() {
               });
 
           } else if (isMeetingExpert) {
-            console.log("Expert (who is the host) detected. Redirecting to expert dashboard.");
+            // console.log("Expert (who is the host) detected. Redirecting to expert dashboard.");
             window.location.href = "/dashboard/expert/";
           }
         }, timeUntilEnd);
@@ -186,7 +186,7 @@ export default function Meeting() {
                 <IoClose className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="flex space-x-1 mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button

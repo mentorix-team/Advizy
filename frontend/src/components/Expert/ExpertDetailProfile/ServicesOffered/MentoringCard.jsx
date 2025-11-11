@@ -19,7 +19,7 @@ const DurationOption = ({ duration, price, isSelected, onClick }) => (
 );
 
 const MentoringCard = ({ mentoringService }) => {
-  console.log("This is mentoringService:", mentoringService);
+  // console.log("This is mentoringService:", mentoringService);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ const MentoringCard = ({ mentoringService }) => {
   useEffect(() => {
     if (durations.length > 0 && !selectedDuration) {
       setSelectedDuration(durations[0]); // Store full object {duration, price}
-      console.log("Default duration set:", durations[0]);
+      // console.log("Default duration set:", durations[0]);
     }
   }, [durations, selectedDuration]);
 
@@ -49,10 +49,10 @@ const MentoringCard = ({ mentoringService }) => {
 
   const handleBook = async () => {
     if (expertObj?._id && serviceId && selectedDuration) {
-      console.log("Dispatching getServicebyid...");
+      // console.log("Dispatching getServicebyid...");
       const expertId = expertObj._id;
-      console.log("Expert ID:", expertId);
-      console.log("Selected Duration:", selectedDuration);
+      // console.log("Expert ID:", expertId);
+      // console.log("Selected Duration:", selectedDuration);
 
       try {
         await dispatch(getServicebyid({ serviceId, expertId })).unwrap();

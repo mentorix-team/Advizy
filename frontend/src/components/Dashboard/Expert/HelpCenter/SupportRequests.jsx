@@ -14,7 +14,7 @@ function SupportRequests() {
     (state) => state.supportQueries
   );
 
-  console.log(queries)
+  // console.log(queries)
 
   useEffect(() => {
     dispatch(fetchSupportQueries());

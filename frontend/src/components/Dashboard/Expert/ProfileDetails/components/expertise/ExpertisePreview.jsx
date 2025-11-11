@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function ExpertisePreview({ formData }) {
-  console.log(formData);
+  // console.log(formData);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">

@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 
-export default function AvailabilityCalendar({ 
+export default function AvailabilityCalendar({
   meetings = [],
-  onDateSelect = () => {},
-  onNavigateMonth = () => {}
+  onDateSelect = () => { },
+  onNavigateMonth = () => { }
 }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -17,8 +17,8 @@ export default function AvailabilityCalendar({
     navigate('/dashboard/expert/availability');
   }
 
-  console.log("🔹 Received meetings data:", meetings); // LOGGING MEETINGS DATA
-  console.log("🔹 Number of meetings:", meetings?.length || 0);
+  // console.log("🔹 Received meetings data:", meetings); // LOGGING MEETINGS DATA
+  // console.log("🔹 Number of meetings:", meetings?.length || 0);
 
   const days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -45,13 +45,13 @@ export default function AvailabilityCalendar({
   };
 
   // ✅ FILTER MEETINGS FOR SELECTED DATE WITH IMPROVED LOGS
-  const filteredMeetings = meetings.filter(meeting => {
-    console.log("📋 Checking meeting:", {
-      id: meeting._id,
-      userName: meeting.userName,
-      daySpecific: meeting.daySpecific,
-      isPayed: meeting.isPayed
-    });
+  const filteredMeetings = meetings.filter((meeting) => {
+    // console.log("📋 Checking meeting:", {
+    //   id: meeting._id,
+    //   userName: meeting.userName,
+    //   daySpecific: meeting.daySpecific,
+    //   isPayed: meeting.isPayed,
+    // });
 
     let daySpecificData = meeting.daySpecific;
 
@@ -77,12 +77,12 @@ export default function AvailabilityCalendar({
         const meetingDate = new Date(daySpec.date).toDateString();
         const selectedDateString = selectedDate.toDateString();
 
-        console.log(
-          "🕵️‍♂️ Comparing Dates:",
-          "Meeting Date:", meetingDate,
-          "| Selected Date:", selectedDateString,
-          "| Has Slot:", !!daySpec.slot?.startTime
-        );
+        // console.log(
+        //   "🕵️‍♂️ Comparing Dates:",
+        //   "Meeting Date:", meetingDate,
+        //   "| Selected Date:", selectedDateString,
+        //   "| Has Slot:", !!daySpec.slot?.startTime
+        // );
 
         return meetingDate === selectedDateString && daySpec.slot?.startTime;
       } catch (error) {
@@ -94,7 +94,7 @@ export default function AvailabilityCalendar({
     return hasMatchingDate;
   });
 
-  console.log("✅ Meetings found for", selectedDate.toDateString(), ":", filteredMeetings);
+  // console.log("✅ Meetings found for", selectedDate.toDateString(), ":", filteredMeetings);
 
   return (
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
@@ -132,7 +132,7 @@ export default function AvailabilityCalendar({
 
               const hasMeetings = meetings.some(meeting => {
                 if (!meeting.daySpecific) return false;
-                
+
                 let daySpecificData = meeting.daySpecific;
 
                 if (!Array.isArray(daySpecificData)) {
@@ -141,7 +141,7 @@ export default function AvailabilityCalendar({
 
                 return daySpecificData.some(daySpec => {
                   if (!daySpec?.date || !daySpec.slot?.startTime) return false;
-                  
+
                   try {
                     return new Date(daySpec.date).toDateString() === date.toDateString();
                   } catch (error) {
@@ -191,7 +191,7 @@ export default function AvailabilityCalendar({
                   .filter(daySpec => daySpec?.slot?.startTime) // Only show slots with valid time
                   .map((daySpec, index) => {
                     const { startTime, endTime } = daySpec.slot || {};
-                    
+
                     return startTime ? (
                       <div key={`${meeting._id}-${index}`} className="bg-gray-50 rounded-lg p-4">
                         <div className="flex items-center gap-3">

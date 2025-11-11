@@ -42,7 +42,7 @@ const PayuOrderSummary = () => {
   const { loading: paymentLoading, error: paymentError } = useSelector(
     (state) => state.payment
   );
-  console.log("this is selected meeting", selectedMeeting);
+  // console.log("this is selected meeting", selectedMeeting);
   const [message, setMessage] = useState("");
 
   const {
@@ -55,8 +55,8 @@ const PayuOrderSummary = () => {
   } = location.state || {};
   const Price = location.state?.Price; // Ensure it exists before accessing
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
-  console.log("parsed", parsedDate);
-  console.log("this is also price", Price);
+  // console.log("parsed", parsedDate);
+  // console.log("this is also price", Price);
 
   useEffect(() => {
     dispatch(getMeet());
@@ -76,7 +76,7 @@ const PayuOrderSummary = () => {
       )
         .unwrap()
         .then((response) => {
-          console.log("Service fetched successfully:", response);
+          // console.log("Service fetched successfully:", response);
         })
         .catch((error) => {
           console.error("Failed to fetch service:", error);
@@ -91,7 +91,7 @@ const PayuOrderSummary = () => {
     document.body.appendChild(script);
 
     script.onload = () => {
-      console.log("Razorpay script loaded successfully.");
+      // console.log("Razorpay script loaded successfully.");
     };
 
     script.onerror = () => {
@@ -223,12 +223,12 @@ const PayuOrderSummary = () => {
         message: message,
       };
 
-      console.log("PayU Payment Data being sent:", paymentData);
-      console.log("Message being sent:", message);
-      console.log("Message length:", message?.length || 0);
+      // console.log("PayU Payment Data being sent:", paymentData);
+      // console.log("Message being sent:", message);
+      // console.log("Message length:", message?.length || 0);
 
       const response = await dispatch(PayU(paymentData)).unwrap();
-      console.log('this is payu response', response)
+      // console.log('this is payu response', response)
       const payuWindow = window.open("", "_blank");
       if (response) {
         payuWindow.document.write(response)
@@ -247,7 +247,7 @@ const PayuOrderSummary = () => {
     }
   };
 
-  console.log("this is delayed", delayedPrice);
+  // console.log("this is delayed", delayedPrice);
   const priceforsession = delayedPrice;
 
   if (loading && paymentLoading && expertLoading) {

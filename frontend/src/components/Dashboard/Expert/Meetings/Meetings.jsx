@@ -126,9 +126,9 @@ function Meetings() {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("Expert Meetings - All meetings from Redux:", meetings);
+    // console.log("Expert Meetings - All meetings from Redux:", meetings);
     if (meetings[0]) {
-      console.log("Expert Meetings - First meeting sample:", meetings[0]);
+      // console.log("Expert Meetings - First meeting sample:", meetings[0]);
     }
   }, [meetings]);
 
@@ -151,26 +151,26 @@ function Meetings() {
     .sort(
       (a, b) => getMeetingStartTimestamp(a) - getMeetingStartTimestamp(b)
     );
-  console.log("Todays", todaysMeetings);
+  // console.log("Todays", todaysMeetings);
   const upcomingMeetings = categorizedMeetings
     .filter((meeting) => meeting.daySpecific.date > today)
     .sort(
       (a, b) => getMeetingStartTimestamp(a) - getMeetingStartTimestamp(b)
     );
-  console.log("upcoming", upcomingMeetings);
+  // console.log("upcoming", upcomingMeetings);
   const pastMeetings = categorizedMeetings
     .filter((meeting) => meeting.daySpecific.date < today)
     .sort(
       (a, b) => getMeetingEndTimestamp(b) - getMeetingEndTimestamp(a)
     );
-  console.log("past", pastMeetings);
+  // console.log("past", pastMeetings);
 
   // Select meetings based on activeTab
   let selectedMeetings = [];
   if (activeTab === "upcoming") selectedMeetings = upcomingMeetings;
   else if (activeTab === "past") selectedMeetings = pastMeetings;
   else selectedMeetings = categorizedMeetings;
-  console.log("selectedMeetings before search", selectedMeetings);
+  // console.log("selectedMeetings before search", selectedMeetings);
 
   const { searchQuery, handleSearch, filteredItems } = useSearch(
     selectedMeetings,
@@ -182,12 +182,12 @@ function Meetings() {
     searchQuery,
     activeTab
   );
-  console.log("filtered item", filteredItems);
-  console.log("filtered meeting", filteredMeetings);
+  // console.log("filtered item", filteredItems);
+  // console.log("filtered meeting", filteredMeetings);
   const handleStartMeeting = async (meeting) => {
     // setJoinMeetingModal({ isOpen: true, meeting });
     try {
-      console.log("This is expert video call id", meeting.videoCallId);
+      // console.log("This is expert video call id", meeting.videoCallId);
       const meetingId = meeting.videoCallId;
       const startTime = meeting.daySpecific.slot.startTime
       const endTime = meeting.daySpecific.slot.endTime
@@ -198,17 +198,17 @@ function Meetings() {
         preset_name: "group_call_host",
       };
 
-      console.log("Preset Name being sent:", joinCallData.preset_name);
+      // console.log("Preset Name being sent:", joinCallData.preset_name);
 
       const response = await dispatch(
         addvideoparticipant(joinCallData)
       ).unwrap();
-      console.log("This is response", response);
+      // console.log("This is response", response);
 
       if (response?.data?.data?.token) {
         const authToken = response.data.data.token;
-        console.log("Auth Token received:", authToken);
-        console.log("meetinng id received:", meetingId);
+        // console.log("Auth Token received:", authToken);
+        // console.log("meetinng id received:", meetingId);
 
         // Set both states to enable polling
         setJoinedMeetingId(meeting.videoCallId);
@@ -241,7 +241,7 @@ function Meetings() {
   };
 
   const handleViewDetails = (meeting) => {
-    console.log("Expert Meetings - Meeting selected for details:", meeting);
+    // console.log("Expert Meetings - Meeting selected for details:", meeting);
     setSelectedMeeting(meeting);
   };
 

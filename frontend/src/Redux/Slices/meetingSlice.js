@@ -10,7 +10,8 @@ const initialState = {
   meetings: [],
   currentMeeting: "",
   rescheduleData: [],
-  feedbackofexpert: "",
+  // Store expert feedback as an array for consistency
+  feedbackofexpert: [],
   bookedSlots: [],
 };
 
@@ -287,9 +288,7 @@ export const fetchMeeting = createAsyncThunk(
 
   async (meetingId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `/meeting/fetchActiveSession/${meetingId}`
-      );
+      const response = await axiosInstance.get(`meeting/fetchActiveSession/${meetingId}`);
       return await response.data;
     } catch (error) {
       console.error("Error fetching meeting details:", error.response);
@@ -521,6 +520,10 @@ export const getfeedbackbyexpertid = createAsyncThunk(
       console.error("Error fetching meeting details:", error.response);
       const errorMessage =
         error?.response?.data?.message || "Failed to check .";
+      // If backend returns 200 with data in an error flow (shouldn't happen now), just return the data
+      if (error?.response?.status === 200) {
+        return error.response.data;
+      }
       toast.error(errorMessage, {
         position: "top-right",
         autoClose: 3000,
@@ -539,9 +542,8 @@ export const getBookedSlots = createAsyncThunk(
   "meeting/getBookedSlots",
   async ({ expertId, date }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `meeting/booked-slots?expertId=${expertId}&date=${date}`
-      );
+      const params = new URLSearchParams({ expertId, date }).toString();
+      const response = await axiosInstance.get(`meeting/booked-slots?${params}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching booked slots:", error.response);
@@ -666,7 +668,17 @@ const meetingSlice = createSlice({
         state.loading = true;
       })
       .addCase(getfeedbackbyexpertid.fulfilled, (state, action) => {
-        state.feedbackofexpert = action.payload.feedback;
+        // Normalize feedback array: ensure rating is a number and userName fallback
+        const raw = action.payload.feedback || [];
+        state.feedbackofexpert = raw.map(item => {
+          const numericRating = typeof item?.rating === 'number' ? item.rating : Number(item?.rating);
+          return {
+            ...item,
+            userName: item?.userName || 'Anonymous User',
+            rating: Number.isFinite(numericRating) ? Math.min(Math.max(numericRating, 0), 5) : 0,
+            feedback: item?.feedback || ''
+          };
+        });
         state.loading = false;
       })
       .addCase(getfeedbackbyexpertid.rejected, (state, action) => {

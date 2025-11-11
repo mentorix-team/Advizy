@@ -224,7 +224,7 @@ export default function Profile() {
 
   const handleSave = async () => {
     if (validateForm()) {
-      console.log("this is formData", formData);
+      // console.log("this is formData", formData);
       const response = await dispatch(updateUser(formData));
       localStorage.setItem("profileData", JSON.stringify(formData));
       localStorage.setItem(

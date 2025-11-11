@@ -30,7 +30,7 @@ function BlockUnavailableDates() {
   const { timezone } = useSelector((state) => state.availability.availability?.[0] || {});
   const selectedTimezone = timezone?.value || "Asia/Kolkata";
 
-  console.log('this is availabliity at blocked dates', availability)
+  // console.log('this is availabliity at blocked dates', availability)
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDates, setSelectedDates] = useState([]);
   const [disabledDates, setDisabledDates] = useState([]);
@@ -71,7 +71,7 @@ function BlockUnavailableDates() {
   };
 
   useEffect(() => {
-    console.log("useEffect triggered. Availability:", availability);
+    // console.log("useEffect triggered. Availability:", availability);
 
     const expertAvailability = availability?.availability?.[0];
 
@@ -93,7 +93,7 @@ function BlockUnavailableDates() {
         })
         .filter((day) => day !== undefined);
 
-      console.log("🚫 Disabled days (no slots):", nullSlotDays);
+      // console.log("🚫 Disabled days (no slots):", nullSlotDays);
       setDisabledDates(nullSlotDays);
     }
 
@@ -173,13 +173,13 @@ function BlockUnavailableDates() {
 
     try {
       const response = await dispatch(addBlockedDates({ dates: formattedDates }));
-      
+
       if (response?.payload?.success) {
-        console.log("✅ Blocked dates saved successfully, reloading page...");
+        // console.log("✅ Blocked dates saved successfully, reloading page...");
         setBlockedDates([...blockedDates, ...selectedDates]);
         setSelectedDates([]);
         setIsOpen(false);
-        
+
         // Reload the page after successful save
         setTimeout(() => {
           window.location.reload();
@@ -193,19 +193,19 @@ function BlockUnavailableDates() {
   };
 
   const handleRemoveDate = async (dateToRemove) => {
-    console.log("Removing date:", dateToRemove);
+    // console.log("Removing date:", dateToRemove);
 
     // Convert date to ISO string for backend
     const dateToRemoveISO = dateToRemove.toISOString();
 
     try {
       const response = await dispatch(removeBlockedDate(dateToRemoveISO));
-      
+
       if (response?.payload?.success) {
-        console.log("✅ Blocked date removed successfully, reloading page...");
+        // console.log("✅ Blocked date removed successfully, reloading page...");
         // Update local state only after successful backend call
         setBlockedDates(blockedDates.filter((date) => date.getTime() !== dateToRemove.getTime()));
-        
+
         // Reload the page after successful removal
         setTimeout(() => {
           window.location.reload();
@@ -314,29 +314,29 @@ function BlockUnavailableDates() {
                   // Check if this exact date (year, month, day) is selected
                   const isSelected = selectedDates.some((selectedDate) => {
                     const matches = selectedDate.getFullYear() === date.getFullYear() &&
-                           selectedDate.getMonth() === date.getMonth() &&
-                           selectedDate.getDate() === date.getDate();
-                    
+                      selectedDate.getMonth() === date.getMonth() &&
+                      selectedDate.getDate() === date.getDate();
+
                     if (matches) {
-                      console.log(`🎯 Date ${date.toDateString()} is selected for blocking`);
+                      // console.log(`🎯 Date ${date.toDateString()} is selected for blocking`);
                     }
-                    
+
                     return matches;
                   });
 
                   // Additional check to ensure we're not accidentally highlighting today's date
                   const today = new Date();
                   const isToday = date.getFullYear() === today.getFullYear() &&
-                                 date.getMonth() === today.getMonth() &&
-                                 date.getDate() === today.getDate();
+                    date.getMonth() === today.getMonth() &&
+                    date.getDate() === today.getDate();
 
                   if (isToday && !isSelected) {
-                    console.log(`📅 Today's date ${date.toDateString()} - not selected, using normal styling`);
+                    // console.log(`📅 Today's date ${date.toDateString()} - not selected, using normal styling`);
                     return "hover:bg-gray-100 rounded-md bg-white !bg-white"; // Force normal styling for today's date
                   }
 
                   if (isSelected) {
-                    console.log(`✅ Applying selected styling to ${date.toDateString()}`);
+                    // console.log(`✅ Applying selected styling to ${date.toDateString()}`);
                     return "!text-white !bg-green-600 rounded-md selected-date-green";
                   }
 

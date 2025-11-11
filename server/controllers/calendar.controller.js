@@ -1,4 +1,4 @@
-import {Availability} from '../config/model/calendar/calendar.model.js'
+import { Availability } from '../config/model/calendar/calendar.model.js'
 import { ExpertBasics } from '../config/model/expert/expertfinal.model.js';
 import AppError from '../utils/AppError.js';
 import moment from 'moment-timezone'
@@ -9,9 +9,9 @@ const addAvailability = async (req, res, next) => {
   const { data, features, timezone } = req.body;
   const expertid = req.expert.id;
 
-  const userTimezone = timezone || "Asia/Kolkata"; 
-  const timezoneLabel = timezone 
-    ? `(GMT${moment.tz(userTimezone).utcOffset() / 60}) ${moment.tz(userTimezone).format('z')}` 
+  const userTimezone = timezone || "Asia/Kolkata";
+  const timezoneLabel = timezone
+    ? `(GMT${moment.tz(userTimezone).utcOffset() / 60}) ${moment.tz(userTimezone).format('z')}`
     : "(GMT+5:30) Chennai, Kolkata, Mumbai, New Delhi";
   const timezoneOffset = moment.tz(userTimezone).utcOffset();
 
@@ -22,7 +22,7 @@ const addAvailability = async (req, res, next) => {
       availabilityDoc = new Availability({
         expert_id: expertid,
         timezone: {
-          value: userTimezone, 
+          value: userTimezone,
           label: timezoneLabel,
           offset: timezoneOffset,
         },
@@ -58,37 +58,37 @@ const addAvailability = async (req, res, next) => {
         if (dayEntry) {
           dayEntry.slots = slots && Array.isArray(slots) && slots.length > 0
             ? slots.map(({ startTime, endTime, dates }) => {
-                // Parse the time in 12-hour format and convert to 24-hour format without timezone conversion
-                const startTimeParsed = moment(startTime, "hh:mm A");
-                const endTimeParsed = moment(endTime, "hh:mm A");
-                
-                const startTime24H = startTimeParsed.format("HH:mm");
-                const endTime24H = endTimeParsed.format("HH:mm");
-                
-                console.log(`Original times: ${startTime} - ${endTime}`);
-                console.log(`Converted to 24H: ${startTime24H} - ${endTime24H}`);
+              // Parse the time in 12-hour format and convert to 24-hour format without timezone conversion
+              const startTimeParsed = moment(startTime, "hh:mm A");
+              const endTimeParsed = moment(endTime, "hh:mm A");
 
-                const formattedDates = Array.isArray(dates)
-                  ? dates.map((date) => {
-                      const parsedDate = moment.tz(date, userTimezone);
-                      if (!parsedDate.isValid()) {
-                        throw new Error(`Invalid date format in request: ${date}`);
-                      }
-                      return {
-                        date: parsedDate.utc().toDate(),
-                        isBooked: false,
-                        startTime: startTime24H,
-                        endTime: endTime24H,
-                      };
-                    })
-                  : [];
+              const startTime24H = startTimeParsed.format("HH:mm");
+              const endTime24H = endTimeParsed.format("HH:mm");
 
-                return {
-                  startTime: startTime24H,
-                  endTime: endTime24H,
-                  dates: formattedDates,
-                };
-              })
+              console.log(`Original times: ${startTime} - ${endTime}`);
+              console.log(`Converted to 24H: ${startTime24H} - ${endTime24H}`);
+
+              const formattedDates = Array.isArray(dates)
+                ? dates.map((date) => {
+                  const parsedDate = moment.tz(date, userTimezone);
+                  if (!parsedDate.isValid()) {
+                    throw new Error(`Invalid date format in request: ${date}`);
+                  }
+                  return {
+                    date: parsedDate.utc().toDate(),
+                    isBooked: false,
+                    startTime: startTime24H,
+                    endTime: endTime24H,
+                  };
+                })
+                : [];
+
+              return {
+                startTime: startTime24H,
+                endTime: endTime24H,
+                dates: formattedDates,
+              };
+            })
             : null;
         }
       }
@@ -177,15 +177,15 @@ const editAvailability = async (req, res, next) => {
         // Update slots for the day, or reset to null if slots are not provided
         dayEntry.slots = slots && Array.isArray(slots) && slots.length > 0
           ? slots.map(({ startTime, endTime }) => {
-              // Convert from 12-hour to 24-hour format without timezone conversion
-              const startTimeParsed = moment(startTime, "hh:mm A");
-              const endTimeParsed = moment(endTime, "hh:mm A");
+            // Convert from 12-hour to 24-hour format without timezone conversion
+            const startTimeParsed = moment(startTime, "hh:mm A");
+            const endTimeParsed = moment(endTime, "hh:mm A");
 
-              return {
-                startTime: startTimeParsed.format("HH:mm"),
-                endTime: endTimeParsed.format("HH:mm"),
-              };
-            })
+            return {
+              startTime: startTimeParsed.format("HH:mm"),
+              endTime: endTimeParsed.format("HH:mm"),
+            };
+          })
           : null;
       } else {
         console.warn(`Day not found in availability: ${day}`);
@@ -208,7 +208,7 @@ const editAvailability = async (req, res, next) => {
 
 
 const saveAvailability = async (req, res, next) => {
-  const { data } = req.body; // The `data` array contains day and slot details
+  const { data } = req.body; // The data array contains day and slot details
   const expertId = req.expert.id; // Extract expert ID from the authenticated user
 
   if (!Array.isArray(data) || data.length === 0) {
@@ -225,7 +225,7 @@ const saveAvailability = async (req, res, next) => {
 
     const { timezone } = availabilityDoc;
 
-    // Iterate over the `data` array to update or create availability
+    // Iterate over the data array to update or create availability
     for (const { day, slots } of data) {
       if (!day || !Array.isArray(slots) || slots.length === 0) {
         return next(new AppError("Each day must have valid slots.", 400));
@@ -235,7 +235,7 @@ const saveAvailability = async (req, res, next) => {
       const convertedSlots = slots.map(({ startTime, endTime }) => {
         const startTimeParsed = moment(startTime, "hh:mm A");
         const endTimeParsed = moment(endTime, "hh:mm A");
-        
+
         return {
           startTime: startTimeParsed.format("HH:mm"),
           endTime: endTimeParsed.format("HH:mm"),
@@ -308,7 +308,7 @@ const addBlockedDates = async (req, res, next) => {
       // For existing dates, also ensure they're in YYYY-MM-DD format
       return moment(d.dates).format("YYYY-MM-DD");
     });
-    
+
     const uniqueBlockedDates = [
       ...existingBlockedDates,
       ...convertedDates,
@@ -433,19 +433,19 @@ const addSpecificDates = async (req, res, next) => {
         // ISO format or other
         dateObj = new Date(specificDate.date);
       }
-     
+
       console.log("✅ Processing date:", specificDate.date, "->", dateObj.toISOString().split('T')[0], "with", specificDate.slots.length, "slots");
-    
+
       return {
         date: dateObj,
         slots: specificDate.slots
           ? specificDate.slots.map((slot) => {
-              console.log(`   ⏰ Slot: ${slot.startTime} to ${slot.endTime}`);
-              return {
-                startTime: slot.startTime,
-                endTime: slot.endTime,
-              };
-            })
+            console.log(`   ⏰ Slot: ${slot.startTime} to ${slot.endTime}`);
+            return {
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+            };
+          })
           : [],
       };
     });
@@ -468,62 +468,73 @@ const addSpecificDates = async (req, res, next) => {
     return next(new AppError(error.message || "Server error while saving specific dates.", 500));
   }
 };
-  
+
 
 const updateAvailability = async (req, res, next) => {
-    const { date, slots } = req.body;
-  
-    if (!date || !slots || !Array.isArray(slots)) {
-      return next(new AppError("Date and valid slots are required.", 400));
+  const { date, slots } = req.body;
+
+  if (!date || !slots || !Array.isArray(slots)) {
+    return next(new AppError("Date and valid slots are required.", 400));
+  }
+
+  try {
+    const availability = await Availability.findOne({ expert_id: req.expert.id, date });
+
+    if (!availability) {
+      return next(new AppError("No availability found for this date.", 404));
     }
-  
-    try {
-      const availability = await Availability.findOne({ expert_id: req.expert.id, date });
-  
-      if (!availability) {
-        return next(new AppError("No availability found for this date.", 404));
-      }
-  
-      availability.slots = slots; // Update slots
-      await availability.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Availability updated successfully.",
-        availability,
-      });
-    } catch (error) {
-      return next(new AppError(error.message, 500));
-    }
+
+    availability.slots = slots; // Update slots
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Availability updated successfully.",
+      availability,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
-  
+
 const deleteAvailability = async (req, res, next) => {
-    const { date } = req.body;
-  
-    if (!date) {
-      return next(new AppError("Date is required.", 400));
+  const { date } = req.body;
+
+  if (!date) {
+    return next(new AppError("Date is required.", 400));
+  }
+
+  try {
+    const availability = await Availability.findOneAndDelete({ expert_id: req.expert.id, date });
+
+    if (!availability) {
+      return next(new AppError("No availability found for this date.", 404));
     }
-  
-    try {
-      const availability = await Availability.findOneAndDelete({ expert_id: req.expert.id, date });
-  
-      if (!availability) {
-        return next(new AppError("No availability found for this date.", 404));
-      }
-  
-      res.status(200).json({
-        success: true,
-        message: "Availability deleted successfully.",
-      });
-    } catch (error) {
-      return next(new AppError(error.message, 500));
-    }
+
+    res.status(200).json({
+      success: true,
+      message: "Availability deleted successfully.",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
-  
+
 const viewAvailability = async (req, res, next) => {
-  const expertId = req.expert.id; // Correctly extract the expertId
+  // Expert context is optional: middleware may call next() without setting req.expert
+  const expertId = req.expert?.id;
+
+  // If there is no expert session, return a benign 200 with empty availability
+  // instead of throwing, to avoid crashing and spamming client toasts.
+  if (!expertId) {
+    return res.status(200).json({
+      success: true,
+      message: "No expert session",
+      availability: [],
+    });
+  }
 
   try {
     const availability = await Availability.find({ expert_id: expertId }).lean();
@@ -537,22 +548,22 @@ const viewAvailability = async (req, res, next) => {
       ...avail,
       daySpecific: avail.daySpecific
         ? avail.daySpecific.map((dayEntry) => ({
-            ...dayEntry,
-            slots: dayEntry.slots
-              ? dayEntry.slots.map((slot) => {
-                  const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
-                  const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
-                  
-                  console.log(`viewAvailability: Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
-                  
-                  return {
-                    ...slot,
-                    startTime: convertedStart,
-                    endTime: convertedEnd,
-                  };
-                })
-              : null,
-          }))
+          ...dayEntry,
+          slots: dayEntry.slots
+            ? dayEntry.slots.map((slot) => {
+              const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
+              const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
+
+              console.log(`viewAvailability: Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
+
+              return {
+                ...slot,
+                startTime: convertedStart,
+                endTime: convertedEnd,
+              };
+            })
+            : null,
+        }))
         : [],
     }));
 
@@ -570,162 +581,162 @@ const viewAvailability = async (req, res, next) => {
 };
 
 
-  
+
 const bookSlot = async (req, res, next) => {
-    const { expertId, date, startTime, endTime } = req.body;
-  
-    if (!expertId || !date || !startTime || !endTime) {
-      return next(new AppError("All fields are required.", 400));
+  const { expertId, date, startTime, endTime } = req.body;
+
+  if (!expertId || !date || !startTime || !endTime) {
+    return next(new AppError("All fields are required.", 400));
+  }
+
+  try {
+    const availability = await Availability.findOne({ expert_id: expertId, date });
+
+    if (!availability) {
+      return next(new AppError("No availability found for this date.", 404));
     }
-  
-    try {
-      const availability = await Availability.findOne({ expert_id: expertId, date });
-  
-      if (!availability) {
-        return next(new AppError("No availability found for this date.", 404));
-      }
-  
-      const slot = availability.slots.find(
-        (slot) =>
-          slot.startTime.getTime() === new Date(startTime).getTime() &&
-          slot.endTime.getTime() === new Date(endTime).getTime()
-      );
-  
-      if (!slot) {
-        return next(new AppError("Slot not found.", 404));
-      }
-  
-      if (slot.isBooked) {
-        return next(new AppError("Slot is already booked.", 400));
-      }
-  
-      slot.isBooked = true;
-      slot.user_id = req.user.id;
-  
-      await availability.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Slot booked successfully.",
-      });
-    } catch (error) {
-      return next(new AppError(error.message, 500));
+
+    const slot = availability.slots.find(
+      (slot) =>
+        slot.startTime.getTime() === new Date(startTime).getTime() &&
+        slot.endTime.getTime() === new Date(endTime).getTime()
+    );
+
+    if (!slot) {
+      return next(new AppError("Slot not found.", 404));
     }
+
+    if (slot.isBooked) {
+      return next(new AppError("Slot is already booked.", 400));
+    }
+
+    slot.isBooked = true;
+    slot.user_id = req.user.id;
+
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Slot booked successfully.",
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
 const changeSettings = async (req, res, next) => {
-    console.log(req.body)
-    const { timezone, bookingperiod, noticeperiod } = req.body;
-    const expert_id = req.expert.id;
-  
-    try {
-      const availability = await Availability.findOne({ expert_id });
-  
-      if (!availability) {
-        return next(new AppError("Availability not found", 404));
-      }
-  
-      if (timezone) {
-        availability.timezone = timezone;
-      }
-      if (bookingperiod) {
-        availability.bookingperiod = bookingperiod;
-      }
-      if (noticeperiod) {
-        availability.noticeperiod = noticeperiod;
-      }
-  
-      await availability.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Settings updated successfully",
-        availability
-      });
-    } catch (error) {
-      console.error("Error updating settings:", error);
-      return next(new AppError(error.message, 500));
+  console.log(req.body)
+  const { timezone, bookingperiod, noticeperiod } = req.body;
+  const expert_id = req.expert.id;
+
+  try {
+    const availability = await Availability.findOne({ expert_id });
+
+    if (!availability) {
+      return next(new AppError("Availability not found", 404));
     }
+
+    if (timezone) {
+      availability.timezone = timezone;
+    }
+    if (bookingperiod) {
+      availability.bookingperiod = bookingperiod;
+    }
+    if (noticeperiod) {
+      availability.noticeperiod = noticeperiod;
+    }
+
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Settings updated successfully",
+      availability
+    });
+  } catch (error) {
+    console.error("Error updating settings:", error);
+    return next(new AppError(error.message, 500));
+  }
 };
-  
+
 const reschedulePolicy = async (req, res, next) => {
-    console.log(req.body)
-    try {
-      const { recheduleType, noticeperiod } = req.body;
-      const expertId = req.expert.id; 
-  
-      const availability = await Availability.findOne({ expert_id: expertId });
-  
-      if (!availability) {
-        return next(new AppError("Availability not found", 404));
-      }
-  
-      availability.reschedulePolicy = {
-        recheduleType,
-        noticeperiod,
-      };
-  
-      await availability.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Reschedule policy updated successfully",
-        data: availability.reschedulePolicy,
-      });
-    } catch (error) {
-      console.error("Error updating reschedule policy:", error);
-      next(new AppError("An error occurred while updating reschedule policy", 500));
+  console.log(req.body)
+  try {
+    const { recheduleType, noticeperiod } = req.body;
+    const expertId = req.expert.id;
+
+    const availability = await Availability.findOne({ expert_id: expertId });
+
+    if (!availability) {
+      return next(new AppError("Availability not found", 404));
     }
+
+    availability.reschedulePolicy = {
+      recheduleType,
+      noticeperiod,
+    };
+
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Reschedule policy updated successfully",
+      data: availability.reschedulePolicy,
+    });
+  } catch (error) {
+    console.error("Error updating reschedule policy:", error);
+    next(new AppError("An error occurred while updating reschedule policy", 500));
+  }
 };
 
 const changeTimezone = async (req, res, next) => {
-    console.log("Received timezone change request:", req.body);
-    const { timezone } = req.body;
-    const expert_id = req.expert.id; // Adjust based on your auth setup
-  
-    try {
-      const availability = await Availability.findOne({ expert_id });
-  
-      if (!availability) {
-        return next(new AppError("Availability not found", 404));
-      }
-  
-      // Validate and update the timezone field
-      if (timezone && typeof timezone === "object" && timezone.value) {
-        console.log("Updating timezone to:", timezone);
-        availability.timezone = {
-          value: timezone.value,
-          label: timezone.label || timezone.value,
-          offset: timezone.offset || 0,
-          abbrev: timezone.abbrev || '',
-          altName: timezone.altName || '',
-        };
-      } else if (typeof timezone === "string") {
-        // Handle case where timezone is sent as a string
-        console.log("Timezone sent as string:", timezone);
-        availability.timezone = {
-          value: timezone,
-          label: timezone,
-          offset: 0,
-        };
-      } else {
-        console.error("Invalid timezone format received:", timezone);
-        return next(new AppError("Invalid timezone format. Expected object with 'value' property or string.", 400));
-      }
-  
-      await availability.save();
-  
-      res.status(200).json({
-        success: true,
-        message: "Timezone updated successfully",
-        availability,
-      });
-    } catch (error) {
-      console.error("Error updating timezone:", error);
-      return next(new AppError(error.message, 500));
+  console.log("Received timezone change request:", req.body);
+  const { timezone } = req.body;
+  const expert_id = req.expert.id; // Adjust based on your auth setup
+
+  try {
+    const availability = await Availability.findOne({ expert_id });
+
+    if (!availability) {
+      return next(new AppError("Availability not found", 404));
     }
+
+    // Validate and update the timezone field
+    if (timezone && typeof timezone === "object" && timezone.value) {
+      console.log("Updating timezone to:", timezone);
+      availability.timezone = {
+        value: timezone.value,
+        label: timezone.label || timezone.value,
+        offset: timezone.offset || 0,
+        abbrev: timezone.abbrev || '',
+        altName: timezone.altName || '',
+      };
+    } else if (typeof timezone === "string") {
+      // Handle case where timezone is sent as a string
+      console.log("Timezone sent as string:", timezone);
+      availability.timezone = {
+        value: timezone,
+        label: timezone,
+        offset: 0,
+      };
+    } else {
+      console.error("Invalid timezone format received:", timezone);
+      return next(new AppError("Invalid timezone format. Expected object with 'value' property or string.", 400));
+    }
+
+    await availability.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Timezone updated successfully",
+      availability,
+    });
+  } catch (error) {
+    console.error("Error updating timezone:", error);
+    return next(new AppError(error.message, 500));
+  }
 };
-  
+
 const getAvailabilitybyid = async (req, res, next) => {
   try {
     const { id: expert_id } = req.params;
@@ -740,64 +751,64 @@ const getAvailabilitybyid = async (req, res, next) => {
 
     const istTimezone = availability.timezone?.value || "Asia/Kolkata"; // Ensure correct timezone (IST)
 
-    // Convert `daySpecific` slots from 24-hour to 12-hour format
+    // Convert daySpecific slots from 24-hour to 12-hour format
     availability.daySpecific = availability.daySpecific
       ? availability.daySpecific.map((dayEntry) => ({
-          ...dayEntry,
-          slots: dayEntry.slots
-            ? dayEntry.slots.map((slot) => {
-                const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
-                const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
-                
-                console.log(`Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
-                
-                return {
-                  ...slot,
-                  startTime: convertedStart,
-                  endTime: convertedEnd,
-                  dates: slot.dates
-                    ? slot.dates.map((dateEntry) => ({
-                        date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
-                        slots: dateEntry.slots
-                          ? dateEntry.slots.map((innerSlot) => ({
-                              startTime: moment(innerSlot.startTime, "HH:mm").format("hh:mm A"),
-                              endTime: moment(innerSlot.endTime, "HH:mm").format("hh:mm A"),
-                              meeting_id: innerSlot.meeting_id || null,
-                            }))
-                          : [],
-                      }))
+        ...dayEntry,
+        slots: dayEntry.slots
+          ? dayEntry.slots.map((slot) => {
+            const convertedStart = moment(slot.startTime, "HH:mm").format("hh:mm A");
+            const convertedEnd = moment(slot.endTime, "HH:mm").format("hh:mm A");
+
+            console.log(`Converting ${slot.startTime} -> ${convertedStart}, ${slot.endTime} -> ${convertedEnd}`);
+
+            return {
+              ...slot,
+              startTime: convertedStart,
+              endTime: convertedEnd,
+              dates: slot.dates
+                ? slot.dates.map((dateEntry) => ({
+                  date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
+                  slots: dateEntry.slots
+                    ? dateEntry.slots.map((innerSlot) => ({
+                      startTime: moment(innerSlot.startTime, "HH:mm").format("hh:mm A"),
+                      endTime: moment(innerSlot.endTime, "HH:mm").format("hh:mm A"),
+                      meeting_id: innerSlot.meeting_id || null,
+                    }))
                     : [],
-                };
-              })
-            : [],
-        }))
+                }))
+                : [],
+            };
+          })
+          : [],
+      }))
       : [];
 
     console.log("Converted availability for frontend:", JSON.stringify(availability?.daySpecific, null, 2));
 
-    // Convert `blockedDates` - preserve the original date without timezone conversion
+    // Convert blockedDates - preserve the original date without timezone conversion
     availability.blockedDates = availability.blockedDates
       ? availability.blockedDates.map((block) => {
-          // Extract just the date part without timezone conversion
-          const dateOnly = moment(block.dates).format("YYYY-MM-DD");
-          return dateOnly;
-        })
+        // Extract just the date part without timezone conversion
+        const dateOnly = moment(block.dates).format("YYYY-MM-DD");
+        return dateOnly;
+      })
       : [];
 
-    // Convert `dateSpecific` times from 24-hour to 12-hour format & dates
+    // Convert dateSpecific times from 24-hour to 12-hour format & dates
     availability.dateSpecific = availability.dateSpecific
       ? availability.dateSpecific.map((dateEntry) => ({
-          ...dateEntry,
-          date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
-          slots: dateEntry.slots
-            ? dateEntry.slots.map((slot) => ({
-                startTime: moment(slot.startTime, "HH:mm").format("hh:mm A"),
-                endTime: moment(slot.endTime, "HH:mm").format("hh:mm A"),
-                isBooked: slot.isBooked,
-                user_id: slot.user_id || null,
-              }))
-            : [],
-        }))
+        ...dateEntry,
+        date: moment.utc(dateEntry.date).tz(istTimezone).format("YYYY-MM-DD"),
+        slots: dateEntry.slots
+          ? dateEntry.slots.map((slot) => ({
+            startTime: moment(slot.startTime, "HH:mm").format("hh:mm A"),
+            endTime: moment(slot.endTime, "HH:mm").format("hh:mm A"),
+            isBooked: slot.isBooked,
+            user_id: slot.user_id || null,
+          }))
+          : [],
+      }))
       : [];
 
     // Return formatted data
@@ -813,20 +824,20 @@ const getAvailabilitybyid = async (req, res, next) => {
 };
 
 
-  
-  export {
-    saveAvailability,
-    addAvailability,
-    editAvailability,
-    updateAvailability,
-    viewAvailability,
-    deleteAvailability,
-    bookSlot,
-    addBlockedDates,
-    removeBlockedDates,
-    addSpecificDates,
-    changeSettings,
-    reschedulePolicy,
-    changeTimezone,
-    getAvailabilitybyid
-  }
+
+export {
+  saveAvailability,
+  addAvailability,
+  editAvailability,
+  updateAvailability,
+  viewAvailability,
+  deleteAvailability,
+  bookSlot,
+  addBlockedDates,
+  removeBlockedDates,
+  addSpecificDates,
+  changeSettings,
+  reschedulePolicy,
+  changeTimezone,
+  getAvailabilitybyid
+}

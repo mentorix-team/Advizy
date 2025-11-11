@@ -12,9 +12,9 @@ const Home = () => {
   const [selectedDomain, setSelectedDomain] = useState(null);
 
   const handleApplyFilters = (filters) => {
-    console.log("Applied Filters:", filters);
+    // console.log("Applied Filters:", filters);
   };
-  
+
   return (
     // <div>
     //   {/* Navbar */}

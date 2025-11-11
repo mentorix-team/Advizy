@@ -8,15 +8,15 @@ export default function CompleteProfile({
   completion = 0,
   firstIncompleteSection = 'basic'
 }) {
-  console.log('CompleteProfile rendering with completion:', completion);
+  // console.log('CompleteProfile rendering with completion:', completion);
 
   // If profile is complete, don't render anything
   if (completion === 100) {
-    console.log('CompleteProfile: hiding because completion is 100');
+    // console.log('CompleteProfile: hiding because completion is 100');
     return null;
   }
 
-  console.log('CompleteProfile: showing because completion is', completion);
+  // console.log('CompleteProfile: showing because completion is', completion);
 
   const navigate = useNavigate();
 

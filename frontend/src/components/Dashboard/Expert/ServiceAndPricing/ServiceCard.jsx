@@ -71,7 +71,7 @@ const ServiceCard = ({ service, isDefault = false, onEdit }) => {
   const handleEdit = (updatedService) => {
     setEditedService((prevService) => {
       const newService = { ...prevService, ...updatedService };
-      console.log("Updated Service Data: ", newService);
+      // console.log("Updated Service Data: ", newService);
       dispatch(updateServicebyId(newService));
       return newService;
     });
@@ -79,7 +79,7 @@ const ServiceCard = ({ service, isDefault = false, onEdit }) => {
 
   const handleUpdate = () => {
     if (isEnabled && editedService?._id) {
-      console.log("Data passed: ", editedService);
+      // console.log("Data passed: ", editedService);
       dispatch(updateServicebyId(editedService));
     }
   };
@@ -157,8 +157,8 @@ const ServiceCard = ({ service, isDefault = false, onEdit }) => {
           )}
           <button
             onClick={() => {
-              console.log('ServiceCard edit button clicked, service:', service);
-              console.log('Service type:', typeof service, 'Service keys:', Object.keys(service || {}));
+              // console.log('ServiceCard edit button clicked, service:', service);
+              // console.log('Service type:', typeof service, 'Service keys:', Object.keys(service || {}));
               onEdit(service);
             }}
             className={`rounded-full transition-colors ${isEnabled ? "hover:bg-gray-100" : "cursor-not-allowed"

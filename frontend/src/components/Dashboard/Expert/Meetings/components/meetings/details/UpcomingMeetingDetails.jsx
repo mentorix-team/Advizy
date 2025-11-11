@@ -37,13 +37,13 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  console.log("This is meeting in upcoming meeting details", meeting);
-  console.log("Meeting message property:", meeting?.message);
-  console.log("Meeting keys:", Object.keys(meeting || {}));
+  // console.log("This is meeting in upcoming meeting details", meeting);
+  // console.log("Meeting message property:", meeting?.message);
+  // console.log("Meeting keys:", Object.keys(meeting || {}));
   
   // Temporary test - let's check if a hardcoded message works
   const testMessage = "Test message to verify UI works";
-  console.log("Testing with hardcoded message:", testMessage);
+  // console.log("Testing with hardcoded message:", testMessage);
   const handleCopyLink = () => {
     navigator.clipboard.writeText(
       `https://meet.example.com/${meeting.userName
@@ -58,7 +58,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
     let interval;
 
     if (joinedMeetingId && isInMeeting) {  // Check both conditions
-      console.log("Starting meeting polling for ID:", joinedMeetingId);
+      // console.log("Starting meeting polling for ID:", joinedMeetingId);
 
       // Initial fetch
       dispatch(fetchMeeting(joinedMeetingId));
@@ -75,7 +75,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
     return () => {
       if (interval) {
-        console.log("Cleaning up meeting polling");
+        // console.log("Cleaning up meeting polling");
         clearInterval(interval);
       }
     };
@@ -83,7 +83,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
   useEffect(() => {
     if (currentMeeting?.status === "ENDED") {
-      console.log("Meeting has ended!");
+      // console.log("Meeting has ended!");
       setIsInMeeting(false);  // Stop polling when meeting ends
       setJoinedMeetingId(null);
     }
@@ -91,7 +91,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
 
   const handleJoinCall = async (notification) => {
     try {
-      console.log("This is expert video call id", notification.videoCallId);
+      // console.log("This is expert video call id", notification.videoCallId);
 
       const joinCallData = {
         meeting_id: meeting.videoCallId,
@@ -100,14 +100,14 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
         preset_name: "group_call_host",
       };
 
-      console.log("Preset Name being sent:", joinCallData.preset_name);
+      // console.log("Preset Name being sent:", joinCallData.preset_name);
 
       const response = await dispatch(addvideoparticipant(joinCallData)).unwrap();
-      console.log("This is response", response);
+      // console.log("This is response", response);
 
       if (response?.data?.data?.token) {
         const authToken = response.data.data.token;
-        console.log("Auth Token received:", authToken);
+        // console.log("Auth Token received:", authToken);
 
         setJoinedMeetingId(meeting.videoCallId);
         setIsInMeeting(true);
@@ -163,7 +163,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
       meetingId: meeting._id,
       razorpay_payment_id: meeting.razorpay_payment_id,
     };
-    console.log('this is pauload', payload)
+    // console.log('this is pauload', payload)
     // Dispatch the action
     dispatch(rescheduleByExpert(payload));
 
@@ -189,7 +189,7 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
     } else {
       setError("");
       // Add your form submission logic here
-      console.log("Submitted Reason:", reason);
+      // console.log("Submitted Reason:", reason);
       handleClosePopup();
     }
   };

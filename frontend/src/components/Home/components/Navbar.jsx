@@ -1,13 +1,15 @@
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard } from 'lucide-react';
+import { ChevronDown, LogOut, User, CircleUserRound, UserCheck, LayoutDashboard, Search, ChevronRight, X } from 'lucide-react';
 import { logout } from '@/Redux/Slices/authSlice';
 import { FaUser } from "react-icons/fa";
 import { FaUserTie } from "react-icons/fa6";
 import AuthPopup from '@/components/Auth/AuthPopup.auth';
+import { liteClient as algoliasearch } from "algoliasearch/lite";
+import { debounce } from 'lodash';
 
 const Navbar = ({ onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,19 +24,31 @@ const Navbar = ({ onSearch }) => {
   const location = useLocation();
   const dropdownTimeoutRef = useRef(null);
   const { data } = useSelector((state) => state.auth);
-  
+
+  // Search functionality state
+  const searchClient = useRef(null);
+  const [hits, setHits] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
+  const { redirect_url } = useParams();
+  const hoverTimeoutRef = useRef(null);
+
 
   const isLinkActive = (path) => {
     return location.pathname === path;
   };
 
+  const getRedirect = (hit) => hit.redirect_url || hit.username || hit.objectID;
+
   let parsedData;
-    try {
-      parsedData = typeof data === "string" ? JSON.parse(data) : data;
-    } catch (error) {
-      console.error("Error parsing JSON:", error);
-      parsedData = data;
-    }
+  try {
+    parsedData = typeof data === "string" ? JSON.parse(data) : data;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    parsedData = data;
+  }
 
 
   useEffect(() => {
@@ -59,6 +73,16 @@ const Navbar = ({ onSearch }) => {
       setIsExpertMode(true);
     } else {
       setIsExpertMode(false);
+    }
+  }, []);
+
+  // Initialize Algolia search client
+  useEffect(() => {
+    if (!searchClient.current) {
+      searchClient.current = algoliasearch(
+        "XWATQTV8D5", // your App ID
+        "1d072ac04759ef34bc76e8216964c29e" // your Search API Key (public)
+      );
     }
   }, []);
 
@@ -92,19 +116,102 @@ const Navbar = ({ onSearch }) => {
     setIsDropdownOpen(false);
   };
 
+  // Debounced search function
+  const handleNavbarSearch = useCallback(
+    debounce((searchQuery) => {
+      if (searchClient.current && searchQuery.trim()) {
+        setIsSearching(true);
+        searchClient.current.search([
+          {
+            indexName: "experts_index", // Make sure this matches your actual index name
+            query: searchQuery.trim(),
+            params: {
+              hitsPerPage: 5,
+            }
+          }
+        ]).then(({ results }) => {
+          const searchHits = results[0]?.hits || [];
+          setHits(searchHits);
+          setShowDropdown(true);
+          setIsSearching(false);
+        }).catch(error => {
+          console.error("Search error:", error);
+          setHits([]);
+          setShowDropdown(false);
+          setIsSearching(false);
+        });
+      } else {
+        setHits([]);
+        setShowDropdown(false);
+        setIsSearching(false);
+      }
+    }, 300),
+    []
+  );
+
+  // Input change handler
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (value.trim() === "") {
+      setHits([]);
+      setShowDropdown(false);
+      setIsSearching(false);
+    } else {
+      setShowDropdown(true);
+      handleNavbarSearch(value);
+    }
+  };
+
+  // Navigation handlers
+  const openExpertProfile = (redirect_url) => {
+    if (!redirect_url) return;
+    navigate(`/expert/${redirect_url}`);
+    setTimeout(() => {
+      setShowDropdown(false);
+      setIsMobileSearchActive(false);
+      setQuery("");
+    }, 0);
+  };
+
   const handleMouseEnter = () => {
     // Clear any existing timeout to prevent conflicts
     if (dropdownTimeoutRef.current) {
       clearTimeout(dropdownTimeoutRef.current);
     }
-    setIsDropdownOpen(true);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a timeout to open the dropdown after 300ms
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsDropdownOpen(true);
+    }, 300); // 300ms delay
   };
 
   const handleMouseLeave = () => {
+    // Clear the opening timeout if mouse leaves before delay completes
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
     // Set a timeout before closing the dropdown
     dropdownTimeoutRef.current = setTimeout(() => {
       setIsDropdownOpen(false);
     }, 200); // 200ms delay before closing
+  };
+
+  // Mobile search handlers
+  const handleOpenMobileSearch = () => {
+    setIsMobileSearchActive(true);
+  };
+
+  const handleCloseMobileSearch = () => {
+    setIsMobileSearchActive(false);
+    setQuery("");
+    setHits([]);
+    setShowDropdown(false);
   };
 
   const UserDropdown = () => (
@@ -203,6 +310,274 @@ const Navbar = ({ onSearch }) => {
     </div>
   );
 
+  // Domain matching function
+  const getDomainMatch = (searchQuery) => {
+    if (!searchQuery || searchQuery.trim() === "") return null;
+
+    const domainMap = {
+      // Existing mappings
+      'career': { label: 'Career & Education', value: 'career_and_education' },
+      'education': { label: 'Career & Education', value: 'career_and_education' },
+      'career & education': { label: 'Career & Education', value: 'career_and_education' },
+
+      'personal': { label: 'Personal Development', value: 'personal_development' },
+      'development': { label: 'Personal Development', value: 'personal_development' },
+      'personal development': { label: 'Personal Development', value: 'personal_development' },
+
+      'business': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'entrepreneur': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'startup': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+      'business entrepreneurship': { label: 'Business & Entrepreneurship', value: 'business_and_entrepreneurship' },
+
+      'technology': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'tech': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'digital skills': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+      'technology and digital skills': { label: 'Technology & Digital Skills', value: 'technology_and_digital_skills' },
+
+      'legal': { label: 'Legal Advice', value: 'legal_advice' },
+      'legal advice': { label: 'Legal Advice', value: 'legal_advice' },
+
+      'finance': { label: 'Financial Guidance', value: 'financial_guidance' },
+      'financial': { label: 'Financial Guidance', value: 'financial_guidance' },
+      'financial guidance': { label: 'Financial Guidance', value: 'financial_guidance' },
+
+      'arts': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'media': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'entertainment': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+      'arts media & entertainment': { label: 'Arts, Media & Entertainment', value: 'arts_media_and_entertainment' },
+
+      'social impact': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+      'volunteering': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+      'social impact & volunteering': { label: 'Social Impact & Volunteering', value: 'social_impact_and_volunteering' },
+
+      'hobbies': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+      'personal interests': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+      'hobbies & personal interests': { label: 'Hobbies & Personal Interests', value: 'hobbies_and_personal_interests' },
+
+      // You can keep your previous keys for backward compatibility
+      'health': { label: 'Health & Wellness', value: 'health_and_wellness' },
+      'wellness': { label: 'Health & Wellness', value: 'health_and_wellness' },
+      'health & wellness': { label: 'Health & Wellness', value: 'health_and_wellness' },
+
+      'marketing': { label: 'Marketing', value: 'marketing' },
+      'design': { label: 'Design & Creative', value: 'design_and_creative' },
+      'creative': { label: 'Design & Creative', value: 'design_and_creative' },
+      'design & creative': { label: 'Design & Creative', value: 'design_and_creative' }
+    };
+
+    const lowerQuery = searchQuery.toLowerCase().trim();
+
+    // Check for exact matches first
+    if (domainMap[lowerQuery]) {
+      return domainMap[lowerQuery];
+    }
+
+    // Check for partial matches
+    for (const [key, value] of Object.entries(domainMap)) {
+      if (lowerQuery.includes(key) || value.label.toLowerCase().includes(lowerQuery)) {
+        return value;
+      }
+    }
+
+    return null;
+  };
+
+  // Search results rendering with requested changes
+  const renderSearchResults = () => {
+    const domainMatch = getDomainMatch(query);
+
+    // helper: format domain to readable text
+    const formatDomain = (domain) => {
+      if (!domain) return '';
+      return String(domain).replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    };
+
+    // helper: compute matched niche/skills for a hit (prefer highlights, then query filter, then fallback)
+    const getMatchedNiche = (hit) => {
+      try {
+        // 1) Highlight result from Algolia if present
+        if (hit._highlightResult && hit._highlightResult.niche) {
+          const highlightedValue = hit._highlightResult.niche.value;
+          if (highlightedValue && highlightedValue.includes('<em>')) {
+            return [highlightedValue.replace(/<\/?em>/g, '')];
+          }
+        }
+
+        // 2) If niche is an array, try to match current query
+        const q = query ? String(query).toLowerCase().trim() : '';
+        if (Array.isArray(hit.niche) && q) {
+          const matched = hit.niche.filter(n => String(n).toLowerCase().includes(q));
+          if (matched.length > 0) return matched.slice(0, 2);
+        }
+
+        // 3) If niche is a string and contains query
+        if (typeof hit.niche === 'string' && q) {
+          if (String(hit.niche).toLowerCase().includes(q)) return [hit.niche];
+        }
+
+        // 4) fallback: return all niches formatted
+        if (Array.isArray(hit.niche) && hit.niche.length > 0) return hit.niche.slice(0, 2);
+        if (typeof hit.niche === 'string') return [hit.niche];
+      } catch (e) {
+        console.error('Error processing niche:', e);
+      }
+      return [];
+    };
+
+    // Filter experts by domain if a domain is matched
+    let domainExperts = [];
+    if (domainMatch && hits.length > 0) {
+      domainExperts = hits.filter(
+        (hit) =>
+          hit.domain === domainMatch.value ||
+          (hit.domains && hit.domains.includes(domainMatch.value))
+      );
+    }
+
+    return (
+      <div className="absolute z-50 w-full bg-white border border-gray-300 mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        {/* Domain browse button */}
+        {domainMatch && (
+          <div
+            className="flex items-center justify-between px-4 py-3 hover:bg-primary/10 cursor-pointer border-b border-gray-100"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              navigate(`/explore?category=${domainMatch.value}`);
+              setTimeout(() => {
+                setShowDropdown(false);
+                setIsMobileSearchActive(false);
+                setQuery("");
+              }, 0);
+            }}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Search className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <div className="font-medium text-primary">
+                  Browse {domainMatch.label} Experts
+                </div>
+                <div className="text-sm text-gray-500">
+                  View all experts in this category
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-primary" />
+          </div>
+        )}
+
+        {/* Show experts for the matched domain below the browse button */}
+        {domainMatch && domainExperts.length > 0 && (
+          <>
+            <div className="px-4 py-2 text-xs text-gray-500 font-semibold">
+              {domainMatch.label} Experts
+            </div>
+            {domainExperts.map((hit) => {
+              const matched = getMatchedNiche(hit);
+              const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+              const domainText = formatDomain(hit.domain);
+              const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}` : (domainText || nicheText);
+              return (
+                <div
+                  key={getRedirect(hit)}
+                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    openExpertProfile(getRedirect(hit));
+                  }}
+                >
+                  <div className="flex items-center space-x-3">
+                    {hit.profileImage ? (
+                      <img
+                        src={hit.profileImage}
+                        alt={hit.name || 'Expert'}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-500" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-medium flex items-center gap-2 flex-wrap">
+                        <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                        {hit.redirect_url && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                            @{hit.username}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate max-w-[220px]">
+                        {expertiseDisplay || 'Expert'}
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              );
+            })}
+          </>
+        )}
+
+        {/* If no domain match, show regular expert results */}
+        {!domainMatch && hits.length > 0 && (
+          hits.map((hit) => {
+            const matched = getMatchedNiche(hit);
+            const nicheText = matched && matched.length > 0 ? matched.join(', ') : '';
+            const domainText = formatDomain(hit.domain);
+            const expertiseDisplay = nicheText ? `${domainText} • ${nicheText}`.trim() : (domainText || nicheText);
+            return (
+              <div
+                key={getRedirect(hit)}
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  openExpertProfile(getRedirect(hit));
+                }}
+              >
+                <div className="flex items-center space-x-3">
+                  {hit.profileImage ? (
+                    <img
+                      src={hit.profileImage}
+                      alt={hit.name || 'Expert'}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="w-5 h-5 text-gray-500" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-medium flex items-center gap-2 flex-wrap">
+                      <span className="truncate max-w-[140px]">{hit.name || 'Expert'}</span>
+                      {hit.redirect_url && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                          @{hit.username}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-sm text-gray-500 truncate max-w-[220px]">
+                      {expertiseDisplay || 'Expert'}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-gray-400" />
+              </div>
+            );
+          })
+        )}
+
+        {/* No results message */}
+        {!isSearching && hits.length === 0 && query.trim() !== "" && (
+          <div className="px-4 py-3 text-gray-500 text-center">
+            No experts found matching "{query}"
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -213,6 +588,7 @@ const Navbar = ({ onSearch }) => {
             </a>
           </div>
 
+          {/* Desktop search */}
           <div className="hidden lg:block flex-1 max-w-2xl mx-8">
             <motion.div
               className="relative"
@@ -220,60 +596,111 @@ const Navbar = ({ onSearch }) => {
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <Search className="w-5 h-5 text-primary" />
               </div>
               <input
                 type="text"
                 placeholder="Search mentors by name or expertise..."
-                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                onClick={onSearch}
-                readOnly
+                value={query}
+                onChange={handleInputChange}
+                onFocus={() => {
+                  if (query.trim() !== "") {
+                    setShowDropdown(true);
+                  }
+                }}
+                onBlur={(e) => {
+                  // capture element reference to avoid e.currentTarget becoming null in timeout
+                  const target = e.currentTarget;
+                  setTimeout(() => {
+                    if (target && !target.contains(document.activeElement)) {
+                      setShowDropdown(false);
+                    }
+                  }, 150);
+                }}
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
               />
+              {showDropdown && query.trim() !== "" && renderSearchResults()}
             </motion.div>
           </div>
 
-          {/* Mobile menu button - Only visible on mobile */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
-              aria-label="Toggle menu"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
+          {/* Mobile navbar actions */}
+          <div className="flex items-center lg:hidden">
+            {!isMobileSearchActive ? (
+              <>
+                <button
+                  onClick={handleOpenMobileSearch}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2 mr-1"
+                  aria-label="Open search"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+                  aria-label="Toggle menu"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    {isMenuOpen ? (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    ) : (
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    )}
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center w-full">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-primary" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search mentors..."
+                    value={query}
+                    onChange={handleInputChange}
+                    onFocus={() => {
+                      if (query.trim() !== "") {
+                        setShowDropdown(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const target = e.currentTarget;
+                      setTimeout(() => {
+                        if (target && !target.contains(document.activeElement)) {
+                          setShowDropdown(false);
+                        }
+                      }, 150);
+                    }}
+                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-base transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
+                    autoFocus
                   />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </svg>
-            </button>
+                  {showDropdown && query.trim() !== "" && renderSearchResults()}
+                </div>
+                <button
+                  onClick={handleCloseMobileSearch}
+                  className="text-gray-600 hover:text-gray-900 focus:outline-none p-2"
+                  aria-label="Close search"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Desktop navigation - Only visible on desktop */}
@@ -317,7 +744,7 @@ const Navbar = ({ onSearch }) => {
 
         {/* Mobile menu - Only visible on mobile */}
         <AnimatePresence>
-          {isMenuOpen && (
+          {isMenuOpen && !isMobileSearchActive && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -326,36 +753,6 @@ const Navbar = ({ onSearch }) => {
               className="lg:hidden py-4 border-t border-gray-200 bg-white"
             >
               <div className="flex flex-col space-y-4">
-                <div className="w-full px-4">
-                  <motion.div
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  >
-                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                      <svg
-                        className="w-4 h-4 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search mentors..."
-                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-white border-2 border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none text-sm cursor-pointer transition-all duration-200 hover:border-primary/50 shadow-sm hover:shadow-md"
-                      onClick={onSearch}
-                      readOnly
-                    />
-                  </motion.div>
-                </div>
                 <a
                   href="/about-us"
                   className={`w-full text-center py-2 transition-colors duration-200 text-sm font-medium ${isLinkActive("/about-us")

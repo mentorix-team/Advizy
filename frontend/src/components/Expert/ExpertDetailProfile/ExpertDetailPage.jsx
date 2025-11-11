@@ -133,6 +133,101 @@ const ExpertDetailPage = () => {
     [expert?.socialLinks]
   );
 
+  // Extract blocked dates from availability data (single availability object)
+  const blockedDates = publicAvailability?.availability?.blockedDates || [];
+
+  // Compute next available bookable slot (start time) from publicAvailability
+  const nextAvailableSlot = useMemo(() => {
+    // Prefer backend-provided next slot from sessions (same as cards)
+    const sessionSlot = expert?.sessions?.find(
+      (session) => session?.next_available_slot?.time
+    )?.next_available_slot;
+
+    if (sessionSlot?.day && sessionSlot?.time) {
+      return {
+        day: sessionSlot.day,
+        time: sessionSlot.time,
+      };
+    }
+
+    const av = publicAvailability?.availability;
+    if (!av || !Array.isArray(av.daySpecific)) return null;
+
+    const blocked = new Set((av.blockedDates || []).filter(Boolean));
+
+    // Helper to parse 12-hour time (e.g., "02:30 PM") to minutes since midnight
+    const parse12ToMinutes = (t) => {
+      if (!t || typeof t !== "string") return Number.POSITIVE_INFINITY;
+      const match = t.trim().match(/^(\d{1,2}):(\d{2})\s*([AP]M)$/i);
+      if (!match) return Number.POSITIVE_INFINITY;
+      let [_, hh, mm, ap] = match;
+      let h = parseInt(hh, 10);
+      const m = parseInt(mm, 10);
+      if (ap.toUpperCase() === "PM" && h !== 12) h += 12;
+      if (ap.toUpperCase() === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    };
+
+    // Collect all candidate date+time combinations from daySpecific slots
+    const candidates = [];
+    const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    for (const dayEntry of av.daySpecific) {
+      if (!dayEntry?.slots || !Array.isArray(dayEntry.slots)) continue;
+      for (const slot of dayEntry.slots) {
+        const defaultStart = slot?.startTime;
+        if (!Array.isArray(slot?.dates)) continue;
+        for (const d of slot.dates) {
+          const dateStr = typeof d?.date === "string" ? d.date : null;
+          if (!dateStr) continue;
+          if (blocked.has(dateStr)) continue;
+          if (dateStr < todayStr) continue; // past dates
+          // Prefer an inner bookable slot start time if provided, else use the slot start
+          let candidateStart = defaultStart;
+          if (Array.isArray(d?.slots) && d.slots.length > 0) {
+            // Pick the earliest inner slot
+            const sortedInner = [...d.slots]
+              .map(s => ({
+                start: s?.startTime,
+                startMinutes: parse12ToMinutes(s?.startTime),
+              }))
+              .filter(s => Number.isFinite(s.startMinutes))
+              .sort((a, b) => a.startMinutes - b.startMinutes);
+            if (sortedInner.length > 0) {
+              candidateStart = sortedInner[0].start;
+            }
+          }
+          const startMinutes = parse12ToMinutes(candidateStart);
+          candidates.push({
+            date: dateStr,
+            start: candidateStart,
+            startMinutes,
+          });
+        }
+      }
+    }
+
+    if (candidates.length === 0) return null;
+
+    // Sort by date then by start time
+    candidates.sort((a, b) => {
+      if (a.date === b.date) return a.startMinutes - b.startMinutes;
+      return a.date < b.date ? -1 : 1;
+    });
+
+    const first = candidates[0];
+    // Format day name using locale (falls back to user's locale)
+    let day;
+    try {
+      day = new Date(first.date).toLocaleDateString(undefined, { weekday: 'long' });
+    } catch {
+      day = null;
+    }
+
+    // Only show the next start time (not a range)
+    return { day, time: first.start };
+  }, [expert?.sessions, publicAvailability]);
+
   // Calculate rating from feedback data
   const ratingData = useMemo(() => {
     if (!feedbackofexpert || !Array.isArray(feedbackofexpert) || feedbackofexpert.length === 0) {
@@ -160,7 +255,7 @@ const ExpertDetailPage = () => {
     };
   }, [feedbackofexpert]);
 
-  console.log("Normalized expert", expert);
+  // console.log("Normalized expert", expert);
   useEffect(() => {
     if (expert?._id) {
       dispatch(getfeedbackbyexpertid({ id: expert._id }));
@@ -221,11 +316,8 @@ const ExpertDetailPage = () => {
     return []; // Return an empty array for invalid formats
   };
 
-  // Extract blocked dates from availability data
-  const blockedDates = publicAvailability?.availability?.[0]?.blockedDates || [];
-
-  console.log("Public availability data:", publicAvailability);
-  console.log("Blocked dates:", blockedDates);
+  // console.log("Public availability data:", publicAvailability);
+  // console.log("Blocked dates:", blockedDates);
 
   const handleModalCategorySelect = (category) => {
     if (category.value) {
@@ -277,6 +369,7 @@ const ExpertDetailPage = () => {
                 <ServicesOffered
                   id="services-offered"
                   services={expert?.credentials?.services || []}
+                  nextAvailableSlot={nextAvailableSlot}
                 />
               </div>
               <div className="block md:hidden">

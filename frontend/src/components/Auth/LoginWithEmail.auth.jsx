@@ -96,7 +96,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     try {
       // Await the thunk so we can inspect the result synchronously
       const result = await dispatch(loginaccount(logindata)).unwrap();
-      console.log("Login result:", result);
+      // console.log("Login result:", result);
 
       if (result?.success) {
         const redirectURL = sessionStorage.getItem("redirectURL");
@@ -130,24 +130,24 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    
+
     // Store current redirectURL if it exists, or store current page as backup
     const existingRedirectURL = sessionStorage.getItem("redirectURL");
     if (!existingRedirectURL) {
       const currentPage = window.location.pathname + window.location.search;
-      console.log("🔗 Storing preOAuthPath for Google login:", currentPage);
+      // console.log("🔗 Storing preOAuthPath for Google login:", currentPage);
       sessionStorage.setItem("preOAuthPath", currentPage);
     } else {
-      console.log("📌 redirectURL already exists:", existingRedirectURL);
+      // console.log("📌 redirectURL already exists:", existingRedirectURL);
     }
-    
+
     window.open(`https://advizy.onrender.com/api/v1/user/auth/google`, "_self");
   };
 
   const handleCloseClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    console.log("Close button clicked");
+    // console.log("Close button clicked");
     onClose();
   };
 
@@ -173,7 +173,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
           </button>
         </div>
 
-  <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto flex flex-col gap-2">
+        <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto flex flex-col gap-2">
           <div className="">
             <label className="block text-gray-700 text-sm md:text-base font-medium mb-1">
               Email address

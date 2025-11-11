@@ -17,9 +17,9 @@ const BookingConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation()
   const { image, name, title, sessionDuration, price, date, time } = location.state
-  console.log('This is parsed date', date)
-  console.log('selected time', time)
-  console.log('gdsdsf', sessionDuration)
+  // console.log('This is parsed date', date)
+  // console.log('selected time', time)
+  // console.log('gdsdsf', sessionDuration)
   useEffect(() => {
     const isFirstVisit = sessionStorage.getItem("firstVisit");
     if (!isFirstVisit) {

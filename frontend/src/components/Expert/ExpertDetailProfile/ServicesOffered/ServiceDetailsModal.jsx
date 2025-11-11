@@ -9,7 +9,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
   const dispatch = useDispatch();
   if (!isOpen) return null;
   const handleBook = async () => {
-    console.log("Dispatching getServicebyid...");
+    // console.log("Dispatching getServicebyid...");
     // const expertId = selectedExpert.expert._id;
     const serviceId = service.serviceId;
     try {

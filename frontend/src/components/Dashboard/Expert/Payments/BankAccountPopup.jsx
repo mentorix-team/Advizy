@@ -64,7 +64,7 @@ const BankAccountPopup = () => {
       try {
         const response = await dispatch(PaymentFormSubmit(formData)).unwrap();
         if (response.success) {
-          console.log("Form Submitted:", formData);
+          // console.log("Form Submitted:", formData);
           toast.success("Bank details saved successfully!", {
         position: "top-right",
         autoClose: 3000,

@@ -15,20 +15,20 @@ const Bookings = () => {
   };
   const navigate = useNavigate()
   const dispatch = useDispatch();
-  const { loading, error, meetings } = useSelector((state) => state.meeting); 
+  const { loading, error, meetings } = useSelector((state) => state.meeting);
   const paidMeetings = meetings.filter((meeting) => meeting.isPayed);
-  console.log(paidMeetings)
-  const {data} = useSelector((state)=>state.auth)
+  // console.log(paidMeetings)
+  const { data } = useSelector((state) => state.auth)
   let userData;
   try {
     userData = typeof data === "string" ? JSON.parse(data) : data;
   } catch (error) {
     console.error("Error parsing user data:", error);
-    userData = null; 
+    userData = null;
   }
 
   // console.log("This is my user data:", userData);
-  console.log("this is paid one",paidMeetings)
+  // console.log("this is paid one", paidMeetings)
   useEffect(() => {
     const getmeet = async () => {
       const response = await dispatch(getMeetingByUserId());
@@ -39,24 +39,24 @@ const Bookings = () => {
 
   const handleJoinCall = async (meeting) => {
     try {
-      console.log(meeting);
-      console.log("This is user videocall id ",meeting.videoCallId);
+      // console.log(meeting);
+      // console.log("This is user videocall id ", meeting.videoCallId);
       const joinCallData = {
         meeting_id: meeting.videoCallId,
         custom_participant_id: meeting.userId,
         name: `${userData.firstName} ${userData.lastName}`,
         preset_name: "group_call_participant",
       };
-  
-      console.log("Preset Name being sent:", joinCallData.preset_name);
-  
+
+      // console.log("Preset Name being sent:", joinCallData.preset_name);
+
       const response = await dispatch(addvideoparticipant(joinCallData));
-      console.log("this is response",response.payload)
+      // console.log("this is response", response.payload)
       if (response?.payload?.data?.data?.token) {
         const authToken = response.payload.data.data.token;
-  
-        console.log("Auth Token received:", authToken);
-  
+
+        // console.log("Auth Token received:", authToken);
+
         // Navigate to meeting page with authToken
         navigate("/meeting", { state: { authToken } });
       } else {
@@ -166,8 +166,7 @@ const Bookings = () => {
                 <NavLink
                   to="/dashboard/user/scheduling"
                   className={({ isActive }) =>
-                    `border-2 border-gray-500 p-2 rounded-md ${
-                      isActive ? "bg-gray-100 text-blue-600" : "hover:bg-gray-50"
+                    `border-2 border-gray-500 p-2 rounded-md ${isActive ? "bg-gray-100 text-blue-600" : "hover:bg-gray-50"
                     }`
                   }
                 >

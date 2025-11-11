@@ -13,7 +13,7 @@ import AvailabilitySkeleton from "@/components/LoadingSkeleton/AvailabilitySkele
 function Availability() {
   const dispatch = useDispatch();
   const { availability, loading, error } = useSelector((state) => state.availability);
-  console.log('this is availability',availability)
+  // console.log('this is availability',availability)
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = localStorage.getItem('expertAvailabilityActiveTab');
     return savedTab || 'schedule';
@@ -119,14 +119,14 @@ function Availability() {
           {activeTab === 'schedule' ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 rounded-lg">
-                <WeeklyAvailability 
+                <WeeklyAvailability
                   availability={availability.availability}
                 />
               </div>
               <div className="space-y-6">
                 <BlockUnavailableDates />
                 <DateSpecificHours
-                 availability = {availability}
+                  availability={availability}
                 />
               </div>
             </div>

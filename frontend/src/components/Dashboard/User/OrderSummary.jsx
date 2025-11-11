@@ -25,14 +25,14 @@ const OrderSummary = () => {
   const { selectedMeeting, loading, error } = useSelector((state) => state.meeting);
   const { selectedExpert, loading: expertLoading, error: expertError, selectedService } = useSelector((state) => state.expert);
   const { loading: paymentLoading, error: paymentError } = useSelector((state) => state.payment);
-  console.log("this is selected meeting", selectedMeeting)
+  // console.log("this is selected meeting", selectedMeeting)
   const [message, setMessage] = useState("");
 
   const { durationforstate, selectedDate, includes, serviceDescription, title, selectedTime } = location.state || {};
-  console.log('slec', selectedTime)
+  // console.log('slec', selectedTime)
   const Price = location.state?.Price; // Ensure it exists before accessing
   const parsedDate = selectedDate ? new Date(selectedDate) : null;
-  console.log('this is also price', Price)
+  // console.log('this is also price', Price)
 
   useEffect(() => {
     dispatch(getMeet());
@@ -49,7 +49,7 @@ const OrderSummary = () => {
         expertId: selectedMeeting.expertId
       })).unwrap()
         .then(response => {
-          console.log("Service fetched successfully:", response);
+          // console.log("Service fetched successfully:", response);
         })
         .catch(error => {
           console.error("Failed to fetch service:", error);
@@ -64,7 +64,7 @@ const OrderSummary = () => {
     document.body.appendChild(script);
 
     script.onload = () => {
-      console.log("Razorpay script loaded successfully.");
+      // console.log("Razorpay script loaded successfully.");
     };
 
     script.onerror = () => {
@@ -200,11 +200,11 @@ const OrderSummary = () => {
             razorpay_signature: response.razorpay_signature,
           };
 
-          console.log("Verification Data:", verificationData);
+          // console.log("Verification Data:", verificationData);
 
           const paymentResponse = await dispatch(verifypaymentOrder(verificationData));
 
-          console.log("This is payment response", paymentResponse);
+          // console.log("This is payment response", paymentResponse);
           const paymentData = {
             amount: orderResponse.amount,
             razorpay_order_id: paymentResponse.payload.razorpay_order_id,
@@ -345,18 +345,18 @@ const OrderSummary = () => {
 
                   <div className="space-y-3 mt-4 p-4 bg-gray-50 rounded-lg border">
                     <div className="flex items-center gap-2">
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-5 w-5 text-green-600" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
                         stroke="currentColor"
                       >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                         />
                       </svg>
                       <p className="text-green-600 font-semibold text-sm">

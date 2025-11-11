@@ -54,7 +54,7 @@ const ContactUs = () => {
 
     if (validateForm()) {
       setIsSubmitting(true);
-      console.log("📤 Submitting contact form:", formData);
+      // console.log("📤 Submitting contact form:", formData);
 
       try {
         const response = await axios.post(
@@ -62,15 +62,15 @@ const ContactUs = () => {
           formData
         );
 
-        console.log("✅ Contact form response:", response.data);
+        // console.log("✅ Contact form response:", response.data);
 
         if (response.data.success) {
-          console.log("📋 Form data sent successfully:", {
-            name: formData.name,
-            email: formData.email,
-            message: formData.message
-          });
-          
+          // console.log("📋 Form data sent successfully:", {
+          //   name: formData.name,
+          //   email: formData.email,
+          //   message: formData.message
+          // });
+
           toast.success(response.data.message || "Message sent successfully!", {
             duration: 3000,
             position: "top-right",
@@ -88,16 +88,16 @@ const ContactUs = () => {
             email: "",
             message: "",
           });
-          
-          console.log("🎉 Form reset successfully");
+
+          // console.log("🎉 Form reset successfully");
         }
       } catch (error) {
         console.error("❌ Error submitting contact form:", error);
         console.error("Error details:", error.response?.data || error.message);
-        
-        const errorMessage = error.response?.data?.message || 
-                           "Failed to send message. Please try again later.";
-        
+
+        const errorMessage = error.response?.data?.message ||
+          "Failed to send message. Please try again later.";
+
         toast.error(errorMessage, {
           duration: 4000,
           position: "top-right",
@@ -110,7 +110,7 @@ const ContactUs = () => {
         });
       } finally {
         setIsSubmitting(false);
-        console.log("🏁 Form submission complete");
+        // console.log("🏁 Form submission complete");
       }
     } else {
       console.log("⚠️ Form validation failed:", errors);
@@ -287,9 +287,8 @@ const ContactUs = () => {
                   disabled={isSubmitting}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors ${
-                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
-                  }`}
+                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                    }`}
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </motion.button>

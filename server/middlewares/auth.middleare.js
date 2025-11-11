@@ -1,23 +1,23 @@
 import AppError from "../utils/AppError.js";
 import jwt from 'jsonwebtoken'
-const isLoggedIn = async(req,res,next) => {
-    try {
-        const {token} = req.cookies;
-    
-        if(!token){
-            return next(new AppError('User not Authorized',401));
-        }
-    
-        const userDetails = await jwt.verify(token,'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
-    
-        req.user  = userDetails;
-        console.log("This is req.user",req.user)
-        next();
-        
-    } catch (error) {
-        return next(new AppError("Invalid or expired User token.", 403));
+const isLoggedIn = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+
+    if (!token) {
+      return next(new AppError('User not Authorized', 401));
     }
-    
+
+    const userDetails = await jwt.verify(token, 'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
+
+    req.user = userDetails;
+    console.log("This is req.user", req.user)
+    next();
+
+  } catch (error) {
+    return next(new AppError("Invalid or expired User token.", 403));
+  }
+
 }
 
 const isExpert = (req, res, next) => {
@@ -25,8 +25,10 @@ const isExpert = (req, res, next) => {
     const { expertToken } = req.cookies;
 
     if (!expertToken) {
-      console.log("Expert token missing in cookies.");
-      return next(new AppError("Expert access token is missing.", 405));
+      // Gracefully continue without expert context instead of throwing 405,
+      // so endpoints that can render partial data don't spam toasts.
+      console.log("[isExpert] Expert token missing; skipping expert auth.");
+      return next();
     }
 
     const expertDetails = jwt.verify(
@@ -39,7 +41,8 @@ const isExpert = (req, res, next) => {
     next();
   } catch (error) {
     console.error("Error verifying expert token:", error);
-    return next(new AppError("Invalid or expired expert token.", 408));
+    console.warn("[isExpert] Invalid expert token, ignoring expert context.");
+    return next();
   }
 };
 
@@ -75,7 +78,7 @@ const isMeeting = async (req, res, next) => {
 
 
 export {
-    isLoggedIn,
-    isExpert,
-    isMeeting
+  isLoggedIn,
+  isExpert,
+  isMeeting
 }

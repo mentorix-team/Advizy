@@ -14,11 +14,11 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   })
 
   useEffect(() => {
-    console.log('EditNonDefaultServiceModal useEffect triggered, service:', service)
+    // console.log('EditNonDefaultServiceModal useEffect triggered, service:', service)
     if (service) {
-      console.log('Loading non-default service data:', service)
-      console.log('Service timeSlots:', service.timeSlots)
-      console.log('Service duration/price fallback:', service.duration, service.price)
+      // console.log('Loading non-default service data:', service)
+      // console.log('Service timeSlots:', service.timeSlots)
+      // console.log('Service duration/price fallback:', service.duration, service.price)
 
       const timeSlot = service.timeSlots?.[0] || {
         duration: service.duration || 15,
@@ -26,7 +26,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
         enabled: service.enabled ?? true,
       };
 
-      console.log('Selected timeSlot:', timeSlot)
+      // console.log('Selected timeSlot:', timeSlot)
 
       setFormData({
         // IMPORTANT: Backend matches by service.serviceId only
@@ -38,7 +38,7 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
         features: service.features && service.features.length > 0 ? service.features : ['']
       });
     } else {
-      console.log('No service provided to EditNonDefaultServiceModal')
+      // console.log('No service provided to EditNonDefaultServiceModal')
     }
   }, [service]);
 
@@ -60,8 +60,8 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
       features: formData.features.filter(feature => feature.trim() !== '') // Remove empty features
     }
 
-    console.log('Sending updated non-default service data:', updatedService)
-    console.log('FormData timeSlot before mapping:', formData.timeSlot)
+    // console.log('Sending updated non-default service data:', updatedService)
+    // console.log('FormData timeSlot before mapping:', formData.timeSlot)
 
     // Call the parent's onSave function with context
     onSave(updatedService, {

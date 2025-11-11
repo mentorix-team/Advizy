@@ -18,7 +18,7 @@ const ExpertList = () => {
   // Extract experts array from the returned data
   const experts = expertsData?.experts || []; // Safely access experts array
 
-  console.log("experts", experts);
+  // console.log("experts", experts);
 
   useEffect(() => {
     dispatch(getAllExperts());
@@ -54,16 +54,15 @@ const ExpertList = () => {
             rating={
               expert.reviews?.length > 0
                 ? expert.reviews.reduce(
-                    (acc, review) => acc + review.rating,
-                    0
-                  ) / expert.reviews.length
+                  (acc, review) => acc + review.rating,
+                  0
+                ) / expert.reviews.length
                 : 0
             }
             totalRatings={expert.reviews?.length || 0}
-            experience={`${
-              expert.credentials?.work_experiences?.[0]?.years_of_experience ||
+            experience={`${expert.credentials?.work_experiences?.[0]?.years_of_experience ||
               0
-            } years`}
+              } years`}
             languages={expert.languages || []}
             startingPrice={expert.sessions?.[0]?.price || 0}
             duration={expert.sessions?.[0]?.duration || "N/A"}

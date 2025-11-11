@@ -74,7 +74,7 @@ function App({ formData, profileImage, coverImage }) {
     <Spinner />
   }
   const expert = expertData && typeof expertData === "string" ? JSON.parse(expertData) : expertData;
-  console.log("This is expert", expert);
+  // console.log("This is expert", expert);
   const socialLinks = parseSocialLinks(expert?.socialLinks);
   return (
     <div className="min-h-screen bg-[#F5F5F5]">

@@ -2,7 +2,7 @@ import React from 'react';
 import { BiCalendarX } from 'react-icons/bi';
 
 const BlockedDates = ({ blockedDates = [] }) => {
-  console.log("BlockedDates component received:", blockedDates);
+  // console.log("BlockedDates component received:", blockedDates);
 
   // Format blocked dates for display
   const formatBlockedDates = (dates) => {
@@ -46,7 +46,7 @@ const BlockedDates = ({ blockedDates = [] }) => {
   };
 
   const formattedDates = formatBlockedDates(blockedDates);
-  console.log("Formatted blocked dates:", formattedDates);
+  // console.log("Formatted blocked dates:", formattedDates);
 
   if (formattedDates.length === 0) {
     return null; // Don't show the component if there are no blocked dates

@@ -86,6 +86,8 @@ const initialState = {
   error: null,
   services: [],
   selectedService: null,
+  // Track the latest experts query to avoid race conditions overwriting results
+  currentExpertsQueryKey: null,
 };
 
 export const expertImages = createAsyncThunk(
@@ -522,7 +524,7 @@ export const submitExpertForm = createAsyncThunk(
 //         queryParamsWithApproval
 //       ).toString();
 //       const endpoint = queryString
-//         ? `expert/getexperts?${queryString}`
+//         ? expert/getexperts?${queryString}
 //         : "expert/getexperts";
 
 //       const { data } = await axiosInstance.get(endpoint);
@@ -573,7 +575,7 @@ export const getAllExperts = createAsyncThunk(
       };
 
       const queryString = new URLSearchParams(queryParamsWithApproval).toString();
-      const endpoint = `expert/getexperts?${queryString}`;
+      const endpoint = queryString ? `expert/getexperts?${queryString}` : "expert/getexperts";
 
       const response = await axiosInstance.get(endpoint);
 
@@ -594,7 +596,7 @@ export const getExpertById = createAsyncThunk(
   "expert/getExpertById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/expert/getexpert/${id}`);
+      const response = await axiosInstance.get(`expert/getexpert/${id}`);
       console.log("API Response:", response.data);
       return response.data;
     } catch (error) {
@@ -607,9 +609,7 @@ export const getExpertByRedirectUrl = createAsyncThunk(
   "expert/getExpertbyRedirectUrl",
   async (redirect_url, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(
-        `/expert/getexpert/by-url/${redirect_url}`
-      );
+      const response = await axiosInstance.get(`expert/getexpert/by-url/${redirect_url}`);
       console.log("API Response:", response.data);
       return response.data;
     } catch (error) {
@@ -1097,25 +1097,53 @@ const expertSlice = createSlice({
         state.expertData = expert;
       })
 
-      .addCase(getAllExperts.pending, (state) => {
+      .addCase(getAllExperts.pending, (state, action) => {
         state.loading = true;
         state.error = null;
         state.experts = [];
+        // Remember the latest query key to guard against out-of-order responses
+        try {
+          state.currentExpertsQueryKey = JSON.stringify(action.meta?.arg || {});
+        } catch {
+          state.currentExpertsQueryKey = null;
+        }
       })
       // .addCase(getAllExperts.fulfilled, (state, action) => {
       //   state.loading = false;
       //   state.experts = action.payload; // Store the array of experts
       // })
       .addCase(getAllExperts.fulfilled, (state, action) => {
-        if (action.payload.length > 0 || state.experts.length === 0) {
-          state.experts = action.payload;
+        // Only update if this response matches the latest query we issued
+        let responseKey = null;
+        try {
+          responseKey = JSON.stringify(action.meta?.arg || {});
+        } catch {
+          responseKey = null;
         }
+
+        if (responseKey !== state.currentExpertsQueryKey) {
+          // Stale response, ignore it
+          return;
+        }
+
+        state.experts = Array.isArray(action.payload) ? action.payload : [];
         state.loading = false;
         state.error = null;
-        // console.log("Updated state.experts:", state.experts);
       })
 
       .addCase(getAllExperts.rejected, (state, action) => {
+        // Only set error if this matches the latest query
+        let responseKey = null;
+        try {
+          responseKey = JSON.stringify(action.meta?.arg || {});
+        } catch {
+          responseKey = null;
+        }
+
+        if (responseKey !== state.currentExpertsQueryKey) {
+          return;
+        }
+
         state.loading = false;
         state.error = action.payload?.message || "Error fetching experts";
         state.experts = [];
