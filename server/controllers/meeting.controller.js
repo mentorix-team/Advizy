@@ -294,7 +294,7 @@ const payedForMeeting = async (req, res, next) => {
     emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
     emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
     emailTemplate = emailTemplate.replace(/{DAY}/g, day);
-    
+
     console.log("Sending booking confirmation emails...");
     await sendEmail(expertt.email, "Meeting Booked", emailTemplate);
     await sendEmail(user.email, "Meeting Booked", emailTemplate);
@@ -478,9 +478,9 @@ const getMeetingByExpertId = async (req, res, next) => {
     // Get all meetings for the expert
     const meetings = await Meeting.find({ expertId }).lean();
 
-    if (!meetings || meetings.length === 0) {
-      return next(new AppError('this expert doesn have any meeting', 500));
-    }
+    // if (!meetings || meetings.length === 0) {
+    //   return next(new AppError('this expert doesn have any meeting', 500));
+    // }
 
     // Update meeting statuses based on current time
     const now = new Date();
