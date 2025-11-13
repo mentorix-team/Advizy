@@ -13,6 +13,7 @@ import { addvideoparticipant } from "@/Redux/Slices/meetingSlice";
 import {
   getMeetingStatusLabel,
   getMeetingStatusPillTone,
+  deriveMeetingStatus,
 } from "@/utils/meetingStatus";
 
 export default function MeetingCard({ meeting, isPast, onRate }) {
@@ -25,6 +26,7 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
   const [submittedRating, setSubmittedRating] = useState(null);
   const [submittedFeedback, setSubmittedFeedback] = useState("");
   const { data } = useSelector((state) => state.auth)
+  const activeSessions = useSelector((state) => state.meeting.activeSessions || {});
 
   // Debug: Log meeting data to see if rating is included
   console.log("Meeting data in MeetingCard:", meeting);
@@ -95,8 +97,48 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
     const path = isPast ? `/dashboard/user/meetings/past/${meeting._id}` : `/dashboard/user/meetings/upcoming/${meeting._id}`
     navigate(path)
   }
-  const statusLabel = getMeetingStatusLabel(meeting);
-  const statusToneClass = getMeetingStatusPillTone(meeting);
+  // Build presence object from meeting data (may be supplied by server or sockets)
+  // If we have an active session fetched from Dyte, prefer its data
+  const activeSession = meeting?.videoCallId ? activeSessions[meeting.videoCallId] : null;
+
+  const sessionActiveCount =
+    activeSession?.data?.active_peers_count ||
+    activeSession?.data?.activePeerCount ||
+    activeSession?.data?.active_participants_count ||
+    activeSession?.data?.participants?.length ||
+    activeSession?.peers?.length ||
+    activeSession?.participants?.length ||
+    null;
+
+  const presence = {
+    activeCount:
+      sessionActiveCount !== null
+        ? sessionActiveCount
+        : meeting.activeParticipantsCount || meeting.activeCount || (meeting.participants ? meeting.participants.length : 0) || 0,
+    firstJoinAt: activeSession?.data?.first_join_at || activeSession?.data?.firstJoinAt || meeting.firstJoinAt || meeting.first_join_at || meeting.startedAt || null,
+    lastSeenAt: activeSession?.data?.last_seen_at || activeSession?.data?.lastSeenAt || meeting.lastParticipantSeenAt || meeting.last_seen_at || meeting.lastSeenAt || null,
+  };
+
+  // If activeSession indicates a live/active session, prefer 'ongoing'
+  let computedStatus = deriveMeetingStatus(meeting, presence, new Date());
+  try {
+    const sessionFlag = activeSession && (activeSession?.data?.status === 'ACTIVE' || activeSession?.status === 'ACTIVE' || (presence.activeCount && presence.activeCount > 0));
+    if (sessionFlag) computedStatus = 'ongoing';
+  } catch (e) {
+    // ignore
+  }
+  // Debug logs to help trace why status resolved the way it did
+  console.log("[MeetingCard] presence:", presence);
+  console.log("[MeetingCard] meeting fields (attendance flags, dyteSession, participants):", {
+    attendanceStatus: meeting.attendanceStatus || meeting.attendance_status || meeting.meetingAttendanceStatus || meeting.meeting_attendance_status,
+    attended: meeting.attended,
+    isAttended: meeting.isAttended,
+    dyteSession: meeting.dyteSession || meeting.session || meeting.externalSessionStatus,
+    participants: meeting.participants,
+  });
+  console.log("[MeetingCard] computedStatus:", computedStatus);
+  const statusLabel = getMeetingStatusLabel({ status: computedStatus });
+  const statusToneClass = getMeetingStatusPillTone({ status: computedStatus });
 
   return (
     <div className="bg-white p-6 rounded-lg border border-gray-200">
@@ -156,9 +198,20 @@ export default function MeetingCard({ meeting, isPast, onRate }) {
           </>
         ) : (
           <>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors" onClick={() => handleJoinCall(meeting)}>
-              Join Meeting
-            </button>
+            {
+              (() => {
+                const disableJoin = ["not-attended", "completed", "cancelled", "no-show"].includes(computedStatus);
+                return (
+                  <button
+                    disabled={disableJoin}
+                    onClick={() => handleJoinCall(meeting)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${disableJoin ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                  >
+                    {disableJoin ? 'Unavailable' : 'Join Meeting'}
+                  </button>
+                );
+              })()
+            }
             <button
               onClick={handleViewDetails}
               className="text-gray-600 px-4 py-2 rounded-lg border bgcolor-grey-400 hover:bg-gray-50 transition-colors"

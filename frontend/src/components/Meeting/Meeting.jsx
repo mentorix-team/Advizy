@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import MyMeetingUI from "./MyMeetingUI";
 import dayjs from "dayjs";  // Import dayjs for time handling
 import customParseFormat from "dayjs/plugin/customParseFormat"; 
-import { getthemeet, givefeedback, kickAllparticipant } from "@/Redux/Slices/meetingSlice";
+import { getthemeet, givefeedback, kickAllparticipant, fetchMeeting, setActiveSession, clearActiveSession } from "@/Redux/Slices/meetingSlice";
 import { IoClose } from "react-icons/io5";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 // import Spinner from "../LoadingSkeleton/Spinner";
@@ -36,6 +36,34 @@ export default function Meeting() {
   useEffect(()=>{
     const response = dispatch(getthemeet({id}))
   },[dispatch])
+
+  // Poll Dyte active session and store it in redux so UI (MeetingCard) can reflect 'ongoing'
+  useEffect(() => {
+    if (!meetingId) return;
+
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const resp = await dispatch(fetchMeeting(meetingId));
+        const payload = resp?.payload?.data;
+        if (!cancelled && payload) {
+          dispatch(setActiveSession({ videoCallId: meetingId, data: payload }));
+        }
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    // initial fetch + interval
+    poll();
+    const idInterval = setInterval(poll, 15000); // poll every 15s
+
+    return () => {
+      cancelled = true;
+      clearInterval(idInterval);
+      dispatch(clearActiveSession(meetingId));
+    };
+  }, [dispatch, meetingId]);
 
   const handleSubmitRating = async () => {
     if (!rating) {

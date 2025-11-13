@@ -146,7 +146,7 @@ function HomePage() {
           availability: expert.availability, // Include availability data
           reviews: expert.reviews || [],
           admin_approved_expert: expert?.admin_approved_expert || false,
-          reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+          // reviews: expert?.reviews || [], // Fallback to empty array if no reviews
         };
       })
     : [];
