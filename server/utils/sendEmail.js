@@ -30,8 +30,9 @@ const sendEmail = async function(email, subject, message) {
                     user: 'apikey',
                     pass: sendgridApiKey,
                 },
-                connectionTimeout: 15000,
-                socketTimeout: 15000,
+                connectionTimeout: 60000, // 60 seconds
+                socketTimeout: 60000, // 60 seconds
+                greetingTimeout: 60000,
             });
         }
         // Option 2: Fall back to SMTP configuration
@@ -55,8 +56,8 @@ const sendEmail = async function(email, subject, message) {
                 tls: {
                     rejectUnauthorized: false
                 },
-                connectionTimeout: 15000,
-                socketTimeout: 15000,
+                connectionTimeout: 60000, // 60 seconds
+                socketTimeout: 60000, // 60 seconds
             });
         } else {
             throw new Error('No email service configured. Set either SENDGRID_API_KEY or smtphost/smtpport/emailuser/emailpass environment variables.');
@@ -65,11 +66,7 @@ const sendEmail = async function(email, subject, message) {
         console.log(`Attempting to send email to: ${email}`);
         console.log(`Subject: ${subject}`);
 
-        // Verify transporter connection before sending
-        console.log('Verifying email transporter connection...');
-        await transporter.verify();
-        console.log('✅ Transporter verified successfully');
-
+        // Send email directly without verify (verify can timeout on some platforms)
         const result = await transporter.sendMail({
             from: fromEmail || 'noreply@advizy.in',
             to: email,
