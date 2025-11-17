@@ -290,7 +290,7 @@ function HomePage() {
             height: "120vh",
           }}
         />
-        /* Hero Section */
+        {/* Hero Section */}
         <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div

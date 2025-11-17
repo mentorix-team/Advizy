@@ -32,7 +32,10 @@ const corsOptions = {
       "http://localhost:5030",
       "https://advizy.onrender.com",
       "https://www.advizy.in",
-      "https://advizy.in"
+      "https://advizy.in",
+      "https://advizy-adminpanel.onrender.com",
+      "https://admin.advizy.in",
+      "https://www.admin.advizy.in",
     ].filter(Boolean); // Remove any undefined values
     
     // Allow requests with no origin (like mobile apps, Postman, curl)
