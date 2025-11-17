@@ -84,7 +84,7 @@ const MentoringCard = ({ service, onEdit, setSteps }) => {
   if (!service) return null;
 
   return (
-    <div className={`border rounded-lg p-4 bg-white relative w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl lg:max-w-4xl transition-colors ${isEnabled ? 'border-[#16A348]' : 'border-gray-300'
+    <div className={`border rounded-lg p-4 bg-white relative w-full max-w-lg mx-auto sm:max-w-xl md:max-w-2xl lg:max-w-4xl transition-colors min-h-[280px] max-h-[320px] overflow-hidden ${isEnabled ? 'border-[#16A348]' : 'border-gray-300'
       }`}>
       <ConfirmDialog
         isOpen={showToggleConfirm}
