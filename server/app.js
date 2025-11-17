@@ -22,23 +22,35 @@ app.use(cookieParser());
 scheduleMeetingReminders();
 app.use(express.urlencoded({ extended: true }));
 
+// CORS configuration - must be before routes
 app.use(
   cors({
-    origin: [
-      process.env.frontendurl,
-      // "https://www.admin.advizy.in",
-      "http://localhost:5173",
-      "http://localhost:8001",
-      "http://localhost:5030",
-      "https://advizy.onrender.com",
-      "https://www.advizy.in",
-      // "http://advizy-adminpanel.onrender.com",
-      // "http://localhost:5030",
-      "*",
-    ], // Allow frontend
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        process.env.frontendurl,
+        "http://localhost:5173",
+        "http://localhost:8001",
+        "http://localhost:5030",
+        "https://advizy.onrender.com",
+        "https://www.advizy.in",
+        "https://advizy.in"
+      ];
+      
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Set-Cookie"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
 
@@ -53,6 +65,9 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 app.use("/ping", (req, res) => {
   res.send("pong");
