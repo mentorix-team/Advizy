@@ -22,25 +22,48 @@ app.use(cookieParser());
 scheduleMeetingReminders();
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  cors({
-    origin: [
+// CORS configuration - must be before routes
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
       process.env.frontendurl,
-      // "https://www.admin.advizy.in",
       "http://localhost:5173",
       "http://localhost:8001",
       "http://localhost:5030",
       "https://advizy.onrender.com",
       "https://www.advizy.in",
-      // "http://advizy-adminpanel.onrender.com",
-      // "http://localhost:5030",
-      "*",
-    ], // Allow frontend
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+      "https://advizy.in"
+    ].filter(Boolean); // Remove any undefined values
+    
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`CORS blocked origin: ${origin}`);
+      callback(null, true); // Allow anyway for now to debug
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With", 
+    "Accept",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers"
+  ],
+  exposedHeaders: ["Set-Cookie"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // 24 hours
+};
+
+app.use(cors(corsOptions));
 
 app.use(
   session({
@@ -54,8 +77,24 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/ping", (req, res) => {
-  res.send("pong");
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+// Health check endpoints
+app.get("/ping", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    message: "pong",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy",
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.use("/api/v1/user", userRoutes);

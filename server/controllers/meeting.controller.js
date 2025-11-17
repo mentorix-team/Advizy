@@ -454,7 +454,11 @@ const getMeetingByExpertId = async (req, res, next) => {
     const meetings = await Meeting.find({ expertId }).lean();
 
     if (!meetings || meetings.length === 0) {
-      return next(new AppError('this expert doesn have any meeting', 500));
+      return res.status(200).json({
+        success: true,
+        message: 'No meetings found',
+        meeting: []
+      });
     }
 
     // Update meeting statuses based on current time
