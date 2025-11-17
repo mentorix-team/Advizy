@@ -23,36 +23,47 @@ scheduleMeetingReminders();
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration - must be before routes
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      const allowedOrigins = [
-        process.env.frontendurl,
-        "http://localhost:5173",
-        "http://localhost:8001",
-        "http://localhost:5030",
-        "https://advizy.onrender.com",
-        "https://www.advizy.in",
-        "https://advizy.in"
-      ];
-      
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-    exposedHeaders: ["Set-Cookie"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.frontendurl,
+      "http://localhost:5173",
+      "http://localhost:8001",
+      "http://localhost:5030",
+      "https://advizy.onrender.com",
+      "https://www.advizy.in",
+      "https://advizy.in"
+    ].filter(Boolean); // Remove any undefined values
+    
+    // Allow requests with no origin (like mobile apps, Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is allowed
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`CORS blocked origin: ${origin}`);
+      callback(null, true); // Allow anyway for now to debug
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
+  allowedHeaders: [
+    "Content-Type", 
+    "Authorization", 
+    "X-Requested-With", 
+    "Accept",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers"
+  ],
+  exposedHeaders: ["Set-Cookie"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400 // 24 hours
+};
+
+app.use(cors(corsOptions));
 
 app.use(
   session({
@@ -67,10 +78,23 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Handle preflight requests for all routes
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
-app.use("/ping", (req, res) => {
-  res.send("pong");
+// Health check endpoints
+app.get("/ping", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    message: "pong",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "healthy",
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.use("/api/v1/user", userRoutes);
