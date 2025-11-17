@@ -7,6 +7,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
   // Hooks must be called unconditionally at the top level
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
   if (!isOpen) return null;
   const handleBook = async () => {
     // console.log("Dispatching getServicebyid...");
@@ -60,13 +61,10 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
 
         {/* Description Section */}
         <div className="mb-4 sm:mb-6">
-          {/* <h3 className="text-base sm:text-lg font-medium my-1">
-            Short Description:
-          </h3> */}
           <h3 className="text-base sm:text-lg font-medium mb-1">
             Detailed Description:
           </h3>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-gray-600 text-sm sm:text-base line-clamp-3">
             {service?.detailedDescription || "No description available."}
           </p>
         </div>
