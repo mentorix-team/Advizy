@@ -284,7 +284,7 @@ function Meetings() {
         </div>
       </div>
       <div className="mt-6">
-        <MeetingsHeader activeTab={activeTab} />
+        {/* <MeetingsHeader activeTab={activeTab} /> */}
         <MeetingsTable
           meetings={filteredMeetings}
           onViewDetails={handleViewDetails}

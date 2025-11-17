@@ -46,6 +46,13 @@ function EditNonDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
+   // Validate that price is not zero
+   const priceNum = parseInt(formData.timeSlot.price) || 0;
+   if (priceNum <= 0) {
+     alert("Price must be greater than zero");
+     return;
+   }
+
     // Map form data to the structure expected by the backend API
     const updatedService = {
       id: formData.id,

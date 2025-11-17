@@ -89,7 +89,14 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   }, [service]);
 
   const handleHourlyRateChange = (rate) => {
-    const exactRate = rate.toString();
+    const rateNum = parseInt(rate, 10) || 0;
+    
+    // Prevent zero hourly rate
+    if (rateNum <= 0) {
+      return;
+    }
+    
+    const exactRate = rateNum.toString();
 
     const updatedTimeSlots = formData.timeSlots.map((slot) => ({
       ...slot,
@@ -116,6 +123,13 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate hourly rate is not zero
+    const hourlyRateNum = parseInt(formData.hourlyRate, 10) || 0;
+    if (hourlyRateNum <= 0) {
+      alert("Hourly rate must be greater than zero");
+      return;
+    }
 
     // Map form data to the structure expected by the backend API
     const updatedService = {

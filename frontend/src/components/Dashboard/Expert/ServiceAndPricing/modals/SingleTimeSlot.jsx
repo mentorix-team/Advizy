@@ -24,10 +24,17 @@ export function SingleTimeSlot({ timeSlot, onChange }) {
           <input
             type="number"
             value={timeSlot.price || ''}
-            onChange={(e) => onChange({ ...timeSlot, price: parseInt(e.target.value) || 0 })}
+             onChange={(e) => {
+               const priceNum = parseInt(e.target.value) || 0;
+               // Prevent zero price
+               if (priceNum <= 0) {
+                 return;
+               }
+               onChange({ ...timeSlot, price: priceNum });
+             }}
             className="block w-full pl-7 pr-3 py-2 rounded-md border-gray-300 text-sm"
             placeholder="25"
-            min="0"
+            min="1"
             required
           />
         </div>

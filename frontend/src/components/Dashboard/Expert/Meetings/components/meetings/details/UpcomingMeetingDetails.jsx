@@ -598,7 +598,9 @@ const UpcomingMeetingDetails = ({ meeting, onBack }) => {
             If you have any questions or need assistance, our support team is
             here to help.
           </p>
-          <button className="border py-2 px-6 rounded-md border-gray-300 font-medium hover:border-[#16A348]">
+          <button
+          onClick={() => navigate('dashboard/expert/help-center')}
+          className="border py-2 px-6 rounded-md border-gray-300 font-medium hover:border-[#16A348]">
             Contact Support
           </button>
         </div>

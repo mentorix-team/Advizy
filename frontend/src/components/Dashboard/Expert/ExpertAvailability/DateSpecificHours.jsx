@@ -337,10 +337,10 @@ function DateSpecificHours({ availability }) {
       }, 2500);
     } else {
       console.error("Failed to save date-specific hours:", result);
-      toast.error("Failed to save date-specific hours. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      // toast.error("Failed to save date-specific hours. Please try again.", {
+      //   position: "top-right",
+      //   autoClose: 3000,
+      // });
     }
   };
 

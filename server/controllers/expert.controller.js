@@ -527,10 +527,10 @@ const handleSuspendExpert = async (req, res, next) => {
     await ExpertBasics.findByIdAndDelete(id);
 
     // If you're using Algolia, you might want to remove from there too
-    // await client.deleteObject({
-    //   indexName: "experts_index",
-    //   objectID: id
-    // });
+    await client.deleteObject({
+      indexName: "experts_index",
+      objectID: id
+    });
 
     console.log("Expert suspended/deleted successfully");
 
