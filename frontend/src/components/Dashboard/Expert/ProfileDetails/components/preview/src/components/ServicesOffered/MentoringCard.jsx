@@ -129,7 +129,7 @@ const MentoringCard = ({ service, onEdit, setSteps }) => {
         </div>
       </div>
 
-      <p className={`text-sm sm:text-base mt-2 ${isEnabled ? 'text-gray-600' : 'text-gray-400'
+      <p className={`text-sm sm:text-base mt-2 line-clamp-2 ${isEnabled ? 'text-gray-600' : 'text-gray-400'
         }`}>
         {service.shortDescription}
       </p>

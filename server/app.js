@@ -37,10 +37,10 @@ const corsOptions = {
       "https://admin.advizy.in",
       "https://www.admin.advizy.in",
     ].filter(Boolean); // Remove any undefined values
-    
+
     // Allow requests with no origin (like mobile apps, Postman, curl)
     if (!origin) return callback(null, true);
-    
+
     // Check if origin is allowed
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -52,9 +52,9 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
   allowedHeaders: [
-    "Content-Type", 
-    "Authorization", 
-    "X-Requested-With", 
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
     "Accept",
     "Origin",
     "Access-Control-Request-Method",
@@ -85,15 +85,15 @@ app.options('*', cors(corsOptions));
 
 // Health check endpoints
 app.get("/ping", (req, res) => {
-  res.status(200).json({ 
-    status: "ok", 
+  res.status(200).json({
+    status: "ok",
     message: "pong",
     timestamp: new Date().toISOString()
   });
 });
 
 app.get("/health", (req, res) => {
-  res.status(200).json({ 
+  res.status(200).json({
     status: "healthy",
     environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString()
