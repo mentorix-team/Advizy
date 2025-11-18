@@ -72,9 +72,8 @@ const ReadyToShare = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05, height: 48 }}
+            whileTap={{ scale: 0.95, height: 48 }}
             className="btn-expert inline-flex items-center h-12"
           >
            Share your Expertise

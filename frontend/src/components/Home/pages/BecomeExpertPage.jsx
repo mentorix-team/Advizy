@@ -353,7 +353,7 @@ const BecomeExpertPage = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <span className="inline-block px-4 py-1.5 bg-green-50 text-primary rounded-full text-sm font-medium mb-6 sm:mb-8">
+          <span className="inline-flex mb-4 items-center px-2 py-1 rounded-full text-sm lg:text-base font-medium bg-gradient-to-br from-green-200 to-green-300 border-transparent border-2 border-green-600 text-primary shadow-lg">
             Your Knowledge. Your Time. Your Earnings.
           </span>
 
@@ -362,23 +362,26 @@ const BecomeExpertPage = () => {
             Change Lives
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0 mb-8 sm:mb-10">
+          <p className="text-base text-center sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto px-4 sm:px-0 mb-8 sm:mb-10">
             Your experiences, insights, and skills can transform someone's
-            future.
-            <br className="block sm:hidden" />
-            <br className="block" />
+            future. 
+            <span> </span>
+            <br className="hidden sm:block" />
             Join Advizy as a mentor and be part of a movement that
-            <br className="block" />
+            <span> </span>
+            <br className="hidden sm:block" />
             makes quality guidance accessible to all.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <button
+            <motion.button
               onClick={handleExpertOnboarding}
-              className="btn-expert w-full sm:w-auto"
+              whileHover={{ scale: 1.05, height: 48 }}
+              whileTap={{ scale: 0.95, height: 48 }}
+              className="btn-expert"
             >
               Start your journey
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       </div>
@@ -387,9 +390,9 @@ const BecomeExpertPage = () => {
       <div className="py-12 sm:py-16 bg-[#F9FDF9]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
-            <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+            {/* <div className="w-12 h-12 mx-auto mb-4 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
               <LightbulbIcon className="w-6 h-6" />
-            </div>
+            </div> */}
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Our Vision for Mentorship
             </h2>

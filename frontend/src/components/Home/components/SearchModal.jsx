@@ -225,14 +225,14 @@ const SearchModal = ({ isOpen, onClose, onCategorySelect = () => { } }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="relative w-full h-full md:h-auto">
+      <div className="relative w-full h-full md:h-auto flex items-center justify-center">
         <motion.div
           layout
           transition={{ type: "spring", stiffness: 120, damping: 18, mass: 0.4 }}
-          className="relative mb-4 bg-white w-full max-w-[800px] mx-auto p-3 sm:p-6 md:p-8 md:rounded-2xl h-[60vh] max-h-[80vh] overflow-y-auto"
+          className="relative bg-white w-full max-w-[800px] mx-auto p-4 sm:p-6 md:p-8 rounded-2xl h-[85vh] sm:h-[80vh] lg:h-[60vh] max-h-[90vh] overflow-y-auto shadow-2xl"
         >
           <div className=" flex justify-between items-center">
-            <h2 className="text-2xl font-bold mb-3 mt-2">Find an Expert</h2>
+            <h2 className="text-2xl font-bold mb-4">Find an Expert</h2>
             <button
               onClick={onClose}
               className=" text-gray-400 hover:text-gray-600 focus:outline-none z-10"

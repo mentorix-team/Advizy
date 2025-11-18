@@ -285,9 +285,9 @@ const ContactUs = () => {
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
-                  whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg transition-colors ${
+                  whileHover={{ scale: 1.05}}
+                  whileTap={{ scale: 0.95 }}
+                  className={`btn-expert w-full px-8 py-4 text-lg font-medium rounded-lg  ${
                     isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
                 >

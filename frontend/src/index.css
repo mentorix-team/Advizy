@@ -144,21 +144,17 @@ input[type="time"]:disabled {
 
 /* Custom button styles */
 .btn-expert {
-  @apply relative bg-primary text-white px-8 py-3 rounded-xl font-medium 
-         transition-all duration-200 overflow-hidden isolate
-         hover:shadow-[5px_5px_0px_0px_#169544] hover:bg-white hover:border-2 border-primary
-         hover:text-[#374151]
-         active:translate-x-[5px] active:translate-y-[5px] active:shadow-none;
+  @apply relative bg-primary text-white px-8 py-3 rounded-xl font-medium ;
 }
 
 /* Custom button styles */
-.btn-expert {
+/* .btn-expert {
   @apply relative bg-primary text-white px-8 py-3 rounded-xl font-medium 
          transition-all duration-200 overflow-hidden isolate
          hover:shadow-[5px_5px_0px_0px_#169544] hover:bg-white hover:border-2 border-primary
          hover:text-[#374151]
          active:translate-x-[5px] active:translate-y-[5px] active:shadow-none;
-}
+} */
 
 /* Phone Input Styles */
 .phone-input {
@@ -201,7 +197,6 @@ input[type="time"]:disabled {
   );
   transform: skewX(-25deg);
   animation: shine 6s ease-in-out infinite;
-  z-index: 1;
 }
 
 @keyframes shine {

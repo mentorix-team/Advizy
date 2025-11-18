@@ -243,7 +243,7 @@ function HomePage() {
   }
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <div className="mx-5 sm:mx-0">
         <Navbar
           onSearch={() => setIsModalOpen(true)}
@@ -263,7 +263,7 @@ function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}
           transition={{ duration: 1 }}
-          className="absolute inset-0 w-full pointer-events-none"
+          className="absolute inset-0 w-full pointer-events-none overflow-hidden"
           style={{
             backgroundImage: `
               linear-gradient(
@@ -290,8 +290,8 @@ function HomePage() {
             height: "120vh",
           }}
         />
-        /* Hero Section */
-          <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
+        {/* Hero Section */}
+          <div id="hero-section" className="relative pt-8 sm:pt-16 w-full overflow-hidden">
             <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -353,7 +353,7 @@ function HomePage() {
             </div>
           </div>
           {/* Rest of the sections */}
-        <div className="relative w-full">
+        <div className="relative w-full overflow-hidden">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12 mt-10">
               {/* Career Mentors Section */}

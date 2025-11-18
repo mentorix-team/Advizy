@@ -1,59 +1,26 @@
 import { motion } from "framer-motion";
+import { IoSearch, IoCalendarClearOutline  } from "react-icons/io5";
+import { FaVideo, FaCalendar  } from "react-icons/fa6";
+import { FaSearch } from "react-icons/fa";
 
 const features = [
   {
     icon: (
-      <svg
-        className="w-8 h-8 text-[#169544]"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <IoSearch className="w-6 h-6 font-black text-[#169544]"/>
     ),
     title: "Discover Mentors",
     description: "Get matched with Mentors who truly understand your journey.",
   },
   {
     icon: (
-      <svg
-        className="w-8 h-8 text-[#169544]"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-        />
-      </svg>
+      <FaCalendar  className="w-6 h-6 font-bold text-[#169544]"/>
     ),
     title: "Book Your Session",
     description: "Schedule easily, at times that works you, Effortlessly",
   },
   {
     icon: (
-      <svg
-        className="w-8 h-8 text-[#169544]"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-        />
-      </svg>
+      <FaVideo className="w-6 h-6 font-bold text-[#169544]"/>
     ),
     title: "Connect 1:1",
     description: "Dive into live sessions and chats, personalized for you.",
@@ -61,7 +28,7 @@ const features = [
   {
     icon: (
       <svg
-        className="w-8 h-8 text-[#169544]"
+        className="w-6 h-6 text-[#169544]"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -69,7 +36,7 @@ const features = [
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeWidth={2}
+          strokeWidth={3}
           d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
         />
       </svg>
@@ -104,7 +71,7 @@ const HowItWorksAlternate = () => {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#169544]/10 rounded-full translate-y-1/2 -translate-x-1/2" />
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 gap-2 relative">
+        <div className="grid grid-cols-1 gap-2 md:gap-4  relative">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -117,20 +84,29 @@ const HowItWorksAlternate = () => {
               }`}
             >
               <motion.div
-                whileHover={{ scale: 1.02 }}
-                className={`bg-gray-50 rounded-2xl shadow-sm border border-gray-100 max-w-lg h-[160px] flex items-center ${
+                whileHover={{ scale: 1.02, y: -4 }}
+                className={`bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg border border-gray-200 max-w-lg overflow-hidden ${
                   index % 2 === 0 ? "ml-0 mr-auto" : "ml-auto mr-0"
                 }`}
               >
-                <div className="flex items-center gap-2 p-6 w-full">
-                  <div className="p-2 bg-white rounded-lg shadow-sm flex-shrink-0">
-                    {feature.icon}
-                  </div>
-                  <div className="flex-grow">
-                    <h3 className="text-xl font-semibold mb-2">
+                <div className="p-8">
+                  {/* Icon and Title Row */}
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-gradient-to-br from-green-200 to-green-300 border-2 border-transparent rounded-xl shadow-lg">
+                      <div className="text-white">
+                        {feature.icon}
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 leading-tight">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
+                  
+                  {/* Description */}
+                  <div className="pl-1">
+                    <p className="text-gray-600 leading-relaxed text-base">
+                      {feature.description}
+                    </p>
                   </div>
                 </div>
               </motion.div>
