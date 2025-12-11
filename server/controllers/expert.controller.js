@@ -48,7 +48,7 @@ const normalizeSocialLinksInput = (rawLinks) => {
       }
     }
 
-    if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) {
+    if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
       try {
         const unwrapped = JSON.parse(trimmed);
         processValue(unwrapped);
@@ -455,26 +455,97 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
+import axios from "axios";
+
 const adminapproved = async (req, res, next) => {
   try {
     const { id } = req.body;
-    console.log("this is id", id);
-    const expert = await ExpertBasics.findById(id); // Don't forget the 'await'
+
+    console.log("Expert ID:", id);
+
+    const expert = await ExpertBasics.findById(id);
 
     if (!expert) {
-      return next(new AppError("Expert not found", 403));
+      return next(new AppError("Expert not found", 404));
     }
 
-    // Toggle admin approval
+    // 1️⃣ Toggle admin approval
     expert.admin_approved_expert = !expert.admin_approved_expert;
     await expert.save();
 
-    // Now fetch all experts who are admin approved
+    const buildExpertSummary = (expert) => {
+      const services = expert.credentials?.services || [];
+
+      // Convert services to human readable text
+      const servicesText = services
+        .map((service) => {
+          const baseDetails = `
+    Service: ${service.title}
+    Description: ${service.shortDescription || ""}
+    Hourly Rate: ₹${service.hourlyRate || "N/A"}
+    Fixed Session: ${service.duration || "N/A"} mins at ₹${
+            service.price || "N/A"
+          }
+    `;
+
+          // One-on-one pricing
+          const oneOnOne = (service.one_on_one || [])
+            .filter((s) => s.enabled)
+            .map((s) => {
+              const perMinute = (s.price / s.duration).toFixed(2);
+              return `One-on-One: ${s.duration} mins @ ₹${s.price} (₹${perMinute}/min)`;
+            })
+            .join("\n");
+
+          return baseDetails + "\n" + oneOnOne;
+        })
+        .join("\n\n");
+
+      return `
+  Name: ${expert.firstName || ""} ${expert.lastName || ""}
+  Domain: ${expert.credentials?.domain || ""}
+  Niche: ${(expert.credentials?.niche || []).join(", ")}
+  Skills: ${(expert.credentials?.skills || []).join(", ")}
+  Experience: ${expert.credentials?.experienceYears || 0} years
+  Bio: ${expert.bio || "No bio provided."}
+
+  Services Offered:
+  ${servicesText}
+  `
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
+    // 2️⃣ Build expert summary for embeddings
+    const summary = buildExpertSummary(expert);
+
+    console.log("api calling to fastapi");
+
+    // 3️⃣ Send summary to FastAPI (only if approved = true)
+    if (expert.admin_approved_expert) {
+      try {
+        const fastApiRes = await axios.post(
+          "http://localhost:8000/embed", // or your deployed URL
+          {
+            expertId: expert._id.toString(),
+            summary: summary,
+          }
+        );
+        console.log("EMBEDDING generated---");
+        console.log("Embedding stored in Qdrant:", fastApiRes.data);
+      } catch (fastApiErr) {
+        console.error("FastAPI Embedding Error:", fastApiErr.message);
+        return next(
+          new AppError("Embedding service failed, cannot approve expert", 500)
+        );
+      }
+    }
+
+    // 4️⃣ Continue your existing Algolia sync logic
     const approvedExperts = await ExpertBasics.find({
       admin_approved_expert: true,
     });
 
-    // Format records for Algolia
     const records = approvedExperts.map((expert) => ({
       objectID: expert._id.toString(),
       name: `${expert.firstName} ${expert.lastName}`,
@@ -492,7 +563,6 @@ const adminapproved = async (req, res, next) => {
       country_living: expert.country_living || "",
     }));
 
-    // Push to Algolia
     await client.saveObjects({
       indexName: "experts_index",
       objects: records,
@@ -500,12 +570,13 @@ const adminapproved = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Expert admin approved toggled & Algolia updated",
+      message:
+        "Expert admin approval toggled, embedding stored, algolia updated",
       expert,
     });
   } catch (error) {
     console.log("Error:", error);
-    return next(new AppError(error.message, 501));
+    return next(new AppError(error.message, 500));
   }
 };
 
@@ -537,9 +608,8 @@ const handleSuspendExpert = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Expert suspended and deleted successfully",
-      deletedExpertId: id
+      deletedExpertId: id,
     });
-
   } catch (error) {
     console.log("Error:", error);
     return next(new AppError(error.message, 500));
@@ -843,7 +913,10 @@ const singleexperteducation = async (req, res, next) => {
       }
     }
 
-    const combinedCertificates = [...providedCertificates, ...uploadedCertificates];
+    const combinedCertificates = [
+      ...providedCertificates,
+      ...uploadedCertificates,
+    ];
     if (combinedCertificates.length > 0) {
       educationEntry.certificate = combinedCertificates;
     }
@@ -885,13 +958,8 @@ const editSingleExpertEducation = async (req, res, next) => {
       return [];
     };
 
-    const {
-      _id,
-      degree,
-      institution,
-      passingYear,
-      removeCertificate,
-    } = req.body;
+    const { _id, degree, institution, passingYear, removeCertificate } =
+      req.body;
     const expert_id = req.expert.id;
 
     if (!_id) {
@@ -942,8 +1010,8 @@ const editSingleExpertEducation = async (req, res, next) => {
     const currentCertificates = Array.isArray(educationEntry.certificate)
       ? educationEntry.certificate
       : educationEntry.certificate
-        ? [educationEntry.certificate]
-        : [];
+      ? [educationEntry.certificate]
+      : [];
 
     const certificatesToKeep = [];
     const providedIds = new Set(
@@ -1059,8 +1127,8 @@ const deleteExpertEducation = async (req, res, next) => {
     const certificates = Array.isArray(educationToDelete.certificate)
       ? educationToDelete.certificate
       : educationToDelete.certificate
-        ? [educationToDelete.certificate]
-        : [];
+      ? [educationToDelete.certificate]
+      : [];
 
     for (const doc of certificates) {
       if (doc?.public_id) {
@@ -1306,8 +1374,8 @@ const editExpertExperience = async (req, res, next) => {
     const currentDocuments = Array.isArray(experienceEntry.documents)
       ? experienceEntry.documents
       : experienceEntry.documents
-        ? [experienceEntry.documents]
-        : [];
+      ? [experienceEntry.documents]
+      : [];
 
     const documentsToKeep = [];
     const providedIds = new Set(
@@ -1424,8 +1492,8 @@ const deleteExpertExperience = async (req, res, next) => {
     const documentsToRemove = Array.isArray(experienceToDelete.documents)
       ? experienceToDelete.documents
       : experienceToDelete.documents
-        ? [experienceToDelete.documents]
-        : [];
+      ? [experienceToDelete.documents]
+      : [];
 
     for (const doc of documentsToRemove) {
       if (doc?.public_id) {
@@ -1434,10 +1502,7 @@ const deleteExpertExperience = async (req, res, next) => {
           await cloudinary.v2.uploader.destroy(doc.public_id);
         } catch (error) {
           return next(
-            new AppError(
-              "Error deleting document file: " + error.message,
-              501
-            )
+            new AppError("Error deleting document file: " + error.message, 501)
           );
         }
       }
@@ -1501,12 +1566,7 @@ const createService = async (req, res, next) => {
 
     // If title exists, it's a new service creation
     if (title) {
-      if (
-        !title ||
-        !shortDescription ||
-        !duration ||
-        !price
-      ) {
+      if (!title || !shortDescription || !duration || !price) {
         return next(
           new AppError("All fields are required for creating a service", 400)
         );
@@ -1608,12 +1668,7 @@ const manageService = async (req, res, next) => {
 
     // Creating a new service
     if (title) {
-      if (
-        !title ||
-        !shortDescription ||
-        !duration ||
-        !price
-      ) {
+      if (!title || !shortDescription || !duration || !price) {
         return next(
           new AppError("All fields are required for creating a service", 400)
         );
@@ -1671,10 +1726,7 @@ const manageService = async (req, res, next) => {
 };
 const deleteService = async (req, res, next) => {
   let serviceId =
-    req.body?.serviceId ||
-    req.body?.id ||
-    req.body?.service_id ||
-    null;
+    req.body?.serviceId || req.body?.id || req.body?.service_id || null;
 
   if (!serviceId && req.body && typeof req.body === "object") {
     const dynamicKeys = Object.keys(req.body).filter(
@@ -1706,7 +1758,9 @@ const deleteService = async (req, res, next) => {
 
     const serviceIndex = expert.credentials.services.findIndex((service) => {
       const mongoId = service?._id ? String(service._id) : undefined;
-      return mongoId === String(serviceId) || service.serviceId === String(serviceId);
+      return (
+        mongoId === String(serviceId) || service.serviceId === String(serviceId)
+      );
     });
 
     if (serviceIndex === -1) {
@@ -1981,7 +2035,8 @@ const getAllExperts = async (req, res, next) => {
 
     // Apply filters
     if (req.query.admin_approved_expert) {
-      filters.admin_approved_expert = req.query.admin_approved_expert === "true";
+      filters.admin_approved_expert =
+        req.query.admin_approved_expert === "true";
     }
     if (req.query.gender) {
       filters.gender = req.query.gender;
@@ -2028,9 +2083,9 @@ const getAllExperts = async (req, res, next) => {
           $elemMatch: {
             $or: [
               { duration: durationValue },
-              { "one_on_one.duration": durationValue }
-            ]
-          }
+              { "one_on_one.duration": durationValue },
+            ],
+          },
         };
       }
     }
@@ -2044,9 +2099,9 @@ const getAllExperts = async (req, res, next) => {
         $elemMatch: {
           $or: [
             { price: { $gte: minPrice, $lte: maxPrice } },
-            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } }
-          ]
-        }
+            { "one_on_one.price": { $gte: minPrice, $lte: maxPrice } },
+          ],
+        },
       };
     }
 
@@ -2063,14 +2118,14 @@ const getAllExperts = async (req, res, next) => {
                   $cond: {
                     if: { $gt: [{ $size: "$reviews" }, 0] },
                     then: { $size: "$reviews" },
-                    else: 1
-                  }
-                }
-              ]
-            }
+                    else: 1,
+                  },
+                },
+              ],
+            },
           },
-          minRating
-        ]
+          minRating,
+        ],
       };
     }
 
@@ -2079,7 +2134,9 @@ const getAllExperts = async (req, res, next) => {
     const order = req.query.order === "asc" ? 1 : -1;
 
     // For complex sorting, we need to use aggregation
-    if (["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)) {
+    if (
+      ["price-low-high", "price-high-low", "highest-rated"].includes(sortBy)
+    ) {
       const pipeline = [{ $match: filters }];
 
       // Add computed fields for sorting
@@ -2094,14 +2151,21 @@ const getAllExperts = async (req, res, next) => {
                     as: "service",
                     in: {
                       $min: [
-                        { $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER] },
-                        { $ifNull: ["$$service.one_on_one.price", Number.MAX_SAFE_INTEGER] }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
+                        {
+                          $ifNull: ["$$service.price", Number.MAX_SAFE_INTEGER],
+                        },
+                        {
+                          $ifNull: [
+                            "$$service.one_on_one.price",
+                            Number.MAX_SAFE_INTEGER,
+                          ],
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
           });
           pipeline.push({ $sort: { minPrice: 1, createdAt: -1 } });
           break;
@@ -2117,13 +2181,13 @@ const getAllExperts = async (req, res, next) => {
                     in: {
                       $max: [
                         { $ifNull: ["$$service.price", 0] },
-                        { $ifNull: ["$$service.one_on_one.price", 0] }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
+                        { $ifNull: ["$$service.one_on_one.price", 0] },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
           });
           pipeline.push({ $sort: { maxPrice: -1, createdAt: -1 } });
           break;
@@ -2138,12 +2202,12 @@ const getAllExperts = async (req, res, next) => {
                     $cond: {
                       if: { $gt: [{ $size: "$reviews" }, 0] },
                       then: { $size: "$reviews" },
-                      else: 1
-                    }
-                  }
-                ]
-              }
-            }
+                      else: 1,
+                    },
+                  },
+                ],
+              },
+            },
           });
           pipeline.push({ $sort: { avgRating: -1, createdAt: -1 } });
           break;
@@ -2181,7 +2245,6 @@ const getAllExperts = async (req, res, next) => {
   }
 };
 
-
 const getExpertAndServiceByServiceId = async (req, res, next) => {
   const { serviceID } = req.params;
 
@@ -2212,7 +2275,6 @@ const getExpertAndServiceByServiceId = async (req, res, next) => {
     return next(new AppError(error.message || "Server error", 500));
   }
 };
-
 
 const getAllExpertswithoutfilter = async (req, res, next) => {
   try {
@@ -2337,7 +2399,7 @@ const pushExpertsToAlgolia = async (req, res) => {
     }));
 
     // Push records to Algolia using saveObjects method
-    const index = client.initIndex('experts_index');
+    const index = client.initIndex("experts_index");
     await index.replaceAllObjects(records); // atomic replace
     // await index.saveObjects(records);
     await client.saveObjects({
@@ -2453,10 +2515,7 @@ const handleToggleService = async (req, res, next) => {
     console.log("Raw request body:", req.body); // Debugging line
 
     let serviceId =
-      req.body?.serviceId ||
-      req.body?.id ||
-      req.body?.service_id ||
-      null;
+      req.body?.serviceId || req.body?.id || req.body?.service_id || null;
 
     if (!serviceId && req.body && typeof req.body === "object") {
       const dynamicKeys = Object.keys(req.body).filter(
@@ -2543,7 +2602,6 @@ const getExpert = async (req, res, next) => {
   }
 };
 
-
 const HelpCenter = async (req, res) => {
   try {
     const { name, mobile, problem } = req.body;
@@ -2625,10 +2683,8 @@ export {
   pushExpertsToAlgolia,
   generateOtpForVerifying,
   validatethnumberormobile,
-
   adminapproved,
   handleSuspendExpert,
-
   getAllExpertswithoutfilter,
   handleToggleService,
 

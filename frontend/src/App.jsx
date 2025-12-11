@@ -20,6 +20,7 @@ import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
+import ExpertFinder from "./components/AIChatbot/ExpertFinder";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -131,6 +132,7 @@ const App = () => {
   useEffect(() => {
     const excludedPathPatterns = [
       /^\/$/,
+      /^\/search$/,
       /^\/auth-error$/,
       /^\/about-us$/,
       /^\/contact$/,
@@ -200,6 +202,8 @@ const App = () => {
       <Routes>
         {/* Public Routes - No wrapper needed */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<ExpertFinder />} />
+
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
