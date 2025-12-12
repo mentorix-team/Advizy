@@ -318,6 +318,7 @@ function HomePage() {
               Your Growth, success, clarity start here. Find the right
               guidance for your journey.
             </motion.p>
+            <div className="space-x-2">
             <motion.button
               onClick={() => setIsModalOpen(true)}
               className="btn-expert"
@@ -327,6 +328,16 @@ function HomePage() {
             >
               Find a Mentor
             </motion.button>
+            <motion.button
+              onClick={() => navigate('/search')}
+              className="btn-expert"
+              style={{ height: "48px" }}
+              whileHover={{ scale: 1.05, height: 48 }}
+              whileTap={{ scale: 0.95, height: 48 }}
+            >
+              Talk with AI
+            </motion.button>
+            </div>
                 </motion.div>
                 <motion.div
             id="category-grid"
