@@ -103,6 +103,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
         // Close popup first
         onClose();
 
+        const lastUsed = localStorage.setItem("lastUsedAuthMethod", "email");
+
         if (redirectURL && redirectURL.trim() !== "") {
           sessionStorage.removeItem("redirectURL");
           navigate(redirectURL);
@@ -120,7 +122,10 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     } catch (err) {
       // Unwrap errors from thunk or network issues
       console.error("Login error:", err);
-      setErrors((prev) => ({ ...prev, password: err?.message || "Login failed" }));
+      setErrors((prev) => ({
+        ...prev,
+        password: err?.message || "Login failed",
+      }));
       setTouched({ email: true, password: true });
     } finally {
       setlogindata({ email: "", password: "" });
@@ -130,9 +135,11 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
   // Google login handler
   const handleGoogleSignup = (event) => {
     event.preventDefault();
-    
+
     // Store current redirectURL if it exists, or store current page as backup
     const existingRedirectURL = sessionStorage.getItem("redirectURL");
+
+    const lastUsed = localStorage.setItem("lastUsedAuthMethod", "google");
     if (!existingRedirectURL) {
       const currentPage = window.location.pathname + window.location.search;
       console.log("🔗 Storing preOAuthPath for Google login:", currentPage);
@@ -140,7 +147,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     } else {
       console.log("📌 redirectURL already exists:", existingRedirectURL);
     }
-    
+
     window.open(`http://localhost:5030/api/v1/user/auth/google`, "_self");
   };
 
@@ -150,6 +157,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     console.log("Close button clicked");
     onClose();
   };
+
+  const lastUsedMethod = localStorage.getItem("lastUsedAuthMethod");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md px-4 py-8 overflow-auto">
@@ -173,11 +182,17 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
           </button>
         </div>
 
-  <form onSubmit={handleSubmit} className="w-80 max-w-md mx-auto flex flex-col gap-2">
+        <form
+          onSubmit={handleSubmit}
+          className="w-80 max-w-md mx-auto flex flex-col gap-2"
+        >
           <div className="">
-            <label className="block text-gray-700 text-sm md:text-base font-medium mb-1">
-              Email address
+            <label className="flex gap-1 items-center text-gray-700 text-sm md:text-base font-medium mb-1">
+              Email address {lastUsedMethod === "email" && (<div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
+                Last used
+              </div>)}
             </label>
+            
             <input
               type="email"
               name="email"
@@ -230,15 +245,18 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col w-full">
             <button
               type="button"
               className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black shadow-sm hover:shadow-md hover:bg-gray-100 transition-colors"
               onClick={handleGoogleSignup}
             >
               <FcGoogle size={24} />
-              Login with Google
+              Login with Google {lastUsedMethod === "google" && (<div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
+                Last used
+              </div>)}
             </button>
+            
           </div>
         </form>
 
