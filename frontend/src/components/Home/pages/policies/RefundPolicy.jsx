@@ -8,6 +8,11 @@ const RefundPolicy = () => {
     window.scrollTo(0, 0);
   }, []);
 
+
+    useEffect(() => {
+      document.title = "Refund Policy | Advizy";
+    })
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />

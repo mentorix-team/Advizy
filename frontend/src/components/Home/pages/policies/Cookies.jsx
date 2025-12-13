@@ -3,10 +3,15 @@ import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-const CookiePolicy = () => {
+const Cookies = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+
+    useEffect(() => {
+      document.title = "Cookies Policy | Advizy";
+    })
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -128,4 +133,4 @@ const CookiePolicy = () => {
   );
 };
 
-export default CookiePolicy;
+export default Cookies;

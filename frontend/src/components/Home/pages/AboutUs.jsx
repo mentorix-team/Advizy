@@ -160,6 +160,11 @@ const AboutPage = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const navigate = useNavigate();
 
+
+    useEffect(() => {
+      document.title = "About Us | Advizy";
+    })
+
   const handleExpertOnboarding = () => {
     navigate('/expert-onboarding');
   }

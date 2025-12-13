@@ -160,6 +160,10 @@ const ExpertDetailPage = () => {
     };
   }, [feedbackofexpert]);
 
+  useEffect(() => {
+    document.title = `${expert?.firstName} ${expert?.lastName || "Expert"} | Advizy`;
+  })
+
   console.log("Normalized expert", expert);
   useEffect(() => {
     if (expert?._id) {

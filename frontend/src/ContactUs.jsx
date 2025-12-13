@@ -28,6 +28,11 @@ const ContactUs = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+    useEffect(() => {
+      document.title = "Contact Us | Advizy";
+    })
+
   const validateForm = () => {
     const newErrors = {};
 

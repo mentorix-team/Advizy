@@ -266,6 +266,11 @@ const BecomeExpertPage = () => {
   const imageControls = useAnimation();
   const navigate = useNavigate();
 
+
+    useEffect(() => {
+      document.title = "Become an Expert | Advizy";
+    })
+
   const handleExpertOnboarding = () => {
     const expertData = localStorage.getItem("expertData");
 

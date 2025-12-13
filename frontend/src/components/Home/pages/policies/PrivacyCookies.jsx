@@ -4,10 +4,15 @@ import { Link } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
-const PrivacyPolicy = () => {
+const PrivacyCookies = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+
+    useEffect(() => {
+      document.title = "Privacy Policy | Advizy";
+    })
 
   return (
     <div className="min-h-screen bg-white">
@@ -207,4 +212,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default PrivacyCookies;

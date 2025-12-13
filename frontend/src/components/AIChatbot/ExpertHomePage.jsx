@@ -3,7 +3,7 @@ import { AnimatedGridBackground } from "./components/AnimatedGridBackground";
 import ExpertButton from "./ExpertButton";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Navbar from "../Home/components/Navbar";
+import AiNavbar from "./components/AiNavbar";
 
 export default function ExpertHomePage() {
   const [loading, setLoading] = useState(false);
@@ -45,6 +45,7 @@ export default function ExpertHomePage() {
   return (
     <div className="relative min-h-screen">
       <AnimatedGridBackground />
+      <AiNavbar />
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12">
         <div className="w-full max-w-4xl">
@@ -68,7 +69,7 @@ export default function ExpertHomePage() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleUserQuery()}
               placeholder='e.g. "I need a finance mentor for investment"'
-              className="h-14 flex-1 px-4 py-3 border-gray-700 bg-[#1a1a1a] text-white placeholder:text-gray-500 rounded-lg outline-none focus:border-[#00d364] focus:ring-2 focus:ring-[#00d364]/30"
+              className="h-14 flex-1 px-4 py-3 border border-gray-600 bg-[#1a1a1a] text-white placeholder:text-gray-500 rounded-lg outline-none focus:border-[#00d364] focus:ring-2 focus:ring-[#00d364]/30"
             />
             <ExpertButton onClick={handleUserQuery} />
           </div>

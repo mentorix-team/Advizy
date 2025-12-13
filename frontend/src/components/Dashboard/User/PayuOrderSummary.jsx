@@ -58,6 +58,11 @@ const PayuOrderSummary = () => {
   console.log("parsed", parsedDate);
   console.log("this is also price", Price);
 
+
+    useEffect(() => {
+      document.title = "Order Summary | Advizy";
+    })
+
   useEffect(() => {
     dispatch(getMeet());
   }, [dispatch]);

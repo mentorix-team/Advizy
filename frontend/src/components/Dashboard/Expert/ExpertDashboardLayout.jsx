@@ -57,6 +57,11 @@ const ExpertDashboardLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+
+    useEffect(() => {
+      document.title = "Expert Dashboard | Advizy";
+    })
+
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
