@@ -1,53 +1,81 @@
 import Groq from "groq-sdk";
-import axios from 'axios';
+import axios from "axios";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-export const testFastApi = async (req, res) => {
-    try {
-        const response = await axios.get("http://localhost:8000/ping");
-        res.json({
-            success: true,
-            fastapi_response: response.data,
-        });
-    } catch (error) {
-        console.error("FastAPI error:", error.message);
-        res.status(500).json({ success: false, error: "Unable to reach FastAPI" });
-    }
-}
+const NODE_ENV = process.env.NODE_ENV || "development";
+const FASTAPI_BASE_URL =
+  NODE_ENV === "production"
+    ? process.env.FASTAPI_BASE_URL
+    : "http://localhost:8000";
 
+export const testFastApi = async (req, res) => {
+  try {
+    const response = await axios.get(`${FASTAPI_BASE_URL}/ping`, {
+      timeout: 5000
+    });
+
+    res.json({
+      success: true,
+      fastapi_response: response.data,
+    });
+  } catch (error) {
+    console.error("FastAPI error:", error.message);
+    res.status(500).json({
+      success: false,
+      error: "Unable to reach FastAPI service",
+    });
+  }
+};
 
 export const recommendExperts = async (req, res) => {
   try {
     const { query } = req.body;
 
-    // 1️⃣ FastAPI: get vector-similarity matches
-    const fastapiRes = await axios.post("http://localhost:8000/search-experts", {
-      query,
-      top_k: 3
-    });
+    /* 1️⃣ Get vector similarity results from FastAPI */
+    const fastapiRes = await axios.post(
+      `${FASTAPI_BASE_URL}/search-experts`,
+      { query, top_k: 3 },
+      { timeout: 10000 }
+    );
 
-    const matches = fastapiRes.data.matches;
+    const matches = fastapiRes.data.matches || [];
+
+    if (!matches.length) {
+      return res.json({
+        success: true,
+        experts: [],
+        aiRecommendation: "No suitable experts found for your query."
+      });
+    }
+
     const mongoIds = matches.map(m => m.mongoId);
 
-    // 2️⃣ Fetch full expert details from MongoDB
-    const experts = await ExpertBasics.find({ _id: { $in: mongoIds } });
+    /* 2️⃣ Fetch experts from MongoDB */
+    const expertsRaw = await ExpertBasics.find({
+      _id: { $in: mongoIds }
+    });
 
-    // 3️⃣ Prepare data for Llama model
-    const expertDescriptions = experts.map((ex, i) => ({
+    /* 3️⃣ Preserve ranking from Qdrant */
+    const experts = mongoIds
+      .map(id => expertsRaw.find(e => e._id.toString() === id))
+      .filter(Boolean);
+
+    /* 4️⃣ Prepare prompt data */
+    const expertDescriptions = experts.map(ex => ({
       name: `${ex.firstName} ${ex.lastName}`,
       domain: ex.credentials?.domain,
       niche: ex.credentials?.niche,
       experience: ex.credentials?.experienceYears,
       services: ex.credentials?.services?.map(s => ({
         title: s.title,
-        price: s.price,
+        price: s.price || s.hourlyRate,
       })),
-      bio: ex.bio
+      bio: ex.bio,
     }));
 
-    // 4️⃣ Call Groq Llama-3.3-70B-Versatile
+    /* 5️⃣ LLM Prompt */
     const prompt = `
 You are an expert recommendation assistant.
 
@@ -59,28 +87,32 @@ ${JSON.stringify(expertDescriptions, null, 2)}
 
 Write a short, friendly recommendation explaining:
 - Which expert is best and why
-- Why they match the user’s query
-- Mention experience + niche + price
-- Provide a supportive tone
+- How their experience and niche fit the query
+- Mention pricing when relevant
+- Keep tone supportive and clear
 `;
 
+    /* 6️⃣ Call Groq Llama */
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
-      temperature: 0.3
+      temperature: 0.3,
     });
 
     const aiResponse = completion.choices[0].message.content;
 
-    // 5️⃣ Send final combined response to frontend
+    /* 7️⃣ Final response */
     res.json({
       success: true,
       experts,
-      aiRecommendation: aiResponse
+      aiRecommendation: aiResponse,
     });
 
   } catch (error) {
     console.error("Recommendation error:", error.message);
-    res.status(500).json({ error: "Failed to generate recommendation" });
+    res.status(500).json({
+      success: false,
+      error: "Failed to generate expert recommendation",
+    });
   }
 };
