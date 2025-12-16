@@ -77,7 +77,7 @@ export const recommendExperts = async (req, res) => {
 
     /* 5️⃣ LLM Prompt */
     const prompt = `
-You are an expert recommendation assistant.
+You are an expert recommendation engine.
 
 User query:
 "${query}"
@@ -85,12 +85,23 @@ User query:
 Matched experts:
 ${JSON.stringify(expertDescriptions, null, 2)}
 
-Write a short, friendly recommendation explaining:
-- Which expert is best and why
-- How their experience and niche fit the query
-- Mention pricing when relevant
-- Keep tone supportive and clear
+INSTRUCTIONS:
+- First line: "Found <N> mentors matching your criteria"
+- Then list each expert on a new line
+- Each expert must be ONE line only
+- Format strictly as:
+
+Found <N> mentors matching your criteria
+• <Name> – <domain/niche>, <experience> yrs, from ₹<starting price>
+
+RULES:
+- No extra text
+- No emojis
+- No explanations
+- No marketing language
+- Keep it concise and factual
 `;
+
 
     /* 6️⃣ Call Groq Llama */
     const completion = await groq.chat.completions.create({
