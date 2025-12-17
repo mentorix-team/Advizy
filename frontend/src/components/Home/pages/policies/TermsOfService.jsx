@@ -8,6 +8,10 @@ const TermsOfService = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+      document.title = "Terms of Service | Advizy";
+    })
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />

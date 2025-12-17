@@ -6,6 +6,7 @@ import expertRoutes from "./Routes/expert.route.js";
 import calendarRoutes from "./Routes/calendar.route.js";
 import meetingRoutes from "./Routes/meeting.route.js";
 import contactRoutes from "./Routes/contact.route.js";
+import fastapiRoutes from "./Routes/fastapi.route.js";
 // import razorpayRoutes from "./Routes/payment.route.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import morgan from "morgan";
@@ -107,6 +108,7 @@ app.use("/api/v1/meeting", meetingRoutes);
 app.use("/api/v1/contact", contactRoutes);
 // app.use("/api/v1/payment", razorpayRoutes);
 app.use("/api/v1/payu", payURoutes);
+app.use("/api/v1/fastapi", fastapiRoutes);
 
 // app.use('/api/v1/admin', adminRoutes);
 

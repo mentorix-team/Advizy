@@ -129,6 +129,10 @@ export default function Meetings() {
 
   // console.log("All paid meetings:", paidMeetings);
 
+  useEffect(() => {
+      document.title = "User Dashboard | Advizy";
+    })
+
   // Handle rating submission
   const handleRate = async (meetingId, { rating, feedback }) => {
     try {

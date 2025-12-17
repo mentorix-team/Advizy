@@ -22,6 +22,10 @@ const Homees = () => {
   const [sorting, setSorting] = useState("highest-rated"); // Default to highest-rated sort
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    useEffect(() => {
+    document.title = "Explore Experts | Advizy";
+  }, []);
+
   // Log whenever filters or domain change dynamically
   useEffect(() => {
     // console.log("Updated Filters:", filters);

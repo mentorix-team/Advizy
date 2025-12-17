@@ -571,13 +571,32 @@ const authSlice = createSlice({
     });
 
     builder.addCase(logout.fulfilled, (state, action) => {
-      localStorage.clear();
+      // Preserve last login method
+      const lastLoginMethod = localStorage.getItem("lastLoginMethod");
+
+      // Remove only authentication data
+      localStorage.removeItem("user");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("expertToken");
+      localStorage.removeItem("expertData");
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("data");
+      localStorage.removeItem("admin_approved_expert");
+      localStorage.removeItem("isLoggedIn");
+
+      // Restore last login method
+      if (lastLoginMethod) {
+        localStorage.setItem("lastLoginMethod", lastLoginMethod);
+      }
+      //reset redux state
       state.data = {};
       state.isLoggedIn = false;
       state.role = "";
       state.expertData = {};
       state.admin_approved_expert = false;
-      (state.loading = false), (state.error = action.payload.error);
+      state.loading = false;
+      state.error = action.payload?.error || null;
     });
     builder.addCase(logout.rejected, (state, action) => {
       state.loading = false;

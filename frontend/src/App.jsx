@@ -13,13 +13,14 @@ import HomePage from "./components/Home/pages/HomePage";
 import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import AboutUs from "./components/Home/pages/AboutUs";
-import CookiePolicy from "./components/Home/pages/policies/CookiePolicy";
-import PrivacyPolicy from "./components/Home/pages/policies/PrivacyPolicy";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
+import ExpertHomePage from "./components/AIChatbot/ExpertHomePage";
+import Cookies from "./components/Home/pages/policies/Cookies";
+import PrivacyCookies from "./components/Home/pages/policies/PrivacyCookies";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>
@@ -131,6 +132,7 @@ const App = () => {
   useEffect(() => {
     const excludedPathPatterns = [
       /^\/$/,
+      /^\/search$/,
       /^\/auth-error$/,
       /^\/about-us$/,
       /^\/contact$/,
@@ -200,12 +202,14 @@ const App = () => {
       <Routes>
         {/* Public Routes - No wrapper needed */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<ExpertHomePage />} />
+
         <Route path="/auth-error" element={<AuthError />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/become-expert" element={<BecomeExpertPage />} />
-        <Route path="/cookie-policy" element={<CookiePolicy />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/cookie-policy" element={<Cookies />} />
+        <Route path="/privacy-policy" element={<PrivacyCookies />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/explore" element={<Homees />} />

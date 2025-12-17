@@ -93,6 +93,10 @@ const ExpertDetailPage = () => {
     setIsExpertMode(!isExpertMode);
   };
 
+    useEffect(() => {
+    document.title = `${expert?.firstName} ${expert?.lastName || "Expert"} | Advizy`;
+  })
+
   // Heuristic: 24-char hex => ObjectId -> fetch by ID; else treat as redirect slug
   useEffect(() => {
     if (!redirect_url) return;
@@ -254,6 +258,7 @@ const ExpertDetailPage = () => {
       reviewsCount: feedbackofexpert.length
     };
   }, [feedbackofexpert]);
+  
 
   // console.log("Normalized expert", expert);
   useEffect(() => {

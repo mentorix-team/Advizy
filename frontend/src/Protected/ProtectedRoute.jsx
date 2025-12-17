@@ -81,7 +81,20 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
       // console.log("🔍 Token validation response:", response?.payload);
       if (!response?.payload?.valid) {
         // console.log("Token invalid, clearing localStorage");
-        localStorage.clear();
+        // localStorage.clear();
+
+        const lastLoginMethod = localStorage.getItem("lastLoginMethod");
+
+        localStorage.removeItem("user");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("expertToken");
+        localStorage.removeItem("expertUser");
+        localStorage.removeItem("expertData");
+
+        if (lastLoginMethod) {
+          localStorage.setItem("lastLoginMethod", lastLoginMethod);
+        }
+        
         setIsAuthenticated(false);
         setIsLoading(false);
 

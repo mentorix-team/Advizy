@@ -455,26 +455,96 @@ const expertcertifiicate = async (req, res, next) => {
     return next(new AppError(error.message, 501));
   }
 };
+
 const adminapproved = async (req, res, next) => {
   try {
     const { id } = req.body;
-    console.log("this is id", id);
-    const expert = await ExpertBasics.findById(id); // Don't forget the 'await'
+
+    console.log("Expert ID:", id);
+
+    const expert = await ExpertBasics.findById(id);
 
     if (!expert) {
-      return next(new AppError("Expert not found", 403));
+      return next(new AppError("Expert not found", 404));
     }
 
-    // Toggle admin approval
+    // 1️⃣ Toggle admin approval
     expert.admin_approved_expert = !expert.admin_approved_expert;
     await expert.save();
 
-    // Now fetch all experts who are admin approved
+    const buildExpertSummary = (expert) => {
+      const services = expert.credentials?.services || [];
+
+      // Convert services to human readable text
+      const servicesText = services
+        .map((service) => {
+          const baseDetails = `
+    Service: ${service.title}
+    Description: ${service.shortDescription || ""}
+    Hourly Rate: ₹${service.hourlyRate || "N/A"}
+    Fixed Session: ${service.duration || "N/A"} mins at ₹${
+            service.price || "N/A"
+          }
+    `;
+
+          // One-on-one pricing
+          const oneOnOne = (service.one_on_one || [])
+            .filter((s) => s.enabled)
+            .map((s) => {
+              const perMinute = (s.price / s.duration).toFixed(2);
+              return `One-on-One: ${s.duration} mins @ ₹${s.price} (₹${perMinute}/min)`;
+            })
+            .join("\n");
+
+          return baseDetails + "\n" + oneOnOne;
+        })
+        .join("\n\n");
+
+      return `
+  Name: ${expert.firstName || ""} ${expert.lastName || ""}
+  Domain: ${expert.credentials?.domain || ""}
+  Niche: ${(expert.credentials?.niche || []).join(", ")}
+  Skills: ${(expert.credentials?.skills || []).join(", ")}
+  Experience: ${expert.credentials?.experienceYears || 0} years
+  Bio: ${expert.bio || "No bio provided."}
+
+  Services Offered:
+  ${servicesText}
+  `
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+
+    // 2️⃣ Build expert summary for embeddings
+    const summary = buildExpertSummary(expert);
+
+    console.log("api calling to fastapi");
+
+    // 3️⃣ Send summary to FastAPI (only if approved = true)
+    if (expert.admin_approved_expert) {
+      try {
+        const fastApiRes = await axios.post(
+          "http://localhost:8000/embed", // or your deployed URL
+          {
+            expertId: expert._id.toString(),
+            summary: summary,
+          }
+        );
+        console.log("EMBEDDING generated---");
+        console.log("Embedding stored in Qdrant:", fastApiRes.data);
+      } catch (fastApiErr) {
+        console.error("FastAPI Embedding Error:", fastApiErr.message);
+        return next(
+          new AppError("Embedding service failed, cannot approve expert", 500)
+        );
+      }
+    }
+
+    // 4️⃣ Continue your existing Algolia sync logic
     const approvedExperts = await ExpertBasics.find({
       admin_approved_expert: true,
     });
 
-    // Format records for Algolia
     const records = approvedExperts.map((expert) => ({
       objectID: expert._id.toString(),
       name: `${expert.firstName} ${expert.lastName}`,
@@ -492,7 +562,6 @@ const adminapproved = async (req, res, next) => {
       country_living: expert.country_living || "",
     }));
 
-    // Push to Algolia
     await client.saveObjects({
       indexName: "experts_index",
       objects: records,
@@ -500,12 +569,13 @@ const adminapproved = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Expert admin approved toggled & Algolia updated",
+      message:
+        "Expert admin approval toggled, embedding stored, algolia updated",
       expert,
     });
   } catch (error) {
     console.log("Error:", error);
-    return next(new AppError(error.message, 501));
+    return next(new AppError(error.message, 500));
   }
 };
 
@@ -527,19 +597,18 @@ const handleSuspendExpert = async (req, res, next) => {
     await ExpertBasics.findByIdAndDelete(id);
 
     // If you're using Algolia, you might want to remove from there too
-    await client.deleteObject({
-      indexName: "experts_index",
-      objectID: id
-    });
+    // await client.deleteObject({
+    //   indexName: "experts_index",
+    //   objectID: id
+    // });
 
     console.log("Expert suspended/deleted successfully");
 
     return res.status(200).json({
       success: true,
       message: "Expert suspended and deleted successfully",
-      deletedExpertId: id
+      deletedExpertId: id,
     });
-
   } catch (error) {
     console.log("Error:", error);
     return next(new AppError(error.message, 500));
