@@ -24,6 +24,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.19.2",
     "express-session": "^1.18.1",
+    "groq-sdk": "^0.37.0",
     "jsonwebtoken": "^9.0.2",
     "moment-timezone": "^0.5.48",
     "mongoose": "^8.5.1",
