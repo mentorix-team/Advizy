@@ -148,6 +148,7 @@ function HomePage() {
           reviews: expert.reviews || [],
           admin_approved_expert: expert?.admin_approved_expert || false,
           // reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+          // reviews: expert?.reviews || [], // Fallback to empty array if no reviews
         };
       })
     : [];
@@ -295,8 +296,8 @@ function HomePage() {
             height: "120vh",
           }}
         />
-        {/* Hero Section */}
-        <div id="hero-section" className="relative pt-8 sm:pt-16 w-full overflow-hidden">
+        /* Hero Section */
+        <div id="hero-section" className="relative pt-8 sm:pt-16 w-full">
           <div className="relative max-w-[1920px] mx-auto px-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0 }}
@@ -320,7 +321,7 @@ function HomePage() {
                   </motion.span>
                 </motion.h1>
                 <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
-                  Your Growth, success, clarity start here. Find the right
+                  Your Growth, success, clarity starts here. Find the right
                   guidance for your journey.
                 </motion.p>
                 <div className="space-x-2">
@@ -361,7 +362,7 @@ function HomePage() {
           </div>
         </div>
         {/* Rest of the sections */}
-        <div className="relative w-full overflow-hidden">
+        <div className="relative w-full">
           <div className="max-w-[1920px] mx-auto px-4 sm:px-6">
             <div className="space-y-8 sm:space-y-12 mt-10">
               {/* Career Mentors Section */}
@@ -390,7 +391,7 @@ function HomePage() {
         onClose={() => setIsModalOpen(false)}
         onCategorySelect={handleModalCategorySelect}
       />
-    </div>
+    </div >
   );
 }
 

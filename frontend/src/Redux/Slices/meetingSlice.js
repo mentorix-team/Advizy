@@ -9,6 +9,8 @@ const initialState = {
   notifications: null,
   meetings: [],
   currentMeeting: "",
+  // store active session info keyed by videoCallId
+  activeSessions: {},
   rescheduleData: [],
   // Store expert feedback as an array for consistency
   feedbackofexpert: [],
@@ -557,7 +559,17 @@ export const getBookedSlots = createAsyncThunk(
 const meetingSlice = createSlice({
   name: "meeting",
   initialState,
-  reducers: {},
+  reducers: {
+    // set active session data for a given videoCallId
+    setActiveSession(state, action) {
+      const { videoCallId, data } = action.payload || {};
+      if (videoCallId) state.activeSessions[videoCallId] = data;
+    },
+    clearActiveSession(state, action) {
+      const videoCallId = action.payload;
+      if (videoCallId) delete state.activeSessions[videoCallId];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createMeet.fulfilled, (state, action) => {
@@ -701,3 +713,5 @@ const meetingSlice = createSlice({
 });
 
 export default meetingSlice.reducer;
+
+export const { setActiveSession, clearActiveSession } = meetingSlice.actions;

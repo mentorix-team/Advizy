@@ -8,9 +8,10 @@ const Cookies = () => {
     window.scrollTo(0, 0);
   }, []);
 
+
   useEffect(() => {
-      document.title = "Cookies Policy | Advizy";
-    })
+    document.title = "Cookies Policy | Advizy";
+  })
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -24,7 +25,7 @@ const Cookies = () => {
           <h1 className="text-4xl font-bold mb-8">Cookie Policy</h1>
           <div className="prose prose-lg">
             <p className="text-gray-600 mb-4">Last updated: February 08, 2025</p>
-            
+
             <p className="mb-6">
               This Cookie Policy explains how Advizy ("Company," "we," "us," and "our") uses cookies and similar technologies to recognize you when you visit our website at https://www.advizy.in ("Website"). It explains what these technologies are and why we use them, as well as your rights to control our use of them.
             </p>

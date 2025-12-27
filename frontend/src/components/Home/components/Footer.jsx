@@ -21,7 +21,7 @@ const Footer = ({ onOpenSearchModal }) => {
                 <img src="/FooterLogo104.99&44.svg" alt="Advizy Logo" />
               </a>
             </motion.h2>
-            <p className="text-gray-300 text-sm leading-relaxed">
+            <p className="text-gray-300 text-base leading-relaxed">
               Connecting you with top consultants for personalized guidance and
               expert advice.
             </p>
@@ -58,9 +58,9 @@ const Footer = ({ onOpenSearchModal }) => {
                 <li>
                   <button
                     onClick={() => handleNavigation("/become-expert")}
-                    className="text-gray-300 hover:text-white transition-colors"
+                    className="text-gray-300 text-left hover:text-white transition-colors"
                   >
-                    Share your Expertise
+                    Share Expertise
                   </button>
                 </li>
                 <li>

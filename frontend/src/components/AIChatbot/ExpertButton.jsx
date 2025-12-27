@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { ChevronRight, ArrowRight } from "lucide-react"
 
-export default function ExpertButton({onClick}) {
+export default function ExpertButton({ onClick }) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (

@@ -160,9 +160,10 @@ const AboutPage = () => {
   const [isExpertMode, setIsExpertMode] = useState(false);
   const navigate = useNavigate();
 
+
   useEffect(() => {
-      document.title = "About Us | Advizy";
-    })
+    document.title = "About Us | Advizy";
+  })
 
   const handleExpertOnboarding = () => {
     navigate('/expert-onboarding');
@@ -367,12 +368,14 @@ const AboutPage = () => {
                   <span className="text-gray-700">Enhance client retention with smart tools</span>
                 </li>
               </ul>
-              <button
+              <motion.button
                 onClick={() => navigate('/become-expert')}
                 className="w-full btn-expert"
+                whileHover={{ scale: 1.05, height: 48 }}
+                whileTap={{ scale: 0.95, height: 48 }}
               >
                 Show Your Expertise
-              </button>
+              </motion.button>
             </motion.div>
 
             {/* For Users Card */}
@@ -407,12 +410,14 @@ const AboutPage = () => {
                   <span className="text-gray-700">High-quality video consultations</span>
                 </li>
               </ul>
-              <button
+              <motion.button
                 onClick={() => navigate('/explore')}
                 className="w-full btn-expert"
+                whileHover={{ scale: 1.05, height: 48 }}
+                whileTap={{ scale: 0.95, height: 48 }}
               >
-                Search mentors
-              </button>
+                Find Your Mentor
+              </motion.button>
             </motion.div>
           </div>
         </div>
@@ -495,33 +500,28 @@ const AboutPage = () => {
             </motion.p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button
-                onClick={handleExplorePage}
-                initial={{ opacity: 0, y: 20 }} 
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ transformOrigin: 'center center' }}
-                className="bg-[#169544] text-white px-8 py-4 rounded-lg font-medium hover:bg-[#0f7a34] transition-colors h-12 flex items-center justify-center"
-              >
-                Find a Mentor
-              </button>
-
-              <motion.button
-                onClick={handleExpertOnboarding}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{ transformOrigin: 'center center' }}
-                className="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors h-12 flex items-center justify-center"
-              >
-                Share your Expertise
-              </motion.button>
+              <div>
+                <motion.button
+                  onClick={() => navigate('/explore')}
+                  className="btn-expert"
+                  whileHover={{ scale: 1.05, height: 48 }}
+                  whileTap={{ scale: 0.95, height: 48 }}
+                >
+                  Find Your Mentor
+                </motion.button>
+              </div>
+              <div>
+                <motion.button
+                  onClick={handleExpertOnboarding}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 py-4 bg-gradient-to-tr from-slate-200 to-slate-300 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors h-12 flex items-center justify-center"
+                >
+                  Share your Expertise
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         </div>

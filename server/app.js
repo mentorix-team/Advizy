@@ -24,49 +24,32 @@ scheduleMeetingReminders();
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration - must be before routes
+const allowedOrigins = [
+  process.env.frontendurl,
+  "http://localhost:5173",
+  "http://localhost:8001",
+  "http://localhost:5030",
+  "https://advizy.onrender.com",
+  "https://www.advizy.in",
+  // "http://advizy-adminpanel.onrender.com",
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      process.env.frontendurl,
-      "http://localhost:5173",
-      "http://localhost:8001",
-      "http://localhost:5030",
-      "https://advizy.onrender.com",
-      "https://www.advizy.in",
-      "https://advizy.in",
-      "https://advizy-adminpanel.onrender.com",
-      "https://admin.advizy.in",
-      "https://www.admin.advizy.in",
-    ].filter(Boolean); // Remove any undefined values
-
-    // Allow requests with no origin (like mobile apps, Postman, curl)
+    // Allow requests with no origin (like mobile apps, curl)
     if (!origin) return callback(null, true);
-
-    // Check if origin is allowed
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log(`CORS blocked origin: ${origin}`);
-      callback(null, true); // Allow anyway for now to debug
+      return callback(null, true);
     }
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-    "Access-Control-Request-Method",
-    "Access-Control-Request-Headers"
-  ],
-  exposedHeaders: ["Set-Cookie"],
-  preflightContinue: false,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   optionsSuccessStatus: 204,
-  maxAge: 86400 // 24 hours
 };
 
+// Apply CORS for all routes
 app.use(cors(corsOptions));
 
 app.use(
@@ -106,9 +89,9 @@ app.use("/api/v1/expert", expertRoutes);
 app.use("/api/v1/calendar", calendarRoutes);
 app.use("/api/v1/meeting", meetingRoutes);
 app.use("/api/v1/contact", contactRoutes);
+app.use("/api/v1/fastapi", fastapiRoutes);
 // app.use("/api/v1/payment", razorpayRoutes);
 app.use("/api/v1/payu", payURoutes);
-app.use("/api/v1/fastapi", fastapiRoutes);
 
 // app.use('/api/v1/admin', adminRoutes);
 

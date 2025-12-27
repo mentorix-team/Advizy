@@ -94,7 +94,7 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
         if (lastLoginMethod) {
           localStorage.setItem("lastLoginMethod", lastLoginMethod);
         }
-        
+
         setIsAuthenticated(false);
         setIsLoading(false);
 

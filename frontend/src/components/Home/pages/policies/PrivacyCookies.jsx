@@ -9,9 +9,10 @@ const PrivacyCookies = () => {
     window.scrollTo(0, 0);
   }, []);
 
+
   useEffect(() => {
-      document.title = "Privacy Policy | Advizy";
-    })
+    document.title = "Privacy Policy | Advizy";
+  })
 
   return (
     <div className="min-h-screen bg-white">
@@ -40,7 +41,7 @@ const PrivacyCookies = () => {
             {/* Interpretation and Definitions */}
             <section>
               <h2 className="text-2xl font-bold mb-4">Interpretation and Definitions</h2>
-              
+
               <h3 className="text-xl font-semibold mb-3">Interpretation</h3>
               <p>
                 The words of which the initial letter is capitalized have meanings defined under the following conditions. The following definitions shall have the same meaning regardless of whether they appear in singular or in plural.
@@ -67,9 +68,9 @@ const PrivacyCookies = () => {
             {/* Collecting and Using Personal Data */}
             <section>
               <h2 className="text-2xl font-bold mb-4">Collecting and Using Your Personal Data</h2>
-              
+
               <h3 className="text-xl font-semibold mb-3">Types of Data Collected</h3>
-              
+
               <h4 className="text-lg font-semibold mb-2">Personal Data:</h4>
               <p>While using Our Service, We may ask You to provide Us with certain personally identifiable information that can be used to contact or identify You. Personally identifiable information may include, but is not limited to:</p>
               <ul className="list-disc pl-6 space-y-2">

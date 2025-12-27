@@ -13,14 +13,14 @@ import HomePage from "./components/Home/pages/HomePage";
 import AuthError from "./AuthError";
 import ContactUs from "./ContactUs";
 import AboutUs from "./components/Home/pages/AboutUs";
+import Cookies from "@/components/Home/pages/policies/Cookies";
+import PrivacyCookies from "@/components/Home/pages/policies/PrivacyCookies";
 import RefundPolicy from "./components/Home/pages/policies/RefundPolicy";
 import TermsOfService from "./components/Home/pages/policies/TermsOfService";
 import GoogleRedirectHandler from "./components/Auth/GoogleRedirectHandler";
 import PayyBookingConfirmation from "./components/Dashboard/Expert/Meetings/PayyBookingConfirmation";
 import PayuOrderSummary from "./components/Dashboard/User/PayuOrderSummary";
 import ExpertHomePage from "./components/AIChatbot/ExpertHomePage";
-import Cookies from "./components/Home/pages/policies/Cookies";
-import PrivacyCookies from "./components/Home/pages/policies/PrivacyCookies";
 
 // Lazy Imports (Less Frequently Used Components)
 const ExpertDashboardRoutes = lazy(() =>

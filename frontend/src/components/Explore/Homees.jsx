@@ -22,7 +22,7 @@ const Homees = () => {
   const [sorting, setSorting] = useState("highest-rated"); // Default to highest-rated sort
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     document.title = "Explore Experts | Advizy";
   }, []);
 

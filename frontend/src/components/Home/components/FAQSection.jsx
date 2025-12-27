@@ -154,9 +154,13 @@ const FAQSection = () => {
             className="text-center mt-12"
           >
             <p className="text-gray-600 mb-4">Still have questions?</p>
-            <button onClick={() => navigate("/contact")} className="btn-expert">
+            <motion.button 
+            onClick={() => navigate("/contact")}
+            className="btn-expert"
+            whileHover={{ scale: 1.05, height: 48 }}
+            whileTap={{ scale: 0.95, height: 48 }}>
               Contact Support
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>

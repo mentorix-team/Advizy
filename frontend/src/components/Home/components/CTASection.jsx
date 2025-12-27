@@ -12,7 +12,7 @@ const CTASection = ({ onOpenSearchModal }) => {
           className="max-w-3xl mx-auto"
         >
           <div className="inline-block mb-8">
-            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-lg font-medium bg-green-50 text-primary">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-lg font-medium bg-gradient-to-br from-green-200 to-green-300 border-transparent border-2 border-green-600 text-primary shadow-lg">
               Still scrolling?
             </span>
           </div>
@@ -41,7 +41,8 @@ const CTASection = ({ onOpenSearchModal }) => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            whileHover={{ scale: 1.05, height: 48 }}
+            whileTap={{ scale: 0.95, height: 48 }}
             onClick={onOpenSearchModal}
             className="btn-expert"
           >

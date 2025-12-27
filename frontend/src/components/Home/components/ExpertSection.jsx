@@ -157,14 +157,14 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
     >
       <motion.div
         variants={headerVariants}
-        className="flex justify-between items-center mb-1 pt-2"
+        className="flex justify-between items-center"
       >
-        <div>
+        <div className="flex-grow-0"> 
           <motion.h2
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl sm:text-2xl font-bold mb-1"
+            className="text-lg sm:text-2xl font-bold"
           >
             {title}
           </motion.h2>
@@ -177,11 +177,11 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
             {subtitle}
           </motion.p>
         </div>
+        <div className="ml-4 flex-shrink-0">
         <motion.a
           href={link}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
           whileHover={{ scale: 1.05, x: 5 }}
           className="text-sm sm:text-base text-primary hover:text-green-600 font-medium flex items-center gap-1"
         >
@@ -203,6 +203,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
             />
           </motion.svg>
         </motion.a>
+        </div>
       </motion.div>
 
       <div className="relative">

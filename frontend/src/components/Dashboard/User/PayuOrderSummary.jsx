@@ -62,6 +62,11 @@ const PayuOrderSummary = () => {
       document.title = "Order Summary | Advizy";
     })
 
+
+    useEffect(() => {
+      document.title = "Order Summary | Advizy";
+    })
+
   useEffect(() => {
     dispatch(getMeet());
   }, [dispatch]);

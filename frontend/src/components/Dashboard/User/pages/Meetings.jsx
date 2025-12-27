@@ -133,6 +133,11 @@ export default function Meetings() {
       document.title = "User Dashboard | Advizy";
     })
 
+
+    useEffect(() => {
+      document.title = "User Dashboard | Advizy";
+    })
+
   // Handle rating submission
   const handleRate = async (meetingId, { rating, feedback }) => {
     try {

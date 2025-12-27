@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 const initialState = {
   loading: false,
   error: null,
-  isLoggedIn: localStorage.getItem("isLoggedIn") || false, 
+  isLoggedIn: localStorage.getItem("isLoggedIn") || false,
   role: localStorage.getItem("role") || " ",
   data: localStorage.getItem("data") || {},
   expertData: localStorage.getItem("expertData") || {},
@@ -589,7 +589,8 @@ const authSlice = createSlice({
       if (lastLoginMethod) {
         localStorage.setItem("lastLoginMethod", lastLoginMethod);
       }
-      //reset redux state
+
+      // Reset Redux state
       state.data = {};
       state.isLoggedIn = false;
       state.role = "";
@@ -598,6 +599,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = action.payload?.error || null;
     });
+
     builder.addCase(logout.rejected, (state, action) => {
       state.loading = false;
     });

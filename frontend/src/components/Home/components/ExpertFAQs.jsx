@@ -42,9 +42,9 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => {
       transition={{ duration: 0.2 }}
       onClick={onClick}
     >
-      <div className="w-full px-6 py-4 text-left flex justify-between items-center">
+      <div className="w-full line-clamp-2 px-6 py-4 text-left flex justify-between items-center">
         <span
-          className={`text-base sm:text-lg font-medium transition-colors duration-200 ${
+          className={`text-base sm:text-lg font-medium  transition-colors duration-200 ${
             isOpen ? "text-primary" : "text-[#1D1F1D]"
           }`}
         >
@@ -156,12 +156,17 @@ const ExpertFAQs = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-center mt-12"
+            className="text-center mt-10"
           >
             <p className="text-gray-600 mb-4">Still have questions?</p>
-            <button onClick={() => navigate("/contact")} className="btn-expert">
+            <motion.button 
+              onClick={() => navigate("/contact")} 
+              className="btn-expert"
+              whileHover={{ scale: 1.05, height: 48 }}
+              whileTap={{ scale: 0.95, height: 48 }}
+            >
               Contact Support
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>

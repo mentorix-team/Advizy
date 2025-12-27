@@ -93,7 +93,7 @@ const ExpertDetailPage = () => {
     setIsExpertMode(!isExpertMode);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     document.title = `${expert?.firstName} ${expert?.lastName || "Expert"} | Advizy`;
   })
 
@@ -258,9 +258,12 @@ const ExpertDetailPage = () => {
       reviewsCount: feedbackofexpert.length
     };
   }, [feedbackofexpert]);
-  
 
-  // console.log("Normalized expert", expert);
+  useEffect(() => {
+    document.title = `${expert?.firstName} ${expert?.lastName || "Expert"} | Advizy`;
+  })
+
+  console.log("Normalized expert", expert);
   useEffect(() => {
     if (expert?._id) {
       dispatch(getfeedbackbyexpertid({ id: expert._id }));
