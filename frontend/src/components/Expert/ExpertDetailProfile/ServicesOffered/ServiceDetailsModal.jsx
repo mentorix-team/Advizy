@@ -7,7 +7,7 @@ const ServiceDetailsModal = ({ isOpen, onClose, service, expertId }) => {
   // Hooks must be called unconditionally at the top level
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   if (!isOpen) return null;
   const handleBook = async () => {
     // console.log("Dispatching getServicebyid...");
