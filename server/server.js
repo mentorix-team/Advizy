@@ -3,13 +3,15 @@ config();
 
 
 import app from "./app.js";
+import initSockets from './sockets/index.js';
 import dbconnection from "./config/db.connection.js";
 import cloudinary from "cloudinary";
 import Razorpay from "razorpay";
 const PORT = process.env.port || 5030;
 
-app.listen(PORT, async () => {
+const httpServer = app.listen(PORT, async () => {
   await dbconnection();
+  initSockets(httpServer);
   console.log(`server listening at http://localhost:${PORT}`);
 });
 

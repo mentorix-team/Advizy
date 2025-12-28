@@ -9,6 +9,8 @@ const feedbackSchema = new Schema({
     userName:{type:String},
     expertName:{type:String},
     serviceName:{type:String}
+},{
+    timestamps: true
 })
 
 const Feedback = model('Feedback',feedbackSchema)

@@ -46,7 +46,8 @@ function Testimonials() {
         service: feedback.serviceName || 'General Service',
         comment: feedback.feedback || 'No comment provided',
         rating: Number(feedback.rating) || 0,
-        date: feedback.createdAt || new Date().toISOString(),
+        // Prefer persisted date fields; avoid falling back to current time
+        date: feedback.date || feedback.createdAt || null,
         meetingId: feedback.meeting_id,
         userId: feedback.user_id,
       }));
@@ -72,9 +73,15 @@ function Testimonials() {
       );
     }
 
+    const getTime = (d) => {
+      if (!d) return 0;
+      const t = new Date(d).getTime();
+      return Number.isFinite(t) ? t : 0;
+    };
+
     switch (sortBy) {
       case 'Most Recent':
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        filtered.sort((a, b) => getTime(b.date) - getTime(a.date));
         break;
       case 'Highest Rated':
         filtered.sort((a, b) => b.rating - a.rating);

@@ -39,13 +39,17 @@ const TestimonialCard = ({ testimonial, onRespond }) => {
             <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
               <StarRating rating={testimonial.rating} />
               <span className="text-gray-500 text-sm">
-                {new Date(testimonial.date).toLocaleString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
+                {testimonial?.date ? (
+                  new Date(testimonial.date).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
+                ) : (
+                  'Date unavailable'
+                )}
               </span>
             </div>
 

@@ -103,9 +103,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
         // Close popup first
         onClose();
 
-        const lastUsed = localStorage.setItem("lastUsedAuthMethod", "email");
-
-        const lastUsed = localStorage.setItem("lastUsedAuthMethod", "email");
+        // Record last used auth method without creating an unused variable
+        localStorage.setItem("lastUsedAuthMethod", "email");
 
         if (redirectURL && redirectURL.trim() !== "") {
           sessionStorage.removeItem("redirectURL");
@@ -141,7 +140,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
     // Store current redirectURL if it exists, or store current page as backup
     const existingRedirectURL = sessionStorage.getItem("redirectURL");
 
-    const lastUsed = localStorage.setItem("lastUsedAuthMethod", "google");
+    // Record last used auth method without creating an unused variable
+    localStorage.setItem("lastUsedAuthMethod", "google");
     if (!existingRedirectURL) {
       const currentPage = window.location.pathname + window.location.search;
       console.log("🔗 Storing preOAuthPath for Google login:", currentPage);
@@ -188,89 +188,82 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
           onSubmit={handleSubmit}
           className="w-80 max-w-md mx-auto flex flex-col gap-2"
         >
-          <form
-            onSubmit={handleSubmit}
-            className="w-80 max-w-md mx-auto flex flex-col gap-2"
-          >
-            <div className="">
-              <label className="flex gap-1 items-center text-gray-700 text-sm md:text-base font-medium mb-1">
-                Email address {lastUsedMethod === "email" && (<div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
+          <div className="">
+            <label className="flex gap-1 items-center text-gray-700 text-sm md:text-base font-medium mb-1">
+              Email address {lastUsedMethod === "email" && (
+                <div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
                   Last used
-                </div>)}
-                <label className="flex gap-1 items-center text-gray-700 text-sm md:text-base font-medium mb-1">
-                  Email address {lastUsedMethod === "email" && (<div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
-                    Last used
-                  </div>)}
-                </label>
+                </div>
+              )}
+            </label>
 
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter email address"
-                  value={logindata.email}
-                  onChange={handleUserInput}
-                  onBlur={handleBlur}
-                  className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 text-sm placeholder:text-sm `}
-                />
-
-              </label>
-              {/* {touched.email && errors.email && (
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter email address"
+              value={logindata.email}
+              onChange={handleUserInput}
+              onBlur={handleBlur}
+              className={`w-full h-10 px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 text-sm placeholder:text-sm `}
+            />
+            {/* {touched.email && errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )} */}
-            </div>
+          </div>
 
-            <div className="relative">
-              <LoginPasswordInput
-                label="Password"
-                name="password"
-                value={logindata.password}
-                onChange={handleUserInput}
-                onBlur={handleBlur}
-                error={touched.password && errors.password}
-                placeholder="Enter your password"
-              />
-              {/* {touched.password && errors.password && (
+          <div className="relative">
+            <LoginPasswordInput
+              label="Password"
+              name="password"
+              value={logindata.password}
+              onChange={handleUserInput}
+              onBlur={handleBlur}
+              error={touched.password && errors.password}
+              placeholder="Enter your password"
+            />
+            {/* {touched.password && errors.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )} */}
-            </div>
+          </div>
 
-            <div className="text-right mb-2">
-              <button
-                type="button"
-                className="text-gray-500 tracking-tight font-medium text-sm hover:text-gray-700 hover:underline"
-                onClick={() => onSwitchView("ForgotPassword")}
-              >
-                Forgot Password?
-              </button>
-            </div>
-
+          <div className="text-right mb-2">
             <button
-              type="submit"
-              className="w-full bg-[#169544] text-white py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-green-700 transition-colors mb-2"
+              type="button"
+              className="text-gray-500 tracking-tight font-medium text-sm hover:text-gray-700 hover:underline"
+              onClick={() => onSwitchView("ForgotPassword")}
             >
-              Log In
+              Forgot Password?
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#169544] text-white py-2 rounded-lg shadow-sm hover:shadow-md hover:bg-green-700 transition-colors mb-2"
+          >
+            Log In
+          </button>
+
+          <div className="flex items-center mb-3">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <span className="px-4 text-gray-500">Or</span>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+
+          <div className="flex flex-col w-full">
+            <button
+              type="button"
+              className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black shadow-sm hover:shadow-md hover:bg-gray-100 transition-colors"
+              onClick={handleGoogleSignup}
+            >
+              <FcGoogle size={24} />
+              Login with Google {lastUsedMethod === "google" && (
+                <div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
+                  Last used
+                </div>
+              )}
             </button>
 
-            <div className="flex items-center mb-3">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="px-4 text-gray-500">Or</span>
-              <div className="flex-grow border-t border-gray-300"></div>
-            </div>
-
-            <div className="flex flex-col w-full">
-              <button
-                type="button"
-                className="w-full h-10 flex items-center justify-center gap-2 py-2 border border-gray-300 rounded-lg text-black shadow-sm hover:shadow-md hover:bg-gray-100 transition-colors"
-                onClick={handleGoogleSignup}
-              >
-                <FcGoogle size={24} />
-                Login with Google {lastUsedMethod === "google" && (<div className="w-fit bg-primary text-white text-xs text-center px-1 rounded-full border border-primary border-t-0">
-                  Last used
-                </div>)}
-              </button>
-
-            </div>
-          </form>
+          </div>
 
           <p className="text-xs px-4 sm:px-6 text-gray-500 text-center mt-4 sm:mt-6">
             By joining, you agree to the Advizy Terms of Service and to

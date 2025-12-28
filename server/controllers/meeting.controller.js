@@ -1309,11 +1309,25 @@ const getFeedbackbyexpertId = async (req, res, next) => {
   }
 
   try {
-    const feedback = await Feedback.find({ expert_id: id });
+    // Fetch feedback and populate meeting date for fallback
+    const feedbackDocs = await Feedback.find({ expert_id: id })
+      .populate({ path: 'meeting_id', select: 'daySpecific.date' })
+      .lean();
 
-    if (!feedback) {
+    if (!feedbackDocs) {
       return next(new AppError('Feedback not found', 406));
     }
+
+    // Map to include a stable `date` field: prefer review timestamps, fallback to meeting date
+    const feedback = feedbackDocs.map(doc => {
+      const reviewDate = doc.date || doc.createdAt || null;
+      const meetingDate = doc.meeting_id?.daySpecific?.date || null;
+      return {
+        ...doc,
+        // Ensure `date` exists and is stable across refreshes
+        date: reviewDate || meetingDate,
+      };
+    });
 
     res.status(200).json({
       success: true,
@@ -1321,6 +1335,7 @@ const getFeedbackbyexpertId = async (req, res, next) => {
       feedback,
     });
   } catch (error) {
+    console.error('Error fetching feedback:', error);
     return next(new AppError('Error fetching feedback', 500));
   }
 };

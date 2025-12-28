@@ -7,6 +7,7 @@ import paymentSliceReducer from './Slices/paymentSlice.js'
 import supportQueriesSliceReducer from './Slices/supportQueriesSlice.js'
 import payuReducer from './Slices/Payu.slice.js'
 import favouritesReducer from "./Slices/favouritesSlice";
+import chatReducer from './Slices/chatSlice.js'
 
 const store = configureStore({
     reducer: {
@@ -17,7 +18,8 @@ const store = configureStore({
         payment: paymentSliceReducer,
         supportQueries: supportQueriesSliceReducer,
         payu: payuReducer,
-        favourites: favouritesReducer
+        favourites: favouritesReducer,
+        chat: chatReducer
     },
     devTools: true
 });

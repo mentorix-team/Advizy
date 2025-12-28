@@ -1,11 +1,9 @@
 // Chats.jsx
-import ComingSoon from '@/ComingSoon';
 import React from 'react';
+import ChatPage from '@/components/Dashboard/Expert/Chat/ChatPage';
 
 const Chats = () => {
-  return (
-    <ComingSoon />
-  );
+  return <ChatPage />;
 };
 
 export default Chats;

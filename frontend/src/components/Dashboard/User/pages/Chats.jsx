@@ -1,10 +1,8 @@
-import ComingSoon from '@/ComingSoon'
-import React from 'react'
+import React from 'react';
+import ChatPage from '@/components/Dashboard/User/Chat/ChatPage';
 
 const Chats = () => {
-  return (
-    <ComingSoon />
-  )
-}
+  return <ChatPage />;
+};
 
-export default Chats
+export default Chats;
