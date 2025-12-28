@@ -41,7 +41,6 @@ export async function createOrGetChatRoom(userId, bookingId) {
     }
 
     // Idempotent creation: upsert ensures single room per booking
-    const now = new Date();
     try {
         const room = await ChatRoom.findOneAndUpdate(
             { bookingId },
@@ -52,8 +51,6 @@ export async function createOrGetChatRoom(userId, bookingId) {
                     bookingId: meeting._id,
                     lastMessage: null,
                     lastMessageAt: null,
-                    createdAt: now,
-                    updatedAt: now,
                 },
             },
             { new: true, upsert: true }
@@ -81,8 +78,8 @@ export async function fetchChatRooms(userId, role) {
     const filter = role === 'expert' ? { expertId: userId } : { userId };
     const rooms = await ChatRoom.find(filter)
         .sort({ lastMessageAt: -1, updatedAt: -1, createdAt: -1 })
-        .populate({ path: 'userId', select: 'firstName lastName name avatar profileImage image' })
-        .populate({ path: 'expertId', select: 'firstName lastName name avatar profileImage image' })
+        .populate({ path: 'userId', model: 'User', select: 'firstName lastName name avatar profileImage image' })
+        .populate({ path: 'expertId', model: 'ExpertBasics', select: 'firstName lastName name avatar profileImage image' })
         .lean();
 
     // Filter out rooms with invalid bookings (cancelled/unpaid)

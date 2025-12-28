@@ -23,6 +23,8 @@ export const getMeetingById = (id) => {
   return meetings.find(meeting => meeting.id === Number(id));
 };
 
+console.log("Meetings loaded:", meetings.map(m => m.id));
+
 export const updateMeetingRating = (id, rating, feedback) => {
   meetings = meetings.map(meeting =>
     meeting.id === Number(id)

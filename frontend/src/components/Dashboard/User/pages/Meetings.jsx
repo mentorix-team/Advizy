@@ -190,6 +190,23 @@ export default function Meetings() {
     }
   }, [dispatch]);
 
+  // Log all meeting IDs for debugging
+  useEffect(() => {
+    if (paidMeetings && paidMeetings.length > 0) {
+      console.log("=== MEETING IDs (for chat room creation) ===");
+      paidMeetings.forEach((meeting, index) => {
+        console.log(`Meeting ${index + 1}:`, {
+          _id: meeting._id,
+          expertName: meeting.expertName,
+          serviceName: meeting.serviceName,
+          isPayed: meeting.isPayed,
+          status: meeting.status
+        });
+      });
+      console.log("============================================");
+    }
+  }, [paidMeetings]);
+
   // Group meetings into today, tomorrow, next week, upcoming, and past
   // Group meetings into today, tomorrow, next week, upcoming, and past
   // Group meetings into today, tomorrow, next week, upcoming, and past

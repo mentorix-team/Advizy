@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// API base — uses Vite env if available, else localhost
-const API_BASE = import.meta?.env?.VITE_BACKEND_URL || 'http://localhost:5030';
+// API base for chat - using localhost
+const API_BASE = 'http://localhost:5030';
 const api = axios.create({ baseURL: API_BASE, withCredentials: true });
 
 const initialState = {

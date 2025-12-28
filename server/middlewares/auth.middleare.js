@@ -73,12 +73,48 @@ const isMeeting = async (req, res, next) => {
     console.error("Error during meeting token verification:", error.message); // Log error message for debugging
     return next(new AppError("Invalid or expired meeting token.", 403));
   }
+}
+
+const isUserOrExpert = async (req, res, next) => {
+  const { token, expertToken } = req.cookies;
+
+  console.log("[isUserOrExpert] Cookies received:", { token: !!token, expertToken: !!expertToken });
+
+  // Try User Token
+  if (token) {
+    try {
+      const userDetails = jwt.verify(token, process.env.authjwt || 'R5sWL56Li7DgtjNly8CItjADuYJY6926pE9vn823eD0=');
+      req.user = userDetails;
+      req.user.role = 'USER';
+      console.log("[isUserOrExpert] User authenticated:", req.user);
+      return next();
+    } catch (e) {
+      console.log("[isUserOrExpert] User token invalid:", e.message);
+      // If token is invalid, ignore and try expertToken
+    }
+  }
+
+  // Try Expert Token
+  if (expertToken) {
+    try {
+      const expertDetails = jwt.verify(expertToken, process.env.jwtexpert || "3qdcBCZzmSE9H39Radno+8AbM6QqI6pTUD0rF7cD0ew=");
+      req.user = expertDetails;
+      req.user.role = 'expert';
+      console.log("[isUserOrExpert] Expert authenticated:", req.user);
+      return next();
+    } catch (e) {
+      console.log("[isUserOrExpert] Expert token invalid:", e.message);
+      // If expertToken is invalid, ignore
+    }
+  }
+
+  console.log("[isUserOrExpert] No valid token found, returning 401");
+  return next(new AppError('User not Authorized', 401));
 };
-
-
 
 export {
   isLoggedIn,
   isExpert,
-  isMeeting
+  isMeeting,
+  isUserOrExpert
 }

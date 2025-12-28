@@ -10,7 +10,7 @@ const chatRoomSchema = new Schema(
         },
         expertId: {
             type: Schema.Types.ObjectId,
-            ref: 'Expert',
+            ref: 'ExpertBasics',
             required: true,
             index: true,
         },
