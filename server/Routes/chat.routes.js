@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { isLoggedIn } from '../middlewares/auth.middleare.js';
 import {
-  createChatRoom,
-  getChatRooms,
-  getChatMessages,
-  markMessagesAsRead,
+    createChatRoom,
+    getChatRooms,
+    getChatMessages,
+    markMessagesAsRead,
 } from '../controllers/chat.controller.js';
 
 const router = Router();

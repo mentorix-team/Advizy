@@ -1,36 +1,36 @@
 import { Schema, model } from 'mongoose';
 
 const chatRoomSchema = new Schema(
-  {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      index: true,
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            index: true,
+        },
+        expertId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Expert',
+            required: true,
+            index: true,
+        },
+        bookingId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Booking',
+            required: true,
+        },
+        lastMessage: {
+            type: String,
+            trim: true,
+        },
+        lastMessageAt: {
+            type: Date,
+        },
     },
-    expertId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Expert',
-      required: true,
-      index: true,
-    },
-    bookingId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Booking',
-      required: true,
-    },
-    lastMessage: {
-      type: String,
-      trim: true,
-    },
-    lastMessageAt: {
-      type: Date,
-    },
-  },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
+    {
+        timestamps: true,
+        versionKey: false,
+    }
 );
 
 // Ensure only one chat room per booking

@@ -298,8 +298,8 @@ function Testimonials() {
                   key={i + 1}
                   onClick={() => paginate(i + 1)}
                   className={`px-4 py-2 rounded-lg transition-colors ${currentPage === i + 1
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                 >
                   {i + 1}

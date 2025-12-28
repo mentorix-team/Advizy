@@ -1,18 +1,18 @@
-import {model,Schema} from 'mongoose'
+import { model, Schema } from 'mongoose'
 
 const feedbackSchema = new Schema({
-    rating:{type:String},
-    feedback:{type:String},
-    user_id:{type:Schema.Types.ObjectId,ref:'User'},
-    expert_id:{type:Schema.Types.ObjectId,ref:'ExpertBasics'},
-    meeting_id:{type:Schema.Types.ObjectId,ref:'Meeting'},
-    userName:{type:String},
-    expertName:{type:String},
-    serviceName:{type:String}
-},{
+    rating: { type: String },
+    feedback: { type: String },
+    user_id: { type: Schema.Types.ObjectId, ref: 'User' },
+    expert_id: { type: Schema.Types.ObjectId, ref: 'ExpertBasics' },
+    meeting_id: { type: Schema.Types.ObjectId, ref: 'Meeting' },
+    userName: { type: String },
+    expertName: { type: String },
+    serviceName: { type: String }
+}, {
     timestamps: true
 })
 
-const Feedback = model('Feedback',feedbackSchema)
+const Feedback = model('Feedback', feedbackSchema)
 
-export {Feedback};
+export { Feedback };
