@@ -4,7 +4,7 @@ import { useDyteClient, DyteProvider } from "@dytesdk/react-web-core";
 import { useDispatch, useSelector } from "react-redux";
 import MyMeetingUI from "./MyMeetingUI";
 import dayjs from "dayjs";  // Import dayjs for time handling
-import customParseFormat from "dayjs/plugin/customParseFormat"; 
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { getthemeet, givefeedback, kickAllparticipant, fetchMeeting, setActiveSession, clearActiveSession } from "@/Redux/Slices/meetingSlice";
 import { IoClose } from "react-icons/io5";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";

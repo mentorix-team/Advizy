@@ -374,7 +374,7 @@ const AboutPage = () => {
                 whileTap={{ scale: 0.95, height: 48 }}
               >
                 Show Your Expertise
-              </motion.button> 
+              </motion.button>
             </motion.div>
 
             {/* For Users Card */}
@@ -416,7 +416,7 @@ const AboutPage = () => {
                 whileTap={{ scale: 0.95, height: 48 }}
               >
                 Find Your Mentor
-              </motion.button>      
+              </motion.button>
             </motion.div>
           </div>
         </div>
@@ -500,26 +500,26 @@ const AboutPage = () => {
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <div>
-              <motion.button
-                onClick={() => navigate('/explore')}
-                className="btn-expert"
-                whileHover={{ scale: 1.05, height: 48 }}
-                whileTap={{ scale: 0.95, height: 48 }}
-              >
-                Find Your Mentor
-              </motion.button> 
+                <motion.button
+                  onClick={() => navigate('/explore')}
+                  className="btn-expert"
+                  whileHover={{ scale: 1.05, height: 48 }}
+                  whileTap={{ scale: 0.95, height: 48 }}
+                >
+                  Find Your Mentor
+                </motion.button>
               </div>
               <div>
-              <motion.button
-                onClick={handleExpertOnboarding}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-gradient-to-tr from-slate-200 to-slate-300 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors h-12 flex items-center justify-center"
-              >
-                Share your Expertise
-              </motion.button>
+                <motion.button
+                  onClick={handleExpertOnboarding}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-8 py-4 bg-gradient-to-tr from-slate-200 to-slate-300 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors h-12 flex items-center justify-center"
+                >
+                  Share your Expertise
+                </motion.button>
               </div>
             </div>
           </motion.div>

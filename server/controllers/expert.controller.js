@@ -483,9 +483,8 @@ const adminapproved = async (req, res, next) => {
     Service: ${service.title}
     Description: ${service.shortDescription || ""}
     Hourly Rate: ₹${service.hourlyRate || "N/A"}
-    Fixed Session: ${service.duration || "N/A"} mins at ₹${
-            service.price || "N/A"
-          }
+    Fixed Session: ${service.duration || "N/A"} mins at ₹${service.price || "N/A"
+            }
     `;
 
           // One-on-one pricing
@@ -1010,8 +1009,8 @@ const editSingleExpertEducation = async (req, res, next) => {
     const currentCertificates = Array.isArray(educationEntry.certificate)
       ? educationEntry.certificate
       : educationEntry.certificate
-      ? [educationEntry.certificate]
-      : [];
+        ? [educationEntry.certificate]
+        : [];
 
     const certificatesToKeep = [];
     const providedIds = new Set(
@@ -1127,8 +1126,8 @@ const deleteExpertEducation = async (req, res, next) => {
     const certificates = Array.isArray(educationToDelete.certificate)
       ? educationToDelete.certificate
       : educationToDelete.certificate
-      ? [educationToDelete.certificate]
-      : [];
+        ? [educationToDelete.certificate]
+        : [];
 
     for (const doc of certificates) {
       if (doc?.public_id) {
@@ -1374,8 +1373,8 @@ const editExpertExperience = async (req, res, next) => {
     const currentDocuments = Array.isArray(experienceEntry.documents)
       ? experienceEntry.documents
       : experienceEntry.documents
-      ? [experienceEntry.documents]
-      : [];
+        ? [experienceEntry.documents]
+        : [];
 
     const documentsToKeep = [];
     const providedIds = new Set(
@@ -1492,8 +1491,8 @@ const deleteExpertExperience = async (req, res, next) => {
     const documentsToRemove = Array.isArray(experienceToDelete.documents)
       ? experienceToDelete.documents
       : experienceToDelete.documents
-      ? [experienceToDelete.documents]
-      : [];
+        ? [experienceToDelete.documents]
+        : [];
 
     for (const doc of documentsToRemove) {
       if (doc?.public_id) {

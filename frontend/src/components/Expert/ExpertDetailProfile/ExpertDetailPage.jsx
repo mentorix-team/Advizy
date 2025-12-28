@@ -93,7 +93,7 @@ const ExpertDetailPage = () => {
     setIsExpertMode(!isExpertMode);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     document.title = `${expert?.firstName} ${expert?.lastName || "Expert"} | Advizy`;
   })
 

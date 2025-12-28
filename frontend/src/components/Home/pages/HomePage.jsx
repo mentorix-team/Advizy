@@ -148,6 +148,7 @@ function HomePage() {
           reviews: expert.reviews || [],
           admin_approved_expert: expert?.admin_approved_expert || false,
           // reviews: expert?.reviews || [], // Fallback to empty array if no reviews
+          // reviews: expert?.reviews || [], // Fallback to empty array if no reviews
         };
       })
     : [];
@@ -320,7 +321,7 @@ function HomePage() {
                   </motion.span>
                 </motion.h1>
                 <motion.p className="text-gray-600 text-base sm:text-lg md:text-xl mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
-                  Your Growth, success, clarity start here. Find the right
+                  Your Growth, success, clarity starts here. Find the right
                   guidance for your journey.
                 </motion.p>
                 <div className="space-x-2">
@@ -390,7 +391,7 @@ function HomePage() {
         onClose={() => setIsModalOpen(false)}
         onCategorySelect={handleModalCategorySelect}
       />
-    </div>
+    </div >
   );
 }
 

@@ -29,9 +29,9 @@ const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-    useEffect(() => {
-      document.title = "Contact Us | Advizy";
-    })
+  useEffect(() => {
+    document.title = "Contact Us | Advizy";
+  })
 
   const validateForm = () => {
     const newErrors = {};

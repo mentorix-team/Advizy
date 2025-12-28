@@ -91,7 +91,7 @@ export default function ExpertHomePage() {
       setAiMessage("");
 
       const res = await axios.post(
-        "https://advizy.onrender.com/api/v1/fastapi/search-experts",
+        "http://localhost:5030/api/v1/fastapi/search-experts",
         {
           query,
         }

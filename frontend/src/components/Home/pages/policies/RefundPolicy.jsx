@@ -8,9 +8,10 @@ const RefundPolicy = () => {
     window.scrollTo(0, 0);
   }, []);
 
-   useEffect(() => {
-      document.title = "Refund Policy | Advizy";
-    })
+  useEffect(() => {
+    document.title = "Refund Policy | Advizy";
+  })
+
 
 
   return (
@@ -25,7 +26,7 @@ const RefundPolicy = () => {
           <h1 className="text-4xl font-bold mb-8">Refund Policy</h1>
           <div className="prose prose-lg">
             <p className="text-gray-600 mb-4">Last updated: February 05, 2025</p>
-            
+
             <p className="mb-6">
               At Advizy, all payments made for services on our platform are final and non-refundable, except under limited circumstances solely determined by us.
             </p>
