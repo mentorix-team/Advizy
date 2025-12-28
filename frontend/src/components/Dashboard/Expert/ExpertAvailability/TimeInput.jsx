@@ -38,8 +38,8 @@ export function TimeInput({ value, onChange, disabled }) {
       <button
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={`w-[120px] px-2 py-1.5 text-sm text-left border rounded-md flex items-center justify-between ${disabled
-            ? "bg-gray-50 text-gray-400 border-gray-200"
-            : "bg-white text-gray-900 border-gray-300 hover:border-gray-400"
+          ? "bg-gray-50 text-gray-400 border-gray-200"
+          : "bg-white text-gray-900 border-gray-300 hover:border-gray-400"
           }`}
       >
         <div className="flex items-center">
@@ -84,26 +84,26 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
   // Parse the initial times to extract hour:minute and AM/PM
   const parseTime = (timeString) => {
     if (!timeString) return { hourMinute: '', ampm: 'AM' };
-    
+
     const parts = timeString.trim().split(' ');
     const timePart = parts[0] || '';
     // Remove leading zero from hour (01:45 -> 1:45)
     const normalizedTime = timePart.replace(/^0/, '');
-    
+
     return {
       hourMinute: normalizedTime || '',
       ampm: parts[1] || 'AM'
     };
   };
-  
+
   const [startHourMinute, setStartHourMinute] = useState(parseTime(startTime).hourMinute);
   const [startAmPm, setStartAmPm] = useState(parseTime(startTime).ampm);
   const [endHourMinute, setEndHourMinute] = useState(parseTime(endTime).hourMinute);
   const [endAmPm, setEndAmPm] = useState(parseTime(endTime).ampm);
-  
+
   // Sync state with props when they change (e.g., after reload or data refresh)
   useEffect(() => {
-    console.log(`🔄 TimeRangePicker props updated - startTime: ${startTime}, endTime: ${endTime}`);
+    // console.log(`🔄 TimeRangePicker props updated - startTime: ${startTime}, endTime: ${endTime}`);
     const parsedStart = parseTime(startTime);
     const parsedEnd = parseTime(endTime);
     setStartHourMinute(parsedStart.hourMinute);
@@ -111,43 +111,43 @@ const TimeRangePicker = ({ startTime, endTime, disabled, onStartChange, onEndCha
     setEndHourMinute(parsedEnd.hourMinute);
     setEndAmPm(parsedEnd.ampm);
   }, [startTime, endTime]);
-  
+
   // Handle changes to start time hour:minute
   const handleStartHourMinuteChange = (hourMinute) => {
     if (hourMinute) {
       setStartHourMinute(hourMinute);
       const fullTime = `${hourMinute} ${startAmPm}`;
-      console.log(`🕐 Start time changed: ${fullTime}`);
+      // console.log(`🕐 Start time changed: ${fullTime}`);
       onStartChange(fullTime);
     }
   };
-  
+
   // Handle changes to start time AM/PM
   const handleStartAmPmChange = (ampm) => {
     setStartAmPm(ampm);
     const fullTime = `${startHourMinute} ${ampm}`;
-    console.log(`🕐 Start AM/PM changed: ${fullTime}`);
+    // console.log(`🕐 Start AM/PM changed: ${fullTime}`);
     onStartChange(fullTime);
   };
-  
+
   // Handle changes to end time hour:minute
   const handleEndHourMinuteChange = (hourMinute) => {
     if (hourMinute) {
       setEndHourMinute(hourMinute);
       const fullTime = `${hourMinute} ${endAmPm}`;
-      console.log(`🕐 End time changed: ${fullTime}`);
+      // console.log(`🕐 End time changed: ${fullTime}`);
       onEndChange(fullTime);
     }
   };
-  
+
   // Handle changes to end time AM/PM
   const handleEndAmPmChange = (ampm) => {
     setEndAmPm(ampm);
     const fullTime = `${endHourMinute} ${ampm}`;
-    console.log(`🕐 End AM/PM changed: ${fullTime}`);
+    // console.log(`🕐 End AM/PM changed: ${fullTime}`);
     onEndChange(fullTime);
   };
-  
+
   return (
     <div className="flex items-center gap-2">
       <select

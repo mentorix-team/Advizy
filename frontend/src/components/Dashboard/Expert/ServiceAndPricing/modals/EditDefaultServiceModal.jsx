@@ -5,7 +5,7 @@ import { ClockIcon } from "../icons";
 
 function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const DEFAULT_HOURLY_RATE = "100";
-  console.log("THis is the default srvice", service);
+  // console.log("THis is the default srvice", service);
   const calculatePrice = (hourlyRate, duration) => {
     // Calculate price based on full hourly rate
     const rateNum = parseInt(hourlyRate, 10);
@@ -13,7 +13,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   };
 
   const getInitialState = (serviceData) => {
-    console.log('Processing service data for default modal:', serviceData);
+    // console.log('Processing service data for default modal:', serviceData);
 
     if (!serviceData) {
       return {
@@ -78,18 +78,25 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const [formData, setFormData] = useState(getInitialState(service));
 
   useEffect(() => {
-    console.log('EditDefaultServiceModal useEffect triggered, service:', service);
+    // console.log('EditDefaultServiceModal useEffect triggered, service:', service);
     if (service) {
-      console.log('Setting form data with service:', service);
+      // console.log('Setting form data with service:', service);
       setFormData(getInitialState(service));
     } else {
-      console.log('No service provided, using default state');
+      // console.log('No service provided, using default state');
       setFormData(getInitialState(null));
     }
   }, [service]);
 
   const handleHourlyRateChange = (rate) => {
-    const exactRate = rate.toString();
+    const rateNum = parseInt(rate, 10) || 0;
+    
+    // Prevent zero hourly rate
+    if (rateNum <= 0) {
+      return;
+    }
+    
+    const exactRate = rateNum.toString();
 
     const updatedTimeSlots = formData.timeSlots.map((slot) => ({
       ...slot,
@@ -117,6 +124,13 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate hourly rate is not zero
+    const hourlyRateNum = parseInt(formData.hourlyRate, 10) || 0;
+    if (hourlyRateNum <= 0) {
+      alert("Hourly rate must be greater than zero");
+      return;
+    }
+
     // Map form data to the structure expected by the backend API
     const updatedService = {
       id: formData.id,
@@ -132,7 +146,7 @@ function EditDefaultServiceModal({ isOpen, onClose, onSave, service }) {
       features: formData.features.filter(feature => feature.trim() !== '') // Remove empty features
     };
 
-    console.log('Sending updated default service data:', updatedService);
+    // console.log('Sending updated default service data:', updatedService);
     onSave(updatedService, {
       serviceType: "default",
       serviceName: updatedService.serviceName,

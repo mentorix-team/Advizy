@@ -19,16 +19,16 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
   // Defensive storage function
   const setRedirectURL = (url) => {
     try {
-      console.log(`🔧 ProtectedRoute: Setting redirectURL to: ${url}`);
+      // console.log(`🔧 ProtectedRoute: Setting redirectURL to: ${url}`);
       sessionStorage.setItem("redirectURL", url);
-      console.log(`✅ SessionStorage SET successful`);
+      // console.log(`✅ SessionStorage SET successful`);
 
       // Verify it was set
       setTimeout(() => {
         const verification = sessionStorage.getItem("redirectURL");
-        console.log(
-          `🔍 ProtectedRoute: Verification - redirectURL is: ${verification}`
-        );
+        // console.log(
+        //   `🔍 ProtectedRoute: Verification - redirectURL is: ${verification}`
+        // );
         if (verification !== url) {
           console.error(
             `❌ ProtectedRoute: redirectURL was not set correctly! Expected: ${url}, Got: ${verification}`
@@ -41,21 +41,21 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
   };
 
   useEffect(() => {
-    console.log("ProtectedRoute useEffect triggered");
-    console.log("Current path:", location.pathname);
-    console.log("isLoggedIn:", isLoggedIn);
-    console.log("expertData:", !!expertData);
-    console.log("requireExpert:", requireExpert);
+    // console.log("ProtectedRoute useEffect triggered");
+    // console.log("Current path:", location.pathname);
+    // console.log("isLoggedIn:", isLoggedIn);
+    // console.log("expertData:", !!expertData);
+    // console.log("requireExpert:", requireExpert);
 
     const checkAuth = async () => {
-      console.log("ProtectedRoute useEffect triggered");
-      console.log("Current path:", location.pathname);
-      console.log("isLoggedIn:", isLoggedIn);
+      // console.log("ProtectedRoute useEffect triggered");
+      // console.log("Current path:", location.pathname);
+      // console.log("isLoggedIn:", isLoggedIn);
 
       setIsLoading(true);
 
       if (!isLoggedIn) {
-        console.log("User not logged in, showing auth popup");
+        // console.log("User not logged in, showing auth popup");
         setIsAuthenticated(false);
         setIsLoading(false);
 
@@ -78,7 +78,7 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
 
       // Validate token for logged-in users
       const response = await dispatch(validateToken());
-      console.log("🔍 Token validation response:", response?.payload);
+      // console.log("🔍 Token validation response:", response?.payload);
       if (!response?.payload?.valid) {
         // console.log("Token invalid, clearing localStorage");
         // localStorage.clear();
@@ -94,37 +94,37 @@ const ProtectedRoute = ({ showAuth, requireExpert = false, children }) => {
         if (lastLoginMethod) {
           localStorage.setItem("lastLoginMethod", lastLoginMethod);
         }
-
+        
         setIsAuthenticated(false);
         setIsLoading(false);
 
         if (!hasTriggeredAuth) {
-          console.log("🚨 Triggering auth popup - user not authenticated");
+          // console.log("🚨 Triggering auth popup - user not authenticated");
           setHasTriggeredAuth(true);
 
           // Don't set redirectURL here - let handleAuthPopupOpen do it
           // This prevents conflicts between ProtectedRoute and manual login triggers
 
           setTimeout(() => {
-            console.log("📢 Calling showAuth()");
+            // console.log("📢 Calling showAuth()");
             showAuth();
           }, 100);
         } else {
-          console.log("⚠️ Auth already triggered, skipping");
+          // console.log("⚠️ Auth already triggered, skipping");
         }
         return;
       }
 
-      console.log("Token validated successfully");
+      // console.log("Token validated successfully");
       setIsAuthenticated(true);
 
       // Check expert requirement
       if (requireExpert) {
         if (expertData) {
-          console.log("User is an expert");
+          // console.log("User is an expert");
           setIsExpert(true);
         } else {
-          console.log("Expert access required but user is not an expert");
+          // console.log("Expert access required but user is not an expert");
           setIsExpert(false);
           setIsLoading(false);
 

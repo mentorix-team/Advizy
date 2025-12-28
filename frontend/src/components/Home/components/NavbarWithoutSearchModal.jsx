@@ -91,7 +91,7 @@ const NavbarWithSearch = () => {
           }
         ]).then(({ results }) => {
           const searchHits = results[0]?.hits || [];
-          console.log("Search results:", searchHits); // Debug log
+          // console.log("Search results:", searchHits); // Debug log
           setHits(searchHits);
           setShowDropdown(true);
           setIsSearching(false);
@@ -128,7 +128,7 @@ const NavbarWithSearch = () => {
   // Navigation handlers
   const openExpertProfile = (redirect_url) => {
     if (!redirect_url) return;
-    console.log("Navigating to expert:", redirect_url);
+    // console.log("Navigating to expert:", redirect_url);
     // close AFTER scheduling navigation so blur won't cancel click
     navigate(`/expert/${redirect_url}`);
     setTimeout(() => {
@@ -404,7 +404,7 @@ const NavbarWithSearch = () => {
                       </div>
                       <div className="text-sm text-gray-500 truncate max-w-">
                         {expertiseDisplay || 'Expert'}
-                      </div> 
+                      </div>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-gray-400" />

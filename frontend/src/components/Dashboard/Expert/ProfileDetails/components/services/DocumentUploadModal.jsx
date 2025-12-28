@@ -78,7 +78,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   }, [isOpen]);
 
   const validateFile = (file) => {
-    console.log(`Validating file: ${file.name}, size: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+    // console.log(`Validating file: ${file.name}, size: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
 
     if (file.size > DOCUMENT_MAX_FILE_SIZE) {
       const maxSizeMB = DOCUMENT_MAX_FILE_SIZE / 1024 / 1024;
@@ -100,7 +100,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
   };
 
   const onDrop = useCallback((acceptedFiles, fileRejections) => {
-    console.log('Files dropped:', { accepted: acceptedFiles.length, rejected: fileRejections.length });
+    // console.log('Files dropped:', { accepted: acceptedFiles.length, rejected: fileRejections.length });
     setError('');
 
     // Process file rejections
@@ -137,7 +137,7 @@ const DocumentUploadModal = ({ isOpen, onClose, onUpload, existingFiles = [] }) 
           preview: URL.createObjectURL(file)
         }));
         setFiles(prevFiles => [...prevFiles, ...newFiles]);
-        console.log(`Successfully added ${validFiles.length} files`);
+        // console.log(`Successfully added ${validFiles.length} files`);
       }
     } catch (err) {
       console.error('File validation error:', err);

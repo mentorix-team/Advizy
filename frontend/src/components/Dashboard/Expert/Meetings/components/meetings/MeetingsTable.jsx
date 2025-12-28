@@ -7,7 +7,7 @@ import {
 } from '@/utils/meetingStatus';
 
 const MeetingsTable = ({ meetings, onViewDetails, activeTab }) => {
-  console.log('this is next step ', meetings)
+  // console.log('this is next step ', meetings)
   if (meetings.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center">

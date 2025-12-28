@@ -8,12 +8,12 @@ export default function App1() {
   const { authToken } = location.state || {};
   const [meeting, initMeeting] = useDyteClient();
 
-  console.log("this is the auth token for this meeting:", authToken);
-  console.log("this is the meeting object:", meeting);
+  // console.log("this is the auth token for this meeting:", authToken);
+  // console.log("this is the meeting object:", meeting);
 
   useEffect(() => {
     initMeeting({
-      authToken, 
+      authToken,
       defaults: {
         audio: true,
         video: true,

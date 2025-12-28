@@ -46,11 +46,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
   const [verificationType, setVerificationType] = useState(""); // 'email' or 'mobile'
   const initialSocialSanitized = useRef(false);
 
-  // Add verification status state
-  const [verificationStatus, setVerificationStatus] = useState({
-    email: false,
-    mobile: false,
-  });
+
 
   // Function to check if a field is empty
   const isEmpty = (value) => {
@@ -69,30 +65,9 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
 
     onUpdate(updatedForm);
-    // Reset verification status when email/mobile changes
-    if (field === "email" || field === "mobile") {
-      setVerificationStatus((prev) => ({
-        ...prev,
-        [field]: false,
-      }));
-      // Save updated verification status
-      localStorage.setItem(
-        "verificationStatus",
-        JSON.stringify({
-          ...verificationStatus,
-          [field]: false,
-        })
-      );
-    }
   };
 
-  // Load verification status from localStorage on component mount
-  useEffect(() => {
-    const savedVerification = localStorage.getItem("verificationStatus");
-    if (savedVerification) {
-      setVerificationStatus(JSON.parse(savedVerification));
-    }
-  }, []);
+
 
   useEffect(() => {
     if (initialSocialSanitized.current) return;
@@ -162,26 +137,45 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     { value: "min_nan", label: "Min Nan Chinese" },
   ];
 
-  const handlePhoneChange = ({ countryCode, phoneNumber, isValid }) => {
-    if (isValid) {
-      onUpdate({
-        ...formData,
-        countryCode,
-        mobile: phoneNumber,
-      });
-      // Reset mobile verification status when phone number changes
-      setVerificationStatus((prev) => ({
-        ...prev,
-        mobile: false,
-      }));
-      localStorage.setItem(
-        "verificationStatus",
-        JSON.stringify({
-          ...verificationStatus,
-          mobile: false,
-        })
-      );
-    }
+  // Derived options for City based on selected Nationality
+  const cityOptions = useMemo(() => {
+    return formData.nationality ? getCitiesForNationality(formData.nationality) : [];
+  }, [formData.nationality]);
+
+  // Social links helpers used in the render section
+  const socialLinks = useMemo(() => {
+    return Array.isArray(formData.socialLinks) ? formData.socialLinks : [];
+  }, [formData.socialLinks]);
+
+  const canAddSocialLink = useMemo(() => {
+    if (socialLinks.length >= MAX_SOCIAL_LINKS) return false;
+    if (socialLinks.length === 0) return true;
+    const last = socialLinks[socialLinks.length - 1];
+    return Boolean(last && last.trim());
+  }, [socialLinks]);
+
+  // Style helper for react-select
+  const getSelectStyles = (hasError) => ({
+    control: (base, state) => ({
+      ...base,
+      minHeight: 44,
+      borderColor: hasError ? '#ef4444' : '#d1d5db',
+      backgroundColor: hasError ? '#fef2f2' : '#ffffff',
+      boxShadow: 'none',
+      ':hover': {
+        borderColor: hasError ? '#ef4444' : '#9ca3af'
+      }
+    }),
+    menu: (base) => ({
+      ...base,
+      zIndex: 50
+    })
+  });
+
+  // Simple phone input handler: restrict to digits, max 10
+  const handlePhoneInputChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    handleChange('mobile', digits);
   };
 
   const handleAddSocialLink = () => {
@@ -249,114 +243,57 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
     }
   };
 
+  // Removed mobile verification - only used for email if needed
   const handleVerifyClick = async (type) => {
-    setVerificationType(type);
-    setContactInfo(
-      type === "email" ? formData.email : formData.countryCode + formData.mobile
-    );
-    setShowOtpPopup(true);
-    if (type === "email") {
-      const response = await dispatch(generateOtpforValidating(formData.email));
-    }
-    if (type === "mobile") {
-      const response = await dispatch(
-        generateOtpforValidating(formData.mobile)
-      );
+    if (type === 'email') {
+      setVerificationType(type);
+      setContactInfo(formData.email);
+      setShowOtpPopup(true);
+      try {
+        await dispatch(generateOtpforValidating(formData.email));
+      } catch (err) {
+        toast.error('Failed to send OTP');
+      }
     }
   };
 
-  const handleOtpVerificationSuccess = () => {
-    setShowOtpPopup(false);
-    // Update verification status based on type
-    setVerificationStatus((prev) => ({
-      ...prev,
-      [verificationType]: true,
-    }));
-    // Save verification status to localStorage
-    localStorage.setItem(
-      "verificationStatus",
-      JSON.stringify({
-        ...verificationStatus,
-        [verificationType]: true,
-      })
-    );
-  };
-
-  const socialLinks = Array.isArray(formData.socialLinks)
-    ? formData.socialLinks.slice(0, MAX_SOCIAL_LINKS)
-    : [];
-  const canAddSocialLink =
-    socialLinks.length < MAX_SOCIAL_LINKS &&
-    socialLinks.every((link) => link && link.trim() !== "");
-
-  const cityOptions = useMemo(
-    () => getCitiesForNationality(formData.nationality),
-    [formData.nationality]
-  );
-
-  const getSelectStyles = (hasError) => ({
-    control: (provided, state) => ({
-      ...provided,
-      minHeight: "42px",
-      borderColor: hasError
-        ? "#ef4444"
-        : state.isFocused
-          ? "#16a34a"
-          : "#d1d5db",
-      boxShadow: state.isFocused ? "0 0 0 1px #16a34a" : "none",
-      backgroundColor: hasError ? "#fef2f2" : provided.backgroundColor,
-      "&:hover": {
-        borderColor: state.isFocused ? "#16a34a" : hasError ? "#ef4444" : "#16a34a",
-      },
-    }),
-    menu: (provided) => ({
-      ...provided,
-      zIndex: 20,
-    }),
-  });
-
-  // Function to render a required field with validation
+  // Generic field renderer
   const renderRequiredField = (
     field,
     label,
     placeholder,
-    type = "text",
-    options = null,
+    type = 'text',
+    options = [],
     extraProps = {}
   ) => {
-    const value = formData[field];
-    const hasError = (errors[field] && touched[field]) || (isEmpty(value) && touched[field]);
-    const isEmptyField = isEmpty(value);
+    const value = formData[field] || '';
+    const hasError = errors[field] && touched[field];
+    const isEmptyField = isEmpty(formData[field]) && touched[field];
 
     return (
       <div className="col-span-1">
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {label} <span className="text-red-500">*</span>
         </label>
-        {type === "select" ? (
+        {type === 'select' ? (
           <select
             value={value}
             onChange={(e) => handleChange(field, e.target.value)}
             onBlur={() => onBlur(field)}
-            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            className={`w-full p-2.5 border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
             {...extraProps}
           >
             <option value="">{placeholder}</option>
             {options && options.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-                disabled={Boolean(option.disabled)}
-              >
+              <option key={option.value} value={option.value} disabled={Boolean(option.disabled)}>
                 {option.label}
               </option>
             ))}
           </select>
-        ) : type === "single-select" ? (
+        ) : type === 'single-select' ? (
           <Select
             value={options?.find((option) => option.value === value) || null}
-            onChange={(option) => handleChange(field, option ? option.value : "")}
+            onChange={(option) => handleChange(field, option ? option.value : '')}
             onBlur={() => onBlur(field)}
             options={options || []}
             placeholder={placeholder}
@@ -366,47 +303,37 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             styles={getSelectStyles(hasError)}
             menuPlacement="bottom"
             menuShouldScrollIntoView={false}
-            noOptionsMessage={() => extraProps.noOptionsMessage || "No options"}
+            noOptionsMessage={() => extraProps.noOptionsMessage || 'No options'}
           />
-        ) : type === "textarea" ? (
+        ) : type === 'textarea' ? (
           <textarea
             value={value}
             onChange={(e) => handleChange(field, e.target.value)}
             onBlur={() => onBlur(field)}
             placeholder={placeholder}
             rows={4}
-            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            className={`w-full p-2.5 border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
           />
-        ) : type === "date" ? (
+        ) : type === 'date' ? (
           <CustomDatePicker
             selectedDate={value ? new Date(value) : null}
             onChange={(date) => {
-              handleChange(field, date.toISOString().split("T")[0]);
+              handleChange(field, date.toISOString().split('T')[0]);
               onBlur(field);
             }}
             type="dob"
           />
-        ) : type === "phone" ? (
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <input
-                type="tel"
-                value={value}
-                onChange={handlePhoneChange}
-                onBlur={() => onBlur(field)}
-                className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-                  } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
-                placeholder={placeholder}
-                maxLength={10}
-              />
-            </div>
-            <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
-              <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
-              Verified
-            </div>
-          </div>
-        ) : type === "email" ? (
+        ) : type === 'phone' ? (
+          <input
+            type="tel"
+            value={value}
+            onChange={handlePhoneInputChange}
+            onBlur={() => onBlur(field)}
+            className={`w-full p-2.5 border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            placeholder={placeholder}
+            maxLength={10}
+          />
+        ) : type === 'email' ? (
           <div className="flex gap-2">
             <input
               type="email"
@@ -414,8 +341,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
               onChange={(e) => handleChange(field, e.target.value)}
               onBlur={() => onBlur(field)}
               placeholder={placeholder}
-              className={`flex-1 p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-                } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+              className={`flex-1 p-2.5 border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
             />
             <div className="flex items-center px-4 py-2 text-sm font-semibold bg-green-100 text-green-800 rounded-full">
               <CircleCheckBig className="w-4 h-4 mr-1 text-primary" />
@@ -429,8 +355,7 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             onChange={(e) => handleChange(field, e.target.value)}
             onBlur={() => onBlur(field)}
             placeholder={placeholder}
-            className={`w-full p-2.5 border ${hasError ? "border-red-500 bg-red-50" : "border-gray-300"
-              } rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
+            className={`w-full p-2.5 border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} rounded-lg focus:ring-1 focus:ring-primary transition-colors`}
           />
         )}
 
@@ -440,7 +365,6 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
             <span>{errors[field] || `${label} is required`}</span>
           </div>
         )}
-
         {isEmptyField && !hasError && (
           <div className="mt-1 flex items-center text-amber-600 text-sm">
             <AlertCircle className="w-4 h-4 mr-1" />
@@ -652,11 +576,11 @@ const BasicInfo = ({ formData, onUpdate, errors, touched, onBlur }) => {
         </div>
       </div>
 
-      {/* OTP Popup */}
+      {/* OTP Popup - only for email if needed */}
       {showOtpPopup && (
         <VerifyThedetails
           onClose={() => setShowOtpPopup(false)}
-          onSwitchView={handleOtpVerificationSuccess}
+          onSwitchView={() => setShowOtpPopup(false)}
           contactInfo={contactInfo}
         />
       )}

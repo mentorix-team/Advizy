@@ -23,7 +23,7 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("Selected file:", file);
+      // console.log("Selected file:", file);
       setFormData((prev) => ({
         ...prev,
         document: file,
@@ -167,11 +167,11 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Supporting Documents (Optional)
           </label>
-          
+
           {formData.documents?.length > 0 && (
             <div className="mb-4 space-y-2">
               {formData.documents.map((file, index) => (
-                <div 
+                <div
                   key={index}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100"
                 >
@@ -243,9 +243,9 @@ export default function ExperienceForm({ onSubmit, onCancel, initialData }) {
 
       <DocumentUploadModal
         isOpen={showUploadModal}
-        onClose={()=>setShowUploadModal(false)}
+        onClose={() => setShowUploadModal(false)}
         onUpload={handleFileUpload}
-      /> 
+      />
       {/* <ImageUploadModal
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}

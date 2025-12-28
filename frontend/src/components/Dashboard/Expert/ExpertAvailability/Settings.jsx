@@ -36,7 +36,7 @@ function Settings() {
     dispatch(setSettings(settings))
       .then((response) => {
         if (response?.payload?.success) {
-          console.log("Settings updated successfully:", response.payload);
+          // console.log("Settings updated successfully:", response.payload);
         } else {
           console.error("Failed to update settings:", response?.payload?.message);
         }
@@ -89,14 +89,14 @@ function Settings() {
         )}
       </div>
     );
-    
+
   };
 
   return (
     <div className="bg-white rounded-lg mt-5 shadow-sm p-7 w-full max-w-2xl mx-auto">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Settings</h2>
       <hr className="h-px mb-6 border-1 bg-gray-200" />
-  
+
       <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
         {/* Timezone Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -106,7 +106,7 @@ function Settings() {
           </div>
           <TimezoneDropdown onChange={setTimezone} value={timezone} className="w-full sm:w-auto" />
         </div>
-  
+
         {/* Booking Period Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col">
@@ -120,7 +120,7 @@ function Settings() {
             className="w-full sm:w-auto"
           />
         </div>
-  
+
         {/* Notice Period Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-col">
@@ -135,7 +135,7 @@ function Settings() {
           />
         </div>
       </div>
-  
+
       <div className="mt-4 flex justify-end">
         <button
           onClick={handleSaveSettings}
@@ -146,7 +146,7 @@ function Settings() {
       </div>
     </div>
   );
-  
+
 }
 
 export default Settings;

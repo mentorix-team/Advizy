@@ -146,7 +146,7 @@ const handleGoogleCallback = async (req, res, next) => {
     }
 
     // Redirect to frontend with tokens
-    const frontendURL = `http://localhost:5173/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
+    const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
       JSON.stringify(user)
     )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 
@@ -639,7 +639,7 @@ const login_with_otp = async (req, res, next) => {
     // Set User Access Token (1 day)
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
@@ -647,7 +647,7 @@ const login_with_otp = async (req, res, next) => {
     // Set User Refresh Token (30 days)
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -662,7 +662,7 @@ const login_with_otp = async (req, res, next) => {
       // Set Expert Access Token (7 days)
       res.cookie("expertToken", expertAccessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "None",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
@@ -670,7 +670,7 @@ const login_with_otp = async (req, res, next) => {
       // Set Expert Refresh Token (30 days)
       res.cookie("expertRefreshToken", expertRefreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "None",
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
@@ -726,7 +726,7 @@ const generate_otp_for_Signup = async (req, res, next) => {
     res.cookie("otpToken", otpToken, {
       httpOnly: true,
       maxAge: 10 * 60 * 1000, // 10 minutes
-      secure: process.env.NODE_ENV === "development", // Only secure in production
+      secure: process.env.NODE_ENV === "production", // Only secure in production
       sameSite: "None",
     });
 
@@ -735,7 +735,7 @@ const generate_otp_for_Signup = async (req, res, next) => {
       JSON.stringify({ firstName, lastName, email, password }),
       {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "None",
       }
     );
@@ -796,7 +796,7 @@ const regenerate_otp = async (req, res, next) => {
 
     res.cookie("otpToken", otpToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 10 * 60 * 1000,
     });
@@ -883,14 +883,14 @@ const validate_otp_email = async (req, res, next) => {
     // ✅ Store Refresh Token in an HTTP-only cookie
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -938,7 +938,7 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
 
     res.cookie("otpToken", otpToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 10 * 60 * 1000,
     });
@@ -947,7 +947,7 @@ const generate_otp_for_Signup_mobile = async (req, res, next) => {
       { firstName, lastName, countryCode, number, password },
       {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "development",
+        secure: process.env.NODE_ENV === "production",
         sameSite: "None",
       }
     );
@@ -1017,14 +1017,14 @@ const validate_otp_mobile = async (req, res, next) => {
     // ✅ Store Refresh Token in an HTTP-only cookie
     res.cookie("token", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
@@ -1077,7 +1077,7 @@ const generate_otp_with_email = async (req, res, next) => {
     // Store email in an HTTP-only cookie for temporary use
     res.cookie("email", email, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 5 * 60 * 1000, // 5 minutes expiry
     });
@@ -1115,7 +1115,7 @@ const forgot_with_otp_email = async (req, res, next) => {
 
     const cookieOption = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "None",
       maxAge: 15 * 60 * 1000,
     };

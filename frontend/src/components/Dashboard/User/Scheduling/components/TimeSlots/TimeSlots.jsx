@@ -19,14 +19,14 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   useEffect(() => {
     if (expertId && selectedDate) {
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
-      console.log("🔄 Fetching booked slots for:", { expertId, date: formattedDate });
+      // console.log("🔄 Fetching booked slots for:", { expertId, date: formattedDate });
       dispatch(getBookedSlots({ expertId, date: formattedDate }));
     }
   }, [dispatch, expertId, selectedDate]);
 
   // Debug log for booked slots
   useEffect(() => {
-    console.log("📅 Booked slots updated:", bookedSlots);
+    // console.log("📅 Booked slots updated:", bookedSlots);
   }, [bookedSlots]);
 
   // Helper function to check if two time slots overlap
@@ -92,7 +92,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     const specificDateSlots = getSpecificDateSlots();
     
     if (specificDateSlots && specificDateSlots.length > 0) {
-      console.log("📅 Using specific date slots for:", selectedDate.toLocaleDateString());
+      // console.log("📅 Using specific date slots for:", selectedDate.toLocaleDateString());
       processAndGenerateSlots(specificDateSlots);
       return;
     }
@@ -123,11 +123,11 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + 
       String(selectedDate.getDate()).padStart(2, '0');
 
-    console.log(`🔍 Looking for specific date slots for: ${selectedDateString}`);
-    console.log(`📅 Available specific dates:`, selectedAvailability.availability.specific_dates.map(d => ({
-      date: typeof d.date === 'string' && d.date.length === 10 ? d.date : (new Date(d.date).toISOString().split('T')[0]),
-      slotsCount: d.slots?.length || 0
-    })));
+    // console.log(`🔍 Looking for specific date slots for: ${selectedDateString}`);
+    // console.log(`📅 Available specific dates:`, selectedAvailability.availability.specific_dates.map(d => ({
+    //   date: typeof d.date === 'string' && d.date.length === 10 ? d.date : (new Date(d.date).toISOString().split('T')[0]),
+    //   slotsCount: d.slots?.length || 0
+    // })));
 
     // Find matching specific date
     const matchingSpecificDate = selectedAvailability.availability.specific_dates.find(specificDate => {
@@ -150,7 +150,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     });
 
     if (matchingSpecificDate && matchingSpecificDate.slots && matchingSpecificDate.slots.length > 0) {
-      console.log("✅ Found specific date slots:", matchingSpecificDate.slots);
+      // console.log("✅ Found specific date slots:", matchingSpecificDate.slots);
       return matchingSpecificDate.slots;
     }
 
@@ -232,17 +232,17 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
               endTime: nextTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             };
 
-            console.log(`     🎯 Generated time slot: ${timeSlot.startTime} - ${timeSlot.endTime}`);
+            // console.log(`     🎯 Generated time slot: ${timeSlot.startTime} - ${timeSlot.endTime}`);
 
             // Check if this slot overlaps with any booked slot
             const isBooked = bookedSlots.some(bookedSlot =>
               doTimeSlotsOverlap(timeSlot, bookedSlot)
             );
 
-            console.log(`🔍 Checking slot ${timeSlot.startTime}-${timeSlot.endTime}: ${isBooked ? 'BLOCKED' : 'AVAILABLE'}`);
+            // console.log(`🔍 Checking slot ${timeSlot.startTime}-${timeSlot.endTime}: ${isBooked ? 'BLOCKED' : 'AVAILABLE'}`);
             if (isBooked) {
               const overlappingSlot = bookedSlots.find(bookedSlot => doTimeSlotsOverlap(timeSlot, bookedSlot));
-              console.log(`   ↳ Overlaps with booked slot: ${overlappingSlot.startTime}-${overlappingSlot.endTime}`);
+              // console.log(`   ↳ Overlaps with booked slot: ${overlappingSlot.startTime}-${overlappingSlot.endTime}`);
             }
 
             // Find the specific booked slot that causes overlap (if any)
@@ -263,18 +263,18 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       }
     });
 
-    console.log("📅 Generated slots:", generatedSlots);
-    console.log("🔒 Booked slots from server:", bookedSlots);
-    console.log("✅ Available slots count:", generatedSlots.filter(slot => !slot.isBooked).length);
-    console.log("❌ Unavailable slots count:", generatedSlots.filter(slot => slot.isBooked).length);
-    console.log("🔄 Session duration:", sessionDuration, "minutes");
+    // console.log("📅 Generated slots:", generatedSlots);
+    // console.log("🔒 Booked slots from server:", bookedSlots);
+    // console.log("✅ Available slots count:", generatedSlots.filter(slot => !slot.isBooked).length);
+    // console.log("❌ Unavailable slots count:", generatedSlots.filter(slot => slot.isBooked).length);
+    // console.log("🔄 Session duration:", sessionDuration, "minutes");
 
     // Show overlap analysis
     const conflictSlots = generatedSlots.filter(slot => slot.isBooked && slot.overlappingSlot);
     if (conflictSlots.length > 0) {
-      console.log("⚠️ Conflict slots due to overlaps:");
+      // console.log("⚠️ Conflict slots due to overlaps:");
       conflictSlots.forEach(slot => {
-        console.log(`   ${slot.startTime}-${slot.endTime} conflicts with ${slot.overlappingSlot.startTime}-${slot.overlappingSlot.endTime}`);
+        // console.log(`   ${slot.startTime}-${slot.endTime} conflicts with ${slot.overlappingSlot.startTime}-${slot.overlappingSlot.endTime}`);
       });
     }
 

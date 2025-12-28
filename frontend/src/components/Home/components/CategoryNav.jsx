@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const CategoryNav = ({ categories }) => {
   const navigate = useNavigate();
 
-  console.log("Rendering CategoryNav with categories:", categories);
+  // console.log("Rendering CategoryNav with categories:", categories);
   return (
     <motion.div
 

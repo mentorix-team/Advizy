@@ -281,6 +281,10 @@ const BecomeExpertPage = () => {
     }
   };
 
+  useEffect(() => {
+      document.title = "Become an Expert | Advizy";
+    })
+
   // useEffect(() => {
   // setClonedTestimonials([...testimonials, ...testimonials, ...testimonials]);
   // }, []);

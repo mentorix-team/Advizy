@@ -25,19 +25,19 @@ export default function PastMeetingDetails() {
   const { meetings, loading, selectedMeeting, error: meetingError } = useSelector((state) => state.meeting);
   const { data: userData } = useSelector((state) => state.auth);
 
-  console.log('PastMeetingDetails rendered with:', { id, isLoading, loading, selectedMeeting, meetingError, meeting });
-  console.log('About to render main content...');
+  // console.log('PastMeetingDetails rendered with:', { id, isLoading, loading, selectedMeeting, meetingError, meeting });
+  // console.log('About to render main content...');
 
   useEffect(() => {
-    console.log('Target meeting ID:', id);
+    // console.log('Target meeting ID:', id);
 
     if (id) {
-      console.log('Fetching meeting with ID:', id);
+      // console.log('Fetching meeting with ID:', id);
       setError(null);
       dispatch(getMeetingbyid(id))
         .unwrap()
         .then(() => {
-          console.log('Meeting fetch successful');
+          // console.log('Meeting fetch successful');
         })
         .catch((err) => {
           console.error('Error fetching meeting:', err);
@@ -45,7 +45,7 @@ export default function PastMeetingDetails() {
           setIsLoading(false);
         });
     } else {
-      console.log('No meeting ID provided');
+      // console.log('No meeting ID provided');
       setError('No meeting ID provided');
       setIsLoading(false);
     }
@@ -53,12 +53,12 @@ export default function PastMeetingDetails() {
 
   useEffect(() => {
     if (selectedMeeting) {
-      console.log('Selected meeting from Redux:', selectedMeeting);
-      console.log('Meeting feedback object:', selectedMeeting.feedback);
+      // console.log('Selected meeting from Redux:', selectedMeeting);
+      // console.log('Meeting feedback object:', selectedMeeting.feedback);
 
       if (selectedMeeting.feedback) {
-        console.log('Feedback rating:', selectedMeeting.feedback.rating);
-        console.log('Feedback text:', selectedMeeting.feedback.feedback);
+        // console.log('Feedback rating:', selectedMeeting.feedback.rating);
+        // console.log('Feedback text:', selectedMeeting.feedback.feedback);
       }
 
       setMeeting(selectedMeeting);
@@ -66,22 +66,22 @@ export default function PastMeetingDetails() {
 
       // Check if rating exists in the meeting data from backend
       if (selectedMeeting.feedback && selectedMeeting.feedback.rating) {
-        console.log('Found existing rating in selected meeting:', selectedMeeting.feedback.rating);
+        // console.log('Found existing rating in selected meeting:', selectedMeeting.feedback.rating);
         setRating(parseInt(selectedMeeting.feedback.rating));
         setFeedback(selectedMeeting.feedback.feedback || '');
-        console.log('Set rating state to:', parseInt(selectedMeeting.feedback.rating));
-        console.log('Set feedback state to:', selectedMeeting.feedback.feedback || '');
+        // console.log('Set rating state to:', parseInt(selectedMeeting.feedback.rating));
+        // console.log('Set feedback state to:', selectedMeeting.feedback.feedback || '');
       } else {
-        console.log('No feedback found in backend data, checking localStorage...');
+        // console.log('No feedback found in backend data, checking localStorage...');
         // Fallback to localStorage for ratings
         const savedMeetings = JSON.parse(localStorage.getItem('pastMeetings') || '[]');
         const savedMeeting = savedMeetings.find(m => m.id === id);
         if (savedMeeting) {
-          console.log('Found saved meeting in localStorage:', savedMeeting);
+          // console.log('Found saved meeting in localStorage:', savedMeeting);
           setRating(savedMeeting.rating || 0);
           setFeedback(savedMeeting.feedback || '');
         } else {
-          console.log('No rating data found in localStorage either');
+          // console.log('No rating data found in localStorage either');
           setRating(0);
           setFeedback('');
         }
@@ -98,12 +98,12 @@ export default function PastMeetingDetails() {
   }, []);
 
   if (isLoading || loading) {
-    console.log('Showing spinner - isLoading:', isLoading, 'loading:', loading);
+    // console.log('Showing spinner - isLoading:', isLoading, 'loading:', loading);
     return <Spinner />;
   }
 
   if (error || meetingError) {
-    console.log('Showing error state - error:', error, 'meetingError:', meetingError);
+    // console.log('Showing error state - error:', error, 'meetingError:', meetingError);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -121,7 +121,7 @@ export default function PastMeetingDetails() {
   }
 
   if (!meeting) {
-    console.log('No meeting data available');
+    // console.log('No meeting data available');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -186,7 +186,7 @@ export default function PastMeetingDetails() {
         })
       );
 
-      console.log("Feedback Response:", response);
+      // console.log("Feedback Response:", response);
 
       if (response?.payload?.success) {
         alert("Feedback submitted successfully!");
@@ -225,14 +225,14 @@ export default function PastMeetingDetails() {
     return null;
   }
 
-  console.log('Rendering with meeting data:', meeting);
-  console.log('Meeting object structure:');
-  console.log('- serviceName:', meeting?.serviceName);
-  console.log('- expertName:', meeting?.expertName);
-  console.log('- userName:', meeting?.userName);
-  console.log('- daySpecific:', meeting?.daySpecific);
-  console.log('- amount:', meeting?.amount);
-  console.log('- message:', meeting?.message);
+  // console.log('Rendering with meeting data:', meeting);
+  // console.log('Meeting object structure:');
+  // console.log('- serviceName:', meeting?.serviceName);
+  // console.log('- expertName:', meeting?.expertName);
+  // console.log('- userName:', meeting?.userName);
+  // console.log('- daySpecific:', meeting?.daySpecific);
+  // console.log('- amount:', meeting?.amount);
+  // console.log('- message:', meeting?.message);
 
   return (
     <div className="min-h-screen bg-gray-50">

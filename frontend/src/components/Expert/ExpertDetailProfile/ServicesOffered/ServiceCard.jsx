@@ -17,7 +17,7 @@ const ServiceCard = ({ service }) => {
 
   const handleBook = async () => {
     if (expertObj?._id && serviceId) {
-      console.log('Dispatching getServicebyid...');
+      // console.log('Dispatching getServicebyid...');
       const expertId = expertObj._id;
       try {
         await dispatch(getServicebyid({ serviceId, expertId })).unwrap();

@@ -105,6 +105,8 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
 
         const lastUsed = localStorage.setItem("lastUsedAuthMethod", "email");
 
+        const lastUsed = localStorage.setItem("lastUsedAuthMethod", "email");
+
         if (redirectURL && redirectURL.trim() !== "") {
           sessionStorage.removeItem("redirectURL");
           navigate(redirectURL);

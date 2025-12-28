@@ -19,7 +19,7 @@ const DurationOption = ({ duration, price, isSelected, onClick }) => (
 );
 
 const MentoringCard = ({ mentoringService }) => {
-  console.log("This is mentoringService:", mentoringService);
+  // console.log("This is mentoringService:", mentoringService);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ const MentoringCard = ({ mentoringService }) => {
   useEffect(() => {
     if (durations.length > 0 && !selectedDuration) {
       setSelectedDuration(durations[0]); // Store full object {duration, price}
-      console.log("Default duration set:", durations[0]);
+      // console.log("Default duration set:", durations[0]);
     }
   }, [durations, selectedDuration]);
 
@@ -49,10 +49,10 @@ const MentoringCard = ({ mentoringService }) => {
 
   const handleBook = async () => {
     if (expertObj?._id && serviceId && selectedDuration) {
-      console.log("Dispatching getServicebyid...");
+      // console.log("Dispatching getServicebyid...");
       const expertId = expertObj._id;
-      console.log("Expert ID:", expertId);
-      console.log("Selected Duration:", selectedDuration);
+      // console.log("Expert ID:", expertId);
+      // console.log("Selected Duration:", selectedDuration);
 
       try {
         await dispatch(getServicebyid({ serviceId, expertId })).unwrap();
@@ -86,14 +86,14 @@ const MentoringCard = ({ mentoringService }) => {
 
   return (
     <>
-      <div className="border border-[#16A348] rounded-2xl p-4 bg-white">
+      <div className="border border-[#16A348] rounded-2xl p-4 bg-white min-h-[280px] max-h-[320px] overflow-hidden">
         <div className="flex items-start gap-2 mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#16A348" viewBox="0 0 24 24">
             <path d="M13.5 8c.276 0 .5.224.5.5v7c0 .276-.224.5-.5.5h-11c-.276 0-.5-.224-.5-.5v-7c0-.276.224-.5.5-.5h11zm2.5 0c0-1.104-.896-2-2-2h-12c-1.104 0-2 .896-2 2v8c0 1.104.896 2 2 2h12c1.104 0 2-.896 2-2v-8zm6 1.854v4.293l-2-1.408v-1.478l2-1.407zm2-3.854l-6 4.223v3.554l6 4.223v-12z" />
           </svg>
           <div>
             <h3 className="text-[#101828] font-medium">{mentoringService.title}</h3>
-            <p className="text-sm text-gray-600">{mentoringService.shortDescription}</p>
+            <p className="text-sm text-gray-600 line-clamp-2">{mentoringService.shortDescription}</p>
           </div>
         </div>
         <div className="mb-2 text-sm font-medium">Select Duration:</div>

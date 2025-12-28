@@ -8,8 +8,7 @@ const TermsOfService = () => {
     window.scrollTo(0, 0);
   }, []);
 
-
-    useEffect(() => {
+  useEffect(() => {
       document.title = "Terms of Service | Advizy";
     })
 

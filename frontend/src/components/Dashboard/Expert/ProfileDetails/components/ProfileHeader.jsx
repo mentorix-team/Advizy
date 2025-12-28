@@ -507,7 +507,7 @@ const ProfileHeader = ({
         imageUrl: coverPreview || coverImage
       };
 
-      console.log('Saving cover image transformations:', transformationData);
+      // console.log('Saving cover image transformations:', transformationData);
 
       // Close the modal
       setShowEditModal(false);
@@ -538,7 +538,7 @@ const ProfileHeader = ({
         imageUrl: profilePreview || profileImage
       };
 
-      console.log('Saving profile image transformations:', transformationData);
+      // console.log('Saving profile image transformations:', transformationData);
 
       // Close the modal
       setShowEditProfileModal(false);

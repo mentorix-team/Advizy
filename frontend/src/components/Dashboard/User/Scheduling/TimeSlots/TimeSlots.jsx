@@ -20,14 +20,14 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   useEffect(() => {
     if (expertId && selectedDate) {
       const formattedDate = selectedDate.toLocaleDateString("en-CA");
-      console.log("🔄 Fetching booked slots for:", { expertId, date: formattedDate });
+      // console.log("🔄 Fetching booked slots for:", { expertId, date: formattedDate });
       dispatch(getBookedSlots({ expertId, date: formattedDate }));
     }
   }, [dispatch, expertId, selectedDate]);
 
   // Debug log for booked slots
   useEffect(() => {
-    console.log("📅 Booked slots updated:", bookedSlots);
+    // console.log("📅 Booked slots updated:", bookedSlots);
   }, [bookedSlots]);
 
   // Helper function to check if two time slots overlap
@@ -163,11 +163,11 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
   };
 
   useEffect(() => {
-    console.log("📊 [TimeSlots] useEffect triggered");
-    console.log("📊 [TimeSlots] selectedAvailability:", selectedAvailability);
-    console.log("📊 [TimeSlots] selectedAvailability?.availability:", selectedAvailability?.availability);
-    console.log("📊 [TimeSlots] daySpecific:", selectedAvailability?.availability?.daySpecific);
-    console.log("📊 [TimeSlots] selectedDate:", selectedDate);
+    // console.log("📊 [TimeSlots] useEffect triggered");
+    // console.log("📊 [TimeSlots] selectedAvailability:", selectedAvailability);
+    // console.log("📊 [TimeSlots] selectedAvailability?.availability:", selectedAvailability?.availability);
+    // console.log("📊 [TimeSlots] daySpecific:", selectedAvailability?.availability?.daySpecific);
+    // console.log("📊 [TimeSlots] selectedDate:", selectedDate);
 
     if (!selectedDate) {
       console.warn("Missing selectedDate");
@@ -177,15 +177,15 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 
     // ⭐ CHECK SPECIFIC DATE SLOTS FIRST (HIGHEST PRIORITY)
     const specificDateSlots = getSpecificDateSlots(selectedDate);
-    console.log("📅 [TimeSlots] Specific date slots found?", specificDateSlots);
+    // console.log("📅 [TimeSlots] Specific date slots found?", specificDateSlots);
 
     if (specificDateSlots) {
-      console.log("✨ [TimeSlots] Using specific date slots (highest priority)");
+      // console.log("✨ [TimeSlots] Using specific date slots (highest priority)");
       // Use specific date slots and skip blocked date check
     } else {
       // Only check for blocked dates if there are no specific date slots
       const dateIsBlocked = isDateBlocked(selectedDate);
-      console.log("🚫 [TimeSlots] Is selected date blocked?", dateIsBlocked);
+      // console.log("🚫 [TimeSlots] Is selected date blocked?", dateIsBlocked);
 
       if (dateIsBlocked) {
         console.warn("Selected date is blocked by expert");
@@ -207,16 +207,16 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     if (specificDateSlots) {
       slotsToUse = specificDateSlots;
       sourceType = 'specific';
-      console.log("✨ [TimeSlots] Using SPECIFIC DATE slots");
+      // console.log("✨ [TimeSlots] Using SPECIFIC DATE slots");
     } else {
       const dayName = selectedDate.toLocaleString("en-US", { weekday: "long" });
-      console.log("📅 [TimeSlots] Looking for WEEKLY day:", dayName);
+      // console.log("📅 [TimeSlots] Looking for WEEKLY day:", dayName);
 
       const dayData = selectedAvailability.availability.daySpecific.find(
         (day) => day.day === dayName
       );
 
-      console.log("📅 [TimeSlots] Found dayData:", dayData);
+      // console.log("📅 [TimeSlots] Found dayData:", dayData);
 
       if (!dayData || !dayData.slots || dayData.slots.length === 0) {
         console.warn(`No slots available for ${dayName}`);
@@ -226,13 +226,13 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
 
       slotsToUse = dayData.slots;
       sourceType = 'weekly';
-      console.log("📅 [TimeSlots] Using WEEKLY slots");
+      // console.log("📅 [TimeSlots] Using WEEKLY slots");
     }
 
-    console.log("⏰ [TimeSlots] Slots to process:", slotsToUse);
-    console.log("⏰ [TimeSlots] First slot example:", slotsToUse[0]);
-    console.log("⏰ [TimeSlots] First slot startTime type:", typeof slotsToUse[0]?.startTime);
-    console.log("⏰ [TimeSlots] First slot startTime value:", slotsToUse[0]?.startTime);
+    // console.log("⏰ [TimeSlots] Slots to process:", slotsToUse);
+    // console.log("⏰ [TimeSlots] First slot example:", slotsToUse[0]);
+    // console.log("⏰ [TimeSlots] First slot startTime type:", typeof slotsToUse[0]?.startTime);
+    // console.log("⏰ [TimeSlots] First slot startTime value:", slotsToUse[0]?.startTime);
 
     const now = new Date();
     const noticePeriodMinutes = parseInt(selectedAvailability.availability.reschedulePolicy.noticeperiod) || 0;
@@ -251,14 +251,14 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
     const startTimeMap = {};
 
     slotsToUse.forEach((slot, slotIndex) => {
-      console.log(`\n🔄 [TimeSlots] Processing ${sourceType} slot ${slotIndex}:`, slot);
+      // console.log(`\n🔄 [TimeSlots] Processing ${sourceType} slot ${slotIndex}:`, slot);
 
       // Handle both 24-hour format (00:30) and 12-hour format (12:30 AM)
       let startHour24, startMinute, endHour24, endMinute;
 
       // Check if the time contains AM/PM
       if (slot.startTime && (slot.startTime.includes('AM') || slot.startTime.includes('PM'))) {
-        console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 12-hour format with AM/PM`);
+        // console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 12-hour format with AM/PM`);
         // Time is in 12-hour format, parse it differently
         const startParts = slot.startTime.split(' ');
         const [startHourStr, startMinStr] = startParts[0].split(':');
@@ -284,7 +284,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
           endHour24 = 0;
         }
       } else {
-        console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 24-hour format`);
+        // console.log(`⏰ [TimeSlots] Slot ${slotIndex} is in 24-hour format`);
         // Time is in 24-hour format
         const [sh, sm] = slot.startTime.split(':').map(Number);
         const [eh, em] = slot.endTime.split(':').map(Number);
@@ -294,7 +294,7 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
         endMinute = em;
       }
 
-      console.log(`⏰ [TimeSlots] Slot ${slotIndex} parsed - Start: ${startHour24}:${String(startMinute).padStart(2, '0')}, End: ${endHour24}:${String(endMinute).padStart(2, '0')}`);
+      // console.log(`⏰ [TimeSlots] Slot ${slotIndex} parsed - Start: ${startHour24}:${String(startMinute).padStart(2, '0')}, End: ${endHour24}:${String(endMinute).padStart(2, '0')}`);
 
       const start = new Date(selectedDate);
       start.setHours(startHour24, startMinute, 0, 0);
@@ -302,8 +302,8 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
       const end = new Date(selectedDate);
       end.setHours(endHour24, endMinute, 0, 0);
 
-      console.log(`⏰ [TimeSlots] Slot ${slotIndex} start date-time:`, start);
-      console.log(`⏰ [TimeSlots] Slot ${slotIndex} end date-time:`, end);
+      // console.log(`⏰ [TimeSlots] Slot ${slotIndex} start date-time:`, start);
+      // console.log(`⏰ [TimeSlots] Slot ${slotIndex} end date-time:`, end);
 
       let currentTime = new Date(start);
       if (selectedDate.toDateString() === now.toDateString()) {
@@ -332,17 +332,17 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
               endTime: convert24To12Hour(end24),
             };
 
-            console.log(`   ✅ Generated slot: ${timeSlot.startTime} - ${timeSlot.endTime}`);
+            // console.log(`   ✅ Generated slot: ${timeSlot.startTime} - ${timeSlot.endTime}`);
 
             // Check if this slot overlaps with any booked slot
             const isBooked = bookedSlots.some(bookedSlot =>
               doTimeSlotsOverlap(timeSlot, bookedSlot)
             );
 
-            console.log(`🔍 Checking slot ${timeSlot.startTime}-${timeSlot.endTime}: ${isBooked ? 'BLOCKED' : 'AVAILABLE'}`);
+            // console.log(`🔍 Checking slot ${timeSlot.startTime}-${timeSlot.endTime}: ${isBooked ? 'BLOCKED' : 'AVAILABLE'}`);
             if (isBooked) {
               const overlappingSlot = bookedSlots.find(bookedSlot => doTimeSlotsOverlap(timeSlot, bookedSlot));
-              console.log(`   ↳ Overlaps with booked slot: ${overlappingSlot.startTime}-${overlappingSlot.endTime}`);
+              // console.log(`   ↳ Overlaps with booked slot: ${overlappingSlot.startTime}-${overlappingSlot.endTime}`);
             }
 
             // Find the specific booked slot that causes overlap (if any)
@@ -362,21 +362,21 @@ function TimeSlots({ selectedDate, sessionPrice, sessionDuration, selectedAvaila
         }
         currentTime = nextTime;
       }
-      console.log(`⏰ [TimeSlots] Slot ${slotIndex} generated ${generatedCount} time slots`);
+      // console.log(`⏰ [TimeSlots] Slot ${slotIndex} generated ${generatedCount} time slots`);
     });
 
-    console.log("📅 Generated slots:", generatedSlots);
-    console.log("🔒 Booked slots from server:", bookedSlots);
-    console.log("✅ Available slots count:", generatedSlots.filter(slot => !slot.isBooked).length);
-    console.log("❌ Unavailable slots count:", generatedSlots.filter(slot => slot.isBooked).length);
-    console.log("🔄 Session duration:", sessionDuration, "minutes");
+    // console.log("📅 Generated slots:", generatedSlots);
+    // console.log("🔒 Booked slots from server:", bookedSlots);
+    // console.log("✅ Available slots count:", generatedSlots.filter(slot => !slot.isBooked).length);
+    // console.log("❌ Unavailable slots count:", generatedSlots.filter(slot => slot.isBooked).length);
+    // console.log("🔄 Session duration:", sessionDuration, "minutes");
 
     // Show overlap analysis
     const conflictSlots = generatedSlots.filter(slot => slot.isBooked && slot.overlappingSlot);
     if (conflictSlots.length > 0) {
-      console.log("⚠️ Conflict slots due to overlaps:");
+      // console.log("⚠️ Conflict slots due to overlaps:");
       conflictSlots.forEach(slot => {
-        console.log(`   ${slot.startTime}-${slot.endTime} conflicts with ${slot.overlappingSlot.startTime}-${slot.overlappingSlot.endTime}`);
+        // console.log(`   ${slot.startTime}-${slot.endTime} conflicts with ${slot.overlappingSlot.startTime}-${slot.overlappingSlot.endTime}`);
       });
     }
 

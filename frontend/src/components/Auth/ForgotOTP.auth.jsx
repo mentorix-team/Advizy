@@ -21,7 +21,7 @@ const ForgotOTP = ({ onClose, onSwitchView }) => {
     const response = await dispatch(forgotOTP(otpValue)); // Send otpValue as the payload
     if (response?.payload?.success) {
       setVerified(true); // OTP verified successfully
-      console.log("OTP Verified:", response.payload.message);
+      // console.log("OTP Verified:", response.payload.message);
     } else {
       setVerified(false);
       console.error("OTP Verification Failed:", response.payload?.message);
@@ -29,7 +29,7 @@ const ForgotOTP = ({ onClose, onSwitchView }) => {
   }
 
   const handleContinue = () => {
-    console.log("Submitting OTP:", otp);
+    // console.log("Submitting OTP:", otp);
     onSwitchView("ResetPassword"); // Proceed to Reset Password
   };
 
@@ -65,11 +65,10 @@ const ForgotOTP = ({ onClose, onSwitchView }) => {
           <button
             onClick={handleContinue}
             disabled={!verified}
-            className={`w-full h-12 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 ${
-              verified
+            className={`w-full h-12 text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300 ${verified
                 ? "bg-[#169544] hover:bg-green-700"
                 : "bg-[#169544] cursor-not-allowed"
-            }`}
+              }`}
           >
             Verify OTP
           </button>
@@ -90,7 +89,7 @@ const ForgotOTP = ({ onClose, onSwitchView }) => {
               >
                 Log In
               </button>
-          </div>
+            </div>
           </div>
         </div>
       </div>

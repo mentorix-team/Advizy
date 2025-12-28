@@ -20,8 +20,8 @@ const getDateStringInTimezone = (dateObj, timezone) => {
 };
 
 function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability }) {
-  console.log("🗓️ CalendarGrid received availability:", availability);
-  console.log("🚫 Blocked dates found:", availability?.blockedDates);
+  // console.log("🗓️ CalendarGrid received availability:", availability);
+  // console.log("🚫 Blocked dates found:", availability?.blockedDates);
 
   // Get timezone from availability
   const selectedTimezone = availability?.timezone?.value || "Asia/Kolkata";
@@ -81,8 +81,8 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     // Get the date in YYYY-MM-DD format in the selected timezone
     const dateString = getDateStringInTimezone(date, selectedTimezone);
 
-    console.log(`🔍 Checking specific slots for: ${dateString}`);
-    console.log(`📅 Available specific_dates:`, availability.specific_dates);
+    // console.log(`🔍 Checking specific slots for: ${dateString}`);
+    // console.log(`📅 Available specific_dates:`, availability.specific_dates);
 
     return availability.specific_dates.some(specificDate => {
       try {
@@ -108,7 +108,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
         const hasSlots = specificDate.slots && specificDate.slots.length > 0;
         const dateMatches = dateString === specificDateValue;
 
-        console.log(`  📅 Comparing: "${dateString}" === "${specificDateValue}" | Has slots: ${hasSlots} | Match: ${dateMatches}`);
+        // console.log(`  📅 Comparing: "${dateString}" === "${specificDateValue}" | Has slots: ${hasSlots} | Match: ${dateMatches}`);
 
         return dateMatches && hasSlots;
       } catch (error) {
@@ -125,8 +125,8 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
     // Get the date in YYYY-MM-DD format in the selected timezone
     const dateString = getDateStringInTimezone(date, selectedTimezone);
 
-    console.log("🔍 Checking if date is blocked:", dateString);
-    console.log("🚫 Available blocked dates:", availability.blockedDates);
+    // console.log("🔍 Checking if date is blocked:", dateString);
+    // console.log("🚫 Available blocked dates:", availability.blockedDates);
 
     return availability.blockedDates.some(blockedDate => {
       try {
@@ -148,7 +148,7 @@ function CalendarGrid({ currentDate, selectedDate, onDateSelect, availability })
           return false;
         }
 
-        console.log(`📅 Comparing: ${dateString} === ${blockedDateValue}`);
+        // console.log(`📅 Comparing: ${dateString} === ${blockedDateValue}`);
         return dateString === blockedDateValue;
       } catch (error) {
         console.warn('Error parsing blocked date:', blockedDate, error);

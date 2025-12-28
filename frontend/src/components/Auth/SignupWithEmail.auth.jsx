@@ -190,7 +190,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
   };
 
   const handleGoogleSignup = () => {
-    window.open("http://localhost:5030/api/v1/user/auth/google", "_self");
+    window.open("https://advizy.onrender.com/api/v1/user/auth/google", "_self");
   };
 
   return (
@@ -263,7 +263,7 @@ const SignupWithEmail = ({ onClose, onSwitchView }) => {
 
           <div className="mb-2">
             <label className="block text-gray-700 text-sm font-medium mb-1">
-              Mail id{errors.email && touched.email && (<span className="text-red-500">*</span>)}
+              Email{errors.email && touched.email && (<span className="text-red-500">*</span>)}
             </label>
             <input
               type="email"

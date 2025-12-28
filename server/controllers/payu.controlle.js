@@ -23,8 +23,8 @@ const {
   PAYU_KEY = "BbfPbe",
   PAYU_SALT = "ihteCewpIbsofU10x6dc8F8gYJOnL2hz",
   PAYU_ENV = "prod",
-  BACKEND_URL = "http://localhost:5030",
-  FRONTEND_URL = "http://localhost:5173",
+  BACKEND_URL = "https://advizy.onrender.com",
+  FRONTEND_URL = "https://advizy.in",
 } = process.env;
 
 const PAYU_ACTION =

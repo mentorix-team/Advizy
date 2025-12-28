@@ -62,7 +62,7 @@ const createMeetingToken = async (req, res, next) => {
     const token = meeting.generateToken();
 
     // Store the token in a cookie
-    const isDev =  process.env.NODE_ENV === "development";
+    const isDev = process.env.NODE_ENV === "development";
     res.cookie('meetingToken', token, {
       httpOnly: true,
       secure: !isDev,
@@ -268,8 +268,8 @@ const payedForMeeting = async (req, res, next) => {
     emailTemplate = emailTemplate.replace(/{MONTH}/g, month);
     emailTemplate = emailTemplate.replace(/{DATE}/g, datee);
     emailTemplate = emailTemplate.replace(/{DAY}/g, day);
-    await sendEmail(expertt.email, "Meeting Booked", emailTemplate, true);
-    await sendEmail(user.email, "Meeting Booked", emailTemplate, true);
+    await sendEmail(expertt.email, "Meeting Booked", emailTemplate);
+    await sendEmail(user.email, "Meeting Booked", emailTemplate);
 
     // Send response
     res.status(200).json({
@@ -440,9 +440,13 @@ const getMeetingByUserId = async (req, res, next) => {
 }
 
 const getMeetingByExpertId = async (req, res, next) => {
-  const expertId = req.expert.id;
+  const expertId = req.expert?.id;
   if (!expertId) {
-    return next(new AppError('expert not registered', 500))
+    return res.status(200).json({
+      success: true,
+      message: 'No expert session, skipping meetings fetch',
+      meeting: []
+    });
   }
 
   try {
@@ -450,7 +454,11 @@ const getMeetingByExpertId = async (req, res, next) => {
     const meetings = await Meeting.find({ expertId }).lean();
 
     if (!meetings || meetings.length === 0) {
-      return next(new AppError('this expert doesn have any meeting', 500));
+      return res.status(200).json({
+        success: true,
+        message: 'No meetings found',
+        meeting: []
+      });
     }
 
     // Update meeting statuses based on current time
@@ -576,18 +584,18 @@ const createVideocall = async (req, res, next) => {
       videoCallId: meeting.videoCallId,
     });
 
-    await expertNotification.save()
-    await userNotification.save()
-    await meeting.save()
-    console.log("see my expert notification is generated", expertNotification)
-    console.log("see my user notification is generated", userNotification)
+    await expertNotification.save();
+    await userNotification.save();
+    await meeting.save();
+    console.log("see my expert notification is generated", expertNotification);
+    console.log("see my user notification is generated", userNotification);
 
-
-
+    // Respond with meeting creation confirmation
     res.status(201).json({
       success: true,
       message: 'Video call created',
       data: response.data,
+      videoCallId: meeting.videoCallId,
     });
   } catch (error) {
     console.log(error)
@@ -982,7 +990,7 @@ const sendMeetingReminder = async (meeting, user, expert) => {
     // User reminder email
     const userTemplatePath = path.join(__dirname, "./EmailTemplates/userMeetingReminder.html");
     let userEmailTemplate = fs.readFileSync(userTemplatePath, "utf8");
-    
+
     userEmailTemplate = userEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
     userEmailTemplate = userEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
     userEmailTemplate = userEmailTemplate.replace(/{USERNAME}/g, user.firstName);
@@ -996,7 +1004,7 @@ const sendMeetingReminder = async (meeting, user, expert) => {
     // Expert reminder email
     const expertTemplatePath = path.join(__dirname, "./EmailTemplates/expertMeetingReminder.html");
     let expertEmailTemplate = fs.readFileSync(expertTemplatePath, "utf8");
-    
+
     expertEmailTemplate = expertEmailTemplate.replace(/{SERVICENAME}/g, meeting.serviceName);
     expertEmailTemplate = expertEmailTemplate.replace(/{EXPERTNAME}/g, meeting.expertName);
     expertEmailTemplate = expertEmailTemplate.replace(/{USERNAME}/g, user.firstName);
@@ -1009,8 +1017,8 @@ const sendMeetingReminder = async (meeting, user, expert) => {
     expertEmailTemplate = expertEmailTemplate.replace(/{CLIENTMESSAGE}/g, meeting.message || "No message from client.");
 
     // Send emails
-    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate, true);
-    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate, true);
+    await sendEmail(user.email, "Meeting Reminder - Starting in 15 Minutes!", userEmailTemplate);
+    await sendEmail(expert.email, "Client Session Reminder - Starting in 15 Minutes!", expertEmailTemplate);
 
     console.log(`Meeting reminders sent for meeting ${meeting._id}`);
   } catch (error) {
@@ -1218,7 +1226,7 @@ const updateMeetingDirectly = async (req, res, next) => {
     const email = expert.email
     console.log("This is the mail", expert.email);
 
-    await sendEmail(email, "Meetint Rescheduled Directly", emailTemplate, true);
+    await sendEmail(email, "Meetint Rescheduled Directly", emailTemplate);
 
     res.status(200).json({
       success: true,
@@ -1341,15 +1349,15 @@ const getthemeet = async (req, res, next) => {
 const sendMeetingReminders = async (req, res, next) => {
   try {
     console.log("Checking for meetings starting in 15 minutes...");
-    
+
     // Get current time and add 15 minutes
     const now = moment().tz("Asia/Kolkata");
     const reminderTime = now.clone().add(15, 'minutes');
-    
+
     // Format time for comparison
     const reminderDate = reminderTime.format("YYYY-MM-DD");
     const reminderHour = reminderTime.format("HH:mm");
-    
+
     console.log(`Looking for meetings on ${reminderDate} at ${reminderHour}`);
 
     // Find meetings scheduled to start in 15 minutes
@@ -1363,17 +1371,17 @@ const sendMeetingReminders = async (req, res, next) => {
 
     for (const meeting of upcomingMeetings) {
       const meetingStartTime = moment(meeting.daySpecific.slot.startTime, "hh:mm A").format("HH:mm");
-      
+
       // Check if this meeting starts in 15 minutes (within a 1-minute window)
       const timeDiff = moment(`${reminderDate} ${meetingStartTime}`).diff(moment(`${reminderDate} ${reminderHour}`), 'minutes');
-      
+
       if (Math.abs(timeDiff) <= 1) { // Within 1 minute window
         console.log(`Sending reminder for meeting: ${meeting._id}`);
-        
+
         // Get user and expert details
         const user = await User.findById(meeting.userId);
         const expert = await ExpertBasics.findById(meeting.expertId);
-        
+
         if (user && expert) {
           await sendMeetingReminder(meeting, user, expert);
         }
@@ -1395,7 +1403,7 @@ const sendMeetingReminders = async (req, res, next) => {
 const sendSingleMeetingReminder = async (req, res, next) => {
   try {
     const { meetingId } = req.body;
-    
+
     if (!meetingId) {
       return next(new AppError("Meeting ID is required", 400));
     }

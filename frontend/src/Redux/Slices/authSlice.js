@@ -589,8 +589,7 @@ const authSlice = createSlice({
       if (lastLoginMethod) {
         localStorage.setItem("lastLoginMethod", lastLoginMethod);
       }
-
-      // Reset Redux state
+      //reset redux state
       state.data = {};
       state.isLoggedIn = false;
       state.role = "";

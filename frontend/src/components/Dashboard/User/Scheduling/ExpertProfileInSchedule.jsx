@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useState } from "react";
 
 function ExpertProfileInSchedule({ expert }) {
-  console.log("expertttt", expert);
+  // console.log("expertttt", expert);
   const [showMore, setShowMore] = useState(false);
 
   return (
@@ -31,9 +31,8 @@ function ExpertProfileInSchedule({ expert }) {
             className="p-2 rounded-full hover:bg-gray-100 transition-colors"
           >
             <svg
-              className={`w-5 h-5 transform transition-transform ${
-                showMore ? "rotate-180" : ""
-              }`}
+              className={`w-5 h-5 transform transition-transform ${showMore ? "rotate-180" : ""
+                }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

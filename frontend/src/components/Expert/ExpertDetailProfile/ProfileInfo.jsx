@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { BookUser } from "lucide-react";
+import { useState } from "react";
 
 // InfoItem component to display individual information
 const InfoItem = ({ icon, label, value }) => (
@@ -22,15 +23,41 @@ const ProfileInfo = ({
 
   languageOptions = [],
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const CHARACTER_LIMIT = 200;
+  const shouldTruncate = about && about.length > CHARACTER_LIMIT;
+
   return (
     <div className="bg-white rounded-lg p-6">
       <h2 className="flex items-center gap-1 text-black font-figtree text-xl font-semibold leading-[150%] mb-4">
         <BookUser className="w-4 h-4 text-primary" />
         About Me
       </h2>
-      <p className="text-black font-figtree text-base font-normal leading-[150%] mb-3">
-        {about || "No details provided"} {/* Display dynamic 'about' */}
-      </p>
+      <div className="text-black font-figtree text-base font-normal leading-[150%] mb-3">
+        {shouldTruncate && !isExpanded ? (
+          <>
+            {about.slice(0, CHARACTER_LIMIT)}...
+            <button
+              onClick={() => setIsExpanded(true)}
+              className="text-primary hover:text-green-700 font-medium ml-2"
+            >
+              Read More
+            </button>
+          </>
+        ) : (
+          <>
+            {about || "No details provided"}
+            {shouldTruncate && isExpanded && (
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="text-primary hover:text-green-700 font-medium ml-2"
+              >
+                Show Less
+              </button>
+            )}
+          </>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
         <InfoItem

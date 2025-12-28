@@ -33,9 +33,9 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
     formDataToSend.append("certificates", formData.certificates);
 
     if (formData.certificates) {
-      console.log("Appending certificate:", formData.certificate);
+      // console.log("Appending certificate:", formData.certificate);
     } else {
-      console.log("No certificate selected");
+      // console.log("No certificate selected");
     }
 
     dispatch(SingleEducationForm(formDataToSend)); // Dispatching the action
@@ -46,7 +46,7 @@ export default function EducationForm({ onSubmit, onCancel, initialData }) {
     const file = e.target.files[0];
 
     if (file) {
-      console.log("Selected file:", file);
+      // console.log("Selected file:", file);
       setFormData((prev) => ({
         ...prev,
         certificates: file,

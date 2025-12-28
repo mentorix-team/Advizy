@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 
 const ClientFeedback = ({
   feedback = [],
-  onViewAll = () => {},
+  onViewAll = () => { },
 }) => {
-  console.log("🔍 ClientFeedback received:", feedback);
-  
+  // console.log("🔍 ClientFeedback received:", feedback);
+
   // Safety check - ensure feedback is an array
   const safeFeedback = Array.isArray(feedback) ? feedback : [];
-  
+
   // Limit to maximum 4 feedback items
   const limitedFeedback = safeFeedback.slice(0, 4);
 
@@ -19,11 +19,10 @@ const ClientFeedback = ({
       <Star
         key={index}
         size={16}
-        className={`${
-          index < rating 
-            ? 'text-yellow-400 fill-yellow-400' 
-            : 'text-gray-200'
-        } transition-colors`}
+        className={`${index < rating
+          ? 'text-yellow-400 fill-yellow-400'
+          : 'text-gray-200'
+          } transition-colors`}
       />
     ));
   };
@@ -38,7 +37,7 @@ const ClientFeedback = ({
     <div className="bg-white border rounded-lg shadow-sm p-4 sm:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-lg sm:text-xl font-bold">Recent Client Feedback</h2>
-        <button 
+        <button
           onClick={onViewAll}
           className="text-gray-500 hover:text-gray-800 transition-colors p-2 -m-2"
           aria-label="View all feedback"
@@ -55,13 +54,13 @@ const ClientFeedback = ({
               console.warn(`Invalid feedback item at index ${index}:`, item);
               return null;
             }
-            
+
             return (
               <div key={index} className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden">
                   {item.avatar ? (
-                    <img 
-                      src={item.avatar} 
+                    <img
+                      src={item.avatar}
                       alt={`${item.userName || 'User'}'s avatar`}
                       className="w-full h-full object-cover"
                     />
@@ -94,9 +93,9 @@ const ClientFeedback = ({
 ClientFeedback.propTypes = {
   feedback: PropTypes.arrayOf(
     PropTypes.shape({
-      userName: PropTypes.string.isRequired,
-      rating: PropTypes.number.isRequired,
-      feedback: PropTypes.string.isRequired,
+      userName: PropTypes.string,
+      rating: PropTypes.number,
+      feedback: PropTypes.string,
       avatar: PropTypes.string
     })
   ),

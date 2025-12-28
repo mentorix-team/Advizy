@@ -40,7 +40,7 @@ const ContactForm = () => {
       setIsSubmitting(true);
       try {
         const response = await axios.post(
-          'http://localhost:5030/api/v1/contact/create',
+          'https://advizy.onrender.com/api/v1/contact/create',
           formData
         );
         if (response.data.success) {

@@ -13,11 +13,11 @@ function ReschedulePolicy() {
       recheduleType: selectedRescheduleType,
       noticeperiod: selectedNoticePeriod,
     };
-  
+
     dispatch(reschedulePolicy(policyData))
       .then((response) => {
         if (response?.meta?.requestStatus === "fulfilled") {
-          console.log("Policy updated successfully:", response.payload);
+          // console.log("Policy updated successfully:", response.payload);
         } else {
           console.error("Failed to update policy:", response.error.message);
         }
@@ -77,21 +77,19 @@ function ReschedulePolicy() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleRescheduleTypeChange('Request reschedule')}
-                  className={`text-sm w-40 px-2 py-2 rounded-md border-2 shadow-sm font-medium ${
-                    selectedRescheduleType === 'Request reschedule'
+                  className={`text-sm w-40 px-2 py-2 rounded-md border-2 shadow-sm font-medium ${selectedRescheduleType === 'Request reschedule'
                       ? 'bg-gray-50 border-2 border-[#00630FC7] text-black'
                       : 'bg-white text-black'
-                  }`}
+                    }`}
                 >
                   Request reschedule
                 </button>
                 <button
                   onClick={() => handleRescheduleTypeChange('Directly reschedule')}
-                  className={`text-sm w-40 px-2 py-2 rounded-md border-2 shadow-s font-medium ${
-                    selectedRescheduleType === 'Directly reschedule'
+                  className={`text-sm w-40 px-2 py-2 rounded-md border-2 shadow-s font-medium ${selectedRescheduleType === 'Directly reschedule'
                       ? 'bg-gray-50 border-2 border-[#00630FC7] text-black'
                       : 'bg-white text-black'
-                  }`}
+                    }`}
                 >
                   Directly reschedule
                 </button>
@@ -108,11 +106,10 @@ function ReschedulePolicy() {
                   <button
                     key={period}
                     onClick={() => handleNoticePeriodChange(period)}
-                    className={`text-sm font-medium w-28 px-2 py-1 rounded-md border ${
-                      selectedNoticePeriod === period
+                    className={`text-sm font-medium w-28 px-2 py-1 rounded-md border ${selectedNoticePeriod === period
                         ? 'bg-gray-50 border-2 border-[#00630FC7] text-black'
                         : 'bg-white text-black'
-                    }`}
+                      }`}
                   >
                     {period}
                   </button>

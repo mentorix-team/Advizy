@@ -5,7 +5,7 @@ import { ClientTable } from './ClientTable';
 import { Pagination } from '../Pagination/Pagination';
 
 export function ClientList({ initialClients, onClientsChange }) {
-  console.log("This is initialClients",initialClients)
+  // console.log("This is initialClients",initialClients)
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('active');
   const [clients, setClients] = useState(initialClients);
@@ -18,20 +18,20 @@ export function ClientList({ initialClients, onClientsChange }) {
 
   const filteredClients = clients.filter((client) => {
     // Ensure name and service exist before calling toLowerCase()
-    if (!client?.name || !client?.service) return false; 
-  
+    if (!client?.name || !client?.service) return false;
+
     const matchesSearch =
       client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.service.toLowerCase().includes(searchQuery.toLowerCase());
-  
+
     const matchesTab =
       activeTab === 'active'
         ? client.status?.toLowerCase() === 'active' || client.status?.toLowerCase() === 'new'
         : client.status?.toLowerCase() === 'inactive';
-  
+
     return matchesSearch && matchesTab;
   });
-  
+
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -48,21 +48,19 @@ export function ClientList({ initialClients, onClientsChange }) {
           <div className="flex overflow-x-auto">
             <button
               onClick={() => setActiveTab('active')}
-              className={`px-4 sm:px-6 py-3 font-medium text-sm whitespace-nowrap ${
-                activeTab === 'active'
+              className={`px-4 sm:px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'active'
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               Active Client
             </button>
             <button
               onClick={() => setActiveTab('past')}
-              className={`px-4 sm:px-6 py-3 font-medium text-sm whitespace-nowrap ${
-                activeTab === 'past'
+              className={`px-4 sm:px-6 py-3 font-medium text-sm whitespace-nowrap ${activeTab === 'past'
                   ? 'text-green-600 border-b-2 border-green-600'
                   : 'text-gray-500 hover:text-gray-700'
-              }`}
+                }`}
             >
               Past Client
             </button>
@@ -73,13 +71,13 @@ export function ClientList({ initialClients, onClientsChange }) {
           </div>
         </div>
 
-        <ClientTable 
+        <ClientTable
           clients={paginatedClients.map((client, index) => ({
             ...client,
             number: startIndex + index + 1
-          }))} 
+          }))}
         />
-        <Pagination 
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}

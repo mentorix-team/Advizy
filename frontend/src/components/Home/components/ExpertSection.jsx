@@ -47,23 +47,23 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
     const fetchExpertFeedback = async () => {
       if (!experts || experts.length === 0) return;
 
-      console.log('Fetching feedback for experts:', experts.length);
-      console.log('Sample expert structure:', experts[0]);
+      // console.log('Fetching feedback for experts:', experts.length);
+      // console.log('Sample expert structure:', experts[0]);
       const ratingsMap = {};
 
       // Batch fetch feedback for all experts
       const feedbackPromises = experts.map(async (expert) => {
         try {
-          console.log(`Fetching feedback for expert ${expert.id}...`);
+          // console.log(`Fetching feedback for expert ${expert.id}...`);
           const response = await dispatch(getfeedbackbyexpertid({ id: expert.id })).unwrap();
-          console.log(`Feedback response for expert ${expert.id}:`, response);
+          // console.log(`Feedback response for expert ${expert.id}:`, response);
 
           // Handle the response structure - the feedback is in response.feedback
           const feedback = Array.isArray(response?.feedback) ? response.feedback : Array.isArray(response) ? response : [];
-          console.log(`Processed feedback for expert ${expert.id}:`, feedback);
+          // console.log(`Processed feedback for expert ${expert.id}:`, feedback);
 
           const ratingData = calculateRatingData(feedback);
-          console.log(`Rating data for expert ${expert.id}:`, ratingData);
+          // console.log(`Rating data for expert ${expert.id}:`, ratingData);
 
           ratingsMap[expert.id] = ratingData;
         } catch (error) {
@@ -73,7 +73,7 @@ const ExpertSection = ({ title, subtitle, experts, link }) => {
       });
 
       await Promise.all(feedbackPromises);
-      console.log('Final ratings map:', ratingsMap);
+      // console.log('Final ratings map:', ratingsMap);
       setExpertRatings(ratingsMap);
     };
 

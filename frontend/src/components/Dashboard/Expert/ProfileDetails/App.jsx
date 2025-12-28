@@ -529,7 +529,7 @@ function App() {
     if (activeTab === "education") {
       setEnabledTabs((prev) => [...prev, "experience"]);
       if (formData.education.length > 0) {
-        console.log("Education form submitted");
+        // console.log("Education form submitted");
         toast.success("Education form submitted successfully!", {
           position: "top-right",
           autoClose: 3000,
@@ -552,7 +552,7 @@ function App() {
     if (activeTab === "experience") {
       setEnabledTabs((prev) => [...prev, "certifications"]);
       if (formData.experience.length > 0) {
-        console.log("Experience data is present, proceeding to next step.");
+        // console.log("Experience data is present, proceeding to next step.");
         toast.success("Changes saved successfully!", {
           position: "top-right",
           autoClose: 3000,
@@ -583,7 +583,7 @@ function App() {
         draggable: true,
       });
       if (formData.certifications.length > 0) {
-        console.log("Certification form submitted");
+        // console.log("Certification form submitted");
         toast.success("Certification form submitted successfully!", {
           position: "top-right",
           autoClose: 3000,

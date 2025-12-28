@@ -8,8 +8,7 @@ const Cookies = () => {
     window.scrollTo(0, 0);
   }, []);
 
-
-    useEffect(() => {
+  useEffect(() => {
       document.title = "Cookies Policy | Advizy";
     })
 
