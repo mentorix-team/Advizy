@@ -15,6 +15,9 @@ import bcrypt from "bcryptjs";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import axios from "axios";
+
+const FASTAPI_BASE_URL = process.env.FASTAPI_BASE_URL || "http://localhost:8000";
 
 const normalizeSocialLinksInput = (rawLinks) => {
   if (!rawLinks) return [];
@@ -524,7 +527,7 @@ const adminapproved = async (req, res, next) => {
     if (expert.admin_approved_expert) {
       try {
         const fastApiRes = await axios.post(
-          "http://localhost:8000/embed", // or your deployed URL
+          `${FASTAPI_BASE_URL}/embed`, // or your deployed URL
           {
             expertId: expert._id.toString(),
             summary: summary,
