@@ -7,7 +7,7 @@ import registerPresenceSocket from './presence.socket.js';
 export function initSockets(httpServer) {
     const io = new Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_ORIGIN,
+            origin: process.env.CLIENT_ORIGIN || process.env.frontendurl || 'http://localhost:5173',
             methods: ['GET', 'POST'],
             credentials: true,
         },

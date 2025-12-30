@@ -86,11 +86,39 @@ const chatSlice = createSlice({
             const msg = action.payload;
             if (!msg) return;
             const activeId = state.activeRoom?._id;
-            if (msg.chatRoomId && activeId && msg.chatRoomId === activeId) {
-                state.messages.push(msg);
+            const msgRoomId = msg.chatRoomId || msg.roomId;
+            
+            if (msgRoomId && activeId && String(msgRoomId) === String(activeId)) {
+                const msgIdStr = String(msg._id || '');
+                
+                // Prevent duplicates - check if message with same _id already exists
+                const existingIndex = state.messages.findIndex(m => {
+                    const mIdStr = String(m._id || '');
+                    
+                    // Exact ID match
+                    if (mIdStr === msgIdStr) return true;
+                    
+                    // Check for temp IDs that might match by content and sender
+                    if (mIdStr.startsWith('temp-') && 
+                        m.content === msg.content && 
+                        String(m.senderId) === String(msg.senderId)) {
+                        // Check time within 10 seconds
+                        const timeDiff = Math.abs(new Date(m.createdAt).getTime() - new Date(msg.createdAt).getTime());
+                        if (timeDiff < 10000) return true;
+                    }
+                    
+                    return false;
+                });
+                
+                if (existingIndex !== -1) {
+                    // Replace temp message with real one (or update existing)
+                    state.messages[existingIndex] = msg;
+                } else {
+                    state.messages.push(msg);
+                }
             }
             // Update lastMessage in room list and reorder
-            const idx = state.rooms.findIndex(r => r._id === (msg.chatRoomId || activeId));
+            const idx = state.rooms.findIndex(r => String(r._id) === String(msgRoomId || activeId));
             if (idx !== -1) {
                 state.rooms[idx].lastMessage = msg.content;
                 state.rooms[idx].lastMessageAt = msg.createdAt || new Date().toISOString();

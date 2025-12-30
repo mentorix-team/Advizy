@@ -75,7 +75,41 @@ export async function fetchChatRooms(userId, role) {
         throw err;
     }
 
-    const filter = role === 'expert' ? { expertId: userId } : { userId };
+    // First, auto-create chat rooms for all paid meetings that don't have one yet
+    const meetingFilter = role === 'expert' 
+        ? { expertId: userId, isPayed: true, status: { $ne: 'cancelled' } }
+        : { userId: userId, isPayed: true, status: { $ne: 'cancelled' } };
+    
+    const paidMeetings = await Meeting.find(meetingFilter).select('_id userId expertId').lean();
+    
+    // Get existing chat rooms for this user
+    const existingRooms = await ChatRoom.find(
+        role === 'expert' ? { expertId: userId } : { userId: userId }
+    ).select('bookingId').lean();
+    const existingBookingIds = new Set(existingRooms.map(r => r.bookingId?.toString()));
+    
+    // Create chat rooms for paid meetings that don't have one
+    for (const meeting of paidMeetings) {
+        if (!existingBookingIds.has(meeting._id.toString())) {
+            try {
+                await ChatRoom.create({
+                    userId: meeting.userId,
+                    expertId: meeting.expertId,
+                    bookingId: meeting._id,
+                    lastMessage: null,
+                    lastMessageAt: null,
+                });
+                console.log(`Auto-created chat room for meeting: ${meeting._id}`);
+            } catch (createErr) {
+                // Ignore duplicate key errors (room already exists)
+                if (createErr.code !== 11000) {
+                    console.error(`Error auto-creating chat room for meeting ${meeting._id}:`, createErr.message);
+                }
+            }
+        }
+    }
+
+    const filter = role === 'expert' ? { expertId: userId } : { userId: userId };
     const rooms = await ChatRoom.find(filter)
         .sort({ lastMessageAt: -1, updatedAt: -1, createdAt: -1 })
         .populate({ path: 'userId', model: 'User', select: 'firstName lastName name avatar profileImage image' })

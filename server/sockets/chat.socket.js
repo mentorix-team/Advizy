@@ -18,6 +18,8 @@ const sanitizeText = (input) => {
 };
 
 async function ensureAuthorizedRoom(roomId, userId) {
+    console.log('[chat.socket] ensureAuthorizedRoom:', { roomId, userId });
+    
     if (!roomId) {
         const err = new Error('roomId is required');
         err.statusCode = 400;
@@ -25,19 +27,32 @@ async function ensureAuthorizedRoom(roomId, userId) {
     }
 
     const room = await ChatRoom.findById(roomId).lean();
+    console.log('[chat.socket] Found room:', room ? { 
+        _id: room._id, 
+        userId: room.userId?.toString(), 
+        expertId: room.expertId?.toString(),
+        bookingId: room.bookingId?.toString()
+    } : null);
+    
     if (!room) {
         const err = new Error('Chat room not found');
         err.statusCode = 404;
         throw err;
     }
-    if (!isParticipant(room, userId)) {
-        const err = new Error('Forbidden');
+    
+    const isUserParticipant = isParticipant(room, userId);
+    console.log('[chat.socket] isParticipant result:', isUserParticipant, 'userId:', userId);
+    
+    if (!isUserParticipant) {
+        const err = new Error('Forbidden - not a participant');
         err.statusCode = 403;
         throw err;
     }
 
     // Extra safety: block cancelled or unpaid bookings
     const booking = await Meeting.findById(room.bookingId).lean();
+    console.log('[chat.socket] Booking status:', booking ? { isPayed: booking.isPayed, status: booking.status } : null);
+    
     if (!booking || booking.status === 'cancelled' || !booking.isPayed) {
         const err = new Error('Chat not available for this booking');
         err.statusCode = 403;
@@ -54,7 +69,11 @@ export default function registerChatSocket(io, socket) {
             const { roomId } = payload;
             const userId = socket.user?.id;
 
+            console.log('[chat.socket] join-room request:', { roomId, userId });
+
             const room = await ensureAuthorizedRoom(roomId, userId);
+
+            console.log('[chat.socket] Room authorized, joining:', roomId);
 
             // Leave any previously joined rooms to prevent duplicates
             try {
@@ -67,10 +86,15 @@ export default function registerChatSocket(io, socket) {
                 }
             } catch (_) { }
 
-            if (socket.data.joinedRooms.has(roomId)) return;
+            if (socket.data.joinedRooms.has(roomId)) {
+                console.log('[chat.socket] Already in room:', roomId);
+                return;
+            }
 
             socket.join(roomId);
             socket.data.joinedRooms.add(roomId);
+
+            console.log('[chat.socket] Successfully joined room:', roomId);
 
             // Mark user online in Redis
             try {
@@ -84,6 +108,7 @@ export default function registerChatSocket(io, socket) {
                 socket.to(roomId).emit('online', { userId });
             } catch (e) { }
         } catch (err) {
+            console.error('[chat.socket] join-room error:', err.message);
             // Avoid leaking details, send a generic error event
             socket.emit('error', { message: 'Unable to join room' });
         }
@@ -95,6 +120,8 @@ export default function registerChatSocket(io, socket) {
             const { roomId, content, messageType } = payload;
             const userId = socket.user?.id;
             const role = socket.user?.role;
+
+            console.log('[chat.socket] send-message received:', { roomId, userId, role, content: content?.substring(0, 50) });
 
             // Rate-limit basic bursts per socket
             try {
@@ -123,24 +150,34 @@ export default function registerChatSocket(io, socket) {
                 isRead: false,
             });
 
+            console.log('[chat.socket] Message saved to DB:', msg._id);
+
             await ChatRoom.findByIdAndUpdate(roomId, {
                 $set: { lastMessage: trimmed, lastMessageAt: new Date() },
             });
 
-            // Emit only to the other participant
+            const messagePayload = {
+                _id: msg._id,
+                chatRoomId: msg.chatRoomId,
+                senderId: msg.senderId,
+                senderRole: msg.senderRole,
+                messageType: msg.messageType,
+                content: msg.content,
+                isRead: msg.isRead,
+                createdAt: msg.createdAt,
+            };
+
+            // Emit to the other participant
             try {
-                socket.to(roomId).emit('receive-message', {
-                    _id: msg._id,
-                    chatRoomId: msg.chatRoomId,
-                    senderId: msg.senderId,
-                    senderRole: msg.senderRole,
-                    messageType: msg.messageType,
-                    content: msg.content,
-                    isRead: msg.isRead,
-                    createdAt: msg.createdAt,
-                });
+                socket.to(roomId).emit('receive-message', messagePayload);
+            } catch (_) { }
+
+            // Also emit back to sender with the real _id to replace optimistic message
+            try {
+                socket.emit('message-sent', messagePayload);
             } catch (_) { }
         } catch (err) {
+            console.error('[chat.socket] send-message error:', err.message, err.stack);
             socket.emit('error', { message: 'Unable to send message' });
         }
     });
@@ -158,7 +195,7 @@ export default function registerChatSocket(io, socket) {
             } catch (_) {
                 // Redis unavailable — skip storing typing, but still notify
             }
-            try { socket.to(roomId).emit('typing', { userId }); } catch (_) { }
+            try { socket.to(roomId).emit('typing', { roomId, userId }); } catch (_) { }
         } catch (err) {
             // silent fail
         }
@@ -170,7 +207,7 @@ export default function registerChatSocket(io, socket) {
             const userId = socket.user?.id;
             await ensureAuthorizedRoom(roomId, userId);
             try { await redisClient.del(`chat:${roomId}:typing`); } catch (_) { }
-            try { socket.to(roomId).emit('stop-typing', { userId }); } catch (_) { }
+            try { socket.to(roomId).emit('stop-typing', { roomId, userId }); } catch (_) { }
         } catch (err) {
             // silent fail
         }

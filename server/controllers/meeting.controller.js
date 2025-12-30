@@ -12,6 +12,7 @@ import path from 'path';
 import jwt from 'jsonwebtoken'
 import { fileURLToPath } from "url";
 import { Feedback } from '../config/model/Feedback/feedback.model.js'
+import { createOrGetChatRoom } from '../services/chat.service.js';
 const createMeetingToken = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -231,6 +232,15 @@ const payedForMeeting = async (req, res, next) => {
       console.log("Razorpay: Message saved to meeting:", message);
     }
     await meeting.save();
+
+    // Automatically create chat room for the paid booking
+    try {
+      const chatRoom = await createOrGetChatRoom(meeting.userId, meeting._id);
+      console.log("Chat room created/retrieved for meeting:", chatRoom._id);
+    } catch (chatError) {
+      console.error("Error creating chat room:", chatError.message);
+      // Continue even if chat room creation fails
+    }
 
     const expert = await ExpertBasics.findById(expertId);
     if (!expert) {

@@ -146,7 +146,7 @@ const handleGoogleCallback = async (req, res, next) => {
     }
 
     // Redirect to frontend with tokens
-    const frontendURL = `https://advizy.in/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
+    const frontendURL = `http://localhost:5173/google-auth-success?token=${accessToken}&user=${encodeURIComponent(
       JSON.stringify(user)
     )}&expert=${encodeURIComponent(JSON.stringify(expert || null))}`;
 

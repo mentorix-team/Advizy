@@ -1,12 +1,22 @@
 import React from 'react';
 
-const ChatList = ({ rooms, activeRoom, onlineUsers, role, onSelectRoom }) => {
+const ChatList = ({ rooms, activeRoom, onlineUsers, role, currentUserId, onSelectRoom }) => {
     const getParticipant = (room) => {
         if (!room) return { name: 'Unknown', avatar: null, id: null };
-        if (role === 'expert') {
+        
+        // Show the OTHER participant, not yourself
+        // Compare current user's ID with room's expertId to determine who to show
+        const isCurrentUserTheExpert = currentUserId && 
+            (String(room.expertId) === String(currentUserId) || 
+             String(room.expert?.id) === String(currentUserId));
+        
+        if (isCurrentUserTheExpert) {
+            // Current user is the expert, so show the user
             return room.user || { name: 'User', avatar: null, id: room.userId };
+        } else {
+            // Current user is the user, so show the expert
+            return room.expert || { name: 'Expert', avatar: null, id: room.expertId };
         }
-        return room.expert || { name: 'Expert', avatar: null, id: room.expertId };
     };
 
     const formatTime = (ts) => {

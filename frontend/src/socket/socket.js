@@ -36,16 +36,19 @@ const defaultOptions = {
     reconnectionDelay: 500,
     reconnectionDelayMax: 5000,
     transports: ['websocket'],
+    withCredentials: true, // Send cookies with socket connection
 };
 
 const attachCoreListeners = () => {
     if (!socket) return;
 
     socket.on('connect', () => {
+        console.log('[socket] Connected successfully, socket id:', socket.id);
         // Rejoin active room on (re)connect
         const state = store.getState();
         const activeRoom = selectActiveRoom(state);
         if (activeRoom?._id) {
+            console.log('[socket] Rejoining active room:', activeRoom._id);
             tryJoinRoom(activeRoom._id);
         }
     });
@@ -61,11 +64,43 @@ const attachCoreListeners = () => {
 
     // --- Chat domain events ---
     socket.on('receive-message', (msg) => {
+        console.log('[socket] receive-message:', msg);
         try {
-            store.dispatch(addMessage(msg));
+            // Normalize IDs to strings for consistent comparison
+            const normalizedMsg = {
+                ...msg,
+                senderId: String(msg.senderId),
+                _id: String(msg._id),
+                chatRoomId: String(msg.chatRoomId),
+            };
+            store.dispatch(addMessage(normalizedMsg));
         } catch (e) {
             console.error('[socket] receive-message dispatch failed', e);
         }
+    });
+
+    // Confirmation that our message was saved - update temp ID with real ID
+    socket.on('message-sent', (msg) => {
+        console.log('[socket] message-sent (confirmed):', msg);
+        // Don't dispatch addMessage here - the optimistic message already exists
+        // and the deduplication in addMessage will handle updating it
+        // We only need to update if we want to replace temp ID with real ID
+        try {
+            // Convert senderId to string for consistent comparison
+            const normalizedMsg = {
+                ...msg,
+                senderId: String(msg.senderId),
+                _id: String(msg._id),
+                chatRoomId: String(msg.chatRoomId),
+            };
+            store.dispatch(addMessage(normalizedMsg));
+        } catch (e) {
+            console.error('[socket] message-sent dispatch failed', e);
+        }
+    });
+
+    socket.on('error', (err) => {
+        console.error('[socket] server error:', err);
     });
 
     socket.on('typing', (payload) => {
@@ -139,16 +174,15 @@ const ensureSingleton = () => {
 };
 
 const tryConnect = (token) => {
-    if (!token) {
-        console.warn('[socket] No token provided; skipping connect');
-        return null;
-    }
     const s = ensureSingleton();
     if (s.connected || isConnecting) return s;
     isConnecting = true;
     currentToken = token;
     try {
-        s.auth = { token: currentToken };
+        // If token is provided, add it to auth; otherwise rely on cookies
+        if (token) {
+            s.auth = { token: currentToken };
+        }
         s.connect();
     } finally {
         // Let socket.io handle the async connection; reset flag shortly after
@@ -168,15 +202,23 @@ const disconnect = () => {
 
 // Room lifecycle: leave previous before joining new
 const tryJoinRoom = (roomId) => {
-    if (!socket || !socket.connected) return;
+    console.log('[socket] tryJoinRoom called:', { roomId, connected: socket?.connected, currentRoomId });
+    if (!socket || !socket.connected) {
+        console.warn('[socket] tryJoinRoom: socket not connected');
+        return;
+    }
     if (!roomId) return;
-    if (currentRoomId && currentRoomId === roomId) return;
+    if (currentRoomId && currentRoomId === roomId) {
+        console.log('[socket] tryJoinRoom: already in room');
+        return;
+    }
     // If backend supports leave, emit; otherwise just join the next
     try {
         // Best-effort leave (ignored if server doesn't handle it)
         if (currentRoomId) {
             socket.emit('stop-typing', { roomId: currentRoomId });
         }
+        console.log('[socket] Emitting join-room:', roomId);
         socket.emit('join-room', { roomId });
         currentRoomId = roomId;
     } catch (e) {
@@ -186,9 +228,17 @@ const tryJoinRoom = (roomId) => {
 
 // --- Emit helpers ---
 const sendMessage = ({ roomId, content, messageType = 'text' }) => {
-    if (!socket || !socket.connected) return;
-    if (!roomId || !content) return;
+    console.log('[socket] sendMessage called:', { roomId, content: content?.substring(0, 30), connected: socket?.connected });
+    if (!socket || !socket.connected) {
+        console.error('[socket] sendMessage: socket not connected');
+        return;
+    }
+    if (!roomId || !content) {
+        console.error('[socket] sendMessage: missing roomId or content');
+        return;
+    }
     socket.emit('send-message', { roomId, content, messageType });
+    console.log('[socket] send-message emitted');
 };
 
 const typing = ({ roomId }) => {

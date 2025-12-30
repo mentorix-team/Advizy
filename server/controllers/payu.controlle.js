@@ -8,6 +8,7 @@ import User from "../config/model/user.model.js";
 import { Notification } from "../config/model/Notification/notification.model.js";
 import { ExpertBasics } from "../config/model/expert/expertfinal.model.js";
 import { Availability } from "../config/model/calendar/calendar.model.js";
+import { createOrGetChatRoom } from "../services/chat.service.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -414,6 +415,15 @@ export const success = async (req, res) => {
 
           await meeting.save();
           console.log("Meeting updated successfully:", meeting._id);
+
+          // Automatically create chat room for the paid booking
+          try {
+            const chatRoom = await createOrGetChatRoom(meeting.userId, meeting._id);
+            console.log("Chat room created/retrieved for meeting:", chatRoom._id);
+          } catch (chatError) {
+            console.error("Error creating chat room:", chatError.message);
+            // Continue even if chat room creation fails
+          }
 
           // Update expert's availability (similar to payedForMeeting function)
           try {
