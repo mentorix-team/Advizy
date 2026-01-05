@@ -2,7 +2,7 @@ import axios from "axios";
 import store from "@/Redux/store";
 import { refreshToken } from "@/Redux/Slices/authSlice";
 
-const BASE_URL = "https://api.advizy.in";
+const BASE_URL = "https://api.advizy.in/api/v1";
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
