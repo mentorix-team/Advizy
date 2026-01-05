@@ -148,7 +148,7 @@ const LoginWithEmail = ({ onClose, onSwitchView }) => {
       console.log("📌 redirectURL already exists:", existingRedirectURL);
     }
 
-    window.open(`https://advizy.onrender.com/api/v1/user/auth/google`, "_self");
+    window.open(`https://api.advizy.in/api/v1/user/auth/google`, "_self");
   };
 
   const handleCloseClick = (event) => {

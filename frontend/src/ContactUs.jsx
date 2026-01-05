@@ -58,7 +58,7 @@ const ContactUs = () => {
 
       try {
         const response = await axios.post(
-          "https://advizy.onrender.com/api/v1/contact/create",
+          "https://api.advizy.in/api/v1/contact/create",
           formData
         );
 

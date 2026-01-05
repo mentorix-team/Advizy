@@ -31,7 +31,7 @@ const corsOptions = {
       "http://localhost:5173",
       "http://localhost:8001",
       "http://localhost:5030",
-      "https://advizy.onrender.com",
+      "https://api.advizy.in",
       "https://www.advizy.in",
       "https://advizy.in",
       "https://advizy-adminpanel.onrender.com",

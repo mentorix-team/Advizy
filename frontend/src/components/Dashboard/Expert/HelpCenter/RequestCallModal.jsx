@@ -78,7 +78,7 @@ function RequestCallModal({ isOpen, onClose, expertName, expertPhone }) {
       };
 
       await axios.post(
-        "https://advizy.onrender.com/api/v1/expert/help-center",
+        "https://api.advizy.in/api/v1/expert/help-center",
         payload,
         { withCredentials: true }
       );
